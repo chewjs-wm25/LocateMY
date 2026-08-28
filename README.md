@@ -1,2 +1,0 @@
-# LocateMY
-Mobile Application Assignment
