@@ -1,0 +1,172 @@
+{
+  "appTitle": "UI Prototype Show",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "navHome": "Home",
+  "navMap": "Map",
+  "navCost": "Cost",
+  "navSecurity": "Security",
+  "navSocioEconomic": "Socio-Economic",
+  "navInfrastructure": "Infrastructure",
+  "navTransport": "Transport",
+  "titleHome": "LocateMY",
+  "titleMap": "Location Exploration",
+  "titleCost": "Cost of Living Analysis",
+  "titleSecurity": "Crime & Security Risk",
+  "titleSocioEconomic": "Socio-Economic Analysis",
+  "titleInfrastructure": "Infrastructure Assessment",
+  "titleTransport": "Public Transport & Commute",
+
+  "displayMode": "Display Mode",
+  "comparisonMode": "Comparison Mode",
+  "currentAddress": "Origin Address",
+  "newAddress": "New Address",
+  "searchLocation": "Search Location",
+  "selectOnMap": "Select on Map",
+  "costOfLiving": "Cost of Living",
+  "crimeSecurity": "Crime & Security",
+  "socioEconomic": "Socio-Economic",
+  "infrastructure": "Infrastructure",
+  "transportation": "Transportation",
+
+  "unemployment": "Unemployment",
+  "medianIncome": "Median Income",
+  "economicGrowth": "Economic Growth (GDP %)",
+  "cpiInflation": "CPI Inflation",
+  "oprRate": "OPR Rate",
+  "startExploring": "Start Exploring Locations",
+  "favorablePeriod": "Favorable Period",
+  "goodTimeToRelocate": "Good time to relocate",
+  "stableInflationInfo": "Stable inflation and dry season makes it ideal.",
+  "indexLabel": "Index",
+  "interMonsoon": "Inter-monsoon",
+  "lowFloodRisk": "Low Flood Risk",
+  "idealForMoving": "Ideal for moving house now.",
+  "nextPeak": "Next peak: Nov",
+
+  "locationSelection": "Location Selection",
+  "origin": "Origin",
+  "destination": "Destination",
+  "kl": "Kuala Lumpur",
+  "pg": "Penang",
+  "jb": "Johor Bahru",
+  "ip": "Ipoh",
+  "purchasingPower": "Purchasing Power Forecast",
+  "significantImprovement": "Significant Improvement",
+  "expectedQualityImprovement": "Expected quality of life improvement",
+  "housingExpenditure": "Housing Expenditure",
+  "foodPrices": "Food Prices",
+  "monthlySaving": "Monthly saving approx. RM {value}",
+  "@monthlySaving": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "priceCatcherData": "PriceCatcher real-time data",
+  "expenditureComparison": "Expenditure Comparison",
+  "weightAdjustment": "Weight Adjustment (Personalized)",
+  "housing": "Housing",
+  "transport": "Transport",
+  "entertainment": "Entertainment",
+
+  "safetyMapLayer": "Safety Map Layer",
+  "cherasArea": "KL - Cheras Area",
+  "overallSafetyIndex": "Overall Safety Index",
+  "betterThanNational": "Better than {percent}% of national areas",
+  "@betterThanNational": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "floodRiskLevel": "Flood Risk Level",
+  "lowRisk": "Low Risk",
+  "noFloodHistory": "No flood records in last 5 years",
+  "crimeTypeFocus": "Crime Type Focus",
+  "violentCrime": "Violent Crime",
+  "propertyCrime": "Property Crime",
+  "cyberFraud": "Cyber Fraud",
+  "crimeTrend": "Crime Rate Trend",
+  "warningBanner": "Note: Current Northeast Monsoon season, potential flood risk in low-lying areas.",
+
+  "incomeClassDistribution": "Income Class Distribution (2024)",
+  "dosmOfficialData": "DOSM Official Data",
+  "lowIncome": "Low Income",
+  "middleClass": "Middle Class",
+  "highIncome": "High Income",
+  "m40HigherThanAverage": "M40 group in this area is higher than national average ({percent}%)",
+  "@m40HigherThanAverage": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "developmentRanking": "Development Ranking",
+  "rankNumber": "No. {rank}",
+  "@rankNumber": {
+    "placeholders": {
+      "rank": {}
+    }
+  },
+  "totalConstituencies": "Out of {total} constituencies",
+  "@totalConstituencies": {
+    "placeholders": {
+      "total": {}
+    }
+  },
+  "giniCoefficient": "Gini Coefficient (Inequality)",
+  "moderate": "Moderate",
+  "incomeDistributionCurve": "Monthly Household Income Distribution",
+  "yourIncomePosition": "Your Income Position",
+  "monthlyHouseholdIncome": "Monthly Household Income (RM)",
+  "incomeBetterThan": "Your income is better than {percent}% of households in this area, in the M40 high-end range.",
+  "@incomeBetterThan": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+
+  "infrastructureCoverage": "Infrastructure Coverage (ICI)",
+  "excellent": "Excellent",
+  "iciDescription": "This index aggregates water, electricity, communication, and public service coverage",
+  "waterSupply": "Water Supply",
+  "electricNetwork": "Electric Network",
+  "medicalDensity": "Medical Density",
+  "educationalResources": "Education Resources",
+  "high": "High",
+  "sufficient": "Sufficient",
+  "iciRadarChart": "ICI Dimension Balance Radar Chart",
+  "personalizedWeight": "Personalized Demand Weights",
+  "medicalImportance": "Medical Service Importance",
+  "educationPriority": "Education Resource Priority",
+  "commercialConvenience": "Commercial Convenience",
+
+  "connectivityScore": "Connectivity Overall Score",
+  "highlyConvenient": "Highly Convenient",
+  "betterThanKL": "Better than {percent}% of areas in Klang Valley",
+  "@betterThanKL": {
+    "placeholders": {
+      "percent": {}
+    }
+  },
+  "nearbyStations": "Nearby Stations (within 500m)",
+  "walking": "Walking",
+  "pedestrianBridge": "Pedestrian Bridge Link",
+  "trafficDensityHeatmap": "Traffic Network Density Heatmap",
+  "viewDetails": "View Details",
+  "commuteModeDistribution": "Commute Mode Distribution",
+
+  "accountCenter": "Account Center",
+  "verifiedUser": "Verified User",
+  "relocationHistory": "Relocation Assessment History",
+  "defaultLocation": "Default Location",
+  "savedComparisons": "Saved Comparisons",
+  "assessmentDate": "Assessment Date: {date}",
+  "@assessmentDate": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "myComments": "My Comments",
+  "likedAreas": "Liked Areas",
+  "logout": "Logout"
+}

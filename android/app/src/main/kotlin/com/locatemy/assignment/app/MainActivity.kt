@@ -1,4 +1,4 @@
-package com.example.locate_my
+package com.locatemy.assignment.app
 
 import io.flutter.embedding.android.FlutterActivity
 
