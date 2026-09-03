@@ -6,14 +6,40 @@ import '../../generated/app_localizations.dart';
 
 import 'package:provider/provider.dart';
 import '../../providers/location_provider.dart';
+import '../../providers/budget_provider.dart';
+import '../../models/budget_scenario.dart';
 
 class CostOfLivingView extends StatelessWidget {
   const CostOfLivingView({super.key});
+
+  void _showAddScenarioDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.newScenario),
+        content: TextField(controller: controller, decoration: InputDecoration(hintText: l10n.scenarioName)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () {
+              context.read<BudgetProvider>().addScenario(controller.text);
+              Navigator.pop(context);
+            },
+            child: Text(l10n.create),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locationProvider = Provider.of<LocationProvider>(context);
+    final budgetProvider = Provider.of<BudgetProvider>(context);
+    final currentScenario = budgetProvider.currentScenario;
     
     // Determine which locations to show
     String originName = locationProvider.mode == MapMode.comparison 
@@ -25,12 +51,51 @@ class CostOfLivingView extends StatelessWidget {
         : l10n.jb; // Default if not in comparison
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.titleCost)),
+      appBar: AppBar(
+        title: Text(l10n.titleCost),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddScenarioDialog(context),
+        icon: const Icon(Icons.add_chart_rounded),
+        label: Text(l10n.newScenario),
+        backgroundColor: AppColors.primaryBase,
+        foregroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Scenario Selector
+            BentoCard(
+              child: Row(
+                children: [
+                  const Icon(Icons.psychology_rounded, color: AppColors.primaryBase),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: currentScenario.id,
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      items: budgetProvider.scenarios.map((s) => DropdownMenuItem(
+                        value: s.id,
+                        child: Text(s.name),
+                      )).toList(),
+                      onChanged: (v) {
+                        if (v != null) budgetProvider.setCurrentScenario(v);
+                      },
+                    ),
+                  ),
+                  if (budgetProvider.scenarios.length > 1)
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+                      onPressed: () => budgetProvider.deleteScenario(currentScenario.id),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // Location Selector Bento
             BentoCard(
               padding: const EdgeInsets.all(12.0),
@@ -234,9 +299,15 @@ class CostOfLivingView extends StatelessWidget {
                 children: [
                   Text(l10n.weightAdjustment, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 16),
-                  _buildSliderItem(l10n.housing, 0.5),
-                  _buildSliderItem(l10n.transport, 0.3),
-                  _buildSliderItem(l10n.entertainment, 0.2),
+                  _buildSliderItem(l10n.housing, currentScenario.housingWeight, (v) {
+                    budgetProvider.updateCurrentScenario(housingWeight: v);
+                  }),
+                  _buildSliderItem(l10n.transport, currentScenario.transportWeight, (v) {
+                    budgetProvider.updateCurrentScenario(transportWeight: v);
+                  }),
+                  _buildSliderItem(l10n.entertainment, currentScenario.entertainmentWeight, (v) {
+                    budgetProvider.updateCurrentScenario(entertainmentWeight: v);
+                  }),
                 ],
               ),
             ),
@@ -247,7 +318,7 @@ class CostOfLivingView extends StatelessWidget {
     );
   }
 
-  Widget _buildSliderItem(String label, double value) {
+  Widget _buildSliderItem(String label, double value, ValueChanged<double> onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -260,7 +331,7 @@ class CostOfLivingView extends StatelessWidget {
         ),
         Slider(
           value: value,
-          onChanged: (v) {},
+          onChanged: onChanged,
           activeColor: AppColors.primaryBase,
           inactiveColor: AppColors.primaryContainer,
         ),

@@ -125,5 +125,19 @@
   "assessmentDate": "评估日期: {date}",
   "myComments": "我的评论",
   "likedAreas": "已点赞地区",
-  "logout": "退出登录"
+  "logout": "退出登录",
+  "reportHazard": "报告隐患",
+  "hazardTitle": "标题",
+  "hazardDescription": "描述",
+  "hazardType": "类型",
+  "add": "添加",
+  "cancel": "取消",
+  "newScenario": "新建预案",
+  "scenarioName": "预案名称",
+  "create": "创建",
+  "addProperty": "添加房源",
+  "propertyName": "房源名称",
+  "address": "地址",
+  "price": "价格",
+  "propertyPortfolio": "房源档案库"
 }

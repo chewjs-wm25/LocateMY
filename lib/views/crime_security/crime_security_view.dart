@@ -6,23 +6,102 @@ import '../../generated/app_localizations.dart';
 
 import 'package:provider/provider.dart';
 import '../../providers/location_provider.dart';
+import '../../providers/property_provider.dart';
+import '../../models/property_inspection.dart';
 
 class CrimeSecurityView extends StatelessWidget {
   const CrimeSecurityView({super.key});
+
+  void _showAddPropertyDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final nameController = TextEditingController();
+    final addressController = TextEditingController();
+    final priceController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.addProperty),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: nameController, decoration: InputDecoration(labelText: l10n.propertyName)),
+            TextField(controller: addressController, decoration: InputDecoration(labelText: l10n.address)),
+            TextField(controller: priceController, decoration: InputDecoration(labelText: l10n.price), keyboardType: TextInputType.number),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () {
+              context.read<PropertyProvider>().addInspection(
+                name: nameController.text,
+                address: addressController.text,
+                price: double.tryParse(priceController.text) ?? 0.0,
+              );
+              Navigator.pop(context);
+            },
+            child: Text(l10n.add),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locationProvider = Provider.of<LocationProvider>(context);
+    final propertyProvider = Provider.of<PropertyProvider>(context);
     String locationName = locationProvider.selectedName ?? l10n.cherasArea;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.titleSecurity)),
+      appBar: AppBar(
+        title: Text(l10n.titleSecurity),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddPropertyDialog(context),
+        icon: const Icon(Icons.add_home_work_rounded),
+        label: Text(l10n.addProperty),
+        backgroundColor: AppColors.success,
+        foregroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Property Inspection Portfolio
+            if (propertyProvider.inspections.isNotEmpty) ...[
+              Text(
+                l10n.propertyPortfolio,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              ...propertyProvider.inspections.map((property) => Dismissible(
+                key: Key(property.id),
+                onDismissed: (_) => propertyProvider.deleteInspection(property.id),
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                child: BentoCard(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    title: Text(property.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text('${property.address}\nRM ${property.price.toStringAsFixed(2)}'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      // Detail view could be added here
+                    },
+                  ),
+                ),
+              )).toList(),
+              const SizedBox(height: 16),
+            ],
+
             // Map Bento
             BentoCard(
               padding: EdgeInsets.zero,

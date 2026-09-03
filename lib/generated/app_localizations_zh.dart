@@ -380,4 +380,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get logout => '退出登录';
+
+  @override
+  String get reportHazard => '报告隐患';
+
+  @override
+  String get hazardTitle => '标题';
+
+  @override
+  String get hazardDescription => '描述';
+
+  @override
+  String get hazardType => '类型';
+
+  @override
+  String get add => '添加';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get newScenario => '新建预案';
+
+  @override
+  String get scenarioName => '预案名称';
+
+  @override
+  String get create => '创建';
+
+  @override
+  String get addProperty => '添加房源';
+
+  @override
+  String get propertyName => '房源名称';
+
+  @override
+  String get address => '地址';
+
+  @override
+  String get price => '价格';
+
+  @override
+  String get propertyPortfolio => '房源档案库';
 }

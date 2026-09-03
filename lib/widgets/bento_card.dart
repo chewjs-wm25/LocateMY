@@ -5,6 +5,7 @@ class BentoCard extends StatelessWidget {
   final Widget child;
   final String? title;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? margin;
   final Color? backgroundColor;
   final double? height;
   final CrossAxisAlignment crossAxisAlignment;
@@ -14,6 +15,7 @@ class BentoCard extends StatelessWidget {
     required this.child,
     this.title,
     this.padding = const EdgeInsets.all(20.0),
+    this.margin,
     this.backgroundColor,
     this.height,
     this.crossAxisAlignment = CrossAxisAlignment.start,
@@ -25,6 +27,7 @@ class BentoCard extends StatelessWidget {
 
     return Container(
       height: height,
+      margin: margin,
       decoration: BoxDecoration(
         color: backgroundColor ?? (isDarkMode ? AppColors.surfaceDark : AppColors.surfaceLight),
         borderRadius: BorderRadius.circular(24.0),

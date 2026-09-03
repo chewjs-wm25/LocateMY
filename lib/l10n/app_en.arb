@@ -168,5 +168,19 @@
   },
   "myComments": "My Comments",
   "likedAreas": "Liked Areas",
-  "logout": "Logout"
+  "logout": "Logout",
+  "reportHazard": "Report Hazard",
+  "hazardTitle": "Title",
+  "hazardDescription": "Description",
+  "hazardType": "Type",
+  "add": "Add",
+  "cancel": "Cancel",
+  "newScenario": "New Scenario",
+  "scenarioName": "Scenario Name",
+  "create": "Create",
+  "addProperty": "Add Property",
+  "propertyName": "Property Name",
+  "address": "Address",
+  "price": "Price",
+  "propertyPortfolio": "Property Inspection Portfolio"
 }

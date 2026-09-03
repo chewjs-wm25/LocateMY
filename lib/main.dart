@@ -8,6 +8,9 @@ import 'providers/locale_provider.dart';
 
 import 'providers/location_provider.dart';
 import 'providers/navigation_provider.dart';
+import 'providers/hazard_provider.dart';
+import 'providers/budget_provider.dart';
+import 'providers/property_provider.dart';
 
 void main() {
   runApp(
@@ -16,6 +19,9 @@ void main() {
         ChangeNotifierProvider(create: (context) => LocaleProvider()),
         ChangeNotifierProvider(create: (context) => LocationProvider()),
         ChangeNotifierProvider(create: (context) => NavigationProvider()),
+        ChangeNotifierProvider(create: (context) => HazardProvider()),
+        ChangeNotifierProvider(create: (context) => BudgetProvider()),
+        ChangeNotifierProvider(create: (context) => PropertyProvider()),
       ],
       child: const MyApp(),
     ),

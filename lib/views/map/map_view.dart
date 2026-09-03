@@ -10,6 +10,8 @@ import '../crime_security/crime_security_view.dart';
 import '../socio_economic/socio_economic_view.dart';
 import '../infrastructure/infrastructure_view.dart';
 import '../transport/transportation_view.dart';
+import '../../providers/hazard_provider.dart';
+import '../../models/hazard_marker.dart';
 
 class MapView extends StatefulWidget {
   const MapView({super.key});
@@ -22,10 +24,95 @@ class _MapViewState extends State<MapView> {
   final MapController _mapController = MapController();
   bool _selectingOrigin = true;
 
+  void _showAddHazardDialog(LatLng point) {
+    final l10n = AppLocalizations.of(context)!;
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+    HazardType selectedType = HazardType.other;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.reportHazard),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.hazardTitle)),
+            TextField(controller: descController, decoration: InputDecoration(labelText: l10n.hazardDescription)),
+            DropdownButtonFormField<HazardType>(
+              value: selectedType,
+              items: HazardType.values.map((type) => DropdownMenuItem(value: type, child: Text(type.name))).toList(),
+              onChanged: (v) => selectedType = v!,
+              decoration: InputDecoration(labelText: l10n.hazardType),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () {
+              context.read<HazardProvider>().createHazard(
+                title: titleController.text,
+                description: descController.text,
+                location: point,
+                type: selectedType,
+              );
+              Navigator.pop(context);
+            },
+            child: Text(l10n.add),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHazardDetail(HazardMarker hazard) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(hazard.title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            Text(hazard.description),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.thumb_up_outlined),
+                  onPressed: () => context.read<HazardProvider>().voteHazard(hazard.id, true),
+                ),
+                Text('${hazard.upvotes}'),
+                const SizedBox(width: 16),
+                IconButton(
+                  icon: const Icon(Icons.thumb_down_outlined),
+                  onPressed: () => context.read<HazardProvider>().voteHazard(hazard.id, false),
+                ),
+                Text('${hazard.downvotes}'),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () {
+                    context.read<HazardProvider>().deleteHazard(hazard.id);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locationProvider = Provider.of<LocationProvider>(context);
+    final hazardProvider = Provider.of<HazardProvider>(context);
 
     return Scaffold(
       body: Stack(
@@ -36,6 +123,7 @@ class _MapViewState extends State<MapView> {
             options: MapOptions(
               initialCenter: const LatLng(4.2105, 101.9758), // Center of Malaysia
               initialZoom: 6.0,
+              onLongPress: (tapPosition, point) => _showAddHazardDialog(point),
               onTap: (tapPosition, point) {
                 if (locationProvider.mode == MapMode.display) {
                   locationProvider.setSelectedLocation(point, "Selected Location");
@@ -54,7 +142,7 @@ class _MapViewState extends State<MapView> {
                 userAgentPackageName: 'com.locatemy.assignment.app',
               ),
               MarkerLayer(
-                markers: _buildMarkers(locationProvider),
+                markers: _buildMarkers(locationProvider, hazardProvider),
               ),
             ],
           ),
@@ -81,7 +169,16 @@ class _MapViewState extends State<MapView> {
           Positioned(
             top: 60,
             right: 16,
-            child: _buildQuickAccessButtons(context, l10n),
+            child: Column(
+              children: [
+                _buildRoundButton(Icons.my_location, Colors.redAccent, () {
+                  // Jump to KL Hazard Area
+                  _mapController.move(const LatLng(3.1390, 101.6869), 13.0);
+                }),
+                const SizedBox(height: 12),
+                _buildQuickAccessButtons(context, l10n),
+              ],
+            ),
           ),
 
           // 5. Bottom Selection Card (Optional but helpful)
@@ -92,13 +189,82 @@ class _MapViewState extends State<MapView> {
               right: 20,
               child: _buildLocationInfoCard(locationProvider, l10n),
             ),
+
+          // Add Hazard Fab
+          Positioned(
+            bottom: 24,
+            right: 24,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                _showAddHazardDialog(_mapController.camera.center);
+              },
+              icon: const Icon(Icons.add_location_alt_rounded),
+              label: Text(l10n.reportHazard),
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  List<Marker> _buildMarkers(LocationProvider provider) {
+  List<Marker> _buildMarkers(LocationProvider provider, HazardProvider hazardProvider) {
     List<Marker> markers = [];
+    final distance = const Distance();
+    const double proximityThreshold = 5000; // 5km radius
+
+    // Hazard Markers: Only show near selected locations
+    for (var hazard in hazardProvider.hazards) {
+      bool shouldShow = false;
+
+      if (provider.mode == MapMode.display && provider.selectedLocation != null) {
+        if (distance(hazard.location, provider.selectedLocation!) <= proximityThreshold) {
+          shouldShow = true;
+        }
+      } else if (provider.mode == MapMode.comparison) {
+        // Show if near either origin or destination
+        if (provider.originLocation != null &&
+            distance(hazard.location, provider.originLocation!) <= proximityThreshold) {
+          shouldShow = true;
+        }
+        if (!shouldShow && provider.destinationLocation != null &&
+            distance(hazard.location, provider.destinationLocation!) <= proximityThreshold) {
+          shouldShow = true;
+        }
+      }
+
+      if (shouldShow) {
+        markers.add(Marker(
+          point: hazard.location,
+          width: 44,
+          height: 44,
+          child: GestureDetector(
+            onTap: () => _showHazardDetail(hazard),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.danger,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                _getHazardIcon(hazard.type),
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+        ));
+      }
+    }
+
     if (provider.mode == MapMode.display && provider.selectedLocation != null) {
       markers.add(Marker(
         point: provider.selectedLocation!,
@@ -125,6 +291,16 @@ class _MapViewState extends State<MapView> {
       }
     }
     return markers;
+  }
+
+  IconData _getHazardIcon(HazardType type) {
+    switch (type) {
+      case HazardType.flood: return Icons.water_drop;
+      case HazardType.crime: return Icons.warning;
+      case HazardType.traffic: return Icons.traffic;
+      case HazardType.infrastructure: return Icons.build;
+      case HazardType.other: return Icons.help;
+    }
   }
 
   Widget _buildModeSwitch(LocationProvider provider, AppLocalizations l10n) {

@@ -811,6 +811,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
+
+  /// No description provided for @reportHazard.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Hazard'**
+  String get reportHazard;
+
+  /// No description provided for @hazardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get hazardTitle;
+
+  /// No description provided for @hazardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get hazardDescription;
+
+  /// No description provided for @hazardType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get hazardType;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @newScenario.
+  ///
+  /// In en, this message translates to:
+  /// **'New Scenario'**
+  String get newScenario;
+
+  /// No description provided for @scenarioName.
+  ///
+  /// In en, this message translates to:
+  /// **'Scenario Name'**
+  String get scenarioName;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @addProperty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Property'**
+  String get addProperty;
+
+  /// No description provided for @propertyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Property Name'**
+  String get propertyName;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @propertyPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'Property Inspection Portfolio'**
+  String get propertyPortfolio;
 }
 
 class _AppLocalizationsDelegate

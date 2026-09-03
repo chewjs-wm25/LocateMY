@@ -384,4 +384,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Logout';
+
+  @override
+  String get reportHazard => 'Report Hazard';
+
+  @override
+  String get hazardTitle => 'Title';
+
+  @override
+  String get hazardDescription => 'Description';
+
+  @override
+  String get hazardType => 'Type';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get newScenario => 'New Scenario';
+
+  @override
+  String get scenarioName => 'Scenario Name';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get addProperty => 'Add Property';
+
+  @override
+  String get propertyName => 'Property Name';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get propertyPortfolio => 'Property Inspection Portfolio';
 }
