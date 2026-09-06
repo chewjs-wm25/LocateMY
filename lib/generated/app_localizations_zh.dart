@@ -87,6 +87,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get transportation => '交通运输';
 
   @override
+  String get analysisReport => '分析报告';
+
+  @override
   String get unemployment => '失业率';
 
   @override
@@ -111,22 +114,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get goodTimeToRelocate => '搬迁的好时机';
 
   @override
-  String get stableInflationInfo => '通胀稳定且处于旱季，非常理想。';
+  String get stableInflationInfo => '通胀稳定，是搬迁的理想时机。';
 
   @override
   String get indexLabel => '指数';
-
-  @override
-  String get interMonsoon => '季候风交替期';
-
-  @override
-  String get lowFloodRisk => '低水灾风险';
-
-  @override
-  String get idealForMoving => '目前非常适合搬家。';
-
-  @override
-  String get nextPeak => '下个高峰期：11月';
 
   @override
   String get locationSelection => '地点选择';
@@ -182,6 +173,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get housing => '住房';
 
   @override
+  String get food => '食品';
+
+  @override
   String get transport => '交通';
 
   @override
@@ -202,13 +196,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get floodRiskLevel => '水灾风险等级';
-
-  @override
   String get lowRisk => '低风险';
-
-  @override
-  String get noFloodHistory => '近 5 年无淹水记录';
 
   @override
   String get crimeTypeFocus => '犯罪类别关注';
@@ -224,9 +212,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get crimeTrend => '犯罪率历史趋势';
-
-  @override
-  String get warningBanner => '注意：当前正值东北季候风季节，低洼地区有潜在积水风险。';
 
   @override
   String get incomeClassDistribution => '收入阶层分布 (2024)';
@@ -286,6 +271,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get excellent => '极佳';
+
+  @override
+  String get good => '良好';
 
   @override
   String get iciDescription => '该项指标综合了水、电、通信与公共服务覆盖度';
@@ -382,6 +370,84 @@ class AppLocalizationsZh extends AppLocalizations {
   String get logout => '退出登录';
 
   @override
+  String get login => '登录';
+
+  @override
+  String get register => '注册';
+
+  @override
+  String get username => '用户名';
+
+  @override
+  String get enterUsername => '输入您的用户名';
+
+  @override
+  String get invalidUsername => '用户名只能包含字母、数字和空格，且必须包含至少3个字母或数字';
+
+  @override
+  String get email => '电子邮箱';
+
+  @override
+  String get password => '密码';
+
+  @override
+  String get confirmPassword => '确认密码';
+
+  @override
+  String get loginTitle => '欢迎回来';
+
+  @override
+  String get registerTitle => '创建账号';
+
+  @override
+  String get noAccount => '还没有账号？点击注册';
+
+  @override
+  String get alreadyHaveAccount => '已有账号？点击登录';
+
+  @override
+  String get invalidEmail => '请输入有效的电子邮箱地址';
+
+  @override
+  String get passwordTooShort => '密码至少需要 8 个字符';
+
+  @override
+  String get passwordComplexityError => '密码须包含大小写字母、数字及特殊符号（禁止空格）';
+
+  @override
+  String get passwordsDoNotMatch => '两次输入的密码不一致';
+
+  @override
+  String get authError => '认证失败，请重试';
+
+  @override
+  String get errorInvalidCredentials => '邮箱或密码错误';
+
+  @override
+  String get errorUserAlreadyRegistered => '该邮箱已被注册';
+
+  @override
+  String get errorEmailNotConfirmed => '邮箱未验证，请检查您的收件箱';
+
+  @override
+  String get errorTooManyRequests => '请求过于频繁，请稍后再试';
+
+  @override
+  String get errorUnexpected => '发生未知错误，请重试';
+
+  @override
+  String get loginSuccess => '登录成功';
+
+  @override
+  String get registerSuccess => '注册成功，请查收验证邮件';
+
+  @override
+  String get enterEmail => '输入您的邮箱';
+
+  @override
+  String get enterPassword => '输入您的密码';
+
+  @override
   String get reportHazard => '报告隐患';
 
   @override
@@ -422,4 +488,142 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get propertyPortfolio => '房源档案库';
+
+  @override
+  String get budgetTranslation => '预算平移';
+
+  @override
+  String lifestyleComparisonText(
+    Object dest,
+    Object percent,
+    Object change,
+    Object origin,
+  ) {
+    return '要在$dest维持您目前在$origin的生活方式，您需要的预算$change$percent%。';
+  }
+
+  @override
+  String get microPriceInsight => '微观物价透视 (5公里)';
+
+  @override
+  String get viewStores => '查看商家';
+
+  @override
+  String get realTimePriceComparison => '目标位置方圆 5 公里内核心物资的实时价格对比。';
+
+  @override
+  String get eggs => 'A级鸡蛋 (10粒)';
+
+  @override
+  String get chicken => '肉鸡 (1公斤)';
+
+  @override
+  String get bread => '白面包';
+
+  @override
+  String get petrol => '汽油 (RON95/升)';
+
+  @override
+  String get less => '减少';
+
+  @override
+  String get more => '增加';
+
+  @override
+  String get monthly => '按月';
+
+  @override
+  String get savedLocations => '已储存地点';
+
+  @override
+  String get saveCurrentLocation => '储存当前地点';
+
+  @override
+  String get saveLocation => '储存地点';
+
+  @override
+  String get pickOnMap => '在地图上选取';
+
+  @override
+  String get selectSavedLocation => '选择已储存地点';
+
+  @override
+  String get enterLocationName => '输入地点名称';
+
+  @override
+  String get locationName => '地点名称';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get noSavedLocations => '暂无已储存地点';
+
+  @override
+  String get outOfMalaysiaRange => '所选地点超出马来西亚范围';
+
+  @override
+  String get clearSelection => '清除选择';
+
+  @override
+  String get securityRiskAssessment => '治安与风险评估';
+
+  @override
+  String get policeDistrict => '所属警区';
+
+  @override
+  String get securityScore => '治安评分';
+
+  @override
+  String get monsoonChecklist => '雨季验房清单';
+
+  @override
+  String get nearbyHazards => '周边隐患';
+
+  @override
+  String get drainage => '排水';
+
+  @override
+  String get waterproofing => '防水';
+
+  @override
+  String get humidity => '防潮';
+
+  @override
+  String get lighting => '照明';
+
+  @override
+  String get fetchingRiskData => '正在获取风险数据...';
+
+  @override
+  String get propertyDetails => '房源详情';
+
+  @override
+  String get saveProperty => '保存房源';
+
+  @override
+  String get mainImage => '主图';
+
+  @override
+  String get tapToSetMainImage => '点击图片设为主图';
+
+  @override
+  String get swipeForMore => '向左滑动查看更多';
+
+  @override
+  String totalPhotos(Object count) {
+    return '共 $count 张图片';
+  }
+
+  @override
+  String get edit => '编辑';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get editScenario => '编辑预案';
+
+  @override
+  String get expenseIncrease => '开销增加';
 }

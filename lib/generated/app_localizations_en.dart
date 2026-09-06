@@ -87,6 +87,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transportation => 'Transportation';
 
   @override
+  String get analysisReport => 'Analysis Reports';
+
+  @override
   String get unemployment => 'Unemployment';
 
   @override
@@ -112,22 +115,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stableInflationInfo =>
-      'Stable inflation and dry season makes it ideal.';
+      'Stable inflation makes it an ideal time to relocate.';
 
   @override
   String get indexLabel => 'Index';
-
-  @override
-  String get interMonsoon => 'Inter-monsoon';
-
-  @override
-  String get lowFloodRisk => 'Low Flood Risk';
-
-  @override
-  String get idealForMoving => 'Ideal for moving house now.';
-
-  @override
-  String get nextPeak => 'Next peak: Nov';
 
   @override
   String get locationSelection => 'Location Selection';
@@ -184,6 +175,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get housing => 'Housing';
 
   @override
+  String get food => 'Food';
+
+  @override
   String get transport => 'Transport';
 
   @override
@@ -204,13 +198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get floodRiskLevel => 'Flood Risk Level';
-
-  @override
   String get lowRisk => 'Low Risk';
-
-  @override
-  String get noFloodHistory => 'No flood records in last 5 years';
 
   @override
   String get crimeTypeFocus => 'Crime Type Focus';
@@ -226,10 +214,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get crimeTrend => 'Crime Rate Trend';
-
-  @override
-  String get warningBanner =>
-      'Note: Current Northeast Monsoon season, potential flood risk in low-lying areas.';
 
   @override
   String get incomeClassDistribution => 'Income Class Distribution (2024)';
@@ -289,6 +273,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get excellent => 'Excellent';
+
+  @override
+  String get good => 'Good';
 
   @override
   String get iciDescription =>
@@ -386,6 +373,90 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
+  String get login => 'Login';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get enterUsername => 'Enter your username';
+
+  @override
+  String get invalidUsername =>
+      'Username can only contain letters, numbers, and spaces, and must have at least 3 letters or numbers';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get loginTitle => 'Welcome Back';
+
+  @override
+  String get registerTitle => 'Create Account';
+
+  @override
+  String get noAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? Login';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email address';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 8 characters';
+
+  @override
+  String get passwordComplexityError =>
+      'Password must include upper/lowercase letters, numbers, and special symbols (no spaces)';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get authError => 'Authentication failed, please try again';
+
+  @override
+  String get errorInvalidCredentials => 'Invalid email or password';
+
+  @override
+  String get errorUserAlreadyRegistered => 'This email is already registered';
+
+  @override
+  String get errorEmailNotConfirmed =>
+      'Email not confirmed, please check your inbox';
+
+  @override
+  String get errorTooManyRequests =>
+      'Too many requests, please try again later';
+
+  @override
+  String get errorUnexpected =>
+      'An unexpected error occurred, please try again';
+
+  @override
+  String get loginSuccess => 'Login successful';
+
+  @override
+  String get registerSuccess =>
+      'Registration successful, please check your email';
+
+  @override
+  String get enterEmail => 'Enter your email';
+
+  @override
+  String get enterPassword => 'Enter your password';
+
+  @override
   String get reportHazard => 'Report Hazard';
 
   @override
@@ -426,4 +497,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get propertyPortfolio => 'Property Inspection Portfolio';
+
+  @override
+  String get budgetTranslation => 'Budget Translation';
+
+  @override
+  String lifestyleComparisonText(
+    Object dest,
+    Object percent,
+    Object change,
+    Object origin,
+  ) {
+    return 'To maintain your current lifestyle in $dest, you need $percent% $change budget than in $origin.';
+  }
+
+  @override
+  String get microPriceInsight => 'Micro-Price Insight (5km)';
+
+  @override
+  String get viewStores => 'View Stores';
+
+  @override
+  String get realTimePriceComparison =>
+      'Real-time price comparison of essential items within 5km of your target location.';
+
+  @override
+  String get eggs => 'Grade A Eggs (10s)';
+
+  @override
+  String get chicken => 'Chicken (1KG)';
+
+  @override
+  String get bread => 'White Bread';
+
+  @override
+  String get petrol => 'Petrol (RON95/L)';
+
+  @override
+  String get less => 'less';
+
+  @override
+  String get more => 'more';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get savedLocations => 'Saved Locations';
+
+  @override
+  String get saveCurrentLocation => 'Save Current Location';
+
+  @override
+  String get saveLocation => 'Save Location';
+
+  @override
+  String get pickOnMap => 'Pick on Map';
+
+  @override
+  String get selectSavedLocation => 'Select Saved Location';
+
+  @override
+  String get enterLocationName => 'Enter location name';
+
+  @override
+  String get locationName => 'Location Name';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get noSavedLocations => 'No saved locations';
+
+  @override
+  String get outOfMalaysiaRange =>
+      'Selected location is outside Malaysia range';
+
+  @override
+  String get clearSelection => 'Clear Selection';
+
+  @override
+  String get securityRiskAssessment => 'Security & Risk Assessment';
+
+  @override
+  String get policeDistrict => 'Police District';
+
+  @override
+  String get securityScore => 'Security Score';
+
+  @override
+  String get monsoonChecklist => 'Monsoon Check';
+
+  @override
+  String get nearbyHazards => 'Nearby Hazards';
+
+  @override
+  String get drainage => 'Drainage';
+
+  @override
+  String get waterproofing => 'Waterproofing';
+
+  @override
+  String get humidity => 'Humidity';
+
+  @override
+  String get lighting => 'Lighting';
+
+  @override
+  String get fetchingRiskData => 'Fetching risk data...';
+
+  @override
+  String get propertyDetails => 'Property Details';
+
+  @override
+  String get saveProperty => 'Save Property';
+
+  @override
+  String get mainImage => 'Main Image';
+
+  @override
+  String get tapToSetMainImage => 'Tap photo to set as main image';
+
+  @override
+  String get swipeForMore => 'Swipe to view more';
+
+  @override
+  String totalPhotos(Object count) {
+    return '$count photos';
+  }
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get editScenario => 'Edit Scenario';
+
+  @override
+  String get expenseIncrease => 'Expense Increase';
 }

@@ -1,65 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/hazard_marker.dart';
+import '../repositories/map_repository.dart';
 
 class HazardProvider extends ChangeNotifier {
-  final List<HazardMarker> _hazards = [
-    HazardMarker(
-      id: 'test-1',
-      title: 'Frequent Flash Flood',
-      description: 'Water rises quickly during heavy rain. Avoid parking near the drain.',
-      location: const LatLng(3.1478, 101.6945),
-      type: HazardType.flood,
-      upvotes: 12,
-      createdBy: 'System',
-      createdAt: DateTime.now(),
-    ),
-    HazardMarker(
-      id: 'test-2',
-      title: 'Construction Blockage',
-      description: 'Main road partially closed due to subway construction.',
-      location: const LatLng(3.1550, 101.7100),
-      type: HazardType.traffic,
-      upvotes: 5,
-      createdBy: 'System',
-      createdAt: DateTime.now(),
-    ),
-    HazardMarker(
-      id: 'test-3',
-      title: 'Poor Lighting at Night',
-      description: 'Several street lights are broken in this alley.',
-      location: const LatLng(3.1350, 101.6750),
-      type: HazardType.crime,
-      upvotes: 8,
-      createdBy: 'System',
-      createdAt: DateTime.now(),
-    ),
-  ];
+  final MapRepository _mapRepository = MapRepository();
+  List<HazardMarker> _hazards = [];
 
   List<HazardMarker> get hazards => List.unmodifiable(_hazards);
+
+  HazardProvider() {
+    refreshHazards();
+  }
+
+  Future<void> refreshHazards() async {
+    _hazards = await _mapRepository.fetchHazards();
+    notifyListeners();
+  }
 
   void addHazard(HazardMarker hazard) {
     _hazards.add(hazard);
     notifyListeners();
   }
 
-  void createHazard({
+  Future<void> createHazard({
     required String title,
     required String description,
     required dynamic location, // LatLng
     required HazardType type,
-  }) {
+  }) async {
+    final user = Supabase.instance.client.auth.currentUser;
     final newHazard = HazardMarker(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
       title: title,
       description: description,
       location: location,
       type: type,
-      createdBy: 'currentUser',
+      createdBy: user?.id ?? 'Anonymous',
       createdAt: DateTime.now(),
     );
+    
+    // Optimistic update
     _hazards.add(newHazard);
     notifyListeners();
+
+    final success = await _mapRepository.saveHazard(newHazard);
+    if (!success) {
+      _hazards.removeWhere((h) => h.id == newHazard.id);
+      notifyListeners();
+    } else {
+      // Small delay to ensure Supabase indexing is complete before refresh
+      await Future.delayed(const Duration(milliseconds: 800));
+      await refreshHazards();
+    }
+  }
+
+  Future<List<HazardMarker>> getUserHazards() async {
+    return await _mapRepository.fetchUserHazards();
+  }
+
+  Future<bool> removeHazard(String id) async {
+    final success = await _mapRepository.deleteHazard(id);
+    if (success) {
+      _hazards.removeWhere((h) => h.id == id);
+      notifyListeners();
+    }
+    return success;
   }
 
   void updateHazard(String id, {String? title, String? description, HazardType? type}) {

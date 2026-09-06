@@ -1,6 +1,30 @@
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import '../core/app_colors.dart';
 
 enum HazardType { flood, crime, traffic, infrastructure, other }
+
+extension HazardTypeExtension on HazardType {
+  IconData get icon {
+    switch (this) {
+      case HazardType.flood: return Icons.water_drop;
+      case HazardType.crime: return Icons.security;
+      case HazardType.traffic: return Icons.traffic;
+      case HazardType.infrastructure: return Icons.construction;
+      case HazardType.other: return Icons.warning;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case HazardType.flood: return AppColors.danger;
+      case HazardType.crime: return AppColors.accent;
+      case HazardType.traffic: return AppColors.warning;
+      case HazardType.infrastructure: return AppColors.info;
+      case HazardType.other: return AppColors.textMutedLight;
+    }
+  }
+}
 
 class HazardMarker {
   final String id;

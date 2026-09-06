@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/app_colors.dart';
 import '../../widgets/bento_card.dart';
 import '../../widgets/status_badge.dart';
 import '../../generated/app_localizations.dart';
+import '../property/property_archive_screen.dart';
+import 'reported_hazards_screen.dart';
+import '../../providers/auth_provider.dart';
 
 class AccountView extends StatefulWidget {
   const AccountView({super.key});
@@ -16,6 +20,7 @@ class _AccountViewState extends State<AccountView> {
 
   void _showLogoutDialog() {
     final l10n = AppLocalizations.of(context)!;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -27,10 +32,12 @@ class _AccountViewState extends State<AccountView> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              // Perform logout logic here
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Return to previous screen
+            onPressed: () async {
+              await authProvider.signOut();
+              if (mounted) {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Return to app shell (which will redirect to login)
+              }
             },
             child: const Text('Logout', style: TextStyle(color: AppColors.danger)),
           ),
@@ -42,6 +49,9 @@ class _AccountViewState extends State<AccountView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.accountCenter)),
       body: SingleChildScrollView(
@@ -65,9 +75,9 @@ class _AccountViewState extends State<AccountView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'user@example.com',
-                              style: TextStyle(
+                            Text(
+                              user?.email ?? 'Unknown User',
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textPrimaryLight,
@@ -85,6 +95,36 @@ class _AccountViewState extends State<AccountView> {
                     ],
                   ),
                   const SizedBox(height: 20),
+                  const Divider(color: AppColors.borderLight),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.inventory_2_outlined, color: AppColors.primaryBase),
+                    title: const Text('Property Inspection Portfolio'),
+                    subtitle: const Text('View and compare your saved properties'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PropertyArchiveScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(color: AppColors.borderLight),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.warning_amber_rounded, color: AppColors.primaryBase),
+                    title: const Text('My Reported Hazards'),
+                    subtitle: const Text('Manage your crowdsourced hazard reports'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ReportedHazardsScreen()),
+                      );
+                    },
+                  ),
                   const Divider(color: AppColors.borderLight),
                   const SizedBox(height: 8),
                   ListTile(

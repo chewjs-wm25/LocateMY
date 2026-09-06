@@ -3,6 +3,14 @@ import '../../core/app_colors.dart';
 import '../../widgets/bento_card.dart';
 import '../../widgets/status_badge.dart';
 import '../../generated/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../../providers/location_provider.dart';
+import '../../providers/analysis/transit_provider.dart';
+import '../../widgets/mini_map.dart';
+import 'package:latlong2/latlong.dart';
+import '../app_shell.dart';
+
+import '../../widgets/analysis_location_selector.dart';
 
 class TransportationView extends StatelessWidget {
   const TransportationView({super.key});
@@ -10,13 +18,31 @@ class TransportationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final locationProvider = Provider.of<LocationProvider>(context);
+    final transitProvider = Provider.of<TransitProvider>(context);
+
+    final latLng = locationProvider.selectedLocation ?? const LatLng(3.1390, 101.6869);
+    final stops = transitProvider.nearbyStops;
+    final isLoading = transitProvider.isLoading;
+
+    // Trigger fetch
+    if (stops.isEmpty && !isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        transitProvider.loadNearbyStops(latLng.latitude, latLng.longitude);
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(l10n.titleTransport)),
-      body: SingleChildScrollView(
+      body: isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const AnalysisLocationSelector(),
+            const SizedBox(height: 16),
             // Connectivity Score Bento
             BentoCard(
               child: Column(
@@ -76,34 +102,20 @@ class TransportationView extends StatelessWidget {
             BentoCard(
               padding: EdgeInsets.zero,
               child: Column(
-                children: [
-                  _buildStationItem(
-                    context,
-                    Icons.train_rounded,
-                    'KL Sentral',
-                    'MRT / LRT / KTM',
-                    '350m',
-                    AppColors.primaryBase,
-                  ),
-                  const Divider(height: 1, color: AppColors.borderLight),
-                  _buildStationItem(
-                    context,
-                    Icons.directions_bus_rounded,
-                    'Brickfields Stop',
-                    'RapidKL 770, 772',
-                    '150m',
-                    AppColors.success,
-                  ),
-                  const Divider(height: 1, color: AppColors.borderLight),
-                  _buildStationItem(
-                    context,
-                    Icons.directions_walk_rounded,
-                    l10n.pedestrianBridge,
-                    'Nu Sentral Link',
-                    '400m',
-                    AppColors.info,
-                  ),
-                ],
+                children: stops.map((stop) => Column(
+                  children: [
+                    _buildStationItem(
+                      context,
+                      stop['transit_type'] == 'Bus' ? Icons.directions_bus_rounded : Icons.train_rounded,
+                      stop['stop_name'],
+                      stop['transit_type'],
+                      '${stop['distance_meters'].toInt()}m',
+                      stop['transit_type'] == 'Bus' ? AppColors.success : AppColors.primaryBase,
+                    ),
+                    if (stops.indexOf(stop) != stops.length - 1)
+                      const Divider(height: 1, color: AppColors.borderLight),
+                  ],
+                )).toList(),
               ),
             ),
             const SizedBox(height: 16),
@@ -137,47 +149,16 @@ class TransportationView extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    height: 180,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceSubLight,
-                      borderRadius: BorderRadius.circular(12),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://api.placeholder.com/400/180'),
-                        fit: BoxFit.cover,
-                        opacity: 0.3,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.map_rounded, color: AppColors.accent, size: 40),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Mode Distribution
-            BentoCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.commuteModeDistribution, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceSubLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '[ fl_chart: PieChart (Rail vs Bus vs Car) ]',
-                        style: TextStyle(color: AppColors.textMutedLight),
-                      ),
-                    ),
+                  MiniMap(
+                    center: latLng,
+                    onTap: () {
+                      locationProvider.moveTo(latLng);
+                      final appShellState = context.findAncestorStateOfType<AppShellState>();
+                      if (appShellState != null) {
+                        appShellState.onItemTapped(1);
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                      }
+                    },
                   ),
                 ],
               ),

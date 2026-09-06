@@ -11,17 +11,41 @@ import 'providers/navigation_provider.dart';
 import 'providers/hazard_provider.dart';
 import 'providers/budget_provider.dart';
 import 'providers/property_provider.dart';
+import 'providers/nearby_facilities_provider.dart';
+import 'providers/analysis/security_provider.dart';
+import 'providers/analysis/infrastructure_provider.dart';
+import 'providers/analysis/socio_economic_provider.dart';
+import 'providers/analysis/transit_provider.dart';
+import 'providers/auth_provider.dart';
+import 'providers/home_provider.dart';
 
-void main() {
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'core/api_keys.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Supabase.initialize(
+    url: ApiKeys.supabaseUrl,
+    anonKey: ApiKeys.supabaseAnonKey,
+  );
+
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => LocaleProvider()),
         ChangeNotifierProvider(create: (context) => LocationProvider()),
         ChangeNotifierProvider(create: (context) => NavigationProvider()),
         ChangeNotifierProvider(create: (context) => HazardProvider()),
         ChangeNotifierProvider(create: (context) => BudgetProvider()),
         ChangeNotifierProvider(create: (context) => PropertyProvider()),
+        ChangeNotifierProvider(create: (context) => NearbyFacilitiesProvider()),
+        ChangeNotifierProvider(create: (context) => SecurityProvider()),
+        ChangeNotifierProvider(create: (context) => InfrastructureProvider()),
+        ChangeNotifierProvider(create: (context) => SocioEconomicProvider()),
+        ChangeNotifierProvider(create: (context) => TransitProvider()),
+        ChangeNotifierProvider(create: (context) => HomeProvider()),
       ],
       child: const MyApp(),
     ),

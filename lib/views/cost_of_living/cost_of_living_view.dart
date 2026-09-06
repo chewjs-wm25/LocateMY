@@ -4,10 +4,12 @@ import '../../widgets/bento_card.dart';
 import '../../widgets/status_badge.dart';
 import '../../generated/app_localizations.dart';
 
+import '../../widgets/analysis_location_selector.dart';
+
 import 'package:provider/provider.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/budget_provider.dart';
-import '../../models/budget_scenario.dart';
+// import '../../models/budget_scenario.dart';
 
 class CostOfLivingView extends StatelessWidget {
   const CostOfLivingView({super.key});
@@ -34,34 +36,59 @@ class CostOfLivingView extends StatelessWidget {
     );
   }
 
+  void _showEditScenarioDialog(BuildContext context, String id, String currentName) {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController(text: currentName);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.editScenario),
+        content: TextField(controller: controller, decoration: InputDecoration(hintText: l10n.scenarioName)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () {
+              context.read<BudgetProvider>().renameScenario(id, controller.text);
+              Navigator.pop(context);
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locationProvider = Provider.of<LocationProvider>(context);
     final budgetProvider = Provider.of<BudgetProvider>(context);
     final currentScenario = budgetProvider.currentScenario;
+    final comparison = budgetProvider.comparisonData;
+    final isLoading = budgetProvider.isLoading;
     
-    // Determine which locations to show
     String originName = locationProvider.mode == MapMode.comparison 
         ? (locationProvider.originName ?? l10n.kl)
         : (locationProvider.selectedName ?? l10n.kl);
     
     String destName = locationProvider.mode == MapMode.comparison
         ? (locationProvider.destinationName ?? l10n.jb)
-        : l10n.jb; // Default if not in comparison
+        : l10n.jb;
+
+    // Trigger fetch if not loaded or location changed
+    if (comparison == null && !isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        budgetProvider.fetchComparison(originName, destName);
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.titleCost),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddScenarioDialog(context),
-        icon: const Icon(Icons.add_chart_rounded),
-        label: Text(l10n.newScenario),
-        backgroundColor: AppColors.primaryBase,
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
+      body: isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,187 +100,155 @@ class CostOfLivingView extends StatelessWidget {
                   const Icon(Icons.psychology_rounded, color: AppColors.primaryBase),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: DropdownButton<String>(
-                      value: currentScenario.id,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: budgetProvider.scenarios.map((s) => DropdownMenuItem(
-                        value: s.id,
-                        child: Text(s.name),
-                      )).toList(),
-                      onChanged: (v) {
-                        if (v != null) budgetProvider.setCurrentScenario(v);
-                      },
-                    ),
+                    child: currentScenario == null 
+                        ? const Text('No Scenarios')
+                        : DropdownButton<String>(
+                            value: currentScenario.id,
+                            isExpanded: true,
+                            underline: const SizedBox(),
+                            items: budgetProvider.scenarios.map((s) => DropdownMenuItem(
+                              value: s.id,
+                              child: Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            )).toList(),
+                            onChanged: (v) {
+                              if (v != null) budgetProvider.setCurrentScenario(v);
+                            },
+                          ),
                   ),
-                  if (budgetProvider.scenarios.length > 1)
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primaryBase),
+                    onPressed: () => _showAddScenarioDialog(context),
+                    tooltip: l10n.newScenario,
+                  ),
+                  if (currentScenario != null) ...[
                     IconButton(
-                      icon: const Icon(Icons.delete_outline, color: AppColors.danger),
-                      onPressed: () => budgetProvider.deleteScenario(currentScenario.id),
+                      icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondaryLight),
+                      onPressed: () => _showEditScenarioDialog(context, currentScenario.id, currentScenario.name),
+                      tooltip: l10n.edit,
                     ),
+                    if (budgetProvider.scenarios.length > 1)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+                        onPressed: () => budgetProvider.deleteScenario(currentScenario.id),
+                        tooltip: l10n.delete,
+                      ),
+                  ],
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Location Selector Bento
-            BentoCard(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Text(
-                      l10n.locationSelection,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.my_location_rounded, size: 16, color: AppColors.primaryBase),
-                              const SizedBox(width: 8),
-                              Expanded(child: Text(originName, overflow: TextOverflow.ellipsis)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 2),
-                        child: Icon(Icons.swap_horiz_rounded, color: AppColors.primaryBase, size: 20),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.location_on_rounded, size: 16, color: AppColors.primaryBase),
-                              const SizedBox(width: 8),
-                              Expanded(child: Text(destName, overflow: TextOverflow.ellipsis)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            const AnalysisLocationSelector(),
             const SizedBox(height: 16),
 
-            // Hero Summary Card
+            // Hero Summary Card - Lifestyle Translation
             BentoCard(
               backgroundColor: AppColors.primaryContainer,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.purchasingPower,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryBase,
+                          fontSize: 16,
+                        ),
+                      ),
+                      StatusBadge(
+                        label: (comparison?['is_improvement'] ?? true) ? l10n.significantImprovement : l10n.expenseIncrease,
+                        type: (comparison?['is_improvement'] ?? true) ? StatusType.success : StatusType.danger,
+                        icon: (comparison?['is_improvement'] ?? true) ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'RM ${comparison?['base_budget']?.toStringAsFixed(0) ?? "5,000"} → RM ${comparison?['equivalent_budget']?.toStringAsFixed(0) ?? "4,250"}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBase,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.lifestyleComparisonText(destName, comparison?['purchasing_power_change']?.toStringAsFixed(1) ?? '15.2', l10n.less, originName),
+                    style: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Interactive Budget Editor
+            BentoCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
-                          l10n.purchasingPower,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryBase,
-                          ),
+                          l10n.budgetTranslation,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      StatusBadge(
-                        label: l10n.significantImprovement,
-                        type: StatusType.success,
-                        icon: Icons.trending_up_rounded,
-                      ),
+                      const Icon(Icons.edit_note_rounded, color: AppColors.textMutedLight),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        '+15.2%',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryBase,
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 6, left: 8),
-                          child: Text(
-                            l10n.expectedQualityImprovement,
-                            style: const TextStyle(color: AppColors.textSecondaryLight),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  if (comparison != null)
+                    ... (comparison['categories'] as List).map((cat) => Column(
+                      children: [
+                        _buildBudgetInputRow(cat['name'], cat['origin'], cat['target'], context),
+                        const Divider(height: 24),
+                      ],
+                    )).toList(),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Expenditure Comparison Grid
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: BentoCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.housingExpenditure,
-                          style: const TextStyle(color: AppColors.textSecondaryLight),
-                          maxLines: 2,
+            // Micro-Price Insight (5km Geofence)
+            BentoCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.microPriceInsight,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 8),
-                        const Text('-22%', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.success)),
-                        const SizedBox(height: 4),
-                        Text(l10n.monthlySaving('800'), style: Theme.of(context).textTheme.bodySmall),
-                      ],
-                    ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.map_outlined, size: 16),
+                        label: Text(l10n.viewStores, style: const TextStyle(fontSize: 12)),
+                      )
+                    ],
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: BentoCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.foodPrices,
-                          style: const TextStyle(color: AppColors.textSecondaryLight),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        const Text('-5%', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.success)),
-                        const SizedBox(height: 4),
-                        Text(l10n.priceCatcherData, style: Theme.of(context).textTheme.bodySmall),
-                      ],
-                    ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.realTimePriceComparison,
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMutedLight),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  if (comparison != null)
+                    ... (comparison['micro_prices'] as List).map((item) => 
+                        _buildPriceItem(item['item_name'], 'RM ${(item['price'] * 1.1).toStringAsFixed(2)}', 'RM ${item['price'].toStringAsFixed(2)}', true)
+                    ).toList(),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -292,25 +287,6 @@ class CostOfLivingView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Budget Sliders
-            BentoCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.weightAdjustment, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 16),
-                  _buildSliderItem(l10n.housing, currentScenario.housingWeight, (v) {
-                    budgetProvider.updateCurrentScenario(housingWeight: v);
-                  }),
-                  _buildSliderItem(l10n.transport, currentScenario.transportWeight, (v) {
-                    budgetProvider.updateCurrentScenario(transportWeight: v);
-                  }),
-                  _buildSliderItem(l10n.entertainment, currentScenario.entertainmentWeight, (v) {
-                    budgetProvider.updateCurrentScenario(entertainmentWeight: v);
-                  }),
-                ],
-              ),
-            ),
             const SizedBox(height: 32),
           ],
         ),
@@ -318,24 +294,82 @@ class CostOfLivingView extends StatelessWidget {
     );
   }
 
-  Widget _buildSliderItem(String label, double value, ValueChanged<double> onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildBudgetInputRow(String label, double originVal, double targetVal, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label),
-            Text('${(value * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
+        Expanded(
+          flex: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(l10n.monthly, style: const TextStyle(fontSize: 10, color: AppColors.textMutedLight)),
+            ],
+          ),
         ),
-        Slider(
-          value: value,
-          onChanged: onChanged,
-          activeColor: AppColors.primaryBase,
-          inactiveColor: AppColors.primaryContainer,
+        Expanded(
+          flex: 3,
+          child: TextFormField(
+            initialValue: originVal.toStringAsFixed(0),
+            decoration: const InputDecoration(
+              prefixText: 'RM ',
+              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.number,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.textMutedLight),
+        ),
+        Expanded(
+          flex: 3,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceSubLight,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Text(
+              'RM ${targetVal.toStringAsFixed(0)}',
+              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryBase),
+            ),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPriceItem(String name, String originPrice, String targetPrice, bool isCheaper) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: Text(name, style: const TextStyle(fontSize: 14))),
+          Row(
+            children: [
+              Text(originPrice, style: const TextStyle(fontSize: 13, decoration: TextDecoration.lineThrough, color: AppColors.textMutedLight)),
+              const SizedBox(width: 12),
+              Text(
+                targetPrice,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isCheaper ? AppColors.success : AppColors.textPrimaryLight,
+                ),
+              ),
+              const SizedBox(width: 4),
+              if (isCheaper)
+                const Icon(Icons.arrow_downward_rounded, size: 14, color: AppColors.success)
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

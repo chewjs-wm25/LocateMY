@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../core/app_colors.dart';
 import '../../generated/app_localizations.dart';
 import '../../providers/location_provider.dart';
@@ -9,9 +10,12 @@ import '../cost_of_living/cost_of_living_view.dart';
 import '../crime_security/crime_security_view.dart';
 import '../socio_economic/socio_economic_view.dart';
 import '../infrastructure/infrastructure_view.dart';
+import '../infrastructure/nearby_facilities_view.dart';
 import '../transport/transportation_view.dart';
 import '../../providers/hazard_provider.dart';
 import '../../models/hazard_marker.dart';
+import '../../repositories/geoapify_repository.dart';
+import '../../models/geo_suggestion.dart';
 
 class MapView extends StatefulWidget {
   const MapView({super.key});
@@ -21,43 +25,408 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-  final MapController _mapController = MapController();
   bool _selectingOrigin = true;
+  bool _showHazards = true;
+  final GeoapifyRepository _geoapifyRepository = GeoapifyRepository();
+  final SuggestionsController<GeoSuggestion> _suggestionsController = SuggestionsController<GeoSuggestion>();
+
+  // Malaysia bounds
+  final LatLngBounds _malaysiaBounds = LatLngBounds(
+    const LatLng(0.8, 98.5),
+    const LatLng(7.5, 120.0),
+  );
 
   void _showAddHazardDialog(LatLng point) {
     final l10n = AppLocalizations.of(context)!;
+    final locationProvider = context.read<LocationProvider>();
+
+    if (!locationProvider.isWithinMalaysia(point)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.outOfMalaysiaRange)),
+      );
+      return;
+    }
+
     final titleController = TextEditingController();
     final descController = TextEditingController();
     HazardType selectedType = HazardType.other;
 
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surfaceLight,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            top: 12,
+            left: 20,
+            right: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderLight,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l10n.reportHazard,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimaryLight,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.hazardType,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondaryLight,
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 80,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: HazardType.values.map((type) {
+                    final isSelected = selectedType == type;
+                    final color = type.color;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: InkWell(
+                        onTap: () => setModalState(() => selectedType = type),
+                        borderRadius: BorderRadius.circular(16),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: isSelected ? color.withValues(alpha: 0.1) : AppColors.surfaceSubLight,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected ? color : AppColors.borderLight,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                type.icon,
+                                color: isSelected ? color : AppColors.textMutedLight,
+                                size: 24,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                type.name.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? color : AppColors.textSecondaryLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildBentoInput(
+                controller: titleController,
+                label: l10n.hazardTitle,
+                hint: "What happened here?",
+                icon: Icons.title_rounded,
+              ),
+              const SizedBox(height: 16),
+              _buildBentoInput(
+                controller: descController,
+                label: l10n.hazardDescription,
+                hint: "Add more details...",
+                icon: Icons.description_rounded,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (titleController.text.isNotEmpty) {
+                      context.read<HazardProvider>().createHazard(
+                        title: titleController.text,
+                        description: descController.text,
+                        location: point,
+                        type: selectedType,
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: selectedType.color,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    l10n.add,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBentoInput({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondaryLight,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceSubLight,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderLight),
+          ),
+          child: TextField(
+            controller: controller,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: AppColors.textMutedLight),
+              prefixIcon: Icon(icon, color: AppColors.primaryBase, size: 20),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showHazardDetail(HazardMarker hazard) {
+    final l10n = AppLocalizations.of(context)!;
+    final color = hazard.type.color;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(hazard.type.icon, color: color, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hazard.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimaryLight,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          hazard.type.name.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSubLight,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderLight),
+              ),
+              child: Text(
+                hazard.description,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: AppColors.textSecondaryLight,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                _buildVoteButton(
+                  icon: Icons.thumb_up_rounded,
+                  count: hazard.upvotes,
+                  color: AppColors.success,
+                  onTap: () => context.read<HazardProvider>().voteHazard(hazard.id, true),
+                ),
+                const SizedBox(width: 12),
+                _buildVoteButton(
+                  icon: Icons.thumb_down_rounded,
+                  count: hazard.downvotes,
+                  color: AppColors.danger,
+                  onTap: () => context.read<HazardProvider>().voteHazard(hazard.id, false),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () {
+                    context.read<HazardProvider>().deleteHazard(hazard.id);
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                  label: Text(l10n.cancel),
+                  style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVoteButton({
+    required IconData icon,
+    required int count,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              '$count',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  void _showSaveLocationDialog(LatLng location, String? initialName) {
+    final l10n = AppLocalizations.of(context)!;
+    final nameController = TextEditingController(text: initialName == "Selected Location" ? "" : initialName);
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.reportHazard),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.hazardTitle)),
-            TextField(controller: descController, decoration: InputDecoration(labelText: l10n.hazardDescription)),
-            DropdownButtonFormField<HazardType>(
-              value: selectedType,
-              items: HazardType.values.map((type) => DropdownMenuItem(value: type, child: Text(type.name))).toList(),
-              onChanged: (v) => selectedType = v!,
-              decoration: InputDecoration(labelText: l10n.hazardType),
-            ),
-          ],
+        title: Text(l10n.saveLocation),
+        content: TextField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: l10n.locationName,
+            hintText: l10n.enterLocationName,
+          ),
+          autofocus: true,
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           TextButton(
             onPressed: () {
-              context.read<HazardProvider>().createHazard(
-                title: titleController.text,
-                description: descController.text,
-                location: point,
-                type: selectedType,
-              );
-              Navigator.pop(context);
+              if (nameController.text.isNotEmpty) {
+                context.read<LocationProvider>().addSavedLocation(nameController.text, location);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Saved: ${nameController.text}')),
+                );
+              }
             },
             child: Text(l10n.add),
           ),
@@ -66,41 +435,58 @@ class _MapViewState extends State<MapView> {
     );
   }
 
-  void _showHazardDetail(HazardMarker hazard) {
-    showModalBottomSheet(
+  void _showSavedLocationsDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    final locationProvider = context.read<LocationProvider>();
+
+    showDialog(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(hazard.title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            Text(hazard.description),
-            const SizedBox(height: 16),
-            Row(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(l10n.savedLocations),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.thumb_up_outlined),
-                  onPressed: () => context.read<HazardProvider>().voteHazard(hazard.id, true),
-                ),
-                Text('${hazard.upvotes}'),
-                const SizedBox(width: 16),
-                IconButton(
-                  icon: const Icon(Icons.thumb_down_outlined),
-                  onPressed: () => context.read<HazardProvider>().voteHazard(hazard.id, false),
-                ),
-                Text('${hazard.downvotes}'),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    context.read<HazardProvider>().deleteHazard(hazard.id);
-                    Navigator.pop(context);
-                  },
-                ),
+                if (locationProvider.savedLocations.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(l10n.noSavedLocations),
+                  )
+                else
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: locationProvider.savedLocations.length,
+                      itemBuilder: (context, index) {
+                        final loc = locationProvider.savedLocations[index];
+                        return ListTile(
+                          title: Text(loc.name),
+                          subtitle: Text("${loc.location.latitude.toStringAsFixed(4)}, ${loc.location.longitude.toStringAsFixed(4)}"),
+                          onTap: () {
+                            locationProvider.setSelectedLocation(loc.location, loc.name);
+                            locationProvider.moveTo(loc.location, zoom: 15.0);
+                            Navigator.pop(context);
+                          },
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.red),
+                            onPressed: () {
+                              locationProvider.removeSavedLocation(loc.id);
+                              setDialogState(() {});
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
               ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
             ),
           ],
         ),
@@ -113,18 +499,39 @@ class _MapViewState extends State<MapView> {
     final l10n = AppLocalizations.of(context)!;
     final locationProvider = Provider.of<LocationProvider>(context);
     final hazardProvider = Provider.of<HazardProvider>(context);
+    final safeTop = MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      body: Stack(
+    return Material(
+      color: AppColors.backgroundLight,
+      child: Stack(
         children: [
           // 1. The Map
           FlutterMap(
-            mapController: _mapController,
+            mapController: locationProvider.mapController,
             options: MapOptions(
               initialCenter: const LatLng(4.2105, 101.9758), // Center of Malaysia
               initialZoom: 6.0,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
               onLongPress: (tapPosition, point) => _showAddHazardDialog(point),
               onTap: (tapPosition, point) {
+                // Close search suggestions and keyboard
+                _suggestionsController.close();
+                FocusScope.of(context).unfocus();
+
+                // Handle closing analysis report
+                if (locationProvider.isAnalysisReportOpen) {
+                  locationProvider.setAnalysisReportOpen(false);
+                }
+
+                if (!locationProvider.isWithinMalaysia(point)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.outOfMalaysiaRange)),
+                  );
+                  return;
+                }
+                
                 if (locationProvider.mode == MapMode.display) {
                   locationProvider.setSelectedLocation(point, "Selected Location");
                 } else {
@@ -142,14 +549,18 @@ class _MapViewState extends State<MapView> {
                 userAgentPackageName: 'com.locatemy.assignment.app',
               ),
               MarkerLayer(
-                markers: _buildMarkers(locationProvider, hazardProvider),
+                key: ValueKey('map_markers_${locationProvider.selectedLocation}_${locationProvider.originLocation}_${locationProvider.destinationLocation}_${hazardProvider.hazards.length}_$_showHazards'),
+                markers: [
+                  if (_showHazards) ..._buildHazardMarkers(locationProvider, hazardProvider),
+                  ..._buildLocationMarkers(locationProvider),
+                ],
               ),
             ],
           ),
 
           // 2. Top-Left: Search Bar, Mode Switch & Selection Info
           Positioned(
-            top: 60,
+            top: safeTop + 16,
             left: 16,
             right: 80, // Leave room for quick access buttons
             child: Column(
@@ -167,166 +578,287 @@ class _MapViewState extends State<MapView> {
 
           // 4. Top-Right: Quick Access Buttons
           Positioned(
-            top: 60,
+            top: safeTop + 16,
             right: 16,
             child: Column(
               children: [
-                _buildRoundButton(Icons.my_location, Colors.redAccent, () {
-                  // Jump to KL Hazard Area
-                  _mapController.move(const LatLng(3.1390, 101.6869), 13.0);
-                }),
+                _buildRoundButton(
+                  icon: Icons.refresh_rounded,
+                  iconColor: AppColors.primaryBase,
+                  onTap: () {
+                    context.read<HazardProvider>().refreshHazards();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("正在从 Supabase 同步最新的隐患数据..."),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  tooltip: "同步最新隐患数据",
+                ),
                 const SizedBox(height: 12),
+                _buildRoundButton(
+                  icon: Icons.bookmarks_rounded,
+                  iconColor: AppColors.primaryBase,
+                  onTap: _showSavedLocationsDialog,
+                  tooltip: l10n.savedLocations,
+                ),
+                const SizedBox(height: 12),
+                _buildRoundButton(
+                  icon: _showHazards ? Icons.warning_amber_rounded : Icons.warning_amber_outlined,
+                  iconColor: _showHazards ? AppColors.primaryBase : AppColors.textMutedLight,
+                  onTap: () => setState(() => _showHazards = !_showHazards),
+                  tooltip: "隐患图层",
+                ),
+                const SizedBox(height: 24),
                 _buildQuickAccessButtons(context, l10n),
               ],
             ),
           ),
 
-          // 5. Bottom Selection Card (Optional but helpful)
-          if (locationProvider.mode == MapMode.display && locationProvider.selectedLocation != null)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: _buildLocationInfoCard(locationProvider, l10n),
-            ),
-
-          // Add Hazard Fab
+          // 5. Bottom Selection UI (Flexible)
           Positioned(
             bottom: 24,
-            right: 24,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                _showAddHazardDialog(_mapController.camera.center);
-              },
-              icon: const Icon(Icons.add_location_alt_rounded),
-              label: Text(l10n.reportHazard),
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
+            left: 20,
+            right: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton.extended(
+                  heroTag: 'map_add_hazard_fab',
+                  onPressed: () {
+                    final targetPoint = locationProvider.selectedLocation ?? locationProvider.mapController.camera.center;
+                    _showAddHazardDialog(targetPoint);
+                  },
+                  icon: const Icon(Icons.add_location_alt_rounded),
+                  label: Text(l10n.reportHazard),
+                  backgroundColor: AppColors.danger,
+                  foregroundColor: Colors.white,
+                ),
+                if (locationProvider.mode == MapMode.display && locationProvider.selectedLocation != null) ...[
+                  const SizedBox(height: 16),
+                  _buildLocationInfoCard(locationProvider, l10n),
+                ],
+              ],
             ),
           ),
+
+          // 6. Analysis Panel (Persistent)
+          if (locationProvider.isAnalysisReportOpen) ...[
+            // Dimmed background/Scrim that intercepts taps to close
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => locationProvider.setAnalysisReportOpen(false),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.2),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              width: MediaQuery.of(context).size.width * 0.75,
+              child: _buildAnalysisPanel(context, l10n),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  List<Marker> _buildMarkers(LocationProvider provider, HazardProvider hazardProvider) {
+  List<Marker> _buildHazardMarkers(LocationProvider provider, HazardProvider hazardProvider) {
     List<Marker> markers = [];
     final distance = const Distance();
-    const double proximityThreshold = 5000; // 5km radius
+    const double proximityThreshold = 10000; // 10km
 
-    // Hazard Markers: Only show near selected locations
     for (var hazard in hazardProvider.hazards) {
       bool shouldShow = false;
-
       if (provider.mode == MapMode.display && provider.selectedLocation != null) {
-        if (distance(hazard.location, provider.selectedLocation!) <= proximityThreshold) {
+        if (distance.distance(hazard.location, provider.selectedLocation!) <= proximityThreshold) {
           shouldShow = true;
         }
       } else if (provider.mode == MapMode.comparison) {
-        // Show if near either origin or destination
         if (provider.originLocation != null &&
-            distance(hazard.location, provider.originLocation!) <= proximityThreshold) {
+            distance.distance(hazard.location, provider.originLocation!) <= proximityThreshold) {
           shouldShow = true;
         }
         if (!shouldShow && provider.destinationLocation != null &&
-            distance(hazard.location, provider.destinationLocation!) <= proximityThreshold) {
+            distance.distance(hazard.location, provider.destinationLocation!) <= proximityThreshold) {
           shouldShow = true;
         }
       }
 
       if (shouldShow) {
+        final color = hazard.type.color;
         markers.add(Marker(
+          key: ValueKey('hazard_${hazard.id}'),
           point: hazard.location,
-          width: 44,
-          height: 44,
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
           child: GestureDetector(
             onTap: () => _showHazardDetail(hazard),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.danger,
+                color: color,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    color: color.withValues(alpha: 0.4),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Icon(
-                _getHazardIcon(hazard.type),
-                color: Colors.white,
-                size: 24,
+              child: Center(
+                child: Icon(
+                  hazard.type.icon,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
           ),
-        ));
-      }
-    }
-
-    if (provider.mode == MapMode.display && provider.selectedLocation != null) {
-      markers.add(Marker(
-        point: provider.selectedLocation!,
-        width: 40,
-        height: 40,
-        child: const Icon(Icons.location_on, color: Colors.red, size: 40),
-      ));
-    } else if (provider.mode == MapMode.comparison) {
-      if (provider.originLocation != null) {
-        markers.add(Marker(
-          point: provider.originLocation!,
-          width: 40,
-          height: 40,
-          child: const Icon(Icons.location_on, color: Colors.blue, size: 40),
-        ));
-      }
-      if (provider.destinationLocation != null) {
-        markers.add(Marker(
-          point: provider.destinationLocation!,
-          width: 40,
-          height: 40,
-          child: const Icon(Icons.location_on, color: Colors.green, size: 40),
         ));
       }
     }
     return markers;
   }
 
-  IconData _getHazardIcon(HazardType type) {
-    switch (type) {
-      case HazardType.flood: return Icons.water_drop;
-      case HazardType.crime: return Icons.warning;
-      case HazardType.traffic: return Icons.traffic;
-      case HazardType.infrastructure: return Icons.build;
-      case HazardType.other: return Icons.help;
+  List<Marker> _buildLocationMarkers(LocationProvider provider) {
+    List<Marker> markers = [];
+    
+    // Selected Location (Display Mode)
+    if (provider.mode == MapMode.display && provider.selectedLocation != null) {
+      markers.add(Marker(
+        key: const ValueKey('selected_location_marker'),
+        point: provider.selectedLocation!,
+        width: 60,
+        height: 60,
+        alignment: Alignment.bottomCenter,
+        child: _buildRobustPin(AppColors.primaryBase, Icons.location_on),
+      ));
     }
+    
+    // Comparison Mode Markers
+    if (provider.mode == MapMode.comparison) {
+      if (provider.originLocation != null) {
+        markers.add(Marker(
+          key: const ValueKey('origin_marker'),
+          point: provider.originLocation!,
+          width: 60,
+          height: 60,
+          alignment: Alignment.bottomCenter,
+          child: _buildRobustPin(AppColors.primaryBase, Icons.home),
+        ));
+      }
+      if (provider.destinationLocation != null) {
+        markers.add(Marker(
+          key: const ValueKey('destination_marker'),
+          point: provider.destinationLocation!,
+          width: 60,
+          height: 60,
+          alignment: Alignment.bottomCenter,
+          child: _buildRobustPin(AppColors.accent, Icons.flag),
+        ));
+      }
+    }
+    
+    return markers;
+  }
+
+  Widget _buildRobustPin(Color color, IconData icon) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Outer glow
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+          ),
+        ),
+        // White border circle
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: color, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              color: color,
+              size: 20,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildModeSwitch(LocationProvider provider, AppLocalizations l10n) {
+    final isDisplayMode = provider.mode == MapMode.display;
     return Container(
+      height: 48,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.borderLight, width: 1.0),
+        boxShadow: AppColors.cardShadow,
       ),
-      child: ToggleButtons(
-        borderRadius: BorderRadius.circular(30),
-        selectedColor: Colors.white,
-        fillColor: AppColors.primaryBase,
-        color: AppColors.textPrimaryLight,
-        constraints: const BoxConstraints(minHeight: 40, minWidth: 100),
-        isSelected: [
-          provider.mode == MapMode.display,
-          provider.mode == MapMode.comparison,
-        ],
-        onPressed: (index) {
-          provider.setMode(index == 0 ? MapMode.display : MapMode.comparison);
-        },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(l10n.displayMode),
-          Text(l10n.comparisonMode),
+          _buildModeOption(
+            l10n.displayMode,
+            isDisplayMode,
+            () => provider.setMode(MapMode.display),
+          ),
+          _buildModeOption(
+            l10n.comparisonMode,
+            !isDisplayMode,
+            () => provider.setMode(MapMode.comparison),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildModeOption(String label, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryBase : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected ? Colors.white : AppColors.textSecondaryLight,
+          ),
+        ),
       ),
     );
   }
@@ -334,32 +866,95 @@ class _MapViewState extends State<MapView> {
   // Refined ToggleButtons with full text might be too wide, let's use icons or specific l10n
   // For now I'll use simple icons or short text.
 
+  void _showLocationPicker(bool isOrigin) {
+    final l10n = AppLocalizations.of(context)!;
+    final locationProvider = context.read<LocationProvider>();
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l10n.selectSavedLocation, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            if (locationProvider.savedLocations.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(l10n.noSavedLocations),
+              )
+            else
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: locationProvider.savedLocations.length,
+                  itemBuilder: (context, index) {
+                    final loc = locationProvider.savedLocations[index];
+                    return ListTile(
+                      leading: const Icon(Icons.bookmark, color: AppColors.primaryBase),
+                      title: Text(loc.name),
+                      onTap: () {
+                        if (isOrigin) {
+                          locationProvider.setOriginLocation(loc.location, loc.name);
+                        } else {
+                          locationProvider.setDestinationLocation(loc.location, loc.name);
+                        }
+                        locationProvider.moveTo(loc.location, zoom: 15.0);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.map_outlined, color: AppColors.accent),
+              title: Text(l10n.pickOnMap),
+              onTap: () {
+                setState(() => _selectingOrigin = isOrigin);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildComparisonSelectors(LocationProvider provider, AppLocalizations l10n) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderLight, width: 1.0),
+        boxShadow: AppColors.cardShadow,
       ),
-      child: Column(
-        children: [
-          _buildSelectButton(
-            label: l10n.currentAddress,
-            isActive: _selectingOrigin,
-            isSelected: provider.originLocation != null,
-            onTap: () => setState(() => _selectingOrigin = true),
-            color: Colors.blue,
-          ),
-          const SizedBox(height: 8),
-          _buildSelectButton(
-            label: l10n.newAddress,
-            isActive: !_selectingOrigin,
-            isSelected: provider.destinationLocation != null,
-            onTap: () => setState(() => _selectingOrigin = false),
-            color: Colors.green,
-          ),
-        ],
+      child: IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildSelectButton(
+              label: provider.originName ?? l10n.currentAddress,
+              isActive: _selectingOrigin,
+              isSelected: provider.originLocation != null,
+              onTap: () => _showLocationPicker(true),
+              onClear: () => provider.setOriginLocation(null, null),
+              color: AppColors.primaryBase,
+            ),
+            const SizedBox(height: 10),
+            _buildSelectButton(
+              label: provider.destinationName ?? l10n.newAddress,
+              isActive: !_selectingOrigin,
+              isSelected: provider.destinationLocation != null,
+              onTap: () => _showLocationPicker(false),
+              onClear: () => provider.setDestinationLocation(null, null),
+              color: AppColors.accent,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -370,115 +965,371 @@ class _MapViewState extends State<MapView> {
     required bool isSelected,
     required VoidCallback onTap,
     required Color color,
+    VoidCallback? onClear,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? color.withValues(alpha: 0.1) : Colors.transparent,
-          border: Border.all(color: isActive ? color : Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: isActive ? color.withValues(alpha: 0.08) : AppColors.surfaceSubLight,
+                border: Border.all(
+                  color: isActive ? color : AppColors.borderLight,
+                  width: 1.2,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(
+                    isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                    size: 18,
+                    color: isSelected ? color : AppColors.textMutedLight,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                        color: isActive ? AppColors.textPrimaryLight : AppColors.textSecondaryLight,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(isSelected ? Icons.check_circle : Icons.circle_outlined, size: 16, color: color),
-            const SizedBox(width: 8),
-            Text(label, style: TextStyle(fontSize: 12, fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
-          ],
-        ),
-      ),
+        if (isSelected) ...[
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.clear, size: 20),
+            onPressed: onClear,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            color: AppColors.textMutedLight,
+          ),
+        ],
+      ],
     );
   }
 
   Widget _buildSearchBar(AppLocalizations l10n) {
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
     return Container(
-      height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLight, width: 1.0),
+        boxShadow: AppColors.cardShadow,
       ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: l10n.searchLocation,
-          prefixIcon: const Icon(Icons.search),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        ),
+      child: TypeAheadField<GeoSuggestion>(
+        suggestionsController: _suggestionsController,
+        suggestionsCallback: (search) => _geoapifyRepository.getSuggestions(search),
+        builder: (context, controller, focusNode) {
+          return TextField(
+            controller: controller,
+            focusNode: focusNode,
+            style: const TextStyle(fontSize: 15),
+            decoration: InputDecoration(
+              hintText: l10n.searchLocation,
+              hintStyle: const TextStyle(color: AppColors.textMutedLight),
+              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryBase),
+              suffixIcon: ValueListenableBuilder(
+                valueListenable: controller,
+                builder: (context, value, child) {
+                  if (controller.text.isEmpty) return const SizedBox.shrink();
+                  return IconButton(
+                    icon: const Icon(Icons.clear, size: 20),
+                    onPressed: () {
+                      controller.clear();
+                      locationProvider.clearSelection();
+                    },
+                  );
+                },
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+          );
+        },
+        itemBuilder: (context, suggestion) {
+          return ListTile(
+            leading: const Icon(Icons.location_on_outlined, size: 20),
+            title: Text(suggestion.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            subtitle: Text(suggestion.label, style: const TextStyle(fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+          );
+        },
+        onSelected: (suggestion) {
+          if (!locationProvider.isWithinMalaysia(suggestion.location)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.outOfMalaysiaRange)),
+            );
+            return;
+          }
+          if (locationProvider.mode == MapMode.display) {
+            locationProvider.setSelectedLocation(suggestion.location, suggestion.name);
+          } else {
+            if (_selectingOrigin) {
+              locationProvider.setOriginLocation(suggestion.location, suggestion.name);
+            } else {
+              locationProvider.setDestinationLocation(suggestion.location, suggestion.name);
+            }
+          }
+          locationProvider.moveTo(suggestion.location, zoom: 15.0);
+        },
       ),
     );
   }
 
   Widget _buildQuickAccessButtons(BuildContext context, AppLocalizations l10n) {
+    final locationProvider = Provider.of<LocationProvider>(context);
+    final hasSelection = locationProvider.selectedLocation != null ||
+        locationProvider.originLocation != null ||
+        locationProvider.destinationLocation != null;
+
     return Column(
       children: [
-        _buildRoundButton(Icons.monetization_on, AppColors.primaryBase, () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const CostOfLivingView()));
-        }),
+        _buildRoundButton(
+          icon: Icons.location_off,
+          iconColor: hasSelection ? AppColors.danger : AppColors.textMutedLight,
+          onTap: hasSelection ? () => locationProvider.clearSelection() : null,
+          tooltip: l10n.clearSelection,
+          enabled: hasSelection,
+        ),
         const SizedBox(height: 12),
-        _buildRoundButton(Icons.security, Colors.orange, () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const CrimeSecurityView()));
-        }),
-        const SizedBox(height: 12),
-        _buildRoundButton(Icons.analytics, Colors.purple, () {
-           Navigator.push(context, MaterialPageRoute(builder: (_) => const SocioEconomicView()));
-        }),
-        const SizedBox(height: 12),
-        _buildRoundButton(Icons.business, Colors.teal, () {
-           Navigator.push(context, MaterialPageRoute(builder: (_) => const InfrastructureView()));
-        }),
-        const SizedBox(height: 12),
-        _buildRoundButton(Icons.train, Colors.blue, () {
-           Navigator.push(context, MaterialPageRoute(builder: (_) => const TransportationView()));
-        }),
+        _buildRoundButton(
+          icon: Icons.analytics,
+          iconColor: locationProvider.isAnalysisReportOpen ? Colors.white : Colors.purple,
+          backgroundColor: locationProvider.isAnalysisReportOpen ? Colors.purple : AppColors.surfaceLight,
+          onTap: () => locationProvider.setAnalysisReportOpen(!locationProvider.isAnalysisReportOpen),
+          tooltip: l10n.analysisReport,
+        ),
       ],
     );
   }
 
-  Widget _buildRoundButton(IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildAnalysisPanel(BuildContext context, AppLocalizations l10n) {
+    return Material(
+      elevation: 16,
       child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        color: AppColors.surfaceLight,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: 40, bottom: 20),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBase.withValues(alpha: 0.08),
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.analytics, size: 48, color: AppColors.primaryBase),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.analysisReport,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryBase,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 0,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => context.read<LocationProvider>().setAnalysisReportOpen(false),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildDrawerItem(
+                    icon: Icons.monetization_on_rounded,
+                    color: AppColors.success,
+                    title: l10n.costOfLiving,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CostOfLivingView())),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.security_rounded,
+                    color: AppColors.warning,
+                    title: l10n.crimeSecurity,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CrimeSecurityView())),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.analytics_rounded,
+                    color: Colors.purple,
+                    title: l10n.socioEconomic,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SocioEconomicView())),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.business_rounded,
+                    color: AppColors.info,
+                    title: l10n.infrastructure,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InfrastructureView())),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.near_me_rounded,
+                    color: Colors.blueAccent,
+                    title: '周边设施 (OSM)',
+                    onTap: () {
+                      final provider = context.read<LocationProvider>();
+                      if (provider.selectedLocation != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NearbyFacilitiesView(),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('请先在地图上选择一个地点')),
+                        );
+                      }
+                    },
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.train_rounded,
+                    color: AppColors.primaryBaseAlternative,
+                    title: l10n.transportation,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TransportationView())),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        child: Icon(icon, color: color),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+      trailing: const Icon(Icons.chevron_right, size: 18),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildRoundButton({
+    required IconData icon,
+    required Color iconColor,
+    required VoidCallback? onTap,
+    Color? backgroundColor,
+    String? tooltip,
+    bool enabled = true,
+  }) {
+    return Tooltip(
+      message: (enabled && tooltip != null) ? tooltip : "",
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          customBorder: const CircleBorder(),
+          child: Opacity(
+            opacity: enabled ? 1.0 : 0.6,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: backgroundColor ?? AppColors.surfaceLight,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.borderLight, width: 1.0),
+                boxShadow: enabled ? AppColors.cardShadow : null,
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildLocationInfoCard(LocationProvider provider, AppLocalizations l10n) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 8,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(provider.selectedName ?? "Selected Location", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 4),
-            Text("${provider.selectedLocation!.latitude.toStringAsFixed(4)}, ${provider.selectedLocation!.longitude.toStringAsFixed(4)}",
-                style: const TextStyle(color: Colors.grey, fontSize: 14)),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: Text(l10n.viewDetails),
+    final bool isSaved = provider.isLocationSaved(provider.selectedLocation!);
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.borderLight, width: 1.0),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  provider.selectedName ?? "Selected Location",
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.textPrimaryLight),
                 ),
-              ],
-            )
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, color: AppColors.textSecondaryLight),
+                onPressed: () => provider.clearSelection(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                isSaved ? Icons.bookmark_rounded : Icons.location_on_rounded,
+                color: isSaved ? AppColors.primaryBase : AppColors.danger,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "${provider.selectedLocation!.latitude.toStringAsFixed(4)}, ${provider.selectedLocation!.longitude.toStringAsFixed(4)}",
+            style: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 14),
+          ),
+          if (!isSaved) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showSaveLocationDialog(provider.selectedLocation!, provider.selectedName),
+                icon: const Icon(Icons.bookmark_add_rounded),
+                label: Text(l10n.saveLocation),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBase,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

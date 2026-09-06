@@ -254,6 +254,12 @@ abstract class AppLocalizations {
   /// **'Transportation'**
   String get transportation;
 
+  /// No description provided for @analysisReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Reports'**
+  String get analysisReport;
+
   /// No description provided for @unemployment.
   ///
   /// In en, this message translates to:
@@ -305,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @stableInflationInfo.
   ///
   /// In en, this message translates to:
-  /// **'Stable inflation and dry season makes it ideal.'**
+  /// **'Stable inflation makes it an ideal time to relocate.'**
   String get stableInflationInfo;
 
   /// No description provided for @indexLabel.
@@ -313,30 +319,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Index'**
   String get indexLabel;
-
-  /// No description provided for @interMonsoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Inter-monsoon'**
-  String get interMonsoon;
-
-  /// No description provided for @lowFloodRisk.
-  ///
-  /// In en, this message translates to:
-  /// **'Low Flood Risk'**
-  String get lowFloodRisk;
-
-  /// No description provided for @idealForMoving.
-  ///
-  /// In en, this message translates to:
-  /// **'Ideal for moving house now.'**
-  String get idealForMoving;
-
-  /// No description provided for @nextPeak.
-  ///
-  /// In en, this message translates to:
-  /// **'Next peak: Nov'**
-  String get nextPeak;
 
   /// No description provided for @locationSelection.
   ///
@@ -440,6 +422,12 @@ abstract class AppLocalizations {
   /// **'Housing'**
   String get housing;
 
+  /// No description provided for @food.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get food;
+
   /// No description provided for @transport.
   ///
   /// In en, this message translates to:
@@ -476,23 +464,11 @@ abstract class AppLocalizations {
   /// **'Better than {percent}% of national areas'**
   String betterThanNational(Object percent);
 
-  /// No description provided for @floodRiskLevel.
-  ///
-  /// In en, this message translates to:
-  /// **'Flood Risk Level'**
-  String get floodRiskLevel;
-
   /// No description provided for @lowRisk.
   ///
   /// In en, this message translates to:
   /// **'Low Risk'**
   String get lowRisk;
-
-  /// No description provided for @noFloodHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'No flood records in last 5 years'**
-  String get noFloodHistory;
 
   /// No description provided for @crimeTypeFocus.
   ///
@@ -523,12 +499,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Crime Rate Trend'**
   String get crimeTrend;
-
-  /// No description provided for @warningBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'Note: Current Northeast Monsoon season, potential flood risk in low-lying areas.'**
-  String get warningBanner;
 
   /// No description provided for @incomeClassDistribution.
   ///
@@ -631,6 +601,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Excellent'**
   String get excellent;
+
+  /// No description provided for @good.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get good;
 
   /// No description provided for @iciDescription.
   ///
@@ -812,6 +788,162 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @enterUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your username'**
+  String get enterUsername;
+
+  /// No description provided for @invalidUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username can only contain letters, numbers, and spaces, and must have at least 3 letters or numbers'**
+  String get invalidUsername;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back'**
+  String get loginTitle;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get registerTitle;
+
+  /// No description provided for @noAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Register'**
+  String get noAccount;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Login'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get invalidEmail;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordComplexityError.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must include upper/lowercase letters, numbers, and special symbols (no spaces)'**
+  String get passwordComplexityError;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @authError.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed, please try again'**
+  String get authError;
+
+  /// No description provided for @errorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password'**
+  String get errorInvalidCredentials;
+
+  /// No description provided for @errorUserAlreadyRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered'**
+  String get errorUserAlreadyRegistered;
+
+  /// No description provided for @errorEmailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Email not confirmed, please check your inbox'**
+  String get errorEmailNotConfirmed;
+
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests, please try again later'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @errorUnexpected.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred, please try again'**
+  String get errorUnexpected;
+
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Login successful'**
+  String get loginSuccess;
+
+  /// No description provided for @registerSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful, please check your email'**
+  String get registerSuccess;
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get enterEmail;
+
+  /// No description provided for @enterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get enterPassword;
+
   /// No description provided for @reportHazard.
   ///
   /// In en, this message translates to:
@@ -895,6 +1027,269 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Property Inspection Portfolio'**
   String get propertyPortfolio;
+
+  /// No description provided for @budgetTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget Translation'**
+  String get budgetTranslation;
+
+  /// No description provided for @lifestyleComparisonText.
+  ///
+  /// In en, this message translates to:
+  /// **'To maintain your current lifestyle in {dest}, you need {percent}% {change} budget than in {origin}.'**
+  String lifestyleComparisonText(
+    Object dest,
+    Object percent,
+    Object change,
+    Object origin,
+  );
+
+  /// No description provided for @microPriceInsight.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro-Price Insight (5km)'**
+  String get microPriceInsight;
+
+  /// No description provided for @viewStores.
+  ///
+  /// In en, this message translates to:
+  /// **'View Stores'**
+  String get viewStores;
+
+  /// No description provided for @realTimePriceComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time price comparison of essential items within 5km of your target location.'**
+  String get realTimePriceComparison;
+
+  /// No description provided for @eggs.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade A Eggs (10s)'**
+  String get eggs;
+
+  /// No description provided for @chicken.
+  ///
+  /// In en, this message translates to:
+  /// **'Chicken (1KG)'**
+  String get chicken;
+
+  /// No description provided for @bread.
+  ///
+  /// In en, this message translates to:
+  /// **'White Bread'**
+  String get bread;
+
+  /// No description provided for @petrol.
+  ///
+  /// In en, this message translates to:
+  /// **'Petrol (RON95/L)'**
+  String get petrol;
+
+  /// No description provided for @less.
+  ///
+  /// In en, this message translates to:
+  /// **'less'**
+  String get less;
+
+  /// No description provided for @more.
+  ///
+  /// In en, this message translates to:
+  /// **'more'**
+  String get more;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @savedLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Locations'**
+  String get savedLocations;
+
+  /// No description provided for @saveCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Current Location'**
+  String get saveCurrentLocation;
+
+  /// No description provided for @saveLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Location'**
+  String get saveLocation;
+
+  /// No description provided for @pickOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick on Map'**
+  String get pickOnMap;
+
+  /// No description provided for @selectSavedLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Saved Location'**
+  String get selectSavedLocation;
+
+  /// No description provided for @enterLocationName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter location name'**
+  String get enterLocationName;
+
+  /// No description provided for @locationName.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Name'**
+  String get locationName;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @noSavedLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved locations'**
+  String get noSavedLocations;
+
+  /// No description provided for @outOfMalaysiaRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected location is outside Malaysia range'**
+  String get outOfMalaysiaRange;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Selection'**
+  String get clearSelection;
+
+  /// No description provided for @securityRiskAssessment.
+  ///
+  /// In en, this message translates to:
+  /// **'Security & Risk Assessment'**
+  String get securityRiskAssessment;
+
+  /// No description provided for @policeDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'Police District'**
+  String get policeDistrict;
+
+  /// No description provided for @securityScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Score'**
+  String get securityScore;
+
+  /// No description provided for @monsoonChecklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Monsoon Check'**
+  String get monsoonChecklist;
+
+  /// No description provided for @nearbyHazards.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Hazards'**
+  String get nearbyHazards;
+
+  /// No description provided for @drainage.
+  ///
+  /// In en, this message translates to:
+  /// **'Drainage'**
+  String get drainage;
+
+  /// No description provided for @waterproofing.
+  ///
+  /// In en, this message translates to:
+  /// **'Waterproofing'**
+  String get waterproofing;
+
+  /// No description provided for @humidity.
+  ///
+  /// In en, this message translates to:
+  /// **'Humidity'**
+  String get humidity;
+
+  /// No description provided for @lighting.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighting'**
+  String get lighting;
+
+  /// No description provided for @fetchingRiskData.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching risk data...'**
+  String get fetchingRiskData;
+
+  /// No description provided for @propertyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Property Details'**
+  String get propertyDetails;
+
+  /// No description provided for @saveProperty.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Property'**
+  String get saveProperty;
+
+  /// No description provided for @mainImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Image'**
+  String get mainImage;
+
+  /// No description provided for @tapToSetMainImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap photo to set as main image'**
+  String get tapToSetMainImage;
+
+  /// No description provided for @swipeForMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to view more'**
+  String get swipeForMore;
+
+  /// No description provided for @totalPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} photos'**
+  String totalPhotos(Object count);
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @editScenario.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Scenario'**
+  String get editScenario;
+
+  /// No description provided for @expenseIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense Increase'**
+  String get expenseIncrease;
 }
 
 class _AppLocalizationsDelegate

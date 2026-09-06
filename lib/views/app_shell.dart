@@ -4,22 +4,30 @@ import 'package:provider/provider.dart';
 import '../core/app_colors.dart';
 import '../providers/locale_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/home_provider.dart';
 import 'map/map_view.dart';
 import 'home/home_screen.dart';
 import 'account/account_view.dart';
+import 'account/login_view.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  State<AppShell> createState() => AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class AppShellState extends State<AppShell> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     MapView(),
   ];
+
+  void onItemTapped(int index) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    Provider.of<NavigationProvider>(context, listen: false).setIndex(index);
+  }
 
   List<String> _getTitles(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -31,6 +39,11 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    if (!authProvider.isAuthenticated) {
+      return const LoginView();
+    }
+
     final l10n = AppLocalizations.of(context)!;
     final titles = _getTitles(context);
     final navProvider = Provider.of<NavigationProvider>(context);
@@ -46,6 +59,34 @@ class _AppShellState extends State<AppShell> {
         ),
         titleSpacing: 16,
         actions: [
+          if (selectedIndex == 0)
+            Consumer<HomeProvider>(
+              builder: (context, homeProvider, _) {
+                return IconButton(
+                  icon: homeProvider.isLoading 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.refresh_rounded),
+                  onPressed: homeProvider.isLoading ? null : () async {
+                    if (homeProvider.isRefreshLocked) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('请稍后再试，剩余 ${homeProvider.secondsUntilUnlock} 秒'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    } else {
+                      await homeProvider.loadStats(force: true);
+                      if (homeProvider.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(homeProvider.error!), behavior: SnackBarBehavior.floating),
+                        );
+                        homeProvider.clearError();
+                      }
+                    }
+                  },
+                );
+              }
+            ),
           PopupMenuButton<Locale>(
             icon: const Icon(Icons.language_rounded),
             tooltip: 'Change Language',
@@ -93,7 +134,10 @@ class _AppShellState extends State<AppShell> {
           const SizedBox(width: 16),
         ],
       ) : null,
-      body: _widgetOptions.elementAt(selectedIndex),
+      body: IndexedStack(
+        index: selectedIndex,
+        children: _widgetOptions,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
@@ -105,8 +149,8 @@ class _AppShellState extends State<AppShell> {
         ),
         child: BottomNavigationBar(
           items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: const Icon(Icons.home_rounded), label: l10n.navHome),
-            BottomNavigationBarItem(icon: const Icon(Icons.map_rounded), label: l10n.navMap),
+            BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navHome),
+            BottomNavigationBarItem(icon: const Icon(Icons.map), label: l10n.navMap),
           ],
           currentIndex: selectedIndex,
           selectedItemColor: AppColors.primaryBase,
@@ -115,7 +159,7 @@ class _AppShellState extends State<AppShell> {
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 10, height: 1.2),
           selectedFontSize: 10,
           unselectedFontSize: 10,
-          onTap: (index) => navProvider.setIndex(index),
+          onTap: onItemTapped,
           type: BottomNavigationBarType.fixed,
           backgroundColor: AppColors.surfaceLight,
           elevation: 0,
