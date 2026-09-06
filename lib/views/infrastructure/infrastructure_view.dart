@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/analysis/infrastructure_provider.dart';
 import '../../widgets/analysis_location_selector.dart';
+import '../../core/ici_score.dart';
 
 class InfrastructureView extends StatelessWidget {
   const InfrastructureView({super.key});
@@ -32,7 +33,7 @@ class InfrastructureView extends StatelessWidget {
 
   /// 与 provider 内部 key 完全一致（无坐标时为 'na'）。
   static String _locKey(String district, double? lat, double? lng) {
-    return '${district}|${lat?.toStringAsFixed(3) ?? 'na'}|${lng?.toStringAsFixed(3) ?? 'na'}';
+    return '$district|${lat?.toStringAsFixed(3) ?? 'na'}|${lng?.toStringAsFixed(3) ?? 'na'}';
   }
 
   @override
@@ -50,6 +51,14 @@ class InfrastructureView extends StatelessWidget {
     final scores = infraData?['scores'] as Map<String, dynamic>?;
     final iciScore = infraProvider.weightedIciScore ??
         (infraData?['ici_score'] as num?)?.toDouble();
+
+    // 缺数据项（不含“未选点导致的 transit 未评估”）→ 用于完整性徽章与提示。
+    final transitApplicable =
+        (infraData?['transit_applicable'] as bool?) ??
+            (scores?['transit'] is num);
+    final missingItems = scores == null
+        ? const <String>[]
+        : missingSourceItems(scores, transitApplicable: transitApplicable);
 
     final key = _locKey(
       district,
@@ -73,7 +82,8 @@ class InfrastructureView extends StatelessWidget {
                         children: [
                           const AnalysisLocationSelector(),
                           const SizedBox(height: 16),
-                          _buildIciHero(context, l10n, district, iciScore),
+                          _buildIciHero(
+                              context, l10n, district, iciScore, missingItems),
                           const SizedBox(height: 16),
                           _buildServiceGrid(context, l10n, scores),
                           const SizedBox(height: 16),
@@ -124,8 +134,9 @@ class InfrastructureView extends StatelessWidget {
   }
 
   Widget _buildIciHero(BuildContext context, AppLocalizations l10n,
-      String district, double? iciScore) {
+      String district, double? iciScore, List<String> missingItems) {
     final display = iciScore?.toStringAsFixed(1) ?? '—';
+    final isComplete = missingItems.isEmpty;
     return BentoCard(
       backgroundColor: AppColors.primaryBase,
       child: Column(
@@ -142,10 +153,16 @@ class InfrastructureView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              if (iciScore != null)
+              if (isComplete && iciScore != null)
                 StatusBadge(
                   label: iciScore > 80 ? l10n.excellent : l10n.good,
                   type: iciScore > 80 ? StatusType.success : StatusType.info,
+                )
+              else if (!isComplete)
+                const StatusBadge(
+                  label: '数据不完整',
+                  icon: Icons.warning_amber_rounded,
+                  type: StatusType.warning,
                 ),
             ],
           ),
@@ -160,9 +177,48 @@ class InfrastructureView extends StatelessWidget {
             style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
             textAlign: TextAlign.center,
           ),
+          if (!isComplete) ...[
+            const SizedBox(height: 10),
+            Text(
+              _missingHint(missingItems, l10n),
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  /// 缺失子项的中文名（供提示文案展示）。
+  String _describeMissing(List<String> keys, AppLocalizations l10n) {
+    String nameOf(String key) {
+      switch (key) {
+        case 'water':
+          return l10n.waterSupply;
+        case 'power':
+          return l10n.electricNetwork;
+        case 'healthcare':
+          return l10n.medicalDensity;
+        case 'education':
+          return l10n.educationalResources;
+        case 'transit':
+          return '交通站点密度';
+        default:
+          return key;
+      }
+    }
+
+    return keys.map(nameOf).join('、');
+  }
+
+  /// “缺数据”提示文案。
+  String _missingHint(List<String> missingItems, AppLocalizations l10n) {
+    final names = _describeMissing(missingItems, l10n);
+    final head = missingItems.length == 1
+        ? '缺少 $names 数据'
+        : '缺少 $names 等 ${missingItems.length} 项数据';
+    return '$head，缺失项按 0 计入指数，仅供参考';
   }
 
   String? _scoreText(Map<String, dynamic>? scores, String key) {

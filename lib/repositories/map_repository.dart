@@ -151,15 +151,34 @@ class MapRepository {
 
   Future<void> removeLocalSavedLocation(String id) async {
     final db = await _cacheService.database;
+    // 先取该收藏的坐标：云端 user_saved_regions 的 (user_id, district_id) 唯一键
+    // 中 district_id 保存的是 “lat,lng” 坐标串，删除需按它精确匹配。
+    final List<Map<String, dynamic>> rows = await db.query(
+      'saved_locations',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     await db.delete('saved_locations', where: 'id = ?', whereArgs: [id]);
-    
+
     // Also try to delete from Supabase if authenticated
     final user = _supabase.auth.currentUser;
-    if (user != null) {
-      try {
-        await _supabase.from('user_saved_regions').delete().eq('alias', id); // Using alias to store local ID for mapping
-      } catch (e) {
-        print('Error deleting from Supabase: $e');
+    if (user != null && rows.isNotEmpty) {
+      final lat = (rows.first['latitude'] as num?)?.toDouble();
+      final lng = (rows.first['longitude'] as num?)?.toDouble();
+      if (lat != null && lng != null) {
+        try {
+          // district_id 与该收藏同步时写入的坐标串完全一致，且 (user_id,
+          // district_id) 唯一，删除必然精确命中该云端行（旧实现按 alias=本地
+          // UUID 匹配是无效的——云端 alias 存的是收藏名称）。
+          await _supabase
+              .from('user_saved_regions')
+              .delete()
+              .eq('user_id', user.id)
+              .eq('district_id', '${lat.toString()},${lng.toString()}');
+        } catch (e) {
+          print('Error deleting from Supabase: $e');
+        }
       }
     }
   }
@@ -176,16 +195,20 @@ class MapRepository {
 
     for (var map in unsynced) {
       final location = SavedLocation.fromMap(map);
+      final districtId = '${location.location.latitude},${location.location.longitude}';
       try {
-        // According to real_supabase_tables.md, user_saved_regions has:
-        // user_id, district_id, alias
-        // We'll store our local ID in alias and coordinates in district_id or similar.
-        // But district_id is TEXT. Let's store coords as string for now if district lookup isn't available.
+        // user_saved_regions 对 (user_id, district_id) 有唯一约束；本地每条收藏
+        // 都有独立 id（毫秒时间戳），而云端行主键是云端生成的 uuid。若这里不
+        // 显式指定 onConflict，PostgREST 会按主键 id 判断冲突（永不冲突）→ 等价
+        // 于 INSERT，同一坐标再次同步就会触发 duplicate key
+        // (user_saved_regions_user_id_district_id_key)。
+        // 显式 onConflict='user_id,district_id' 后，同一坐标重复同步会更新已
+        // 有行而不是重复插入，天然幂等，可安全重试。
         await _supabase.from('user_saved_regions').upsert({
           'user_id': user.id,
-          'district_id': '${location.location.latitude},${location.location.longitude}',
+          'district_id': districtId,
           'alias': location.name,
-        });
+        }, onConflict: 'user_id,district_id');
 
         // Mark as synced locally
         await db.update(

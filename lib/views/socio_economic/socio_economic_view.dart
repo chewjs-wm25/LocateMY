@@ -157,6 +157,9 @@ class _SocioEconomicViewState extends State<SocioEconomicView> {
     final shareB40 = (data['class_share_b40'] as num?)?.toDouble();
     final shareM40 = (data['class_share_m40'] as num?)?.toDouble();
     final shareT20 = (data['class_share_t20'] as num?)?.toDouble();
+    final b40Ceiling = (data['b40_ceiling'] as num?)?.toDouble();
+    final t20Floor = (data['t20_floor'] as num?)?.toDouble();
+    final giniEstimated = data['gini_is_estimated'] == true;
 
     return BentoCard(
       child: Column(
@@ -176,7 +179,10 @@ class _SocioEconomicViewState extends State<SocioEconomicView> {
                 ),
               ),
               const SizedBox(width: 8),
-              StatusBadge(label: l10n.dosmOfficialData, type: StatusType.info),
+              StatusBadge(
+                label: giniEstimated ? l10n.dosmOfficialData : 'HIES 官方数据',
+                type: giniEstimated ? StatusType.info : StatusType.success,
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -198,9 +204,18 @@ class _SocioEconomicViewState extends State<SocioEconomicView> {
             )
           else
             Text('暂无收入数据', style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight)),
+          if (b40Ceiling != null && t20Floor != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              'B40 门槛 ≤ RM ${_fmt(b40Ceiling)} · T20 门槛 ≥ RM ${_fmt(t20Floor)}（全国官方 HIES 口径）',
+              style: const TextStyle(fontSize: 10, color: AppColors.textMutedLight),
+            ),
+          ],
           const SizedBox(height: 4),
           Text(
-            '阶层占比与基尼系数为基于收入均值/中位数的估算值',
+            giniEstimated
+                ? '基尼系数暂缺官方值，按收入分布推算（估算）'
+                : '基尼系数来自 DOSM HIES 官方数据；阶层占比按官方门槛与该地区收入分布推算',
             style: const TextStyle(fontSize: 10, color: AppColors.textMutedLight),
           ),
         ],
@@ -260,7 +275,9 @@ class _SocioEconomicViewState extends State<SocioEconomicView> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  gini != null ? '${gini.toStringAsFixed(3)}（估算）' : '—',
+                  gini != null
+                      ? '${gini.toStringAsFixed(3)}${data['gini_is_estimated'] == true ? '（估算）' : ''}'
+                      : '—',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryBase),
                 ),
                 if (gini != null)
@@ -269,6 +286,15 @@ class _SocioEconomicViewState extends State<SocioEconomicView> {
                     type: gini < 0.35
                         ? StatusType.success
                         : (gini < 0.45 ? StatusType.warning : StatusType.danger),
+                  ),
+                if (data['gini_is_estimated'] != true &&
+                    data['gini_source'] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '官方口径（${data['gini_source'] == 'district' ? '县级' : (data['gini_source'] == 'state' ? '州级' : '全国')} HIES）',
+                      style: const TextStyle(fontSize: 9, color: AppColors.textMutedLight),
+                    ),
                   ),
                 if (growth != null)
                   Padding(
@@ -325,7 +351,7 @@ class _SocioEconomicViewState extends State<SocioEconomicView> {
             ],
           ),
           const SizedBox(height: 6),
-          Text('依据该县收入中位数与均值拟合（估算曲线）',
+          Text('对数正态拟合曲线，σ 已按 HIES 官方基尼校准（非直接官方分布）',
               style: const TextStyle(
                   fontSize: 10, color: AppColors.textMutedLight)),
           const SizedBox(height: 16),

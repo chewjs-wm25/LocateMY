@@ -15,6 +15,26 @@ class SecurityRepository {
   final SupabaseClientManager _supabase = SupabaseClientManager();
   final LocalCacheService _cache = LocalCacheService();
 
+  /// 按警区名获取 `police_districts_boundary` 的几何边界（GeoJSON）。
+  ///
+  /// 治安页交互地图卡用来高亮当前警区轮廓；几何由 PostgREST 以
+  /// GeoJSON 对象（Polygon / MultiPolygon）返回。
+  Future<Map<String, dynamic>?> fetchPoliceDistrictBoundary(String name) async {
+    if (name.isEmpty) return null;
+    try {
+      final rows = await _supabase
+          .from('police_districts_boundary')
+          .select('id, name, state, boundary_geom')
+          .eq('name', name)
+          .limit(1);
+      if (rows.isEmpty) return null;
+      return (rows.first as Map).cast<String, dynamic>();
+    } catch (e) {
+      debugPrint('SecurityRepository fetch boundary error: $e');
+      return null;
+    }
+  }
+
   static const Map<String, String> _stateCodeToFull = {
     'SGR': 'Selangor',
     'JHR': 'Johor',
