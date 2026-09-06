@@ -1,5 +1,4 @@
 import 'package:latlong2/latlong.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase/supabase_client_manager.dart';
 import '../core/cache/local_cache_service.dart';
 import '../models/hazard_marker.dart';
@@ -16,7 +15,7 @@ class MapRepository {
     try {
       final response = await _supabase.from('crowdsourced_hazards').select();
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => _parseHazardMarker(json as Map<String, dynamic>)).toList();
+      return data.map((json) => parseHazardMarker(json as Map<String, dynamic>)).toList();
     } catch (e) {
       print('Error fetching hazards: $e');
       return [];
@@ -41,7 +40,7 @@ class MapRepository {
     }
   }
 
-  HazardType _parseHazardType(String? type) {
+  static HazardType _parseHazardType(String? type) {
     return HazardType.values.firstWhere(
       (e) => e.name == type,
       orElse: () => HazardType.other,
@@ -62,7 +61,7 @@ class MapRepository {
           .order('report_time', ascending: false);
       
       final List<dynamic> data = response as List<dynamic>;
-      return data.map((json) => _parseHazardMarker(json)).toList();
+      return data.map((json) => parseHazardMarker(json)).toList();
     } catch (e) {
       print('Error fetching user hazards: $e');
       return [];
@@ -79,21 +78,40 @@ class MapRepository {
     }
   }
 
-  HazardMarker _parseHazardMarker(Map<String, dynamic> json) {
+  /// 将 Supabase `crowdsourced_hazards` 的一行记录解析为 [HazardMarker]。
+  ///
+  /// PostGIS `geometry` 列经 Supabase REST 返回的是 GeoJSON，例如：
+  ///   {"type":"Point","crs":{...},"coordinates":[lng, lat]}
+  /// 坐标数组始终是 [经度, 纬度]，因此解析为 LatLng 时要交换位置。
+  static HazardMarker parseHazardMarker(Map<String, dynamic> json) {
     final dynamic locationData = json['location'];
     LatLng pos = const LatLng(0, 0);
-    
+
     if (locationData is String && locationData.contains('POINT')) {
-      // Handle "POINT(lng lat)" format from PostGIS
-      final content = locationData.replaceAll('POINT(', '').replaceAll(')', '').trim();
+      // Handle "SRID=4326;POINT(lng lat)" / "POINT(lng lat)" text format
+      final content = locationData
+          .replaceFirst(RegExp(r'^SRID=\d+;'), '')
+          .replaceAll('POINT(', '')
+          .replaceAll(')', '')
+          .trim();
       final coords = content.split(RegExp(r'\s+'));
       if (coords.length >= 2) {
         pos = LatLng(double.parse(coords[1]), double.parse(coords[0]));
       }
     } else if (locationData is Map<String, dynamic>) {
-      final lat = locationData['lat'] ?? locationData['latitude'] ?? 0.0;
-      final lng = locationData['lng'] ?? locationData['longitude'] ?? 0.0;
-      pos = LatLng((lat as num).toDouble(), (lng as num).toDouble());
+      final rawCoordinates = locationData['coordinates'];
+      if (rawCoordinates is List && rawCoordinates.length >= 2) {
+        // GeoJSON: coordinates = [longitude, latitude]
+        pos = LatLng(
+          (rawCoordinates[1] as num).toDouble(),
+          (rawCoordinates[0] as num).toDouble(),
+        );
+      } else {
+        // 普通对象: 直接提供 lat / lng 键
+        final lat = locationData['lat'] ?? locationData['latitude'] ?? 0.0;
+        final lng = locationData['lng'] ?? locationData['longitude'] ?? 0.0;
+        pos = LatLng((lat as num).toDouble(), (lng as num).toDouble());
+      }
     } else if (json['latitude'] != null && json['longitude'] != null) {
       pos = LatLng((json['latitude'] as num).toDouble(), (json['longitude'] as num).toDouble());
     }

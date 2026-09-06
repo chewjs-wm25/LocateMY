@@ -27,14 +27,14 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   bool _selectingOrigin = true;
   bool _showHazards = true;
+  /// 对比模式下，底部详情卡当前展示哪一侧地点（true=原地址，false=新地址）。
+  /// 由最近一次地图落点/收藏选择决定。
+  bool _comparisonCardShowsOrigin = true;
   final GeoapifyRepository _geoapifyRepository = GeoapifyRepository();
   final SuggestionsController<GeoSuggestion> _suggestionsController = SuggestionsController<GeoSuggestion>();
 
   // Malaysia bounds
-  final LatLngBounds _malaysiaBounds = LatLngBounds(
-    const LatLng(0.8, 98.5),
-    const LatLng(7.5, 120.0),
-  );
+  // (范围判断统一由 LocationProvider.isWithinMalaysia 提供，此处不再保留副本)
 
   void _showAddHazardDialog(LatLng point) {
     final l10n = AppLocalizations.of(context)!;
@@ -402,7 +402,7 @@ class _MapViewState extends State<MapView> {
 
   void _showSaveLocationDialog(LatLng location, String? initialName) {
     final l10n = AppLocalizations.of(context)!;
-    final nameController = TextEditingController(text: initialName == "Selected Location" ? "" : initialName);
+    final nameController = TextEditingController(text: initialName ?? '');
     
     showDialog(
       context: context,
@@ -501,6 +501,11 @@ class _MapViewState extends State<MapView> {
     final hazardProvider = Provider.of<HazardProvider>(context);
     final safeTop = MediaQuery.of(context).padding.top;
 
+    // 对比模式详情卡目标：当前激活侧（原地址/新地址）已落点则显示
+    final comparisonTarget = locationProvider.mode == MapMode.comparison
+        ? _activeComparisonTarget(locationProvider)
+        : null;
+
     return Material(
       color: AppColors.backgroundLight,
       child: Stack(
@@ -537,8 +542,10 @@ class _MapViewState extends State<MapView> {
                 } else {
                   if (_selectingOrigin) {
                     locationProvider.setOriginLocation(point, "Origin");
+                    _comparisonCardShowsOrigin = true;
                   } else {
                     locationProvider.setDestinationLocation(point, "Destination");
+                    _comparisonCardShowsOrigin = false;
                   }
                 }
               },
@@ -548,6 +555,23 @@ class _MapViewState extends State<MapView> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.locatemy.assignment.app',
               ),
+              // 对比模式：用一条线连接原地址与新地址
+              if (locationProvider.mode == MapMode.comparison &&
+                  locationProvider.originLocation != null &&
+                  locationProvider.destinationLocation != null)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: [
+                        locationProvider.originLocation!,
+                        locationProvider.destinationLocation!,
+                      ],
+                      strokeWidth: 4,
+                      color: AppColors.primaryBaseAlternative,
+                      strokeCap: StrokeCap.round,
+                    ),
+                  ],
+                ),
               MarkerLayer(
                 key: ValueKey('map_markers_${locationProvider.selectedLocation}_${locationProvider.originLocation}_${locationProvider.destinationLocation}_${hazardProvider.hazards.length}_$_showHazards'),
                 markers: [
@@ -636,9 +660,26 @@ class _MapViewState extends State<MapView> {
                   backgroundColor: AppColors.danger,
                   foregroundColor: Colors.white,
                 ),
-                if (locationProvider.mode == MapMode.display && locationProvider.selectedLocation != null) ...[
+                if (locationProvider.mode == MapMode.display &&
+                    locationProvider.selectedLocation != null) ...[
                   const SizedBox(height: 16),
-                  _buildLocationInfoCard(locationProvider, l10n),
+                  _buildDetailCard(
+                    locationProvider: locationProvider,
+                    l10n: l10n,
+                    location: locationProvider.selectedLocation!,
+                    name: locationProvider.selectedName,
+                    fallbackTitle: 'Selected Location',
+                    typeIcon: Icons.location_on_rounded,
+                    typeColor: AppColors.danger,
+                    onClear: locationProvider.clearSelection,
+                  ),
+                ] else if (comparisonTarget != null) ...[
+                  const SizedBox(height: 16),
+                  _buildComparisonDetailCard(
+                    locationProvider: locationProvider,
+                    l10n: l10n,
+                    target: comparisonTarget,
+                  ),
                 ],
               ],
             ),
@@ -744,14 +785,15 @@ class _MapViewState extends State<MapView> {
     }
     
     // Comparison Mode Markers
+    // 徽章以坐标点为中心放置，确保连线端点从图标中心穿过
     if (provider.mode == MapMode.comparison) {
       if (provider.originLocation != null) {
         markers.add(Marker(
           key: const ValueKey('origin_marker'),
           point: provider.originLocation!,
-          width: 60,
-          height: 60,
-          alignment: Alignment.bottomCenter,
+          width: 50,
+          height: 50,
+          alignment: Alignment.center,
           child: _buildRobustPin(AppColors.primaryBase, Icons.home),
         ));
       }
@@ -759,9 +801,9 @@ class _MapViewState extends State<MapView> {
         markers.add(Marker(
           key: const ValueKey('destination_marker'),
           point: provider.destinationLocation!,
-          width: 60,
-          height: 60,
-          alignment: Alignment.bottomCenter,
+          width: 50,
+          height: 50,
+          alignment: Alignment.center,
           child: _buildRobustPin(AppColors.accent, Icons.flag),
         ));
       }
@@ -898,8 +940,10 @@ class _MapViewState extends State<MapView> {
                       onTap: () {
                         if (isOrigin) {
                           locationProvider.setOriginLocation(loc.location, loc.name);
+                          _comparisonCardShowsOrigin = true;
                         } else {
                           locationProvider.setDestinationLocation(loc.location, loc.name);
+                          _comparisonCardShowsOrigin = false;
                         }
                         locationProvider.moveTo(loc.location, zoom: 15.0);
                         Navigator.pop(context);
@@ -1270,9 +1314,44 @@ class _MapViewState extends State<MapView> {
     );
   }
 
-  Widget _buildLocationInfoCard(LocationProvider provider, AppLocalizations l10n) {
-    final bool isSaved = provider.isLocationSaved(provider.selectedLocation!);
-    
+  /// 对比模式详情卡的目标地点：当前激活侧（原地址/新地址）且已落地。
+  _ComparisonTarget? _activeComparisonTarget(LocationProvider provider) {
+    if (_comparisonCardShowsOrigin) {
+      final origin = provider.originLocation;
+      if (origin == null) return null;
+      return _ComparisonTarget(
+        location: origin,
+        name: provider.originName,
+        isOrigin: true,
+      );
+    }
+    final destination = provider.destinationLocation;
+    if (destination == null) return null;
+    return _ComparisonTarget(
+      location: destination,
+      name: provider.destinationName,
+      isOrigin: false,
+    );
+  }
+
+  /// 通用“地点详情卡”：展示地点名与坐标，支持一键保存为收藏地点。
+  Widget _buildDetailCard({
+    required LocationProvider locationProvider,
+    required AppLocalizations l10n,
+    required LatLng location,
+    required String? name,
+    required String fallbackTitle,
+    required IconData typeIcon,
+    required Color typeColor,
+    required VoidCallback onClear,
+  }) {
+    final bool isSaved = locationProvider.isLocationSaved(location);
+    // 点击地图产生的默认名（Selected Location/Origin/Destination）视为未命名
+    final bool isGenericName =
+        name == null || name.isEmpty || _isGenericLocationName(name);
+    final String title = isGenericName ? fallbackTitle : name;
+    final String? saveInitialName = isGenericName ? null : name;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1290,26 +1369,26 @@ class _MapViewState extends State<MapView> {
             children: [
               Expanded(
                 child: Text(
-                  provider.selectedName ?? "Selected Location",
+                  title,
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.textPrimaryLight),
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.close, color: AppColors.textSecondaryLight),
-                onPressed: () => provider.clearSelection(),
+                onPressed: onClear,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               const SizedBox(width: 8),
               Icon(
-                isSaved ? Icons.bookmark_rounded : Icons.location_on_rounded,
-                color: isSaved ? AppColors.primaryBase : AppColors.danger,
+                isSaved ? Icons.bookmark_rounded : typeIcon,
+                color: isSaved ? AppColors.primaryBase : typeColor,
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            "${provider.selectedLocation!.latitude.toStringAsFixed(4)}, ${provider.selectedLocation!.longitude.toStringAsFixed(4)}",
+            "${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}",
             style: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 14),
           ),
           if (!isSaved) ...[
@@ -1317,7 +1396,7 @@ class _MapViewState extends State<MapView> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () => _showSaveLocationDialog(provider.selectedLocation!, provider.selectedName),
+                onPressed: () => _showSaveLocationDialog(location, saveInitialName),
                 icon: const Icon(Icons.bookmark_add_rounded),
                 label: Text(l10n.saveLocation),
                 style: ElevatedButton.styleFrom(
@@ -1333,4 +1412,46 @@ class _MapViewState extends State<MapView> {
       ),
     );
   }
+
+  /// 对比模式：展示当前激活侧（原地址或新地址）的地点详情卡。
+  Widget _buildComparisonDetailCard({
+    required LocationProvider locationProvider,
+    required AppLocalizations l10n,
+    required _ComparisonTarget target,
+  }) {
+    return _buildDetailCard(
+      locationProvider: locationProvider,
+      l10n: l10n,
+      location: target.location,
+      name: target.name,
+      fallbackTitle: target.isOrigin ? l10n.currentAddress : l10n.newAddress,
+      typeIcon: target.isOrigin ? Icons.home_rounded : Icons.flag_rounded,
+      typeColor: target.isOrigin ? AppColors.primaryBase : AppColors.accent,
+      onClear: () {
+        if (target.isOrigin) {
+          locationProvider.setOriginLocation(null, null);
+        } else {
+          locationProvider.setDestinationLocation(null, null);
+        }
+      },
+    );
+  }
+
+  bool _isGenericLocationName(String name) =>
+      name == 'Selected Location' || name == 'Origin' || name == 'Destination';
+}
+
+/// 对比模式下地图两端点中的其中一侧（原地址或新地址）。
+class _ComparisonTarget {
+  const _ComparisonTarget({
+    required this.location,
+    required this.name,
+    required this.isOrigin,
+  });
+
+  final LatLng location;
+  final String? name;
+
+  /// true = 原地址 (Origin)，false = 新地址 (Destination)
+  final bool isOrigin;
 }

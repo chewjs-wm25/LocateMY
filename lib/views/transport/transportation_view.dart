@@ -15,6 +15,16 @@ import '../../widgets/analysis_location_selector.dart';
 class TransportationView extends StatelessWidget {
   const TransportationView({super.key});
 
+  void _ensureLoaded(TransitProvider provider, LocationProvider locationProvider) {
+    final latLng = locationProvider.selectedLocation ?? const LatLng(3.1390, 101.6869);
+    final key = '${latLng.latitude}_${latLng.longitude}';
+    if (!provider.isLoading && provider.requestKey != key) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        provider.loadNearbyStops(latLng.latitude, latLng.longitude);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -25,152 +35,238 @@ class TransportationView extends StatelessWidget {
     final stops = transitProvider.nearbyStops;
     final isLoading = transitProvider.isLoading;
 
-    // Trigger fetch
-    if (stops.isEmpty && !isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        transitProvider.loadNearbyStops(latLng.latitude, latLng.longitude);
-      });
-    }
+    _ensureLoaded(transitProvider, locationProvider);
+
+    final key =
+        '${latLng.latitude.toStringAsFixed(3)}_${latLng.longitude.toStringAsFixed(3)}';
+    final hasDataForKey = transitProvider.requestKey == key && transitProvider.hasLoaded;
+    final showError = !isLoading &&
+        transitProvider.error != null &&
+        transitProvider.requestKey == key;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.titleTransport)),
-      body: isLoading 
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: showError
+          ? _buildError(context, l10n, transitProvider, latLng)
+          : (isLoading || !hasDataForKey)
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AnalysisLocationSelector(),
+                      const SizedBox(height: 16),
+                      _buildConnectivityCard(context, l10n, stops, latLng),
+                      const SizedBox(height: 16),
+                      _buildStationsCard(context, l10n, stops),
+                      const SizedBox(height: 16),
+                      _buildMapCard(context, l10n, locationProvider, latLng),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, AppLocalizations l10n,
+      TransitProvider provider, LatLng latLng) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const AnalysisLocationSelector(),
-            const SizedBox(height: 16),
-            // Connectivity Score Bento
-            BentoCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          l10n.connectivityScore,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      StatusBadge(label: l10n.highlyConvenient, type: StatusType.accent, icon: Icons.bolt_rounded),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      const Text(
-                        '72',
-                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppColors.accent),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: 0.72,
-                                minHeight: 8,
-                                backgroundColor: AppColors.accentContainer,
-                                color: AppColors.accent,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(l10n.betterThanKL('88'), style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryLight)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Nearest Stations Bento
-            Text(l10n.nearbyStations, style: Theme.of(context).textTheme.titleMedium),
+            const Icon(Icons.cloud_off_rounded, size: 44, color: AppColors.textMutedLight),
             const SizedBox(height: 12),
-            BentoCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: stops.map((stop) => Column(
-                  children: [
-                    _buildStationItem(
-                      context,
-                      stop['transit_type'] == 'Bus' ? Icons.directions_bus_rounded : Icons.train_rounded,
-                      stop['stop_name'],
-                      stop['transit_type'],
-                      '${stop['distance_meters'].toInt()}m',
-                      stop['transit_type'] == 'Bus' ? AppColors.success : AppColors.primaryBase,
-                    ),
-                    if (stops.indexOf(stop) != stops.length - 1)
-                      const Divider(height: 1, color: AppColors.borderLight),
-                  ],
-                )).toList(),
-              ),
+            const Text('该位置暂无公交站点数据', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 6),
+            Text(
+              provider.error ?? '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
             ),
             const SizedBox(height: 16),
-
-            // Heatmap Bento
-            BentoCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          l10n.trafficDensityHeatmap,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          minimumSize: Size.zero,
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(l10n.viewDetails, style: const TextStyle(fontSize: 12)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  MiniMap(
-                    center: latLng,
-                    onTap: () {
-                      locationProvider.moveTo(latLng);
-                      final appShellState = context.findAncestorStateOfType<AppShellState>();
-                      if (appShellState != null) {
-                        appShellState.onItemTapped(1);
-                        Navigator.popUntil(context, (route) => route.isFirst);
-                      }
-                    },
-                  ),
-                ],
-              ),
+            FilledButton.icon(
+              onPressed: () =>
+                  provider.loadNearbyStops(latLng.latitude, latLng.longitude, force: true),
+              icon: const Icon(Icons.refresh),
+              label: const Text('重试'),
             ),
-            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStationItem(BuildContext context, IconData icon, String name, String lines, String distance, Color color) {
+  /// 连通性评分由真实站点数据派生：1.5km 内 60 个站点视为满分（与 ICI 同口径）。
+  double _scoreFor(List<Map<String, dynamic>> stops) {
+    if (stops.isEmpty) return 0;
+    final s = (stops.length * (100 / 60)).clamp(0.0, 100.0);
+    return s;
+  }
+
+  Widget _buildConnectivityCard(BuildContext context, AppLocalizations l10n,
+      List<Map<String, dynamic>> stops, LatLng latLng) {
+    final score = _scoreFor(stops);
+    return BentoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.connectivityScore,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              StatusBadge(
+                label: score >= 70 ? l10n.highlyConvenient : '一般',
+                type: score >= 70 ? StatusType.accent : StatusType.warning,
+                icon: score >= 70 ? Icons.bolt_rounded : null,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Text(
+                score.toStringAsFixed(0),
+                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppColors.accent),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: (score / 100).clamp(0.0, 1.0),
+                        minHeight: 8,
+                        backgroundColor: AppColors.accentContainer,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      stops.isEmpty
+                          ? '半径 1.5km 内暂无站点'
+                          : '半径 1.5km 内找到 ${stops.length} 个站点',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryLight),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStationsCard(
+      BuildContext context, AppLocalizations l10n, List<Map<String, dynamic>> stops) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.nearbyStations, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        BentoCard(
+          padding: EdgeInsets.zero,
+          child: stops.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Center(
+                    child: Text('附近暂无已收录站点',
+                        style: TextStyle(color: AppColors.textMutedLight, fontSize: 13)),
+                  ),
+                )
+              : Column(
+                  children: List.generate(stops.length, (index) {
+                    final stop = stops[index];
+                    final isBus =
+                        (stop['transit_type']?.toString() ?? '').toLowerCase().contains('bus');
+                    return Column(
+                      children: [
+                        _buildStationItem(
+                          context,
+                          isBus ? Icons.directions_bus_rounded : Icons.train_rounded,
+                          stop['stop_name']?.toString() ?? '未知站点',
+                          _transitLabel(stop['transit_type']?.toString() ?? ''),
+                          '${(stop['distance_meters'] as num).toInt()}m',
+                          isBus ? AppColors.success : AppColors.primaryBase,
+                        ),
+                        if (index != stops.length - 1)
+                          const Divider(height: 1, color: AppColors.borderLight),
+                      ],
+                    );
+                  }),
+                ),
+        ),
+      ],
+    );
+  }
+
+  String _transitLabel(String raw) {
+    // 真实值如 'Rapid Rail KL (MRT/LRT/Monorail)' / 'Rapid Bus KL'
+    if (raw.toLowerCase().contains('bus')) return 'Bus';
+    return 'Rail';
+  }
+
+  Widget _buildMapCard(BuildContext context, AppLocalizations l10n,
+      LocationProvider locationProvider, LatLng latLng) {
+    return BentoCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.trafficDensityHeatmap,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(l10n.viewDetails, style: const TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          MiniMap(
+            center: latLng,
+            onTap: () {
+              locationProvider.moveTo(latLng);
+              final appShellState = context.findAncestorStateOfType<AppShellState>();
+              if (appShellState != null) {
+                appShellState.onItemTapped(1);
+                Navigator.popUntil(context, (route) => route.isFirst);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStationItem(BuildContext context, IconData icon, String name,
+      String lines, String distance, Color color) {
     final l10n = AppLocalizations.of(context)!;
     return ListTile(
       leading: Container(

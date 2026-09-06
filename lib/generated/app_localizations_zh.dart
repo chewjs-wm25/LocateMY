@@ -214,7 +214,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get crimeTrend => '犯罪率历史趋势';
 
   @override
-  String get incomeClassDistribution => '收入阶层分布 (2024)';
+  String get incomeClassDistribution => '收入阶层分布';
 
   @override
   String get dosmOfficialData => 'DOSM 官方数据';
@@ -263,7 +263,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String incomeBetterThan(Object percent) {
-    return '您的收入优于该地区 $percent% 的家庭，属于 M40 高端区间。';
+    return '您的收入优于该地区 $percent% 的家庭（基于该县收入分布估算）。';
   }
 
   @override

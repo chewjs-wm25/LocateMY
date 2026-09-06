@@ -84,7 +84,7 @@
   "cyberFraud": "Cyber Fraud",
   "crimeTrend": "Crime Rate Trend",
 
-  "incomeClassDistribution": "Income Class Distribution (2024)",
+  "incomeClassDistribution": "Income Class Distribution",
   "dosmOfficialData": "DOSM Official Data",
   "lowIncome": "Low Income",
   "middleClass": "Middle Class",
@@ -113,7 +113,7 @@
   "incomeDistributionCurve": "Monthly Household Income Distribution",
   "yourIncomePosition": "Your Income Position",
   "monthlyHouseholdIncome": "Monthly Household Income (RM)",
-  "incomeBetterThan": "Your income is better than {percent}% of households in this area, in the M40 high-end range.",
+  "incomeBetterThan": "Your income is better than {percent}% of households in this area (estimated from the local income distribution).",
   "@incomeBetterThan": {
     "placeholders": {
       "percent": {}

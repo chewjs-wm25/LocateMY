@@ -503,7 +503,7 @@ abstract class AppLocalizations {
   /// No description provided for @incomeClassDistribution.
   ///
   /// In en, this message translates to:
-  /// **'Income Class Distribution (2024)'**
+  /// **'Income Class Distribution'**
   String get incomeClassDistribution;
 
   /// No description provided for @dosmOfficialData.
@@ -587,7 +587,7 @@ abstract class AppLocalizations {
   /// No description provided for @incomeBetterThan.
   ///
   /// In en, this message translates to:
-  /// **'Your income is better than {percent}% of households in this area, in the M40 high-end range.'**
+  /// **'Your income is better than {percent}% of households in this area (estimated from the local income distribution).'**
   String incomeBetterThan(Object percent);
 
   /// No description provided for @infrastructureCoverage.

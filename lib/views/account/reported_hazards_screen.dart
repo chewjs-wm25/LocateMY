@@ -82,8 +82,6 @@ class _ReportedHazardsScreenState extends State<ReportedHazardsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('我报告的隐患'),
@@ -101,7 +99,7 @@ class _ReportedHazardsScreenState extends State<ReportedHazardsScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.report_off_rounded, size: 64, color: AppColors.textMutedLight),
+                      Icon(Icons.warning_amber_rounded, size: 64, color: AppColors.textMutedLight),
                       const SizedBox(height: 16),
                       const Text('暂无报告记录', style: TextStyle(color: AppColors.textSecondaryLight)),
                     ],

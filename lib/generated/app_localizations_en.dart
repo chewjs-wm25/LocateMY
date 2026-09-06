@@ -216,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crimeTrend => 'Crime Rate Trend';
 
   @override
-  String get incomeClassDistribution => 'Income Class Distribution (2024)';
+  String get incomeClassDistribution => 'Income Class Distribution';
 
   @override
   String get dosmOfficialData => 'DOSM Official Data';
@@ -265,7 +265,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String incomeBetterThan(Object percent) {
-    return 'Your income is better than $percent% of households in this area, in the M40 high-end range.';
+    return 'Your income is better than $percent% of households in this area (estimated from the local income distribution).';
   }
 
   @override

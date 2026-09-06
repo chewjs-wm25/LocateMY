@@ -71,7 +71,7 @@
   "cyberFraud": "网络诈骗",
   "crimeTrend": "犯罪率历史趋势",
 
-  "incomeClassDistribution": "收入阶层分布 (2024)",
+  "incomeClassDistribution": "收入阶层分布",
   "dosmOfficialData": "DOSM 官方数据",
   "lowIncome": "低收入层",
   "middleClass": "中产阶层",
@@ -85,7 +85,7 @@
   "incomeDistributionCurve": "家庭月收入分布曲线",
   "yourIncomePosition": "您的收入排位",
   "monthlyHouseholdIncome": "家庭月收入 (RM)",
-  "incomeBetterThan": "您的收入优于该地区 {percent}% 的家庭，属于 M40 高端区间。",
+  "incomeBetterThan": "您的收入优于该地区 {percent}% 的家庭（基于该县收入分布估算）。",
 
   "infrastructureCoverage": "基础设施普及率 (ICI)",
   "excellent": "极佳",

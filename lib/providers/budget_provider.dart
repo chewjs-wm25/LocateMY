@@ -12,6 +12,8 @@ class BudgetProvider extends ChangeNotifier {
   String? _currentScenarioId;
   Map<String, dynamic>? _comparisonData;
   bool _isLoading = false;
+  String? _error;
+  String? _requestKey;
 
   List<BudgetScenario> get scenarios => List.unmodifiable(_scenarios);
   
@@ -25,6 +27,8 @@ class BudgetProvider extends ChangeNotifier {
       
   Map<String, dynamic>? get comparisonData => _comparisonData;
   bool get isLoading => _isLoading;
+  String? get error => _error;
+  String? get requestKey => _requestKey;
 
   BudgetProvider() {
     _loadUserScenarios();
@@ -57,18 +61,33 @@ class BudgetProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchComparison(String origin, String target) async {
-    if (_comparisonData != null && 
-        _comparisonData!['origin_name'] == origin && 
-        _comparisonData!['target_name'] == target) {
-      return;
+  Future<void> fetchComparison(String origin, String target, {bool force = false}) async {
+    final key = '$origin|$target';
+    if (_isLoading && _requestKey == key) return;
+    if (!force && _requestKey == key && (_comparisonData != null || _error != null)) return;
+    if (_requestKey != key) {
+      _comparisonData = null;
+      _error = null;
     }
-
+    _requestKey = key;
     _isLoading = true;
+    _error = null;
     notifyListeners();
     try {
-      _comparisonData = await _repository.getComparisonData(origin, target);
+      // 基础预算取自云端情景预案（max_rent + living_expenses + transport_allowance），
+      // 无预案时 baseBudget=null（界面不显示金额换算，只展示 CPI 比值）。
+      final scenario = currentScenario;
+      final double? baseBudget = scenario == null
+          ? null
+          : (scenario.housingWeight + scenario.foodWeight + scenario.transportWeight) > 0
+              ? scenario.housingWeight +
+                  scenario.foodWeight +
+                  scenario.transportWeight
+              : null;
+      _comparisonData =
+          await _repository.getComparisonData(origin, target, baseBudget: baseBudget);
     } catch (e) {
+      _error = e is Exception ? e.toString().replaceFirst('Exception: ', '') : '$e';
       debugPrint('Error fetching comparison: $e');
     } finally {
       _isLoading = false;

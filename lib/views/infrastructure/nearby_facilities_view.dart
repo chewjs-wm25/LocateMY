@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
-import '../../core/app_colors.dart';
 import '../../models/nearby_facility.dart';
 import '../../providers/nearby_facilities_provider.dart';
 import '../../providers/location_provider.dart';
@@ -60,10 +59,6 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
                   icon: Icons.local_hospital_rounded,
                   color: const Color(0xFFEF4444),
                   facilities: provider.facilities.where((f) => f.category == FacilityCategory.healthcare).toList(),
-                  hardcodedData: [
-                    'KKM 官方医院名录覆盖',
-                    '突发疾病救治便利度: 极高',
-                  ],
                 ),
                 const SizedBox(height: 16),
                 _buildCategorySection(
@@ -71,10 +66,6 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
                   icon: Icons.school_rounded,
                   color: const Color(0xFF2563EB),
                   facilities: provider.facilities.where((f) => f.category == FacilityCategory.education).toList(),
-                  hardcodedData: [
-                    'KPM 官方学校名录对接',
-                    '学区房决策参考评分: 8.5/10',
-                  ],
                 ),
                 const SizedBox(height: 16),
                 _buildCategorySection(
@@ -82,10 +73,6 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
                   icon: Icons.shopping_basket_rounded,
                   color: const Color(0xFF10B981),
                   facilities: provider.facilities.where((f) => f.category == FacilityCategory.living).toList(),
-                  hardcodedData: [
-                    '品牌超市 (Lotus\'s, Jaya Grocer) 覆盖',
-                    '社区便利店 (99 Speedmart) 密集',
-                  ],
                 ),
                 const SizedBox(height: 16),
                 _buildCategorySection(
@@ -93,10 +80,6 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
                   icon: Icons.train_rounded,
                   color: const Color(0xFF06B6D4),
                   facilities: provider.facilities.where((f) => f.category == FacilityCategory.transport).toList(),
-                  hardcodedData: [
-                    '交通部 (MOT) 站点数据实时接入',
-                    '无车族/通勤族刚需匹配',
-                  ],
                 ),
                 const SizedBox(height: 16),
                 _buildCategorySection(
@@ -104,10 +87,6 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
                   icon: Icons.security_rounded,
                   color: const Color(0xFFF59E0B),
                   facilities: provider.facilities.where((f) => f.category == FacilityCategory.safety).toList(),
-                  hardcodedData: [
-                    'PDRM 警区划分及犯罪率指数同步',
-                    '消防局 (BOMBA) 部署数据',
-                  ],
                 ),
                 const SizedBox(height: 16),
                 _buildCategorySection(
@@ -115,10 +94,6 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
                   icon: Icons.warning_rounded,
                   color: Colors.brown,
                   facilities: provider.facilities.where((f) => f.category == FacilityCategory.risk).toList(),
-                  hardcodedData: [
-                    'JPS 水利局历史水灾高风险区评估',
-                    '工厂噪音与废气污染隔离分析',
-                  ],
                 ),
                 const SizedBox(height: 32),
               ],
@@ -134,8 +109,20 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
     required IconData icon,
     required Color color,
     required List<NearbyFacility> facilities,
-    required List<String> hardcodedData,
   }) {
+    // 由真实 POI 数据推导的概况（最近距离 / 覆盖类别），替代写死的描述。
+    final nearest = facilities.isEmpty
+        ? null
+        : facilities.reduce((a, b) => a.distance < b.distance ? a : b);
+    final typeCounts = <String, int>{};
+    for (final f in facilities) {
+      typeCounts[f.type] = (typeCounts[f.type] ?? 0) + 1;
+    }
+    final summaryLines = <String>[
+      if (nearest != null)
+        '最近：${nearest.name} · ${nearest.distance.toInt()}m',
+      if (typeCounts.isNotEmpty) '覆盖 ${typeCounts.length} 种类型',
+    ];
     return BentoCard(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -164,34 +151,35 @@ class _NearbyFacilitiesViewState extends State<NearbyFacilitiesView> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // 政府数据补充 / 硬编码考量点
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9), // Surface Sub
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: hardcodedData.map((text) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF475569)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        text,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+          if (summaryLines.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9), // Surface Sub
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: summaryLines.map((text) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF475569)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          text,
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )).toList(),
+                    ],
+                  ),
+                )).toList(),
+              ),
             ),
-          ),
+          ],
           if (facilities.isNotEmpty) ...[
             const SizedBox(height: 12),
             const Text('实时 POI (OSM)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8))),

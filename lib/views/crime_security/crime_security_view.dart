@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../core/app_colors.dart';
 import '../../widgets/bento_card.dart';
 import '../../widgets/status_badge.dart';
@@ -57,12 +58,21 @@ class CrimeSecurityView extends StatelessWidget {
     final securityData = securityProvider.securityData;
     final isLoading = securityProvider.isLoading;
 
-    // Trigger fetch if not loaded
-    if (securityData == null && !isLoading) {
+    // Trigger fetch if not loaded (幂等：同一坐标只请求一次)
+    final locationKey =
+        '${latLng.latitude.toStringAsFixed(3)}_${latLng.longitude.toStringAsFixed(3)}';
+    if (!isLoading && securityProvider.requestKey != locationKey) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         securityProvider.loadSecurityData(latLng.latitude, latLng.longitude);
       });
     }
+
+    final showError =
+        !isLoading && securityProvider.requestKey == locationKey &&
+            securityData == null &&
+            securityProvider.error != null;
+    final hasCurrentData =
+        securityData != null && securityProvider.requestKey == locationKey;
 
     return Scaffold(
       appBar: AppBar(
@@ -75,9 +85,42 @@ class CrimeSecurityView extends StatelessWidget {
         backgroundColor: AppColors.success,
         foregroundColor: Colors.white,
       ),
-      body: isLoading 
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: showError
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off_rounded,
+                        size: 44, color: AppColors.textMutedLight),
+                    const SizedBox(height: 12),
+                    const Text('该位置暂无治安数据',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    Text(
+                      securityProvider.error ?? '',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondaryLight),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () => securityProvider.loadSecurityData(
+                        latLng.latitude,
+                        latLng.longitude,
+                        force: true,
+                      ),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('重试'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : (isLoading || !hasCurrentData)
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +202,7 @@ class CrimeSecurityView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            '${l10n.safetyMapLayer} (${securityData?['district_name'] ?? ""})',
+                            '${l10n.safetyMapLayer} (${securityData['district_name'] ?? ''})',
                             style: Theme.of(context).textTheme.titleMedium,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -199,15 +242,21 @@ class CrimeSecurityView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    securityData?['security_score']?.toString() ?? '8.2', 
+                    securityData['security_score'] is num
+                        ? (securityData['security_score'] as num).toStringAsFixed(1)
+                        : '—',
                     style: TextStyle(
-                      fontSize: 32, 
-                      fontWeight: FontWeight.bold, 
-                      color: (securityData?['security_score'] ?? 8.0) > 8 ? AppColors.success : AppColors.warning
-                    )
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: (securityData['security_score'] as num? ?? 8.0) > 8
+                          ? AppColors.success
+                          : AppColors.warning,
+                    ),
                   ),
                   Text(
-                    l10n.betterThanNational('75'),
+                    securityData['district_name'] != null
+                        ? '${securityData['district_name']} · 最近一年罪案 ${securityData['total_crimes'] ?? '—'} 宗'
+                        : '',
                     style: Theme.of(context).textTheme.bodySmall,
                     textAlign: TextAlign.center,
                   ),
@@ -216,75 +265,189 @@ class CrimeSecurityView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Crime Type Chips
+            // Crime Type Chips（分类来自真实 crime_stats，非写死）
+            _CrimeTrendCard(securityData: securityData, l10n: l10n),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 治安趋势卡：分类选择 chip + 真实 fl_chart 折线图。
+/// 数据全部来自 SecurityRepository 返回的 trend / trend_by_category，
+/// 年份范围与折线点都由数据库决定。
+class _CrimeTrendCard extends StatefulWidget {
+  final Map<String, dynamic> securityData;
+  final AppLocalizations l10n;
+
+  const _CrimeTrendCard({required this.securityData, required this.l10n});
+
+  @override
+  State<_CrimeTrendCard> createState() => _CrimeTrendCardState();
+}
+
+class _CrimeTrendCardState extends State<_CrimeTrendCard> {
+  String? _selectedCategory; // null = 全部
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = null;
+  }
+
+  List<Map<String, dynamic>> get _series {
+    final trend = widget.securityData['trend'] as List? ?? [];
+    if (_selectedCategory == null) {
+      return trend.map((e) => (e as Map).cast<String, dynamic>()).toList();
+    }
+    final byCategory =
+        (widget.securityData['trend_by_category'] as Map?)?.cast<String, dynamic>();
+    final series = byCategory?[_selectedCategory] as List? ?? [];
+    return series.map((e) => (e as Map).cast<String, dynamic>()).toList();
+  }
+
+  String _categoryLabel(String key) {
+    switch (key) {
+      case 'assault':
+        return widget.l10n.violentCrime;
+      case 'property':
+        return widget.l10n.propertyCrime;
+      default:
+        return key;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    final breakdown =
+        (widget.securityData['category_breakdown'] as Map?)?.cast<String, dynamic>() ??
+            const <String, dynamic>{};
+    final series = _series;
+    final years = series.map((e) => e['year']?.toString() ?? '').where((e) => e.isNotEmpty).toList();
+    final maxValue = series.fold<int>(0, (p, e) {
+      final v = (e['crimes'] as num?)?.toInt() ?? 0;
+      return v > p ? v : p;
+    });
+
+    return BentoCard(
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Text(l10n.crimeTypeFocus, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
+            // 分类 chips：先“全部”，再是 DB 里真实出现的分类。
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 FilterChip(
-                  label: Text(l10n.violentCrime),
-                  selected: true,
-                  onSelected: (b) {},
+                  label: const Text('全部'),
+                  selected: _selectedCategory == null,
+                  onSelected: (_) => setState(() => _selectedCategory = null),
                   selectedColor: AppColors.primaryContainer,
                   checkmarkColor: AppColors.primaryBase,
                 ),
-                FilterChip(
-                  label: Text(l10n.propertyCrime),
-                  selected: false,
-                  onSelected: (b) {},
-                ),
-                FilterChip(
-                  label: Text(l10n.cyberFraud),
-                  selected: false,
-                  onSelected: (b) {},
-                ),
+                ...breakdown.keys.map((key) {
+                  final count = breakdown[key];
+                  return FilterChip(
+                    label: Text('${_categoryLabel(key)} ($count)'),
+                    selected: _selectedCategory == key,
+                    onSelected: (_) => setState(() => _selectedCategory = key),
+                    selectedColor: AppColors.primaryContainer,
+                    checkmarkColor: AppColors.primaryBase,
+                  );
+                }),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Crime Trend Chart
-            BentoCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(l10n.crimeTrend, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      const Text('2019 - 2023', style: TextStyle(fontSize: 12, color: AppColors.textMutedLight)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 160,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceSubLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            '[ fl_chart: LineChart ]',
-                            style: TextStyle(color: AppColors.textMutedLight),
-                          ),
-                          if (securityData != null)
-                            Text(
-                              'Data for ${securityData['district_name']} loaded',
-                              style: const TextStyle(fontSize: 10, color: AppColors.textMutedLight),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(l10n.crimeTrend, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  years.isEmpty
+                      ? ''
+                      : '${years.first} - ${years.last}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMutedLight),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 170,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSubLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.fromLTRB(8, 12, 16, 8),
+              child: series.isEmpty || maxValue == 0
+                  ? const Center(
+                      child: Text('该地区暂无犯罪统计数据',
+                          style: TextStyle(color: AppColors.textMutedLight, fontSize: 12)))
+                  : LineChart(
+                      LineChartData(
+                        gridData: const FlGridData(show: false),
+                        titlesData: FlTitlesData(
+                          leftTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                final i = value.toInt();
+                                if (i >= 0 && i < years.length) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Text(years[i],
+                                        style: const TextStyle(
+                                            color: Color(0xFF94A3B8), fontSize: 10)),
+                                  );
+                                }
+                                return const Text('');
+                              },
                             ),
+                          ),
+                        ),
+                        borderData: FlBorderData(show: false),
+                        minY: 0,
+                        maxY: (maxValue * 1.2).toDouble().clamp(maxValue.toDouble(), double.infinity),
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: series.asMap().entries
+                                .map((e) => FlSpot(e.key.toDouble(),
+                                    (e.value['crimes'] as num).toDouble()))
+                                .toList(),
+                            isCurved: true,
+                            color: AppColors.primaryBaseAlternative,
+                            barWidth: 3,
+                            dotData: const FlDotData(show: false),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppColors.primaryBaseAlternative.withValues(alpha: 0.25),
+                                  AppColors.primaryBaseAlternative.withValues(alpha: 0.0),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
             ),
-            const SizedBox(height: 32),
           ],
         ),
       ),
