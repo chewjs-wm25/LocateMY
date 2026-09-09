@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'app_colors.dart';
+import 'package:locate_my/core/app_colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -93,12 +93,14 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primaryBase, width: 1),
         ),
-        labelStyle: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 14),
+        labelStyle: const TextStyle(
+          color: AppColors.textSecondaryLight,
+          fontSize: 14,
+        ),
       ),
     );
   }
 
-  static TextStyle get tabularNumber => const TextStyle(
-    fontFeatures: [FontFeature.tabularFigures()],
-  );
+  static TextStyle get tabularNumber =>
+      const TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
 }

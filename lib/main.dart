@@ -1,30 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'generated/app_localizations.dart';
+import 'package:locate_my/generated/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'core/app_theme.dart';
-import 'views/app_shell.dart';
-import 'providers/locale_provider.dart';
-
-import 'providers/location_provider.dart';
-import 'providers/navigation_provider.dart';
-import 'providers/hazard_provider.dart';
-import 'providers/budget_provider.dart';
-import 'providers/property_provider.dart';
-import 'providers/nearby_facilities_provider.dart';
-import 'providers/analysis/security_provider.dart';
-import 'providers/analysis/infrastructure_provider.dart';
-import 'providers/analysis/socio_economic_provider.dart';
-import 'providers/analysis/transit_provider.dart';
-import 'providers/auth_provider.dart';
-import 'providers/home_provider.dart';
+import 'package:locate_my/core/app_theme.dart';
+import 'package:locate_my/app/views/app_shell.dart';
+import 'package:locate_my/app/navigation/app_router.dart';
+import 'package:locate_my/app/view_models/locale_view_model.dart';
+import 'package:locate_my/app/view_models/navigation_view_model.dart';
+import 'package:locate_my/modules/module_a/module_a_providers.dart';
+import 'package:locate_my/modules/module_b/module_b_providers.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'core/api_keys.dart';
+import 'package:locate_my/core/api_keys.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await Supabase.initialize(
     url: ApiKeys.supabaseUrl,
     anonKey: ApiKeys.supabaseAnonKey,
@@ -33,19 +24,10 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AuthProvider()),
-        ChangeNotifierProvider(create: (context) => LocaleProvider()),
-        ChangeNotifierProvider(create: (context) => LocationProvider()),
-        ChangeNotifierProvider(create: (context) => NavigationProvider()),
-        ChangeNotifierProvider(create: (context) => HazardProvider()),
-        ChangeNotifierProvider(create: (context) => BudgetProvider()),
-        ChangeNotifierProvider(create: (context) => PropertyProvider()),
-        ChangeNotifierProvider(create: (context) => NearbyFacilitiesProvider()),
-        ChangeNotifierProvider(create: (context) => SecurityProvider()),
-        ChangeNotifierProvider(create: (context) => InfrastructureProvider()),
-        ChangeNotifierProvider(create: (context) => SocioEconomicProvider()),
-        ChangeNotifierProvider(create: (context) => TransitProvider()),
-        ChangeNotifierProvider(create: (context) => HomeProvider()),
+        ChangeNotifierProvider(create: (context) => LocaleViewModel()),
+        ChangeNotifierProvider(create: (context) => NavigationViewModel()),
+        ...moduleAProviders,
+        ...moduleBProviders,
       ],
       child: const MyApp(),
     ),
@@ -57,22 +39,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = Provider.of<LocaleProvider>(context);
+    final localeViewModel = Provider.of<LocaleViewModel>(context);
 
     return MaterialApp(
       title: 'UI 原型展示',
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: AppTheme.lightTheme,
-      locale: localeProvider.locale,
+      locale: localeViewModel.locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: LocaleProvider.supportedLocales
+      supportedLocales: LocaleViewModel.supportedLocales
           .map((item) => item['locale'] as Locale)
           .toList(),
+      onGenerateRoute: AppRouter.onGenerateRoute,
       home: const AppShell(),
     );
   }

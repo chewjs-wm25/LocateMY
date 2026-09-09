@@ -135,7 +135,7 @@
 
 ### 4.3 测试
 
-`test/ici_score_test.dart`、`test/district_matcher_test.dart` 覆盖新公式与全部匹配规则。
+`test/core/ici_score_test.dart`、`test/core/district_matcher_test.dart` 覆盖新公式与全部匹配规则。
 
 ### 4.3 指标口径更新（每千人口医疗 + 教育同年横截面）
 

@@ -2,7 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 真实 Supabase 客户端管理器
 class SupabaseClientManager {
-  static final SupabaseClientManager _instance = SupabaseClientManager._internal();
+  static final SupabaseClientManager _instance =
+      SupabaseClientManager._internal();
   factory SupabaseClientManager() => _instance;
   SupabaseClientManager._internal();
 

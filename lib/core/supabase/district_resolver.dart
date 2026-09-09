@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'supabase_client_manager.dart';
+import 'package:locate_my/core/supabase/supabase_client_manager.dart';
 
 /// 将“地图上任意命名的位置”解析为数据库里真实存在的行政区名（及所在州），
 /// 供社会经济 / 基础设施等分析报告页用作查询键。
@@ -13,7 +13,7 @@ import 'supabase_client_manager.dart';
 /// 3. 全部失败时回退到默认县 'Petaling'（保证界面有稳定数据源）。
 class DistrictResolver {
   DistrictResolver({SupabaseClientManager? supabase})
-      : _supabase = supabase ?? SupabaseClientManager();
+    : _supabase = supabase ?? SupabaseClientManager();
 
   final SupabaseClientManager _supabase;
 
@@ -21,10 +21,7 @@ class DistrictResolver {
   Map<String, String>? _districts;
 
   /// 解析成功返回 {district, state}，解析失败返回 null。
-  Future<Map<String, String>?> resolve({
-    String? name,
-    LatLng? latLng,
-  }) async {
+  Future<Map<String, String>?> resolve({String? name, LatLng? latLng}) async {
     final districts = await _loadDistricts();
     if (districts == null) return null;
 
@@ -52,15 +49,16 @@ class DistrictResolver {
     Map<String, String> districts,
   ) async {
     try {
-      final result = await _supabase.rpc('match_police_district', params: {
-        'lat': latLng.latitude,
-        'lng': latLng.longitude,
-      });
+      final result = await _supabase.rpc(
+        'match_police_district',
+        params: {'lat': latLng.latitude, 'lng': latLng.longitude},
+      );
       if (result is List && result.isNotEmpty) {
         final raw = (result.first as Map).cast<String, dynamic>();
         final district = raw['name']?.toString().trim();
         if (district != null && district.isNotEmpty) {
-          final state = districts[district] ?? _stateCodeToFull(raw['state']?.toString());
+          final state =
+              districts[district] ?? _stateCodeToFull(raw['state']?.toString());
           if (districts.containsKey(district)) {
             return {'district': district, 'state': state ?? ''};
           }
@@ -81,7 +79,10 @@ class DistrictResolver {
     return null;
   }
 
-  Map<String, String>? _matchByName(String name, Map<String, String> districts) {
+  Map<String, String>? _matchByName(
+    String name,
+    Map<String, String> districts,
+  ) {
     final norm = _normalize(name);
     // 精确匹配。
     for (final d in districts.keys) {
@@ -128,15 +129,20 @@ class DistrictResolver {
     return _fuzzyFind(name, districts);
   }
 
-  Map<String, String>? _fuzzyFind(String district, Map<String, String> districts) {
+  Map<String, String>? _fuzzyFind(
+    String district,
+    Map<String, String> districts,
+  ) {
     final target = _normalize(district);
     String? bestKey;
     var bestScore = 0;
     for (final d in districts.keys) {
       final dn = _normalize(d);
       var score = 0;
-      if (dn == target) score = 1000;
-      else if (dn.contains(target) || target.contains(dn)) score = target.length > dn.length ? dn.length : target.length;
+      if (dn == target)
+        score = 1000;
+      else if (dn.contains(target) || target.contains(dn))
+        score = target.length > dn.length ? dn.length : target.length;
       if (score > bestScore) {
         bestScore = score;
         bestKey = d;
@@ -151,7 +157,9 @@ class DistrictResolver {
   Future<Map<String, String>?> _loadDistricts() async {
     if (_districts != null) return _districts;
     try {
-      final rows = await _supabase.from('hh_income_district').select('state, district');
+      final rows = await _supabase
+          .from('hh_income_district')
+          .select('state, district');
       final map = <String, String>{};
       for (final row in rows) {
         final d = (row['district'] as String?)?.trim();
@@ -170,27 +178,45 @@ class DistrictResolver {
     }
   }
 
-  String _normalize(String s) => s.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u4e00-\u9fff]'), '');
+  String _normalize(String s) =>
+      s.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u4e00-\u9fff]'), '');
 
   static String? _stateCodeToFull(String? code) {
     switch (code) {
-      case 'SGR': return 'Selangor';
-      case 'JHR': return 'Johor';
-      case 'KDH': return 'Kedah';
-      case 'KTN': return 'Kelantan';
-      case 'MLK': return 'Melaka';
-      case 'NSN': return 'Negeri Sembilan';
-      case 'PHG': return 'Pahang';
-      case 'PRK': return 'Perak';
-      case 'PLS': return 'Perlis';
-      case 'PNG': return 'Pulau Pinang';
-      case 'SBH': return 'Sabah';
-      case 'SWK': return 'Sarawak';
-      case 'TRG': return 'Terengganu';
-      case 'KUL': return 'W.P. Kuala Lumpur';
-      case 'LBN': return 'W.P. Labuan';
-      case 'PJY': return 'W.P. Putrajaya';
-      default: return null;
+      case 'SGR':
+        return 'Selangor';
+      case 'JHR':
+        return 'Johor';
+      case 'KDH':
+        return 'Kedah';
+      case 'KTN':
+        return 'Kelantan';
+      case 'MLK':
+        return 'Melaka';
+      case 'NSN':
+        return 'Negeri Sembilan';
+      case 'PHG':
+        return 'Pahang';
+      case 'PRK':
+        return 'Perak';
+      case 'PLS':
+        return 'Perlis';
+      case 'PNG':
+        return 'Pulau Pinang';
+      case 'SBH':
+        return 'Sabah';
+      case 'SWK':
+        return 'Sarawak';
+      case 'TRG':
+        return 'Terengganu';
+      case 'KUL':
+        return 'W.P. Kuala Lumpur';
+      case 'LBN':
+        return 'W.P. Labuan';
+      case 'PJY':
+        return 'W.P. Putrajaya';
+      default:
+        return null;
     }
   }
 }

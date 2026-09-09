@@ -38,21 +38,25 @@ class LocalCacheService {
     );
   }
 
-  Future<void> cacheData(String reportType, String locationKey, dynamic data) async {
+  Future<void> cacheData(
+    String reportType,
+    String locationKey,
+    dynamic data,
+  ) async {
     final db = await database;
-    await db.insert(
-      'cached_reports',
-      {
-        'report_type': reportType,
-        'location_key': locationKey,
-        'data_json': jsonEncode(data),
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('cached_reports', {
+      'report_type': reportType,
+      'location_key': locationKey,
+      'data_json': jsonEncode(data),
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<dynamic> getCachedData(String reportType, String locationKey, {Duration? expiry}) async {
+  Future<dynamic> getCachedData(
+    String reportType,
+    String locationKey, {
+    Duration? expiry,
+  }) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'cached_reports',
