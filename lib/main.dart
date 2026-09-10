@@ -1,62 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:locate_my/generated/app_localizations.dart';
-import 'package:provider/provider.dart';
-import 'package:locate_my/core/app_theme.dart';
-import 'package:locate_my/app/views/app_shell.dart';
-import 'package:locate_my/app/navigation/app_router.dart';
-import 'package:locate_my/app/view_models/locale_view_model.dart';
-import 'package:locate_my/app/view_models/navigation_view_model.dart';
-import 'package:locate_my/modules/module_a/module_a_providers.dart';
-import 'package:locate_my/modules/module_b/module_b_providers.dart';
 
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:locate_my/core/api_keys.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Supabase.initialize(
-    url: ApiKeys.supabaseUrl,
-    anonKey: ApiKeys.supabaseAnonKey,
-  );
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => LocaleViewModel()),
-        ChangeNotifierProvider(create: (context) => NavigationViewModel()),
-        ...moduleAProviders,
-        ...moduleBProviders,
-      ],
-      child: const MyApp(),
-    ),
-  );
+void main() {
+  runApp(const LocateMyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LocateMyApp extends StatelessWidget {
+  const LocateMyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final localeViewModel = Provider.of<LocaleViewModel>(context);
-
     return MaterialApp(
-      title: 'UI 原型展示',
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-      theme: AppTheme.lightTheme,
-      locale: localeViewModel.locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: LocaleViewModel.supportedLocales
-          .map((item) => item['locale'] as Locale)
-          .toList(),
-      onGenerateRoute: AppRouter.onGenerateRoute,
-      home: const AppShell(),
+      title: 'LocateMY',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
+      ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('LocateMY')),
+      body: const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.location_on_outlined, size: 64),
+            SizedBox(height: 16),
+            Text('LocateMY is ready.'),
+          ],
+        ),
+      ),
     );
   }
 }

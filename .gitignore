@@ -23,17 +23,6 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
-# Local Flutter SDK copy (read-only /home workaround)
-.flutter-sdk/
-
-# Local writable Android SDK (read-only /home workaround)
-.android-sdk/
-.gradle/
-android/local.properties
-.fakehome/
-.xdg-config/
-.flutter_run_log.txt
-
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -41,6 +30,7 @@ android/local.properties
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+.gradle/
 /build/
 /coverage/
 
@@ -54,3 +44,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Widget Preview related
+.widget_preview/
+
+# Codex workspace metadata
+.agents/
+.codex/
+
+# Local Android signing configuration
+/android/key.properties
+*.jks
+*.keystore
