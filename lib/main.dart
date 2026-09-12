@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// THROWAWAY UI PROTOTYPE. All places, maps, figures and records are local examples.
 void main() => runApp(const LocateMyApp());
@@ -59,6 +61,10 @@ class LocateMyApp extends StatefulWidget {
 
 class _LocateMyAppState extends State<LocateMyApp> {
   PageId page = PageId.home, previous = PageId.home;
+  // Three variants of the property-inspection archive, switchable from the
+  // prototype bar below. This is a throwaway answer to: what should the
+  // archive surface prioritise for a person comparing homes?
+  int archiveVariant = 0;
   Place selected = Place.penang;
   Place? locationA = Place.kl, locationB = Place.penang;
   bool single = true, saved = false, locationDetailExpanded = false;
@@ -68,6 +74,14 @@ class _LocateMyAppState extends State<LocateMyApp> {
   String safetyFilter = '全部';
   int medical = 7, education = 4, transit = 8, detail = 0;
   final compared = <int>{};
+
+  @override
+  void initState() {
+    super.initState();
+    const variants = {'A': 0, 'B': 1, 'C': 2};
+    archiveVariant =
+        variants[Uri.base.queryParameters['variant']?.toUpperCase()] ?? 0;
+  }
 
   bool get hasValidComparison =>
       locationA != null && locationB != null && locationA != locationB;
@@ -172,6 +186,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
     bool nav = false,
     List<Widget>? actions,
     Widget? fab,
+    Widget? bottomBar,
   }) => Scaffold(
     appBar: AppBar(
       title: Text(title),
@@ -182,7 +197,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
     ),
     body: SafeArea(child: body),
     floatingActionButton: fab,
-    bottomNavigationBar: nav ? bottom() : null,
+    bottomNavigationBar: bottomBar ?? (nav ? bottom() : null),
   );
   Widget bottom() {
     final index = page == PageId.home
@@ -1278,32 +1293,524 @@ class _LocateMyAppState extends State<LocateMyApp> {
     ),
   );
 
-  Widget propertyList(BuildContext c) => shell(
-    '房产实勘档案',
-    ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        const Text(
-          '个人看房观察，不是公开房源或评价。',
-          style: TextStyle(color: Colors.black54),
+  Widget propertyList(BuildContext c) => CallbackShortcuts(
+    bindings: {
+      const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+          changeArchiveVariant(-1),
+      const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+          changeArchiveVariant(1),
+    },
+    child: Focus(
+      autofocus: true,
+      child: shell(
+        '房产实勘档案',
+        switch (archiveVariant) {
+          0 => archiveOverview(c),
+          1 => archiveJournal(c),
+          _ => archiveCompare(c),
+        },
+        actions: [
+          TextButton.icon(
+            onPressed: compared.length >= 2 ? () => go(PageId.compare) : null,
+            icon: const Icon(Icons.compare_arrows, size: 18),
+            label: Text('对比 ${compared.length}/3'),
+          ),
+        ],
+        fab: FloatingActionButton.extended(
+          onPressed: () => go(PageId.addProperty),
+          icon: const Icon(Icons.add),
+          label: const Text('新增实勘'),
         ),
-        const SizedBox(height: 12),
-        ...List.generate(properties.length, (i) => propertyItem(c, i)),
-        const SizedBox(height: 70),
-      ],
-    ),
-    actions: [
-      TextButton(
-        onPressed: compared.length >= 2 ? () => go(PageId.compare) : null,
-        child: Text('对比 ${compared.length}/3'),
+        bottomBar: kReleaseMode ? null : archivePrototypeSwitcher(),
       ),
-    ],
-    fab: FloatingActionButton.extended(
-      onPressed: () => go(PageId.addProperty),
-      icon: const Icon(Icons.add),
-      label: const Text('新增实勘'),
     ),
   );
+
+  void changeArchiveVariant(int offset) {
+    const keys = ['A', 'B', 'C'];
+    setState(
+      () => archiveVariant =
+          (archiveVariant + offset + keys.length) % keys.length,
+    );
+    SystemNavigator.routeInformationUpdated(
+      uri: Uri(queryParameters: {'variant': keys[archiveVariant]}),
+      replace: true,
+    );
+  }
+
+  Widget archivePrototypeSwitcher() {
+    const labels = ['A · 决策概览', 'B · 看房日志', 'C · 对比挑选'];
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+        decoration: BoxDecoration(
+          color: const Color(0xff172033),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: const [
+            BoxShadow(color: Color(0x33000000), blurRadius: 14),
+          ],
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () => changeArchiveVariant(-1),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 18,
+              ),
+              tooltip: '上一个原型方案',
+            ),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    labels[archiveVariant],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '原型状态：${properties.length} 份档案 · 已选 ${compared.length}/3',
+                    style: const TextStyle(
+                      color: Color(0xffd9e0ea),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => changeArchiveVariant(1),
+              icon: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 18,
+              ),
+              tooltip: '下一个原型方案',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget archiveOverview(BuildContext c) => ListView(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
+    children: [
+      const Text('把现场观察变成下一步判断。', style: TextStyle(color: Color(0xff667085))),
+      const SizedBox(height: 16),
+      card(
+        c,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.folder_copy_outlined, color: Color(0xff155eef)),
+                SizedBox(width: 8),
+                Text('我的实勘概览', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                archiveMetric('档案', '${properties.length} 套'),
+                archiveMetric('最高评分', '4.2 / 5'),
+                archiveMetric('待复查', '1 套'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '资料仅自己可见 · 最近更新 2026年9月11日',
+              style: TextStyle(fontSize: 13, color: Color(0xff667085)),
+            ),
+          ],
+        ),
+        color: const Color(0xffeaf2ff),
+      ),
+      const SizedBox(height: 20),
+      section('下一步值得确认'),
+      const SizedBox(height: 8),
+      card(
+        c,
+        InkWell(
+          onTap: () => openProperty(1),
+          child: const Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Color(0xfffff3d7),
+                child: Icon(
+                  Icons.water_damage_outlined,
+                  color: Color(0xffb76e00),
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '海景花园排屋',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      '雨季再看排水沟与水灾迹象',
+                      style: TextStyle(color: Color(0xff667085)),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 20),
+      section('最近实勘', '查看全部'),
+      const SizedBox(height: 8),
+      ...List.generate(properties.length, (i) => overviewPropertyItem(c, i)),
+    ],
+  );
+
+  Widget archiveJournal(BuildContext c) => ListView(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
+    children: [
+      const Text(
+        '按看房过程回顾当时的观察与结论。',
+        style: TextStyle(color: Color(0xff667085)),
+      ),
+      const SizedBox(height: 14),
+      Wrap(
+        spacing: 8,
+        children: const [
+          Chip(label: Text('全部地点')),
+          Chip(
+            avatar: Icon(Icons.location_on_outlined, size: 16),
+            label: Text('乔治市'),
+          ),
+          Chip(
+            avatar: Icon(Icons.location_on_outlined, size: 16),
+            label: Text('吉隆坡'),
+          ),
+        ],
+      ),
+      const SizedBox(height: 18),
+      const Text(
+        '2026年9月',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      ),
+      const SizedBox(height: 10),
+      ...List.generate(properties.length, (i) => journalEntry(c, i)),
+      const SizedBox(height: 6),
+      const Row(
+        children: [
+          SizedBox(
+            width: 40,
+            child: Center(child: Icon(Icons.history, color: Color(0xff667085))),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '继续新增实勘，把下一次看房记录在这里。',
+              style: TextStyle(color: Color(0xff667085)),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+
+  Widget archiveCompare(BuildContext c) => ListView(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
+    children: [
+      card(
+        c,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.compare_arrows, color: Color(0xff155eef)),
+                SizedBox(width: 8),
+                Text('挑选要比较的档案', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '已选 ${compared.length}/3 套 · 最少选择 2 套后开始对比',
+              style: const TextStyle(color: Color(0xff667085)),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: compared.length >= 2
+                    ? () => go(PageId.compare)
+                    : null,
+                icon: const Icon(Icons.table_chart_outlined),
+                label: const Text('查看并列比较'),
+              ),
+            ),
+          ],
+        ),
+        color: const Color(0xffeaf2ff),
+      ),
+      const SizedBox(height: 20),
+      section('全部档案'),
+      const SizedBox(height: 8),
+      ...List.generate(properties.length, (i) => compareSelectItem(c, i)),
+      const SizedBox(height: 14),
+      const Text(
+        '比较将并列展示价格、四项现场评分、水灾迹象与风险摘要；不会替你推荐房产。',
+        style: TextStyle(fontSize: 13, color: Color(0xff667085)),
+      ),
+    ],
+  );
+
+  Widget archiveMetric(String label, String value) => Expanded(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: Color(0xff667085)),
+        ),
+      ],
+    ),
+  );
+
+  void openProperty(int index) {
+    setState(() => detail = index);
+    go(PageId.detail);
+  }
+
+  Widget overviewPropertyItem(BuildContext c, int i) {
+    final p = properties[i];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: card(
+        c,
+        InkWell(
+          onTap: () => openProperty(i),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: const Color(0xfff1f5f9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.home_work_outlined,
+                  color: Color(0xff155eef),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      p.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${p.place.name} · RM ${p.price}',
+                      style: const TextStyle(color: Color(0xff667085)),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star_rounded,
+                          size: 18,
+                          color: Colors.amber.shade700,
+                        ),
+                        Text(' ${p.score}/5'),
+                        const SizedBox(width: 12),
+                        Text(
+                          p.flood ? '需看水灾记录' : '已完成实勘',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: p.flood
+                                ? const Color(0xffb76e00)
+                                : const Color(0xff16865c),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget journalEntry(BuildContext c, int i) {
+    final p = properties[i];
+    final dates = ['9月11日 · 下午', '9月8日 · 上午', '9月3日 · 傍晚'];
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 40,
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 12,
+                  backgroundColor: Color(0xffeaf2ff),
+                  child: Icon(
+                    Icons.visibility_outlined,
+                    size: 15,
+                    color: Color(0xff155eef),
+                  ),
+                ),
+                Expanded(
+                  child: Container(width: 2, color: const Color(0xffd9e0ea)),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: card(
+                c,
+                InkWell(
+                  onTap: () => openProperty(i),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        dates[i],
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xff667085),
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+                      Text(
+                        p.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${p.place.name} · RM ${p.price} · 综合评分 ${p.score}/5',
+                      ),
+                      const Divider(height: 22),
+                      Text(
+                        '现场笔记：${p.note}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget compareSelectItem(BuildContext c, int i) {
+    final p = properties[i];
+    final selectedForCompare = compared.contains(i);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: selectedForCompare ? const Color(0xffeaf2ff) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: () => setState(() {
+            if (selectedForCompare) {
+              compared.remove(i);
+            } else if (compared.length < 3) {
+              compared.add(i);
+            }
+          }),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: selectedForCompare,
+                  onChanged: (_) {
+                    setState(() {
+                      if (selectedForCompare) {
+                        compared.remove(i);
+                      } else if (compared.length < 3) {
+                        compared.add(i);
+                      }
+                    });
+                  },
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        p.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${p.place.name} · RM ${p.price}',
+                        style: const TextStyle(color: Color(0xff667085)),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          Chip(
+                            label: Text('评分 ${p.score}/5'),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          Chip(
+                            label: Text(p.flood ? '水灾迹象' : '未见水灾'),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => openProperty(i),
+                  icon: const Icon(Icons.more_horiz),
+                  tooltip: '查看档案',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget addPage(BuildContext c) => shell(
     '新增房产实勘',
     ListView(
