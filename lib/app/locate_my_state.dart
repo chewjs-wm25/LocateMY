@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../models/location.dart';
+import '../core/models/nearby_facilities.dart';
 import '../models/property.dart';
 
 class LocateMyState extends ChangeNotifier {
@@ -122,6 +123,9 @@ class LocateMyState extends ChangeNotifier {
       locationA != null && locationB != null && locationA != locationB;
 
   bool get isComparisonAnalysis => !single && hasValidComparison;
+
+  NearbyFacilitiesResult get nearbyFacilities =>
+      NearbyFacilitiesFixtures.forPlace(selected);
 
   void go(PageId value, {bool keepBack = true}) {
     if (keepBack) previous = page;

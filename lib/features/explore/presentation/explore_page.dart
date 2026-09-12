@@ -306,6 +306,7 @@ class _LocationDetailCard extends StatelessWidget {
 
   List<Widget> _summaries() {
     final penang = state.selected == Place.penang;
+    final facilities = state.nearbyFacilities;
     return [
       _summary(
         Icons.shield_outlined,
@@ -321,8 +322,8 @@ class _LocationDetailCard extends StatelessWidget {
       ),
       _summary(
         Icons.storefront_outlined,
-        '日常便利',
-        penang ? '2 公里内 5/7 类 · 最近诊所 650 米' : '2 公里内 6/7 类 · 最近诊所 480 米',
+        '周边设施',
+        facilities.coverageSummary,
         '固定半径 2 公里 · 示例地点资料 · 2026年9月1日',
       ),
       _summary(

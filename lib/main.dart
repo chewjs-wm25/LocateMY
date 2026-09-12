@@ -10,6 +10,7 @@ import 'package:locatemy/features/home/presentation/home_page.dart';
 import 'package:locatemy/features/property/presentation/property_pages.dart';
 
 export 'core/models/location.dart';
+export 'core/models/nearby_facilities.dart';
 export 'core/models/property.dart';
 
 void main() => runApp(const LocateMyApp());

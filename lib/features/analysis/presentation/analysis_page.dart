@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:locatemy/core/app_state.dart';
 import 'package:locatemy/core/models/location.dart';
+import 'package:locatemy/core/models/nearby_facilities.dart';
 import 'package:locatemy/core/widgets/app_scaffold.dart';
 import 'package:locatemy/core/widgets/common_widgets.dart';
 
@@ -179,7 +180,7 @@ class AnalysisPage extends StatelessWidget {
       '治安与犯罪' => ('安全指数 —', '安全指数 76/100'),
       '社会经济' => ('家庭收入 RM 6,420 · 基尼 0.41', '家庭收入 RM 5,980 · 基尼 0.39'),
       '基础设施' => ('综合覆盖 79/100', '综合覆盖 81/100 · 教育缺失'),
-      '周边设施' => ('6/7 类 · 31 处', '5/7 类 · 26 处'),
+      '周边设施' => ('6/6 类 · 31 处', '5/6 类 · 26 处'),
       _ => ('连通性 80/100 · 3 站', '连通性 72/100 · 2 站'),
     };
     return Row(
@@ -225,8 +226,8 @@ class AnalysisDetailPage extends StatelessWidget {
         ),
         PageId.amenities => (
           '周边设施',
-          '2 公里内 6/7 类 · 31 处',
-          '2 公里内 5/7 类 · 26 处',
+          '2 公里内 6/6 类 · 31 处',
+          '2 公里内 5/6 类 · 26 处',
           '固定半径 2 公里 · 类别口径可比 · 示例地点资料。',
         ),
         _ => (
@@ -395,13 +396,11 @@ class AnalysisDetailPage extends StatelessWidget {
       children: [
         contextNote('${state.selected.name} · 2 公里范围 · 公开地点资料示意'),
         const SizedBox(height: 16),
-        score(context, '生活圈覆盖', '已收录 26 处 · 5/7 类', Icons.place_outlined),
+        _facilityCoverageScore(context),
         const SizedBox(height: 16),
-        amenity(context, '医疗健康', '槟城中央诊所', '650 米'),
-        amenity(context, '教育资源', '乔治市社区学校', '820 米'),
-        amenity(context, '日常生活', '湿巴刹与超市', '430 米'),
-        amenity(context, '交通出行', 'KOMTAR 巴士站', '540 米'),
-        amenity(context, '休闲与绿地', '海滨步道', '1.2 公里'),
+        ...state.nearbyFacilities.categories.map(
+          (category) => _facilityCategory(context, category),
+        ),
         const SizedBox(height: 12),
         const Text(
           '距离和名称为示例，未查询真实地点资料。',
@@ -410,6 +409,44 @@ class AnalysisDetailPage extends StatelessWidget {
       ],
     ),
   );
+
+  Widget _facilityCoverageScore(BuildContext context) {
+    final facilities = state.nearbyFacilities;
+    final value = facilities.hasUnknownCoverage
+        ? '覆盖情况暂不可确定'
+        : '已收录 ${facilities.totalFacilityCount} 处 · '
+              '${facilities.coveredCategoryCount}/6 类';
+    return score(context, '周边设施覆盖', value, Icons.place_outlined);
+  }
+
+  Widget _facilityCategory(
+    BuildContext context,
+    NearbyFacilityCategory category,
+  ) {
+    final nearest = category.nearest;
+    final name = category.isUnknown
+        ? '覆盖情况暂不可确定'
+        : nearest == null
+        ? '暂无已收录设施'
+        : '${nearest.name} · ${nearest.type}';
+    final distance = category.isUnknown
+        ? '资料不完整，无法确定最近设施'
+        : nearest?.distance ?? '资料完整，当前范围未发现该类';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        amenity(context, category.name, name, distance),
+        if (category.remainingCount > 0)
+          Padding(
+            padding: const EdgeInsets.only(left: 12, bottom: 8),
+            child: Text(
+              '另有 ${category.remainingCount} 处已收录设施',
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ),
+      ],
+    );
+  }
 
   Widget _transportPage(BuildContext context) => LocateMyScaffold(
     state: state,

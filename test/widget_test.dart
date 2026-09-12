@@ -53,11 +53,84 @@ void main() {
     expect(find.text('地点摘要'), findsOneWidget);
     expect(find.text('安全'), findsOneWidget);
     expect(find.text('生活成本'), findsOneWidget);
-    expect(find.text('日常便利'), findsOneWidget);
+    expect(find.text('周边设施'), findsOneWidget);
+    expect(find.text('2 公里内覆盖 5/6 类 · 未覆盖：安全与服务'), findsOneWidget);
+    expect(find.textContaining('最近诊所'), findsNothing);
     expect(find.text('公共交通可达性'), findsOneWidget);
     expect(find.text('基础设施'), findsOneWidget);
     expect(find.text('固定半径 2 公里 · 示例地点资料 · 2026年9月1日'), findsOneWidget);
   });
+
+  testWidgets('shows complete nearby facilities coverage for Kuala Lumpur', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('探索马来西亚'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('选 吉隆坡'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('展开地点摘要'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2 公里内覆盖全部 6 类'), findsOneWidget);
+    expect(find.textContaining('最近诊所'), findsNothing);
+  });
+
+  testWidgets('keeps six categories and nearest facilities on the full page', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('探索马来西亚'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('查看完整分析'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('周边设施'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('已收录 26 处 · 5/6 类'), findsOneWidget);
+    expect(find.text('安全与服务'), findsOneWidget);
+    expect(find.text('暂无已收录设施'), findsOneWidget);
+    expect(find.text('槟城中央诊所 · 诊所'), findsOneWidget);
+    expect(find.text('650 米'), findsOneWidget);
+  });
+
+  test(
+    'does not turn empty or incomplete facility results into the wrong state',
+    () {
+      const empty = NearbyFacilitiesResult(
+        categories: [
+          NearbyFacilityCategory(name: '医疗健康', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '教育资源', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '日常生活', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '交通出行', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '安全与服务', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '休闲与绿地', facilities: [], totalCount: 0),
+        ],
+      );
+      const incomplete = NearbyFacilitiesResult(
+        categories: [
+          NearbyFacilityCategory(
+            name: '医疗健康',
+            facilities: [],
+            totalCount: 0,
+            queryComplete: false,
+          ),
+          NearbyFacilityCategory(name: '教育资源', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '日常生活', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '交通出行', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '安全与服务', facilities: [], totalCount: 0),
+          NearbyFacilityCategory(name: '休闲与绿地', facilities: [], totalCount: 0),
+        ],
+      );
+
+      expect(empty.coverageSummary, '2 公里内暂无已收录周边设施');
+      expect(incomplete.coverageSummary, '周边设施覆盖情况暂不可确定');
+    },
+  );
 
   testWidgets(
     'shows an honest pending state when a required score input is missing',
