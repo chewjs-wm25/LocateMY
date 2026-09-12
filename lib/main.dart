@@ -60,7 +60,7 @@ class LocateMyApp extends StatefulWidget {
 class _LocateMyAppState extends State<LocateMyApp> {
   PageId page = PageId.home, previous = PageId.home;
   Place selected = Place.penang;
-  Place? origin = Place.kl, destination = Place.penang;
+  Place? locationA = Place.kl, locationB = Place.penang;
   bool single = true, saved = false, locationDetailExpanded = false;
   // These local flags deliberately model account prerequisites; this prototype
   // does not persist an account, preferences, budget scenario, or analysis data.
@@ -68,6 +68,10 @@ class _LocateMyAppState extends State<LocateMyApp> {
   String safetyFilter = '全部';
   int medical = 7, education = 4, transit = 8, detail = 0;
   final compared = <int>{};
+
+  bool get hasValidComparison =>
+      locationA != null && locationB != null && locationA != locationB;
+  bool get isComparisonAnalysis => !single && hasValidComparison;
   final properties = <Property>[
     const Property(
       'Taman Seri 公寓',
@@ -129,7 +133,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
     title: 'LocateMY 原型',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff006c68)),
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff155eef)),
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xfff7f9f8),
       cardTheme: const CardThemeData(elevation: 0, margin: EdgeInsets.zero),
@@ -578,7 +582,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
   );
 
   Future<void> startComparison(BuildContext c) async {
-    final asOrigin = await showModalBottomSheet<bool>(
+    final asLocationA = await showModalBottomSheet<bool>(
       context: c,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -586,31 +590,31 @@ class _LocateMyAppState extends State<LocateMyApp> {
           children: [
             ListTile(
               title: const Text('选择当前地点的比较角色'),
-              subtitle: Text('${selected.name} 将作为哪一端？'),
+              subtitle: Text('${selected.name} 将作为地点 A 或地点 B？'),
             ),
             ListTile(
               leading: const Icon(Icons.trip_origin),
-              title: const Text('作为原地址'),
+              title: const Text('作为地点 A'),
               onTap: () => Navigator.pop(ctx, true),
             ),
             ListTile(
               leading: const Icon(Icons.location_on_outlined),
-              title: const Text('作为新地址'),
+              title: const Text('作为地点 B'),
               onTap: () => Navigator.pop(ctx, false),
             ),
           ],
         ),
       ),
     );
-    if (asOrigin == null || !mounted) return;
+    if (asLocationA == null || !mounted) return;
     setState(() {
       single = false;
-      if (asOrigin) {
-        origin = selected;
-        destination = null;
+      if (asLocationA) {
+        locationA = selected;
+        locationB = null;
       } else {
-        origin = null;
-        destination = selected;
+        locationA = null;
+        locationB = selected;
       }
     });
   }
@@ -618,39 +622,44 @@ class _LocateMyAppState extends State<LocateMyApp> {
   Widget twoMap(BuildContext c) => ListView(
     padding: const EdgeInsets.all(16),
     children: [
-      selector('原地址', origin, (v) => setState(() => origin = v)),
+      selector('地点 A', locationA, (v) => setState(() => locationA = v)),
       Center(
         child: IconButton(
-          onPressed: origin != null && destination != null
+          onPressed: locationA != null && locationB != null
               ? () => setState(() {
-                  final x = origin;
-                  origin = destination;
-                  destination = x;
+                  final x = locationA;
+                  locationA = locationB;
+                  locationB = x;
                 })
               : null,
           icon: const Icon(Icons.swap_vert, size: 30),
-          tooltip: '交换原地址与新地址',
+          tooltip: '交换地点 A 与地点 B',
         ),
       ),
-      selector('新地址', destination, (v) => setState(() => destination = v)),
+      selector('地点 B', locationB, (v) => setState(() => locationB = v)),
+      if (locationA != null && locationA == locationB)
+        const Padding(
+          padding: EdgeInsets.only(top: 6),
+          child: Text(
+            '地点 A 与地点 B不能相同，请为地点 B 选择另一处。',
+            style: TextStyle(fontSize: 12, color: Color(0xffc9362b)),
+          ),
+        ),
       const SizedBox(height: 12),
-      mapArt(destination ?? origin ?? selected, compare: true),
+      mapArt(locationB ?? locationA ?? selected, compare: true),
       const SizedBox(height: 14),
       FilledButton.icon(
-        onPressed:
-            origin != null && destination != null && origin != destination
-            ? () => go(PageId.cost)
-            : null,
-        icon: const Icon(Icons.calculate_outlined),
-        label: const Text('比较生活成本'),
+        onPressed: hasValidComparison ? () => go(PageId.analysis) : null,
+        icon: const Icon(Icons.compare_arrows),
+        label: const Text('查看地点比较'),
       ),
       const SizedBox(height: 8),
       Text(
-        origin == null || destination == null
-            ? '请先选择${origin == null ? '原地址' : '新地址'}，再比较生活成本。'
-            : origin == destination
-            ? '原地址和新地址不能相同，请重新选择其中一处。'
-            : '通过地图、搜索或收藏选择地点。此原型仅使用预设地点。',
+        locationA == null || locationB == null
+            ? '请先选择${locationA == null ? '地点 A' : '地点 B'}，再查看地点比较。'
+            : locationA == locationB
+            ? '地点相同，无法进入比较总览。'
+            : 'A/B 只表示呈现顺序，不表示搬迁方向。此原型仅使用预设地点。',
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 12, color: Colors.black54),
       ),
@@ -659,13 +668,81 @@ class _LocateMyAppState extends State<LocateMyApp> {
 
   Widget analysisPage(BuildContext c) {
     final items = [
-      (Icons.payments_outlined, '生活成本', '两地价格与预算', PageId.cost),
+      (Icons.payments_outlined, '生活成本', '成本指数与月支出', PageId.cost),
       (Icons.shield_outlined, '治安与犯罪', '安全指数与趋势', PageId.safety),
       (Icons.groups_outlined, '社会经济', '收入与不平等', PageId.social),
       (Icons.settings_outlined, '基础设施', '公共服务覆盖', PageId.infra),
       (Icons.local_hospital_outlined, '周边设施', '2 公里生活圈', PageId.amenities),
       (Icons.train_outlined, '公共交通', '1.5 公里站点', PageId.transport),
     ];
+    if (isComparisonAnalysis) {
+      return shell(
+        '地点比较总览',
+        ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            route(),
+            const SizedBox(height: 12),
+            const Text(
+              '并列展示六类地点分析；示例数据的来源、日期与估算状态均在卡片中标明。',
+              style: TextStyle(color: Colors.black54),
+            ),
+            const SizedBox(height: 16),
+            ...items.map(
+              (x) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Card(
+                  child: InkWell(
+                    onTap: () => go(x.$4),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(x.$1, color: const Color(0xff155eef)),
+                              const SizedBox(width: 10),
+                              Text(
+                                x.$2,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Icon(Icons.chevron_right),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          comparisonOverviewReadout(x.$2),
+                          const SizedBox(height: 6),
+                          const Text(
+                            '示例资料 · 2026年9月1日 · 部分为估算',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            comparisonSuitabilityStatus(),
+            const SizedBox(height: 16),
+            notice(),
+          ],
+        ),
+        actions: [
+          IconButton(onPressed: map, icon: const Icon(Icons.map_outlined)),
+        ],
+      );
+    }
     return shell(
       '地点分析',
       ListView(
@@ -689,7 +766,6 @@ class _LocateMyAppState extends State<LocateMyApp> {
                   (x) => Card(
                     child: InkWell(
                       onTap: () {
-                        if (x.$4 == PageId.cost) destination = selected;
                         go(x.$4);
                       },
                       borderRadius: BorderRadius.circular(12),
@@ -731,25 +807,63 @@ class _LocateMyAppState extends State<LocateMyApp> {
     );
   }
 
+  Widget comparisonOverviewReadout(String category) {
+    final values = switch (category) {
+      '生活成本' => ('指数 100 · RM 3,850/月', '指数 92 · RM 3,470/月'),
+      '治安与犯罪' => ('安全指数 —', '安全指数 76/100'),
+      '社会经济' => ('家庭收入 RM 6,420 · 基尼 0.41', '家庭收入 RM 5,980 · 基尼 0.39'),
+      '基础设施' => ('综合覆盖 79/100', '综合覆盖 81/100 · 教育缺失'),
+      '周边设施' => ('6/7 类 · 31 处', '5/7 类 · 26 处'),
+      _ => ('连通性 80/100 · 3 站', '连通性 72/100 · 2 站'),
+    };
+    return Row(
+      children: [
+        Expanded(child: Text('地点 A\n${values.$1}')),
+        const SizedBox(width: 12),
+        Expanded(child: Text('地点 B\n${values.$2}')),
+      ],
+    );
+  }
+
+  Widget comparisonSuitabilityStatus() => const DecoratedBox(
+    decoration: BoxDecoration(
+      color: Color(0xfffff3d7),
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+    child: Padding(
+      padding: EdgeInsets.all(12),
+      child: Text(
+        '个人化地点适配度暂不显示：地点 A 缺少安全指数这一高优先级资料。两个地点均满足评估偏好、当前预案与资料前提后才会并列显示。',
+        style: TextStyle(fontSize: 12),
+      ),
+    ),
+  );
+
   Widget costPage(BuildContext c) {
-    final low = origin == Place.kl && destination == Place.penang;
+    if (isComparisonAnalysis) return comparisonCostPage(c);
+    final isPenang = selected == Place.penang;
     return shell(
-      '生活成本比较',
+      '单点生活成本报告',
       ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          route(),
-          const SizedBox(height: 18),
+          Text(selected.name, style: Theme.of(c).textTheme.headlineSmall),
+          const SizedBox(height: 6),
+          contextNote('分析地点：${selected.name} · ${selected.area}'),
+          const SizedBox(height: 14),
           card(
             c,
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('预算预案', style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
-                Text('一人租住 · 示例预案'),
-                Divider(),
-                Text('租金 RM 1,400 · 生活 RM 1,850 · 交通 RM 220'),
+                const Text(
+                  '生活成本指数',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 6),
+                Text(isPenang ? '92 · 相对于固定基准 100' : '100 · 固定基准'),
+                const SizedBox(height: 5),
+                const Text('示例估算 · 基准口径：马来西亚城市生活篮子 · 2026年9月1日'),
               ],
             ),
           ),
@@ -760,36 +874,69 @@ class _LocateMyAppState extends State<LocateMyApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '维持相同生活方式',
+                  '统一生活篮子估算月支出',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '预计每月需要 RM ${low ? '3,470' : '3,850'}',
+                  'RM ${isPenang ? '3,470' : '3,850'} / 月',
                   style: Theme.of(c).textTheme.titleLarge,
                 ),
-                Text(
-                  '比现在${low ? '减少' : '增加'} RM 380 · 示例估算',
-                  style: TextStyle(
-                    color: low ? const Color(0xff006c68) : Colors.deepOrange,
-                  ),
-                ),
+                const Text('包含住房、水电、食品与本地交通 · 示例估算 · 2026年9月1日'),
               ],
             ),
-            color: low ? const Color(0xffe1f4ed) : const Color(0xffffebe5),
+            color: const Color(0xffeaf2ff),
           ),
-          const SizedBox(height: 18),
-          section('CPI 对比 · 示例'),
-          bar('住房与水电', 78, '乔治市 78'),
-          bar('食品与日常', 85, '乔治市 85'),
-          bar('交通', 72, '乔治市 72'),
-          const SizedBox(height: 18),
-          section('常用商品价格 · 示例'),
-          table(const [
-            ('两房租金', 'RM 1,800', 'RM 1,400'),
-            ('午餐', 'RM 15', 'RM 13'),
-            ('月度交通', 'RM 250', 'RM 220'),
-          ]),
+          const SizedBox(height: 14),
+          section('本地价格 · 示例'),
+          table(
+            isPenang
+                ? const [
+                    ('两房租金', 'RM 1,400', ''),
+                    ('午餐', 'RM 13', ''),
+                    ('月度交通', 'RM 220', ''),
+                  ]
+                : const [
+                    ('两房租金', 'RM 1,800', ''),
+                    ('午餐', 'RM 15', ''),
+                    ('月度交通', 'RM 250', ''),
+                  ],
+          ),
+          const SizedBox(height: 14),
+          card(
+            c,
+            hasCurrentAssessmentScenario
+                ? const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '预算压力',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text('一人租住预案下的估算负担：RM 3,470/月'),
+                      Text(
+                        '当前评估预案 · 示例估算 · 不构成建议',
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '预算压力尚不可计算',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 5),
+                      const Text('请先在账户中设置当前评估预案；不会以默认金额代替。'),
+                      TextButton(
+                        onPressed: () => go(PageId.account),
+                        child: const Text('前往设置预案'),
+                      ),
+                    ],
+                  ),
+          ),
           const SizedBox(height: 16),
           notice(),
         ],
@@ -803,148 +950,308 @@ class _LocateMyAppState extends State<LocateMyApp> {
     );
   }
 
-  Widget safetyPage(BuildContext c) => shell(
-    '治安与犯罪',
+  Widget comparisonCostPage(BuildContext c) => shell(
+    '生活成本比较',
     ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        contextNote('分析地点：${selected.name} · 示例数据截至 2025 年'),
-        const SizedBox(height: 16),
-        score(c, '安全指数', '76/100 · 相对良好', Icons.shield_outlined),
-        const SizedBox(height: 18),
-        section('隐患类型筛选'),
-        Wrap(
-          spacing: 8,
-          children: ['全部', '治安', '交通', '水灾']
-              .map(
-                (x) => ChoiceChip(
-                  label: Text(x),
-                  selected: safetyFilter == x,
-                  onSelected: (_) => setState(() => safetyFilter = x),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 16),
-        chart('近 6 个月上报趋势', '示意图表 · $safetyFilter · 不代表真实犯罪率'),
+        route(),
         const SizedBox(height: 14),
-        const ListTile(
-          leading: Icon(Icons.info_outline),
-          title: Text('建议：白天与夜间分别实地观察'),
-          subtitle: Text('演示提示，不构成安全结论。'),
-        ),
-      ],
-    ),
-  );
-  Widget socialPage(BuildContext c) => shell(
-    '社会经济',
-    ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        contextNote('${selected.name} · 数据截至 2025 年 · 示例'),
-        const SizedBox(height: 16),
-        score(
-          c,
-          '家庭收入中位数',
-          'RM 5,980 / 月 · 同比 +2.4%',
-          Icons.account_balance_wallet_outlined,
-        ),
-        const SizedBox(height: 16),
-        card(
-          c,
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('地区收入结构（估算）', style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 12),
-              Text('B40 38%     M40 43%     T20 19%'),
-              SizedBox(height: 9),
-              LinearProgressIndicator(value: .38),
-              SizedBox(height: 10),
-              Text('基尼系数 0.39 · 中等 · 示例资料'),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        chart('家庭月收入分布（估算）', '中位数 RM 5,980 · 示例，不进行真实计算'),
-        const SizedBox(height: 16),
-        const TextField(
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: '您的家庭月收入',
-            hintText: 'RM（仅供界面审查）',
-          ),
-        ),
-      ],
-    ),
-  );
-  Widget infraPage(BuildContext c) => shell(
-    '基础设施',
-    ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        contextNote('分析地点：${selected.name} · 演示数据'),
-        const SizedBox(height: 16),
-        score(c, '综合覆盖指数', '81/100 · 良好', Icons.settings_outlined),
-        const SizedBox(height: 16),
-        section('服务覆盖'),
-        bar('供水', 92, '92'),
-        bar('供电', 96, '96'),
-        bar('医疗', 74, '74'),
-        bar('教育', 0, '暂无数据'),
-        bar('公共交通', 68, '68'),
-        const SizedBox(height: 16),
-        section('调整您的优先级 · 演示互动'),
-        slider('医疗重要性', medical, (v) => setState(() => medical = v)),
-        slider('教育优先级', education, (v) => setState(() => education = v)),
-        slider('交通便利性', transit, (v) => setState(() => transit = v)),
         const Text(
-          '优先级仅改变此页面显示，不会进行真实推荐计算。',
-          style: TextStyle(fontSize: 12, color: Colors.black54),
+          '以相同的生活篮子口径并列两个单点报告；只有口径可比时才显示差异。',
+          style: TextStyle(color: Colors.black54),
         ),
-      ],
-    ),
-  );
-  Widget amenitiesPage(BuildContext c) => shell(
-    '周边设施',
-    ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        contextNote('${selected.name} · 2 公里范围 · 公开地点资料示意'),
-        const SizedBox(height: 16),
-        score(c, '生活圈覆盖', '已收录 26 处 · 5/7 类', Icons.place_outlined),
-        const SizedBox(height: 16),
-        amenity(c, '医疗健康', '槟城中央诊所', '650 米'),
-        amenity(c, '教育资源', '乔治市社区学校', '820 米'),
-        amenity(c, '日常生活', '湿巴刹与超市', '430 米'),
-        amenity(c, '交通出行', 'KOMTAR 巴士站', '540 米'),
-        amenity(c, '休闲与绿地', '海滨步道', '1.2 公里'),
+        const SizedBox(height: 14),
+        comparisonMetricCard(
+          c,
+          '生活成本指数',
+          '100',
+          '92',
+          '固定基准 100 · 示例估算 · 2026年9月1日',
+        ),
+        const SizedBox(height: 12),
+        comparisonMetricCard(
+          c,
+          '统一生活篮子估算月支出',
+          'RM 3,850/月',
+          'RM 3,470/月',
+          '口径可比 · 差异 RM 380/月',
+        ),
+        const SizedBox(height: 14),
+        section('同名商品价格对照 · 示例'),
+        table(const [
+          ('两房租金', 'RM 1,800', 'RM 1,400'),
+          ('午餐', 'RM 15', 'RM 13'),
+          ('月度交通', 'RM 250', 'RM 220'),
+        ]),
         const SizedBox(height: 12),
         const Text(
-          '距离和名称为示例，未查询真实地点资料。',
+          '来源：示例本地价格资料 · 统计日期 2026年9月1日 · 所有数值均为原型估算。',
           style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        const SizedBox(height: 16),
+        notice(),
+      ],
+    ),
+  );
+
+  Widget comparisonMetricCard(
+    BuildContext c,
+    String title,
+    String a,
+    String b,
+    String status,
+  ) => card(
+    c,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(child: Text('地点 A\n$a')),
+            Expanded(child: Text('地点 B\n$b')),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          status,
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
         ),
       ],
     ),
   );
-  Widget transportPage(BuildContext c) => shell(
-    '公共交通',
+
+  Widget safetyPage(BuildContext c) {
+    if (isComparisonAnalysis) {
+      return comparisonDetailPage(
+        c,
+        '治安与犯罪',
+        '安全指数 — · 资料待补全',
+        '安全指数 76/100 · 相对良好',
+        '地点 A 缺少可用的安全指数；资料不完整，不能计算差异。',
+      );
+    }
+    return shell(
+      '治安与犯罪',
+      ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          contextNote('分析地点：${selected.name} · 示例数据截至 2025 年'),
+          const SizedBox(height: 16),
+          score(c, '安全指数', '76/100 · 相对良好', Icons.shield_outlined),
+          const SizedBox(height: 18),
+          section('隐患类型筛选'),
+          Wrap(
+            spacing: 8,
+            children: ['全部', '治安', '交通', '水灾']
+                .map(
+                  (x) => ChoiceChip(
+                    label: Text(x),
+                    selected: safetyFilter == x,
+                    onSelected: (_) => setState(() => safetyFilter = x),
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 16),
+          chart('近 6 个月上报趋势', '示意图表 · $safetyFilter · 不代表真实犯罪率'),
+          const SizedBox(height: 14),
+          const ListTile(
+            leading: Icon(Icons.info_outline),
+            title: Text('建议：白天与夜间分别实地观察'),
+            subtitle: Text('演示提示，不构成安全结论。'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget socialPage(BuildContext c) {
+    if (isComparisonAnalysis) {
+      return comparisonDetailPage(
+        c,
+        '社会经济',
+        '家庭收入 RM 6,420 · 基尼 0.41',
+        '家庭收入 RM 5,980 · 基尼 0.39',
+        '示例官方统计口径相同；收入与基尼是不同读数，不合成为总分。',
+      );
+    }
+    return shell(
+      '社会经济',
+      ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          contextNote('${selected.name} · 数据截至 2025 年 · 示例'),
+          const SizedBox(height: 16),
+          score(
+            c,
+            '家庭收入中位数',
+            'RM 5,980 / 月 · 同比 +2.4%',
+            Icons.account_balance_wallet_outlined,
+          ),
+          const SizedBox(height: 16),
+          card(
+            c,
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '地区收入结构（估算）',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                Text('B40 38%     M40 43%     T20 19%'),
+                SizedBox(height: 9),
+                LinearProgressIndicator(value: .38),
+                SizedBox(height: 10),
+                Text('基尼系数 0.39 · 中等 · 示例资料'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          chart('家庭月收入分布（估算）', '中位数 RM 5,980 · 示例，不进行真实计算'),
+          const SizedBox(height: 16),
+          const TextField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: '您的家庭月收入',
+              hintText: 'RM（仅供界面审查）',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget infraPage(BuildContext c) {
+    if (isComparisonAnalysis) {
+      return comparisonDetailPage(
+        c,
+        '基础设施',
+        '综合覆盖 79/100 · 最低：医疗 70',
+        '综合覆盖 81/100 · 教育覆盖缺失',
+        '地点 B 缺少教育覆盖资料；覆盖项不一致，不能计算综合差异。',
+      );
+    }
+    return shell(
+      '基础设施',
+      ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          contextNote('分析地点：${selected.name} · 演示数据'),
+          const SizedBox(height: 16),
+          score(c, '综合覆盖指数', '81/100 · 良好', Icons.settings_outlined),
+          const SizedBox(height: 16),
+          section('服务覆盖'),
+          bar('供水', 92, '92'),
+          bar('供电', 96, '96'),
+          bar('医疗', 74, '74'),
+          bar('教育', 0, '暂无数据'),
+          bar('公共交通', 68, '68'),
+          const SizedBox(height: 16),
+          section('调整您的优先级 · 演示互动'),
+          slider('医疗重要性', medical, (v) => setState(() => medical = v)),
+          slider('教育优先级', education, (v) => setState(() => education = v)),
+          slider('交通便利性', transit, (v) => setState(() => transit = v)),
+          const Text(
+            '优先级仅改变此页面显示，不会进行真实推荐计算。',
+            style: TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget amenitiesPage(BuildContext c) {
+    if (isComparisonAnalysis) {
+      return comparisonDetailPage(
+        c,
+        '周边设施',
+        '2 公里内 6/7 类 · 31 处',
+        '2 公里内 5/7 类 · 26 处',
+        '固定半径 2 公里 · 类别口径可比 · 示例地点资料。',
+      );
+    }
+    return shell(
+      '周边设施',
+      ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          contextNote('${selected.name} · 2 公里范围 · 公开地点资料示意'),
+          const SizedBox(height: 16),
+          score(c, '生活圈覆盖', '已收录 26 处 · 5/7 类', Icons.place_outlined),
+          const SizedBox(height: 16),
+          amenity(c, '医疗健康', '槟城中央诊所', '650 米'),
+          amenity(c, '教育资源', '乔治市社区学校', '820 米'),
+          amenity(c, '日常生活', '湿巴刹与超市', '430 米'),
+          amenity(c, '交通出行', 'KOMTAR 巴士站', '540 米'),
+          amenity(c, '休闲与绿地', '海滨步道', '1.2 公里'),
+          const SizedBox(height: 12),
+          const Text(
+            '距离和名称为示例，未查询真实地点资料。',
+            style: TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget transportPage(BuildContext c) {
+    if (isComparisonAnalysis) {
+      return comparisonDetailPage(
+        c,
+        '公共交通',
+        '连通性 80/100 · 1.5 公里内 3 站',
+        '连通性 72/100 · 1.5 公里内 2 站',
+        '固定半径 1.5 公里 · 示例估算口径可比。',
+      );
+    }
+    return shell(
+      '公共交通',
+      ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          contextNote('${selected.name} · 1.5 公里范围 · 示例'),
+          const SizedBox(height: 16),
+          score(c, '交通连通性', '72/100 · 良好', Icons.train_outlined),
+          const SizedBox(height: 16),
+          chart('站点分布图', '◎ 分析中心     ● 预设站点     · 仅为示意'),
+          const SizedBox(height: 16),
+          amenity(c, 'KOMTAR 巴士总站', '巴士', '540 米 · 约步行 8 分钟'),
+          amenity(c, '槟城渡轮码头', '渡轮', '1.1 公里 · 约步行 16 分钟'),
+          OutlinedButton.icon(
+            onPressed: map,
+            icon: const Icon(Icons.map_outlined),
+            label: const Text('在主地图中查看'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget comparisonDetailPage(
+    BuildContext c,
+    String category,
+    String a,
+    String b,
+    String comparability,
+  ) => shell(
+    '$category 对比',
     ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        contextNote('${selected.name} · 1.5 公里范围 · 示例'),
-        const SizedBox(height: 16),
-        score(c, '交通连通性', '72/100 · 良好', Icons.train_outlined),
-        const SizedBox(height: 16),
-        chart('站点分布图', '◎ 分析中心     ● 预设站点     · 仅为示意'),
-        const SizedBox(height: 16),
-        amenity(c, 'KOMTAR 巴士总站', '巴士', '540 米 · 约步行 8 分钟'),
-        amenity(c, '槟城渡轮码头', '渡轮', '1.1 公里 · 约步行 16 分钟'),
-        OutlinedButton.icon(
-          onPressed: map,
-          icon: const Icon(Icons.map_outlined),
-          label: const Text('在主地图中查看'),
+        route(),
+        const SizedBox(height: 14),
+        comparisonMetricCard(c, category, a, b, comparability),
+        const SizedBox(height: 12),
+        const Text(
+          '来源：示例公共／地点资料 · 统计日期 2026年9月1日 · 原型展示，不构成结论。',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
         ),
+        const SizedBox(height: 16),
+        notice(),
       ],
     ),
   );
@@ -1463,7 +1770,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
         const Center(
           child: Icon(Icons.public, size: 140, color: Color(0x3373a998)),
         ),
-        if (!compare || origin != null) ...[
+        if (!compare || locationA != null) ...[
           Positioned(
             left: 76,
             top: 65,
@@ -1478,16 +1785,20 @@ class _LocateMyAppState extends State<LocateMyApp> {
           Positioned(
             left: 98,
             top: 110,
-            child: Text(compare ? origin!.short : p.short),
+            child: Text(compare ? 'A · ${locationA!.short}' : p.short),
           ),
         ],
-        if (compare && destination != null) ...[
+        if (compare && locationB != null) ...[
           const Positioned(
             right: 70,
             bottom: 61,
             child: Icon(Icons.location_on, color: Color(0xffbd342f), size: 42),
           ),
-          Positioned(right: 28, bottom: 37, child: Text(destination!.short)),
+          Positioned(
+            right: 28,
+            bottom: 37,
+            child: Text('B · ${locationB!.short}'),
+          ),
           const Positioned(
             left: 118,
             right: 105,
@@ -1602,11 +1913,11 @@ class _LocateMyAppState extends State<LocateMyApp> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '原地址',
+              '地点 A',
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
             Text(
-              origin?.name ?? '未选择',
+              locationA?.name ?? '未选择',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
@@ -1618,11 +1929,11 @@ class _LocateMyAppState extends State<LocateMyApp> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             const Text(
-              '新地址',
+              '地点 B',
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
             Text(
-              destination?.name ?? '未选择',
+              locationB?.name ?? '未选择',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],

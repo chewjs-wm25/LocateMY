@@ -12,7 +12,9 @@ void main() {
     expect(find.text('探索马来西亚'), findsOneWidget);
   });
 
-  testWidgets('explores a place and opens its cost analysis', (tester) async {
+  testWidgets('opens a single-place cost report without a comparison', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(393, 852));
     await tester.pumpWidget(const LocateMyApp());
 
@@ -23,8 +25,10 @@ void main() {
     await tester.tap(find.text('生活成本'));
     await tester.pumpAndSettle();
 
-    expect(find.text('生活成本比较'), findsOneWidget);
+    expect(find.text('单点生活成本报告'), findsOneWidget);
     expect(find.text('乔治市（槟城）'), findsOneWidget);
+    expect(find.text('统一生活篮子估算月支出'), findsOneWidget);
+    expect(find.text('地点 A'), findsNothing);
   });
 
   testWidgets('expands the location card into the five defined summaries', (
@@ -84,15 +88,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('选择当前地点的比较角色'), findsOneWidget);
-      await tester.tap(find.text('作为原地址'));
+      await tester.tap(find.text('作为地点 A'));
       await tester.pumpAndSettle();
 
       expect(find.text('两地对比'), findsOneWidget);
-      expect(find.textContaining('请先选择新地址'), findsOneWidget);
+      expect(find.textContaining('请先选择地点 B'), findsOneWidget);
     },
   );
 
-  testWidgets('compares two places from the map', (tester) async {
+  testWidgets('opens the six-category A/B comparison overview', (tester) async {
     await tester.binding.setSurfaceSize(const Size(393, 852));
     await tester.pumpWidget(const LocateMyApp());
 
@@ -100,11 +104,48 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('两地对比'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('比较生活成本'));
+    await tester.tap(find.text('查看地点比较'));
     await tester.pumpAndSettle();
 
-    expect(find.text('原地址'), findsOneWidget);
-    expect(find.text('新地址'), findsOneWidget);
+    expect(find.text('地点比较总览'), findsOneWidget);
+    expect(find.text('地点 A'), findsWidgets);
+    expect(find.text('地点 B'), findsWidgets);
+    for (final category in ['生活成本', '治安与犯罪', '社会经济', '基础设施', '周边设施', '公共交通']) {
+      await tester.scrollUntilVisible(find.text(category), 120);
+      expect(find.text(category), findsOneWidget);
+    }
+
+    await tester.drag(find.byType(ListView), const Offset(0, 1200));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('生活成本'));
+    await tester.pumpAndSettle();
+    expect(find.text('生活成本比较'), findsOneWidget);
+    expect(find.text('口径可比 · 差异 RM 380/月'), findsOneWidget);
+  });
+
+  testWidgets('does not allow the same place in A and B to be compared', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('地图'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('两地对比'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButtonFormField<Place>).at(1));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('吉隆坡 · 吉隆坡联邦直辖区').last);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('地点 A 与地点 B不能相同'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, '查看地点比较'), findsOneWidget);
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton, '查看地点比较'))
+          .onPressed,
+      isNull,
+    );
   });
 
   testWidgets('adds an inspection record and opens its detail', (tester) async {
