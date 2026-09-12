@@ -306,7 +306,11 @@ class _LocationDetailCard extends StatelessWidget {
 
   List<Widget> _summaries() {
     final penang = state.selected == Place.penang;
+    final cost = state.selectedCostReport;
     final facilities = state.nearbyFacilities;
+    final costSummary = cost.hasCompleteIndex
+        ? '指数 ${cost.costIndex!.toStringAsFixed(0)} · ${_rm(cost.scenarioSpend!)}'
+        : '部分篮子 ${_rm(cost.scenarioSpend ?? cost.observedSpend)} · 指数待补全';
     return [
       _summary(
         Icons.shield_outlined,
@@ -317,7 +321,7 @@ class _LocationDetailCard extends StatelessWidget {
       _summary(
         Icons.payments_outlined,
         '生活成本',
-        penang ? '相对成本低 8% · 预算压力 RM 3,470/月' : '相对成本基准 100 · 预算压力待评估',
+        costSummary,
         '${state.selected.area} · 示例估算 · 2026年9月1日',
       ),
       _summary(
@@ -340,6 +344,8 @@ class _LocationDetailCard extends StatelessWidget {
       ),
     ];
   }
+
+  String _rm(double value) => 'RM ${value.round()} / 月';
 
   Widget _summary(IconData icon, String title, String value, String metadata) =>
       Padding(

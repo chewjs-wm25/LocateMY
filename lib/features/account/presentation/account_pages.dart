@@ -180,11 +180,16 @@ class AccountPage extends StatelessWidget {
           title: Text('评估偏好'),
           subtitle: Text('安全、成本、日常便利、公共交通、基础设施 · 示例已设置'),
         ),
-        const ListTile(
+        ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(Icons.account_balance_wallet_outlined),
           title: Text('当前评估预案'),
-          subtitle: Text('一人租住 · 示例预案（用于地点适配度与预算压力）'),
+          subtitle: Text(
+            state.hasCurrentAssessmentScenario
+                ? '一人租住 · 住房 RM ${state.housingMonthly ?? '未填写'} · 交通 RM ${state.transportMonthly ?? '未填写'}'
+                : '未设置 · 住房、交通和月净收入均不会以默认值代替',
+          ),
+          onTap: () => state.go(PageId.cost),
         ),
         const Divider(),
         ListTile(

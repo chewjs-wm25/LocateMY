@@ -5,6 +5,7 @@ import 'package:locatemy/core/models/location.dart';
 import 'package:locatemy/core/models/nearby_facilities.dart';
 import 'package:locatemy/core/widgets/app_scaffold.dart';
 import 'package:locatemy/core/widgets/common_widgets.dart';
+import 'package:locatemy/features/analysis/domain/cost_of_living.dart';
 
 class AnalysisPage extends StatelessWidget {
   const AnalysisPage({required this.state, super.key});
@@ -176,7 +177,7 @@ class AnalysisPage extends StatelessWidget {
 
   Widget _comparisonOverview(String category) {
     final values = switch (category) {
-      '生活成本' => ('指数 100 · RM 3,850/月', '指数 92 · RM 3,470/月'),
+      '生活成本' => _costComparisonOverview(),
       '治安与犯罪' => ('安全指数 —', '安全指数 76/100'),
       '社会经济' => ('家庭收入 RM 6,420 · 基尼 0.41', '家庭收入 RM 5,980 · 基尼 0.39'),
       '基础设施' => ('综合覆盖 79/100', '综合覆盖 81/100 · 教育缺失'),
@@ -191,6 +192,24 @@ class AnalysisPage extends StatelessWidget {
       ],
     );
   }
+
+  (String, String) _costComparisonOverview() {
+    final a = state.locationA;
+    final b = state.locationB;
+    if (a == null || b == null) return ('资料待补全', '资料待补全');
+    final reportA = state.costReportFor(a);
+    final reportB = state.costReportFor(b);
+    return (
+      reportA.hasCompleteIndex
+          ? '指数 ${reportA.costIndex!.toStringAsFixed(0)} · ${_rm(reportA.scenarioSpend!)}'
+          : '指数暂不可用 · ${reportA.coverageText} 覆盖',
+      reportB.hasCompleteIndex
+          ? '指数 ${reportB.costIndex!.toStringAsFixed(0)} · ${_rm(reportB.scenarioSpend!)}'
+          : '指数暂不可用 · ${reportB.coverageText} 覆盖',
+    );
+  }
+
+  String _rm(double value) => 'RM ${value.round()} / 月';
 }
 
 class AnalysisDetailPage extends StatelessWidget {
@@ -506,7 +525,7 @@ class CostPage extends StatelessWidget {
       state.isComparisonAnalysis ? _comparison(context) : _single(context);
 
   Widget _single(BuildContext context) {
-    final isPenang = state.selected == Place.penang;
+    final report = state.selectedCostReport;
     return LocateMyScaffold(
       state: state,
       title: '单点生活成本报告',
@@ -524,94 +543,22 @@ class CostPage extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 6),
-          contextNote('分析地点：${state.selected.name} · ${state.selected.area}'),
-          const SizedBox(height: 14),
-          appCard(
-            context,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '生活成本指数',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 6),
-                Text(isPenang ? '92 · 相对于固定基准 100' : '100 · 固定基准'),
-                const SizedBox(height: 5),
-                const Text('示例估算 · 基准口径：马来西亚城市生活篮子 · 2026年9月1日'),
-              ],
-            ),
+          contextNote(
+            '分析地点：${state.selected.name} · ${state.selected.area}\n'
+            '默认对象：单身成年人 1 人 · 所有数值均为原型示例',
           ),
+          const SizedBox(height: 14),
+          _indexCard(context, report),
           const SizedBox(height: 12),
-          appCard(
-            context,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '统一生活篮子估算月支出',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'RM ${isPenang ? '3,470' : '3,850'} / 月',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const Text('包含住房、水电、食品与本地交通 · 示例估算 · 2026年9月1日'),
-              ],
-            ),
-            color: const Color(0xffeaf2ff),
-          ),
+          _basketCard(context, report),
           const SizedBox(height: 14),
-          section('本地价格 · 示例'),
-          dataTable(
-            isPenang
-                ? const [
-                    ('两房租金', 'RM 1,400', ''),
-                    ('午餐', 'RM 13', ''),
-                    ('月度交通', 'RM 220', ''),
-                  ]
-                : const [
-                    ('两房租金', 'RM 1,800', ''),
-                    ('午餐', 'RM 15', ''),
-                    ('月度交通', 'RM 250', ''),
-                  ],
-          ),
+          _localPrices(context, report),
           const SizedBox(height: 14),
-          appCard(
-            context,
-            state.hasCurrentAssessmentScenario
-                ? const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '预算压力',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text('一人租住预案下的估算负担：RM 3,470/月'),
-                      Text(
-                        '当前评估预案 · 示例估算 · 不构成建议',
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '预算压力尚不可计算',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 5),
-                      const Text('请先在账户中设置当前评估预案；不会以默认金额代替。'),
-                      TextButton(
-                        onPressed: () => state.go(PageId.account),
-                        child: const Text('前往设置预案'),
-                      ),
-                    ],
-                  ),
-          ),
+          _budgetScenario(context, report),
+          const SizedBox(height: 14),
+          _budgetPressure(context, report),
+          const SizedBox(height: 14),
+          _dataBoundary(context, report),
           const SizedBox(height: 16),
           notice(),
         ],
@@ -628,29 +575,16 @@ class CostPage extends StatelessWidget {
         route(state),
         const SizedBox(height: 14),
         const Text(
-          '以相同的生活篮子口径并列两个单点报告；只有口径可比时才显示差异。',
+          '以相同的统一生活篮子和预算场景并列两个单点报告；只有资料可比时才显示差异。',
           style: TextStyle(color: Colors.black54),
         ),
         const SizedBox(height: 14),
-        _metric(context, '生活成本指数', '100', '92', '固定基准 100 · 示例估算 · 2026年9月1日'),
-        const SizedBox(height: 12),
-        _metric(
-          context,
-          '统一生活篮子估算月支出',
-          'RM 3,850/月',
-          'RM 3,470/月',
-          '口径可比 · 差异 RM 380/月',
-        ),
+        _comparisonMetrics(context),
         const SizedBox(height: 14),
-        section('同名商品价格对照 · 示例'),
-        dataTable(const [
-          ('两房租金', 'RM 1,800', 'RM 1,400'),
-          ('午餐', 'RM 15', 'RM 13'),
-          ('月度交通', 'RM 250', 'RM 220'),
-        ]),
+        _comparisonPrices(context),
         const SizedBox(height: 12),
         const Text(
-          '来源：示例本地价格资料 · 统计日期 2026年9月1日 · 所有数值均为原型估算。',
+          '生活成本指数相对于固定全国单身成年人基准篮子 = 100；不是 CPI、政府评级或地点排名。',
           style: TextStyle(fontSize: 12, color: Colors.black54),
         ),
         const SizedBox(height: 16),
@@ -658,6 +592,442 @@ class CostPage extends StatelessWidget {
       ],
     ),
   );
+
+  Widget _indexCard(BuildContext context, CostReport report) => appCard(
+    context,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('生活成本指数', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        if (report.hasCompleteIndex)
+          Text(
+            '${report.costIndex!.toStringAsFixed(0)} · 固定基准 100',
+            style: Theme.of(context).textTheme.titleLarge,
+          )
+        else
+          const Text(
+            '暂不可用 · 资料条件未满足',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        const SizedBox(height: 6),
+        Text(
+          report.hasCompleteIndex
+              ? '指数是辅助读数，RM/月是主结果。示例估算 · 2026年9月1日'
+              : _qualityReason(report),
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+      ],
+    ),
+  );
+
+  Widget _basketCard(BuildContext context, CostReport report) => appCard(
+    context,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '统一生活篮子估算月支出',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _rm(report.scenarioSpend ?? report.observedSpend),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        Text(
+          report.scenarioSpend == null
+              ? '最近 12 个月平均 · 部分篮子估算 · 住房或交通未计入'
+              : report.meetsDataQuality
+              ? '最近 12 个月平均 · 包含住房、交通与可用篮子项目 · 示例估算'
+              : '最近 12 个月平均 · 部分篮子估算 · 不代表完整月支出',
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const Text('篮子覆盖率'),
+            const SizedBox(width: 8),
+            Text(
+              report.coverageText,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const Spacer(),
+            Flexible(
+              child: Text(
+                '${report.availableMonths}/12 个月有可用观测',
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        LinearProgressIndicator(value: report.coverage),
+      ],
+    ),
+    color: const Color(0xffeaf2ff),
+  );
+
+  Widget _localPrices(BuildContext context, CostReport report) {
+    final observed = report.availableItems
+        .where((item) => item.source == CostSource.officialObservation)
+        .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        section('本地价格 · 示例'),
+        appCard(
+          context,
+          Column(
+            children: [
+              ...observed.map((item) => _priceRow(context, report.place, item)),
+              if (report.missingItems.isNotEmpty) ...[
+                const Divider(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '缺少商品：${report.missingItems.map((item) => item.name).join('、')}（已从金额剔除）',
+                    style: const TextStyle(
+                      color: Color(0xff9b2c2c),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 8),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '观测日期：2026年9月1日 · 代表性价格为原型示例，不是实时官方数据。',
+                  style: TextStyle(fontSize: 11, color: Colors.black54),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _priceRow(BuildContext context, Place place, CostBasketItem item) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          children: [
+            Expanded(child: Text('${item.name} · ${item.unit}')),
+            Text(_rm(item.unitPriceFor(place)!)),
+            const SizedBox(width: 8),
+            const Text(
+              '官方观测',
+              style: TextStyle(fontSize: 11, color: Colors.black54),
+            ),
+          ],
+        ),
+      );
+
+  Widget _budgetScenario(BuildContext context, CostReport report) => appCard(
+    context,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                '预算场景与输入',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextButton(
+              onPressed: state.hasCurrentAssessmentScenario
+                  ? state.clearCurrentAssessmentScenario
+                  : state.restoreDemoAssessmentScenario,
+              child: Text(
+                state.hasCurrentAssessmentScenario ? '清除预案' : '使用演示预案',
+              ),
+            ),
+          ],
+        ),
+        const Text('住房与交通没有公共数据默认值；空白与 RM 0 是两种不同状态。'),
+        const SizedBox(height: 12),
+        _amountField(
+          controller: state.housingController,
+          label: '住房月支出',
+          onChanged: state.setHousingMonthly,
+          value: state.housingMonthly,
+        ),
+        const SizedBox(height: 10),
+        _amountField(
+          controller: state.transportController,
+          label: '交通月支出',
+          onChanged: state.setTransportMonthly,
+          value: state.transportMonthly,
+        ),
+        const SizedBox(height: 10),
+        _amountField(
+          controller: state.monthlyNetIncomeController,
+          label: '月净收入（可选）',
+          onChanged: state.setMonthlyNetIncome,
+          value: state.monthlyNetIncome,
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const Expanded(child: Text('篮子数量／频次调整')),
+            IconButton(
+              onPressed: () => state.setBasketQuantityMultiplier(
+                state.basketQuantityMultiplier - .1,
+              ),
+              icon: const Icon(Icons.remove_circle_outline),
+              tooltip: '减少篮子数量／频次',
+            ),
+            Text('${state.basketQuantityMultiplier.toStringAsFixed(1)}x'),
+            IconButton(
+              onPressed: () => state.setBasketQuantityMultiplier(
+                state.basketQuantityMultiplier + .1,
+              ),
+              icon: const Icon(Icons.add_circle_outline),
+              tooltip: '增加篮子数量／频次',
+            ),
+          ],
+        ),
+        Text(
+          state.hasCurrentAssessmentScenario
+              ? '当前预案为页面内存演示；调整会立即更新金额。'
+              : '尚未设置当前评估预案，预算压力不可计算。',
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+      ],
+    ),
+  );
+
+  Widget _amountField({
+    required TextEditingController controller,
+    required String label,
+    required ValueChanged<String> onChanged,
+    required int? value,
+  }) => TextField(
+    controller: controller,
+    keyboardType: TextInputType.number,
+    onChanged: onChanged,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixText: 'RM ',
+      helperText: value == null
+          ? '未填写（不会按 RM 0 计算）'
+          : value == 0
+          ? '已明确选择 RM 0'
+          : '用户输入 · RM/月',
+    ),
+  );
+
+  Widget _budgetPressure(BuildContext context, CostReport report) {
+    final available = state.hasCompleteBudgetInputs && report.meetsDataQuality;
+    return appCard(
+      context,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('预算压力', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          if (!state.hasCurrentAssessmentScenario)
+            const Text('预算压力尚不可计算：请先设置当前评估预案。')
+          else if (!report.hasScenarioInputs)
+            const Text('预算压力尚不可计算：住房和交通都需要填写，或明确选择 RM 0。')
+          else if (!available)
+            const Text('预算压力尚不可计算：目前只有部分篮子资料，不能把部分金额当作完整支出。')
+          else ...[
+            _pressureRow('地点基线', report.locationBudgetBurden, '行政区家庭收入中位数'),
+            const SizedBox(height: 8),
+            _pressureRow(
+              '个人压力',
+              report.personalBudgetBurden(state.monthlyNetIncome?.toDouble()),
+              state.monthlyNetIncome == null ? '月净收入未填写' : '用户月净收入',
+            ),
+          ],
+          const SizedBox(height: 8),
+          const Text(
+            '只显示连续百分比，不自动标记低／中／高。地点基线与个人压力不是同一个指标。',
+            style: TextStyle(fontSize: 11, color: Colors.black54),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pressureRow(String label, double? value, String source) => Row(
+    children: [
+      Expanded(child: Text(label)),
+      Text(value == null ? '尚不可计算' : '${value.toStringAsFixed(1)}%'),
+      const SizedBox(width: 8),
+      Text(source, style: const TextStyle(fontSize: 11, color: Colors.black54)),
+    ],
+  );
+
+  Widget _dataBoundary(BuildContext context, CostReport report) => appCard(
+    context,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('数据口径与缺失说明', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 7),
+        const Text('官方观测：本地商品代表价格；模型假设：篮子项目数量与非市场项目；用户输入：住房、交通和月净收入。'),
+        const SizedBox(height: 7),
+        Text(_qualityReason(report)),
+        if (state.costDataShortage) ...[
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: state.toggleCostDataShortage,
+            icon: const Icon(Icons.restore),
+            label: const Text('恢复完整示例资料'),
+          ),
+        ] else
+          OutlinedButton.icon(
+            onPressed: state.toggleCostDataShortage,
+            icon: const Icon(Icons.warning_amber_outlined),
+            label: const Text('演示覆盖率不足状态'),
+          ),
+      ],
+    ),
+  );
+
+  Widget _comparisonMetrics(BuildContext context) {
+    final a = state.locationA;
+    final b = state.locationB;
+    if (a == null || b == null) {
+      return const Text('地点资料不足，无法比较。');
+    }
+    final reportA = state.costReportFor(a);
+    final reportB = state.costReportFor(b);
+    final comparable =
+        state.comparisonScenarioMatches &&
+        reportA.hasCompleteIndex &&
+        reportB.hasCompleteIndex;
+    if (!comparable) {
+      final reason = !state.comparisonScenarioMatches
+          ? '预算场景不一致：住房、交通或篮子调整必须相同，不能显示纯地点差异。'
+          : '资料不足：两地都需要满足至少 6/12 个月观测、80% 篮子覆盖率及完整住房／交通输入。';
+      return appCard(
+        context,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '生活成本差异暂不可用',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            Text(reason),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: state.toggleComparisonScenario,
+              child: Text(
+                state.comparisonScenarioMatches ? '演示不同预算场景' : '恢复相同预算场景',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final difference = reportA.scenarioSpend! - reportB.scenarioSpend!;
+    return Column(
+      children: [
+        _metric(
+          context,
+          '生活成本指数',
+          reportA.costIndex!.toStringAsFixed(0),
+          reportB.costIndex!.toStringAsFixed(0),
+          '固定全国单身成年人基准篮子 = 100 · 同一预算场景',
+        ),
+        const SizedBox(height: 12),
+        _metric(
+          context,
+          '统一生活篮子估算月支出',
+          _rm(reportA.scenarioSpend!),
+          _rm(reportB.scenarioSpend!),
+          '口径可比 · 差异 ${_rm(difference.abs())}（A − B）',
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton(
+            onPressed: state.toggleComparisonScenario,
+            child: const Text('演示不同预算场景'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _comparisonPrices(BuildContext context) {
+    final a = state.locationA;
+    final b = state.locationB;
+    if (a == null || b == null) return const SizedBox.shrink();
+    final items = costBasketItems
+        .where((item) => item.source == CostSource.officialObservation)
+        .toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        section('同名商品价格对照 · 示例'),
+        appCard(
+          context,
+          Column(
+            children: [
+              Row(
+                children: [
+                  const Expanded(child: Text('项目')),
+                  Expanded(child: Text('地点 A · ${a.short}')),
+                  Expanded(child: Text('地点 B · ${b.short}')),
+                ],
+              ),
+              const Divider(),
+              ...items.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(item.name)),
+                      Expanded(child: Text(_rm(item.unitPriceFor(a)!))),
+                      Expanded(child: Text(_rm(item.unitPriceFor(b)!))),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 7),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '观测日期：2026年9月1日 · 地点比较沿用同一预算场景。',
+                  style: TextStyle(fontSize: 11, color: Colors.black54),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _qualityReason(CostReport report) {
+    final reasons = <String>[];
+    if (report.availableMonths < 6) {
+      reasons.add('12个月内只有${report.availableMonths}个月有可用观测');
+    }
+    if (report.coverage < .8) {
+      reasons.add('篮子覆盖率低于80%');
+    }
+    if (report.housingMonthly == null) {
+      reasons.add('住房月支出未填写');
+    }
+    if (report.transportMonthly == null) {
+      reasons.add('交通月支出未填写');
+    }
+    return reasons.isEmpty
+        ? '已满足覆盖率、观测月份和预算输入条件；指数仍只是模型辅助读数。'
+        : '当前状态：${reasons.join('；')}。仍显示部分金额，不显示完整总指数。';
+  }
+
+  String _rm(double value) =>
+      'RM ${value.round().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')} / 月';
 
   Widget _metric(
     BuildContext context,

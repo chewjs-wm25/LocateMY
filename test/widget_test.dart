@@ -82,6 +82,61 @@ void main() {
     expect(find.text('地点 A'), findsNothing);
   });
 
+  testWidgets('keeps empty budget input separate from an explicit zero', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('探索马来西亚'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('查看完整分析'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('生活成本'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -1200));
+    await tester.pumpAndSettle();
+    final housing = find.byType(TextField).first;
+    await tester.ensureVisible(housing);
+    await tester.enterText(housing, '');
+    await tester.pumpAndSettle();
+    expect(find.text('未填写（不会按 RM 0 计算）'), findsOneWidget);
+    expect(find.textContaining('住房和交通都需要填写'), findsOneWidget);
+
+    await tester.enterText(housing, '0');
+    await tester.pumpAndSettle();
+    expect(find.text('已明确选择 RM 0'), findsOneWidget);
+    expect(find.textContaining('住房和交通都需要填写'), findsNothing);
+  });
+
+  testWidgets('hides the complete index when basket coverage is insufficient', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('探索马来西亚'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('查看完整分析'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('生活成本'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('演示覆盖率不足状态'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('演示覆盖率不足状态'));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, 2000));
+    await tester.pumpAndSettle();
+
+    expect(find.text('暂不可用 · 资料条件未满足'), findsOneWidget);
+    expect(find.textContaining('缺少商品：鸡肉、午餐、食用油'), findsOneWidget);
+    expect(find.textContaining('不显示完整总指数'), findsOneWidget);
+  });
+
   testWidgets('expands the location card into the five defined summaries', (
     tester,
   ) async {
@@ -244,7 +299,35 @@ void main() {
     await tester.tap(find.text('生活成本'));
     await tester.pumpAndSettle();
     expect(find.text('生活成本比较'), findsOneWidget);
-    expect(find.text('口径可比 · 差异 RM 380/月'), findsOneWidget);
+    expect(find.text('口径可比 · 差异 RM 180 / 月（A − B）'), findsOneWidget);
+  });
+
+  testWidgets('explains why different budget scenarios cannot be compared', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('地图'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('两地对比'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('查看地点比较'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('生活成本'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('生活成本'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('演示不同预算场景'));
+    await tester.tap(find.text('演示不同预算场景'));
+    await tester.pumpAndSettle();
+    expect(find.text('生活成本差异暂不可用'), findsOneWidget);
+    expect(find.textContaining('预算场景不一致'), findsOneWidget);
+    expect(find.textContaining('口径可比 · 差异'), findsNothing);
   });
 
   testWidgets('does not allow the same place in A and B to be compared', (

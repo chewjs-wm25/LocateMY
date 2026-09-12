@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import '../models/location.dart';
 import '../core/models/nearby_facilities.dart';
+import '../features/analysis/domain/cost_of_living.dart';
 import '../models/property.dart';
 
 class LocateMyState extends ChangeNotifier {
@@ -10,6 +11,9 @@ class LocateMyState extends ChangeNotifier {
     propertyNameController = TextEditingController();
     propertyPriceController = TextEditingController();
     propertyNoteController = TextEditingController();
+    housingController = TextEditingController(text: '1800');
+    transportController = TextEditingController(text: '250');
+    monthlyNetIncomeController = TextEditingController(text: '9000');
     const variants = {'A': 0, 'B': 1, 'C': 2};
     archiveVariant =
         variants[Uri.base.queryParameters['variant']?.toUpperCase()] ?? 0;
@@ -26,6 +30,12 @@ class LocateMyState extends ChangeNotifier {
   bool locationDetailExpanded = false;
   bool hasFiveAssessmentPreferences = true;
   bool hasCurrentAssessmentScenario = true;
+  double basketQuantityMultiplier = 1;
+  int? housingMonthly = 1800;
+  int? transportMonthly = 250;
+  int? monthlyNetIncome = 9000;
+  bool costDataShortage = false;
+  bool comparisonScenarioMatches = true;
   String safetyFilter = '全部';
   int medical = 7;
   int education = 4;
@@ -36,6 +46,9 @@ class LocateMyState extends ChangeNotifier {
   late final TextEditingController propertyNameController;
   late final TextEditingController propertyPriceController;
   late final TextEditingController propertyNoteController;
+  late final TextEditingController housingController;
+  late final TextEditingController transportController;
+  late final TextEditingController monthlyNetIncomeController;
   int? editingProperty;
   Place formPlace = Place.penang;
   List<int> formRatings = [4, 3, 4, 4];
@@ -127,6 +140,27 @@ class LocateMyState extends ChangeNotifier {
   NearbyFacilitiesResult get nearbyFacilities =>
       NearbyFacilitiesFixtures.forPlace(selected);
 
+  CostReport costReportFor(Place place, {bool shortage = false}) =>
+      buildCostReport(
+        place: place,
+        housingMonthly: hasCurrentAssessmentScenario
+            ? housingMonthly?.toDouble()
+            : null,
+        transportMonthly: hasCurrentAssessmentScenario
+            ? transportMonthly?.toDouble()
+            : null,
+        quantityMultiplier: basketQuantityMultiplier,
+        dataShortage: shortage,
+      );
+
+  CostReport get selectedCostReport =>
+      costReportFor(selected, shortage: costDataShortage);
+
+  bool get hasCompleteBudgetInputs =>
+      hasCurrentAssessmentScenario &&
+      housingMonthly != null &&
+      transportMonthly != null;
+
   void go(PageId value, {bool keepBack = true}) {
     if (keepBack) previous = page;
     page = value;
@@ -189,6 +223,63 @@ class LocateMyState extends ChangeNotifier {
   void setSafetyFilter(String value) {
     safetyFilter = value;
     notifyListeners();
+  }
+
+  void setBasketQuantityMultiplier(double value) {
+    basketQuantityMultiplier = value.clamp(.5, 2.0).toDouble();
+    notifyListeners();
+  }
+
+  void setHousingMonthly(String value) {
+    housingMonthly = _parseMonthlyAmount(value);
+    notifyListeners();
+  }
+
+  void setTransportMonthly(String value) {
+    transportMonthly = _parseMonthlyAmount(value);
+    notifyListeners();
+  }
+
+  void setMonthlyNetIncome(String value) {
+    monthlyNetIncome = _parseMonthlyAmount(value);
+    notifyListeners();
+  }
+
+  void clearCurrentAssessmentScenario() {
+    hasCurrentAssessmentScenario = false;
+    housingMonthly = null;
+    transportMonthly = null;
+    monthlyNetIncome = null;
+    housingController.clear();
+    transportController.clear();
+    monthlyNetIncomeController.clear();
+    notifyListeners();
+  }
+
+  void restoreDemoAssessmentScenario() {
+    hasCurrentAssessmentScenario = true;
+    housingMonthly = 1800;
+    transportMonthly = 250;
+    monthlyNetIncome = 9000;
+    housingController.text = '1800';
+    transportController.text = '250';
+    monthlyNetIncomeController.text = '9000';
+    notifyListeners();
+  }
+
+  void toggleCostDataShortage() {
+    costDataShortage = !costDataShortage;
+    notifyListeners();
+  }
+
+  void toggleComparisonScenario() {
+    comparisonScenarioMatches = !comparisonScenarioMatches;
+    notifyListeners();
+  }
+
+  int? _parseMonthlyAmount(String value) {
+    final amount = int.tryParse(value.trim());
+    return amount == null || amount < 0 ? null : amount;
   }
 
   void setMedical(int value) {
@@ -368,6 +459,9 @@ class LocateMyState extends ChangeNotifier {
     propertyNameController.dispose();
     propertyPriceController.dispose();
     propertyNoteController.dispose();
+    housingController.dispose();
+    transportController.dispose();
+    monthlyNetIncomeController.dispose();
     super.dispose();
   }
 }
