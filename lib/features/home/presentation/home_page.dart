@@ -51,51 +51,100 @@ class HomePage extends StatelessWidget {
         }),
         const SizedBox(height: 20),
         section('马来西亚概览'),
-        appCard(
-          context,
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.insights, color: Color(0xff006c68)),
-                  SizedBox(width: 8),
-                  Text('搬家时机', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Spacer(),
-                  Text('示例 72/100'),
-                ],
-              ),
-              SizedBox(height: 9),
-              Text('较适合 · 成本压力缓解，就业保持稳定'),
-              Text(
-                '示例数据 · 截至 2026 年 9 月',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-            ],
-          ),
-        ),
+        const _MovingTimeCard(),
         const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final metricWidth = (constraints.maxWidth - 16) / 3;
-            const metrics = [
-              Metric('成本压力', '68'),
-              Metric('就业稳定度', '74'),
-              Metric('经济动能', '70'),
-              Metric('家庭收入中位数', 'RM 6,338', caption: '2025 年'),
-              Metric('OPR 参考值', '3.00%', caption: '非实时'),
-            ];
-            return Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: metrics
-                  .map((metric) => SizedBox(width: metricWidth, child: metric))
-                  .toList(),
-            );
-          },
+        const Text(
+          '主要分项 · 示例数据',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        const SizedBox(height: 8),
+        const Metric(
+          '成本压力',
+          '68',
+          score: 68,
+          status: '大致稳定',
+          trend: '近期变化大致稳定',
+          direction: '成本压力相对较低',
+          date: '示例观测：2026 年 8 月',
+        ),
+        const SizedBox(height: 8),
+        const Metric(
+          '就业稳定度',
+          '74',
+          score: 74,
+          status: '大致稳定',
+          trend: '就业市场保持稳定',
+          date: '示例观测：2026 年 7 月',
+        ),
+        const SizedBox(height: 8),
+        const Metric(
+          '经济动能',
+          '70',
+          score: 70,
+          status: '扩张',
+          trend: '近期趋势大致稳定',
+          date: '示例观测：2026 年第二季度',
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          '家庭收入背景数据 · 示例数据',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        const SizedBox(height: 8),
+        const Metric(
+          '家庭收入中位数',
+          'RM 6,338 / 月',
+          isScore: false,
+          caption: '2024 年调查',
+          direction: '按当年价格，未按通胀调整',
         ),
         const SizedBox(height: 22),
         notice(),
+      ],
+    ),
+  );
+}
+
+class _MovingTimeCard extends StatelessWidget {
+  const _MovingTimeCard();
+
+  @override
+  Widget build(BuildContext context) => appCard(
+    context,
+    const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.insights, color: Color(0xff006c68)),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '搬家时机 · 示例数据',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Text(
+          '72/100',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+        ),
+        Text('较适合', style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 8),
+        Text('原因：成本压力相对缓解'),
+        Text('原因：就业保持稳定'),
+        Text('原因：经济动能大致稳定'),
+        SizedBox(height: 8),
+        Text(
+          '示例观测日期：成本 2026 年 8 月 · 就业 2026 年 7 月 · 经济 2026 年第二季度',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        Text(
+          '分数不是政府评级，也不是对未来的保证。',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
       ],
     ),
   );

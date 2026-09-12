@@ -367,10 +367,27 @@ Widget mapArt(
 );
 
 class Metric extends StatelessWidget {
-  const Metric(this.label, this.value, {this.caption, super.key});
+  const Metric(
+    this.label,
+    this.value, {
+    this.caption,
+    this.status,
+    this.trend,
+    this.date,
+    this.direction,
+    this.score,
+    this.isScore = true,
+    super.key,
+  });
   final String label;
   final String value;
   final String? caption;
+  final String? status;
+  final String? trend;
+  final String? date;
+  final String? direction;
+  final int? score;
+  final bool isScore;
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -381,20 +398,55 @@ class Metric extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                isScore ? '$value/100' : value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
           ),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 11),
-          ),
-          if (caption != null)
+          if (isScore && score != null) ...[
+            const SizedBox(height: 8),
+            LinearProgressIndicator(
+              value: (score! / 100).clamp(0, 1).toDouble(),
+              minHeight: 6,
+            ),
+          ],
+          if (status != null || trend != null || direction != null) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              runSpacing: 4,
+              children: [
+                if (status != null) Text('状态：$status'),
+                if (trend != null) Text('趋势：$trend'),
+                if (direction != null) Text(direction!),
+              ],
+            ),
+          ],
+          if (caption != null) ...[
+            const SizedBox(height: 4),
+            Text(caption!, style: const TextStyle(color: Colors.black54)),
+          ],
+          if (date != null)
             Text(
-              caption!,
-              style: const TextStyle(fontSize: 10, color: Colors.black54),
+              date!,
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
             ),
         ],
       ),

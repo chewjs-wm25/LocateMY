@@ -10,10 +10,57 @@ void main() {
     expect(find.text('LocateMY'), findsOneWidget);
     expect(find.text('您想搬到哪里？'), findsOneWidget);
     expect(find.text('探索马来西亚'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('RM 6,338 / 月'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('家庭收入中位数'), findsOneWidget);
-    expect(find.text('RM 6,338'), findsOneWidget);
-    expect(find.text('OPR 参考值'), findsOneWidget);
-    expect(find.text('3.00%'), findsOneWidget);
+    expect(find.text('RM 6,338 / 月'), findsOneWidget);
+    expect(find.text('2024 年调查'), findsOneWidget);
+    expect(find.text('按当年价格，未按通胀调整'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('成本压力相对较低'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('成本压力相对较低'), findsOneWidget);
+    expect(find.text('OPR 参考值'), findsNothing);
+    expect(find.text('3.00%'), findsNothing);
+  });
+
+  testWidgets('keeps the macro index hierarchy readable on a small screen', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(360, 800));
+    await tester.pumpWidget(const LocateMyApp());
+
+    expect(find.textContaining('搬家时机'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('成本压力'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('成本压力'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('就业稳定度'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('就业稳定度'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('经济动能'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('经济动能'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('家庭收入中位数'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('家庭收入中位数'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('opens a single-place cost report without a comparison', (
