@@ -36,7 +36,7 @@ class LocateMyState extends ChangeNotifier {
   int? monthlyNetIncome = 9000;
   bool costDataShortage = false;
   bool comparisonScenarioMatches = true;
-  String safetyFilter = '全部';
+  String crimeFilter = '全部';
   int medical = 7;
   int education = 4;
   int transit = 8;
@@ -220,8 +220,8 @@ class LocateMyState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSafetyFilter(String value) {
-    safetyFilter = value;
+  void setCrimeFilter(String value) {
+    crimeFilter = value;
     notifyListeners();
   }
 

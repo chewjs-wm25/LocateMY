@@ -7,6 +7,66 @@ import 'package:locatemy/core/widgets/app_scaffold.dart';
 import 'package:locatemy/core/widgets/common_widgets.dart';
 import 'package:locatemy/features/analysis/domain/cost_of_living.dart';
 
+const _crimeFilters = [
+  '全部',
+  '暴力犯罪（assault）',
+  '财产犯罪（property）',
+  'burglary',
+  'robbery',
+];
+
+const _crimeSeries = <String, _CrimeTrendSeries>{
+  '全部': _CrimeTrendSeries('暴力犯罪 + 财产犯罪总数', [
+    _CrimeTrendPoint('2020', '212', .72),
+    _CrimeTrendPoint('2021', '198', .66),
+    _CrimeTrendPoint('2022', '231', .79),
+    _CrimeTrendPoint('2023', '224', .76),
+    _CrimeTrendPoint('2024', '240', .82),
+  ], '5 年示例数据完整；安全指数卡不会因筛选或趋势变化而改变。'),
+  '暴力犯罪（assault）': _CrimeTrendSeries('暴力犯罪（assault）', [
+    _CrimeTrendPoint('2020', '84', .58),
+    _CrimeTrendPoint('2021', '78', .54),
+    _CrimeTrendPoint('2022', '91', .63),
+    _CrimeTrendPoint('2023', '88', .61),
+    _CrimeTrendPoint('2024', '96', .67),
+  ], '示例字段值；筛选只改变此趋势展示。'),
+  '财产犯罪（property）': _CrimeTrendSeries('财产犯罪（property）', [
+    _CrimeTrendPoint('2020', '128', .86),
+    _CrimeTrendPoint('2021', '120', .81),
+    _CrimeTrendPoint('2022', '缺失', null),
+    _CrimeTrendPoint('2023', '136', .92),
+    _CrimeTrendPoint('2024', '144', .97),
+  ], '部分数据：2022 年保持缺失，不用 0 代替。'),
+  'burglary': _CrimeTrendSeries('burglary', [
+    _CrimeTrendPoint('2020', '51', .72),
+    _CrimeTrendPoint('2021', '缺失', null),
+    _CrimeTrendPoint('2022', '63', .88),
+    _CrimeTrendPoint('2023', '60', .84),
+    _CrimeTrendPoint('2024', '64', .90),
+  ], '部分数据：2021 年保持缺失，不回退到其他犯罪类型。'),
+  'robbery': _CrimeTrendSeries('robbery', [
+    _CrimeTrendPoint('2020', '22', .55),
+    _CrimeTrendPoint('2021', '20', .50),
+    _CrimeTrendPoint('2022', '24', .60),
+    _CrimeTrendPoint('2023', '26', .65),
+    _CrimeTrendPoint('2024', '25', .63),
+  ], '示例字段值；具体 type 由数据集可用值动态生成。'),
+};
+
+class _CrimeTrendPoint {
+  const _CrimeTrendPoint(this.year, this.count, this.barWidth);
+  final String year;
+  final String count;
+  final double? barWidth;
+}
+
+class _CrimeTrendSeries {
+  const _CrimeTrendSeries(this.title, this.points, this.note);
+  final String title;
+  final List<_CrimeTrendPoint> points;
+  final String note;
+}
+
 class AnalysisPage extends StatelessWidget {
   const AnalysisPage({required this.state, super.key});
   final LocateMyState state;
@@ -178,7 +238,7 @@ class AnalysisPage extends StatelessWidget {
   Widget _comparisonOverview(String category) {
     final values = switch (category) {
       '生活成本' => _costComparisonOverview(),
-      '治安与犯罪' => ('安全指数 —', '安全指数 76/100'),
+      '治安与犯罪' => ('安全指数暂不可用', '安全指数暂不可用'),
       '社会经济' => ('家庭收入 RM 6,420 · 基尼 0.41', '家庭收入 RM 5,980 · 基尼 0.39'),
       '基础设施' => ('综合覆盖 79/100', '综合覆盖 81/100 · 教育缺失'),
       '周边设施' => ('6/6 类 · 31 处', '5/6 类 · 26 处'),
@@ -227,9 +287,9 @@ class AnalysisDetailPage extends StatelessWidget {
       final values = switch (page) {
         PageId.safety => (
           '治安与犯罪',
-          '安全指数 — · 资料待补全',
-          '安全指数 76/100 · 相对良好',
-          '地点 A 缺少可用的安全指数；资料不完整，不能计算差异。',
+          '安全指数暂不可用 · 警区资料待补全',
+          '安全指数暂不可用 · 年度数据待接入',
+          '当前原型不计算地点差异；警区与年度官方数据需分别完成匹配和接入。',
         ),
         PageId.social => (
           '社会经济',
@@ -302,35 +362,278 @@ class AnalysisDetailPage extends StatelessWidget {
   Widget _safetyPage(BuildContext context) => LocateMyScaffold(
     state: state,
     title: '治安与犯罪',
-    body: ListView(
-      padding: const EdgeInsets.all(20),
+    body: _safetyMapFirst(context),
+  );
+
+  Widget _safetyMapFirst(BuildContext context) => ListView(
+    padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+    children: [
+      _policeDistrictMap(context),
+      const SizedBox(height: 14),
+      _safetyIndexCard(context),
+      const SizedBox(height: 18),
+      _crimeFilter(context),
+      const SizedBox(height: 14),
+      _crimeTrend(context),
+      _safetyPrototypeNote(),
+    ],
+  );
+
+  String get _policeDistrict =>
+      state.selected == Place.penang ? '东北县警区（示例匹配）' : '暂不可用（未匹配行政区为警区）';
+
+  String get _indexReason =>
+      state.selected == Place.penang ? '年度官方数据尚未接入原型' : '无法匹配警区，未回退到行政区或最近警区';
+
+  Widget _safetyIndexCard(BuildContext context) => appCard(
+    context,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        contextNote('分析地点：${state.selected.name} · 示例数据截至 2025 年'),
-        const SizedBox(height: 16),
-        score(context, '安全指数', '76/100 · 相对良好', Icons.shield_outlined),
-        const SizedBox(height: 18),
-        section('隐患类型筛选'),
-        Wrap(
-          spacing: 8,
-          children: ['全部', '治安', '交通', '水灾']
-              .map(
-                (value) => ChoiceChip(
-                  label: Text(value),
-                  selected: state.safetyFilter == value,
-                  onSelected: (_) => state.setSafetyFilter(value),
-                ),
-              )
-              .toList(),
+        Row(
+          children: [
+            Icon(
+              Icons.shield_outlined,
+              color: Theme.of(context).colorScheme.primary,
+              size: 32,
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                '安全指数',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              ),
+            ),
+            const Chip(label: Text('暂不可用')),
+          ],
         ),
-        const SizedBox(height: 16),
-        chart('近 6 个月上报趋势', '示意图表 · ${state.safetyFilter} · 不代表真实犯罪率'),
-        const SizedBox(height: 14),
-        const ListTile(
-          leading: Icon(Icons.info_outline),
-          title: Text('建议：白天与夜间分别实地观察'),
-          subtitle: Text('演示提示，不构成安全结论。'),
+        const SizedBox(height: 12),
+        const Text(
+          '— / 100',
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        const Text('方向：暂无法判断 · 数据年份：最新完整年度待接入'),
+        const SizedBox(height: 8),
+        Text(
+          _indexReason,
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          '安全指数范围为 0–100，分数越高表示相对安全。此处只展示状态，不执行指数公式。',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          '基于官方年度已定罪案件规模的相对分数，不是人口标准化犯罪率。',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
         ),
       ],
+    ),
+  );
+
+  Widget _crimeFilter(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      section('犯罪类别筛选'),
+      const SizedBox(height: 8),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: _crimeFilters
+            .map(
+              (value) => ChoiceChip(
+                label: Text(value),
+                selected: state.crimeFilter == value,
+                onSelected: (_) => state.setCrimeFilter(value),
+              ),
+            )
+            .toList(),
+      ),
+      const SizedBox(height: 8),
+      const Text(
+        '此筛选只影响趋势图，不改变安全指数。',
+        style: TextStyle(fontSize: 12, color: Colors.black54),
+      ),
+    ],
+  );
+
+  Widget _crimeTrend(BuildContext context) {
+    final series = _crimeSeries[state.crimeFilter] ?? _crimeSeries['全部']!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        section('最近 5 个可用完整年度'),
+        const SizedBox(height: 8),
+        appCard(
+          context,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      series.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const Chip(label: Text('示例数据')),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '纵轴：已定罪案件数 · 横轴：年度',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              const SizedBox(height: 14),
+              ...series.points.map(_crimeTrendRow),
+              const SizedBox(height: 8),
+              Text(
+                series.note,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          '案件数，不代表实际犯罪率。缺少年度保持缺失状态，不用 0 填补。',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  Widget _crimeTrendRow(_CrimeTrendPoint point) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 48,
+          child: Text(
+            point.year,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        Expanded(
+          child: point.barWidth == null
+              ? const Text('缺失', style: TextStyle(color: Color(0xffb54708)))
+              : Row(
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          widthFactor: point.barWidth,
+                          child: Container(
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: const Color(0xff155eef),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('${point.count} 件'),
+                  ],
+                ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _policeDistrictMap(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      section('警区范围'),
+      const SizedBox(height: 8),
+      appCard(
+        context,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 190,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xffdcefe8),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xff9ccdc1)),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 18,
+                    top: 14,
+                    child: Text(
+                      _policeDistrict,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const Positioned(
+                    right: 14,
+                    top: 14,
+                    child: Text(
+                      '边界示意 · 非真实比例',
+                      style: TextStyle(fontSize: 11, color: Colors.black54),
+                    ),
+                  ),
+                  Positioned(
+                    left: 44,
+                    right: 44,
+                    top: 54,
+                    bottom: 24,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0x3373a998),
+                        border: Border.all(
+                          color: const Color(0xff377d6d),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(70),
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    left: 128,
+                    top: 96,
+                    child: Icon(
+                      Icons.location_on,
+                      color: Color(0xffbd342f),
+                      size: 38,
+                    ),
+                  ),
+                  Positioned(
+                    left: 88,
+                    bottom: 29,
+                    child: Text('分析地点 · ${state.selected.short}'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              '本页只显示警区边界和当前分析地点；其他功能图层不属于治安与犯罪页。',
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  Widget _safetyPrototypeNote() => const Padding(
+    padding: EdgeInsets.only(top: 16),
+    child: Text(
+      '一次性 UI 原型：图表和状态为硬编码演示，未连接数据服务。',
+      style: TextStyle(fontSize: 11, color: Colors.black54),
     ),
   );
 
@@ -340,7 +643,7 @@ class AnalysisDetailPage extends StatelessWidget {
     body: ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        contextNote('${state.selected.name} · 数据截至 2025 年 · 示例'),
+        contextNote('${state.selected.name} · 数据年份待接入 · 示例'),
         const SizedBox(height: 16),
         score(
           context,

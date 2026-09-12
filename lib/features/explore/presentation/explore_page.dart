@@ -315,8 +315,8 @@ class _LocationDetailCard extends StatelessWidget {
       _summary(
         Icons.shield_outlined,
         '安全',
-        penang ? '安全指数 76/100 · 相对良好' : '安全指数 — · 资料待补全',
-        '${state.selected.area} · 示例公共资料 · 2026年9月1日',
+        '安全指数暂不可用 · 警区匹配状态待确认',
+        '${state.selected.name} · 数据年份待接入',
       ),
       _summary(
         Icons.payments_outlined,
