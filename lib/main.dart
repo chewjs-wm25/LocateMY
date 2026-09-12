@@ -59,8 +59,12 @@ class LocateMyApp extends StatefulWidget {
 
 class _LocateMyAppState extends State<LocateMyApp> {
   PageId page = PageId.home, previous = PageId.home;
-  Place selected = Place.penang, origin = Place.kl, destination = Place.penang;
-  bool single = true, saved = false;
+  Place selected = Place.penang;
+  Place? origin = Place.kl, destination = Place.penang;
+  bool single = true, saved = false, locationDetailExpanded = false;
+  // These local flags deliberately model account prerequisites; this prototype
+  // does not persist an account, preferences, budget scenario, or analysis data.
+  bool hasFiveAssessmentPreferences = true, hasCurrentAssessmentScenario = true;
   String safetyFilter = '全部';
   int medical = 7, education = 4, transit = 8, detail = 0;
   final compared = <int>{};
@@ -225,10 +229,12 @@ class _LocateMyAppState extends State<LocateMyApp> {
         section('已保存地点', '查看全部', () => go(PageId.saved)),
         placeRow('吉隆坡', '吉隆坡联邦直辖区', '未分析', () {
           selected = Place.kl;
+          locationDetailExpanded = false;
           map();
         }),
         placeRow('乔治市（槟城）', '东北县，槟城', '78/100', () {
           selected = Place.penang;
+          locationDetailExpanded = false;
           map();
         }),
         const SizedBox(height: 20),
@@ -292,7 +298,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 6, 16, 7),
-          child: search(() => choose(c, true)),
+          child: search(() => choose(c)),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -337,11 +343,17 @@ class _LocateMyAppState extends State<LocateMyApp> {
         children: [
           ActionChip(
             label: const Text('选 吉隆坡'),
-            onPressed: () => setState(() => selected = Place.kl),
+            onPressed: () => setState(() {
+              selected = Place.kl;
+              locationDetailExpanded = false;
+            }),
           ),
           ActionChip(
             label: const Text('选 乔治市'),
-            onPressed: () => setState(() => selected = Place.penang),
+            onPressed: () => setState(() {
+              selected = Place.penang;
+              locationDetailExpanded = false;
+            }),
           ),
           ActionChip(
             avatar: const Icon(Icons.warning_amber_outlined),
@@ -351,68 +363,294 @@ class _LocateMyAppState extends State<LocateMyApp> {
         ],
       ),
       const SizedBox(height: 14),
-      card(
-        c,
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${selected.name} · ${selected.area}',
-              style: Theme.of(c).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 5),
-            const Text('候选地点 · 预设示例信息'),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => setState(() => saved = !saved),
-                  icon: Icon(saved ? Icons.star : Icons.star_border),
-                  label: Text(saved ? '已保存' : '保存地点'),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => go(PageId.analysis),
-                    child: const Text('分析此地点'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      locationDetailCard(c),
       const SizedBox(height: 12),
       notice(),
     ],
   );
+
+  bool get canShowSuitability =>
+      hasFiveAssessmentPreferences &&
+      hasCurrentAssessmentScenario &&
+      selected == Place.penang;
+
+  Widget locationDetailCard(BuildContext c) => card(
+    c,
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(selected.name, style: Theme.of(c).textTheme.titleMedium),
+                  Text(
+                    selected.area,
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: locationDetailExpanded ? '收起地点摘要' : '展开地点摘要',
+              onPressed: () => setState(
+                () => locationDetailExpanded = !locationDetailExpanded,
+              ),
+              icon: Icon(
+                locationDetailExpanded
+                    ? Icons.keyboard_arrow_down
+                    : Icons.keyboard_arrow_up,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        suitabilityStatus(c),
+        if (locationDetailExpanded) ...[
+          const Divider(height: 25),
+          const Text(
+            '地点摘要',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            '以下均为原型示例／估算，保留其统计口径、日期与来源位置。',
+            style: TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+          const SizedBox(height: 12),
+          ...locationSummaries(),
+        ],
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            OutlinedButton.icon(
+              onPressed: () => setState(() => saved = !saved),
+              icon: Icon(saved ? Icons.star : Icons.star_border),
+              label: Text(saved ? '已收藏' : '收藏'),
+            ),
+            FilledButton(
+              onPressed: () => go(PageId.analysis),
+              child: const Text('查看完整分析'),
+            ),
+            TextButton.icon(
+              onPressed: () => startComparison(c),
+              icon: const Icon(Icons.compare_arrows),
+              label: const Text('发起两地比较'),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  Widget suitabilityStatus(BuildContext c) {
+    if (canShowSuitability) {
+      return DecoratedBox(
+        decoration: const BoxDecoration(
+          color: Color(0xffeaf2ff),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(Icons.person_pin_circle_outlined, color: Color(0xff155eef)),
+              SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '个人化地点适配度 78/100',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '基于 5 项偏好与「一人租住」评估预案 · 示例估算',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    Text(
+                      '基础设施的教育覆盖为低优先级缺失，未纳入计算。',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final missing = <String>[
+      if (!hasFiveAssessmentPreferences) '5 项评估偏好',
+      if (!hasCurrentAssessmentScenario) '当前评估预案',
+      if (selected == Place.kl) '安全指数（高优先级）的可用资料',
+    ];
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Color(0xfffff3d7),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Color(0xffb76e00)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '尚不能计算个人化地点适配度：请补全${missing.join('、')}。不使用默认值代替缺失资料。',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> locationSummaries() {
+    final penang = selected == Place.penang;
+    return [
+      locationSummary(
+        Icons.shield_outlined,
+        '安全',
+        penang ? '安全指数 76/100 · 相对良好' : '安全指数 — · 资料待补全',
+        '${selected.area} · 示例公共资料 · 2026年9月1日',
+      ),
+      locationSummary(
+        Icons.payments_outlined,
+        '生活成本',
+        penang ? '相对成本低 8% · 预算压力 RM 3,470/月' : '相对成本基准 100 · 预算压力待评估',
+        '${selected.area} · 示例估算 · 2026年9月1日',
+      ),
+      locationSummary(
+        Icons.storefront_outlined,
+        '日常便利',
+        penang ? '2 公里内 5/7 类 · 最近诊所 650 米' : '2 公里内 6/7 类 · 最近诊所 480 米',
+        '固定半径 2 公里 · 示例地点资料 · 2026年9月1日',
+      ),
+      locationSummary(
+        Icons.train_outlined,
+        '公共交通可达性',
+        penang ? '1.5 公里内 2 个站点 · 最近站点 540 米' : '1.5 公里内 3 个站点 · 最近站点 380 米',
+        '固定半径 1.5 公里 · 示例地点资料 · 2026年9月1日',
+      ),
+      locationSummary(
+        Icons.settings_outlined,
+        '基础设施',
+        penang ? '综合良好 81/100 · 缺失：教育覆盖' : '综合 79/100 · 最低分项：医疗 70',
+        '${selected.area} · 示例公共资料 · 2026年9月1日',
+      ),
+    ];
+  }
+
+  Widget locationSummary(
+    IconData icon,
+    String title,
+    String value,
+    String metadata,
+  ) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 22, color: const Color(0xff155eef)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(value),
+              Text(
+                metadata,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Future<void> startComparison(BuildContext c) async {
+    final asOrigin = await showModalBottomSheet<bool>(
+      context: c,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('选择当前地点的比较角色'),
+              subtitle: Text('${selected.name} 将作为哪一端？'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.trip_origin),
+              title: const Text('作为原地址'),
+              onTap: () => Navigator.pop(ctx, true),
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on_outlined),
+              title: const Text('作为新地址'),
+              onTap: () => Navigator.pop(ctx, false),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (asOrigin == null || !mounted) return;
+    setState(() {
+      single = false;
+      if (asOrigin) {
+        origin = selected;
+        destination = null;
+      } else {
+        origin = null;
+        destination = selected;
+      }
+    });
+  }
+
   Widget twoMap(BuildContext c) => ListView(
     padding: const EdgeInsets.all(16),
     children: [
       selector('原地址', origin, (v) => setState(() => origin = v)),
       Center(
         child: IconButton(
-          onPressed: () => setState(() {
-            final x = origin;
-            origin = destination;
-            destination = x;
-          }),
+          onPressed: origin != null && destination != null
+              ? () => setState(() {
+                  final x = origin;
+                  origin = destination;
+                  destination = x;
+                })
+              : null,
           icon: const Icon(Icons.swap_vert, size: 30),
           tooltip: '交换原地址与新地址',
         ),
       ),
       selector('新地址', destination, (v) => setState(() => destination = v)),
       const SizedBox(height: 12),
-      mapArt(destination, compare: true),
+      mapArt(destination ?? origin ?? selected, compare: true),
       const SizedBox(height: 14),
       FilledButton.icon(
-        onPressed: () => go(PageId.cost),
+        onPressed:
+            origin != null && destination != null && origin != destination
+            ? () => go(PageId.cost)
+            : null,
         icon: const Icon(Icons.calculate_outlined),
         label: const Text('比较生活成本'),
       ),
       const SizedBox(height: 8),
-      const Text(
-        '通过地图、搜索或收藏选择地点。此原型仅使用预设地点。',
+      Text(
+        origin == null || destination == null
+            ? '请先选择${origin == null ? '原地址' : '新地址'}，再比较生活成本。'
+            : origin == destination
+            ? '原地址和新地址不能相同，请重新选择其中一处。'
+            : '通过地图、搜索或收藏选择地点。此原型仅使用预设地点。',
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 12, color: Colors.black54),
       ),
@@ -1032,6 +1270,20 @@ class _LocateMyAppState extends State<LocateMyApp> {
           onTap: () => go(PageId.reports),
         ),
         const Divider(),
+        section('地点适配设置'),
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(Icons.tune),
+          title: Text('评估偏好'),
+          subtitle: Text('安全、成本、日常便利、公共交通、基础设施 · 示例已设置'),
+        ),
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(Icons.account_balance_wallet_outlined),
+          title: Text('当前评估预案'),
+          subtitle: Text('一人租住 · 示例预案（用于地点适配度与预算压力）'),
+        ),
+        const Divider(),
         ListTile(
           leading: const Icon(Icons.language),
           title: const Text('语言'),
@@ -1139,10 +1391,10 @@ class _LocateMyAppState extends State<LocateMyApp> {
       suffixIcon: Icon(Icons.expand_more),
     ),
   );
-  Widget selector(String label, Place value, ValueChanged<Place> onChange) =>
+  Widget selector(String label, Place? value, ValueChanged<Place> onChange) =>
       DropdownButtonFormField<Place>(
         initialValue: value,
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(labelText: label, hintText: '请选择地点'),
         items: Place.values
             .map(
               (p) => DropdownMenuItem(
@@ -1155,7 +1407,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
           if (p != null) onChange(p);
         },
       );
-  Future<void> choose(BuildContext c, bool toDestination) async {
+  Future<void> choose(BuildContext c) async {
     final result = await showModalBottomSheet<Place>(
       context: c,
       builder: (ctx) => SafeArea(
@@ -1178,9 +1430,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
     if (result != null && mounted) {
       setState(() {
         selected = result;
-        if (toDestination) {
-          destination = result;
-        }
+        locationDetailExpanded = false;
       });
     }
   }
@@ -1213,27 +1463,31 @@ class _LocateMyAppState extends State<LocateMyApp> {
         const Center(
           child: Icon(Icons.public, size: 140, color: Color(0x3373a998)),
         ),
-        Positioned(
-          left: 76,
-          top: 65,
-          child: Icon(
-            Icons.location_on,
-            color: compare ? const Color(0xff1758a6) : const Color(0xffbd342f),
-            size: 42,
+        if (!compare || origin != null) ...[
+          Positioned(
+            left: 76,
+            top: 65,
+            child: Icon(
+              Icons.location_on,
+              color: compare
+                  ? const Color(0xff1758a6)
+                  : const Color(0xffbd342f),
+              size: 42,
+            ),
           ),
-        ),
-        Positioned(
-          left: 98,
-          top: 110,
-          child: Text(compare ? origin.short : p.short),
-        ),
-        if (compare) ...[
+          Positioned(
+            left: 98,
+            top: 110,
+            child: Text(compare ? origin!.short : p.short),
+          ),
+        ],
+        if (compare && destination != null) ...[
           const Positioned(
             right: 70,
             bottom: 61,
             child: Icon(Icons.location_on, color: Color(0xffbd342f), size: 42),
           ),
-          Positioned(right: 28, bottom: 37, child: Text(destination.short)),
+          Positioned(right: 28, bottom: 37, child: Text(destination!.short)),
           const Positioned(
             left: 118,
             right: 105,
@@ -1352,7 +1606,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
             Text(
-              origin.name,
+              origin?.name ?? '未选择',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
@@ -1368,7 +1622,7 @@ class _LocateMyAppState extends State<LocateMyApp> {
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
             Text(
-              destination.name,
+              destination?.name ?? '未选择',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
