@@ -10,6 +10,10 @@ void main() {
     expect(find.text('LocateMY'), findsOneWidget);
     expect(find.text('您想搬到哪里？'), findsOneWidget);
     expect(find.text('探索马来西亚'), findsOneWidget);
+    expect(find.text('家庭收入中位数'), findsOneWidget);
+    expect(find.text('RM 6,338'), findsOneWidget);
+    expect(find.text('OPR 参考值'), findsOneWidget);
+    expect(find.text('3.00%'), findsOneWidget);
   });
 
   testWidgets('opens a single-place cost report without a comparison', (
@@ -158,10 +162,140 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('新增实勘'));
     await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).last, const Offset(0, -500));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('保存实勘'));
     await tester.pumpAndSettle();
 
     expect(find.text('海风公寓（新实勘）'), findsWidgets);
     expect(find.text('风险摘要'), findsOneWidget);
+  });
+
+  testWidgets('confirms before leaving an inspection editor without saving', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('账户'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('房产实勘档案'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('新增实勘'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    expect(find.text('确定不保存并退出？'), findsOneWidget);
+
+    await tester.tap(find.text('继续编辑'));
+    await tester.pumpAndSettle();
+    expect(find.text('新增房产实勘'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('不保存退出'));
+    await tester.pumpAndSettle();
+    expect(find.text('房产实勘档案'), findsOneWidget);
+    expect(find.text('海风公寓（新实勘）'), findsNothing);
+  });
+
+  testWidgets(
+    'adds a camera photo to a new inspection and shows pending sync',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(393, 852));
+      await tester.pumpWidget(const LocateMyApp());
+
+      await tester.tap(find.text('账户'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('房产实勘档案'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('新增实勘'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('照片 0/20'), findsOneWidget);
+      await tester.drag(find.byType(ListView).last, const Offset(0, -500));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('相机'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('照片 1/20'), findsOneWidget);
+      expect(find.text('待同步'), findsOneWidget);
+      expect(find.textContaining('演示视觉占位'), findsOneWidget);
+    },
+  );
+
+  testWidgets('editing photos supports captions, cover fallback and retry', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('账户'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('房产实勘档案'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('海景花园排屋').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('同步失败'), findsOneWidget);
+    await tester.tap(find.text('重试同步'));
+    await tester.pumpAndSettle();
+    expect(find.text('同步完成'), findsWidgets);
+
+    await tester.tap(find.text('编辑实勘'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('照片 2/20'), findsOneWidget);
+    expect(find.text('封面'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).first, '窗边采光和墙面状态正常。');
+    await tester.drag(find.byType(ListView).last, const Offset(0, -900));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('设为封面'));
+    await tester.pumpAndSettle();
+    final deleteCover = find.widgetWithText(TextButton, '删除照片').last;
+    await tester.drag(find.byType(ListView).last, const Offset(0, -700));
+    await tester.pumpAndSettle();
+    await tester.tap(deleteCover);
+    await tester.pumpAndSettle();
+    expect(find.text('删除这张照片？'), findsOneWidget);
+    expect(find.text('只会移除实勘副本，不影响设备相册原图。'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, '删除照片'));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).last, const Offset(0, 500));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('照片 1/20'), findsOneWidget);
+    expect(find.text('已自动改用最早上传的照片作为封面'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView).last, const Offset(0, -5000));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('保存实勘'));
+    await tester.pumpAndSettle();
+    expect(find.text('照片说明：窗边采光和墙面状态正常。'), findsOneWidget);
+  });
+
+  testWidgets('blocks adding a twenty-first inspection photo', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(393, 852));
+    await tester.pumpWidget(const LocateMyApp());
+
+    await tester.tap(find.text('账户'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('房产实勘档案'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('新增实勘'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView).last, const Offset(0, -500));
+    await tester.pumpAndSettle();
+    for (var i = 0; i < 20; i++) {
+      await tester.tap(find.text('相册'));
+      await tester.pump();
+    }
+    expect(find.textContaining('照片 20/20'), findsOneWidget);
+    expect(find.text('已达 20 张上限，请先删除现有照片后再添加。'), findsOneWidget);
+
+    await tester.tap(find.text('相册'));
+    await tester.pumpAndSettle();
+    expect(find.text('照片已达上限 20 张，请先删除现有照片。'), findsOneWidget);
   });
 }
