@@ -36,6 +36,9 @@ LocateMY 是一次性的大学项目。交付重点是学生对 Flutter，以及
 
 涉及 UI 设计或实现时，再读 [ui_design_spec.md](./ui_design_spec.md)。
 
+涉及实施设计、Feature 边界、MVVM、Interface 或数据访问规格时，产品事实仍以
+本知识库为准；实现设计规范见 [docs/design/README.md](../../../design/README.md)。
+
 ## 状态词
 
 | 状态 | 含义 | Agent 行为 |
