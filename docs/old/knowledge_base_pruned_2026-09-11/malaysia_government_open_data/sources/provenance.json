@@ -1,0 +1,25 @@
+{
+  "captured_at": "2026-09-10T11:42:55+08:00",
+  "dataset_list": {
+    "page_url": "https://data.gov.my/data-catalogue/datasets",
+    "download_url": "https://storage.data.gov.my/metrics/dataset_list.csv",
+    "data_as_of": "2026-09-09T23:59:00+08:00",
+    "page_last_updated": "2026-09-10T04:25:00+08:00",
+    "sha256": "BCED1AD5C18EEC64ACA267DA056C0817170E0EFA521AF559780A5072F10A54F7"
+  },
+  "datagovmy_meta": {
+    "repository": "https://github.com/data-gov-my/datagovmy-meta",
+    "commit": "d01fd4d2e6235d4b6b70ef4a7a67f88101972ff7",
+    "commit_time": "2026-09-10T11:06:31+08:00"
+  },
+  "datagovmy_front": {
+    "repository": "https://github.com/data-gov-my/datagovmy-front",
+    "commit": "d2654c477109f071c6ed1881a7c2da54f7d73e7d",
+    "commit_time": "2026-08-14T10:41:30+08:00"
+  },
+  "datagovmy_back": {
+    "repository": "https://github.com/data-gov-my/datagovmy-back",
+    "commit": "739806714ae03425208a9372e2f9e6b27a5e947b",
+    "commit_time": "2026-03-31T23:27:50+08:00"
+  }
+}

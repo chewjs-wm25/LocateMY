@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-09-10T03:57:29.787Z",
+  "status": "PASS",
+  "checks": {
+    "catalogue_records": 290,
+    "realtime_resources": 34,
+    "all_resources": 324,
+    "unique_ids": 324,
+    "source_metadata_files": 290,
+    "catalogue_fields": 1391,
+    "manifest_files_checked": 6
+  },
+  "warnings": [
+    "almanak_astronomi: official field name contains leading/trailing whitespace: \"penerangan\\r\"",
+    "ridership_od_brt_daily: official English caveat is blank",
+    "ridership_od_brt_daily: official English publication field is blank"
+  ],
+  "failures": []
+}
