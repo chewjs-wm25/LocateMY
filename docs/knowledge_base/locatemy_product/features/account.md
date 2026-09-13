@@ -1,7 +1,7 @@
 ---
 kb_id: feature-account
 kind: feature-spec
-capabilities: [ACCOUNT-01, ACCOUNT-02, ACCOUNT-03, ACCOUNT-04, ACCOUNT-05, ACCOUNT-06, ACCOUNT-07]
+capabilities: [ACCOUNT-01, ACCOUNT-02, ACCOUNT-03, ACCOUNT-04, ACCOUNT-05, ACCOUNT-06, ACCOUNT-07, ACCOUNT-08, ACCOUNT-09]
 tags: [account, profile, logout]
 ---
 
@@ -38,4 +38,6 @@ tags: [account, profile, logout]
 - 增加账户级评估偏好设置：安全、成本、日常便利、公共交通可达性和基础设施五项必填 `1–10` 优先级；`1–3` 为低、`4–6` 为中、`7–10` 为高。
 - 账户保存并可切换当前评估预案；预案保存统一生活篮子调整、住房支出、交通支出和月净收入。地点详情展示预案名称，并据此计算个人化地点适配度。
 - 占位内容不得描述为已实现，也不得直接复制固定示例。
-- 搬迁历史、默认地点、保存的对比、评论和点赞需产品明确后才进入开发。
+- `ACCOUNT-08` 账户评估偏好：五项必填 `1–10` 优先级属于账户级数据，按账户隔离持久化；它是个人化地点适配度的唯一偏好来源。
+- `ACCOUNT-09` 当前评估预案：账户保存一份当前选中的预算预案，可按账户切换并持久化；地点详情据此显示预算压力与适配度。
+- 搬迁评估历史、默认地点、保存的对比、评论和点赞统计（`ACCOUNT-03`–`ACCOUNT-06`）归类为 `excluded`，本次不实现，也不得保留固定示例或空回调控件。

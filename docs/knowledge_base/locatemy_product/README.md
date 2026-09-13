@@ -81,10 +81,10 @@ LocateMY 是面向马来西亚搬迁和居住选址的移动应用。核心是�
 ## 横向知识
 
 - [completeness_audit.md](./completeness_audit.md)：当前 UI 原型的页面、读数、公式、数据源与缺口审计矩阵。
-- [capability_catalog.md](./capability_catalog.md)：稳定功能 ID、状态与重开发处置。
+- [capability_catalog.md](./capability_catalog.md)：稳定功能 ID、状态、范围分类与权威事实源。
 - [domain_objects.md](./domain_objects.md)：业务对象和字段语义。
 - [persistence_matrix.md](./persistence_matrix.md)：内存、本机、远端与账号隔离边界。
 - [known_gaps.md](./known_gaps.md)：无操作控件、数据混用、文案与行为不一致。
-- [redevelopment_scope.md](./redevelopment_scope.md)：重开发默认包含、待决策与排除项。
+- [redevelopment_scope.md](./redevelopment_scope.md)：重开发默认包含、已决定排除与默认排除项。
 - [ui_design_spec.md](./ui_design_spec.md)：信息架构、视觉令牌、交互约束、中英文内容与页面决策。
 - [submission_commitments.md](./submission_commitments.md)：不可修改大学提交稿的功能承诺、冲突处置与保护规则。
