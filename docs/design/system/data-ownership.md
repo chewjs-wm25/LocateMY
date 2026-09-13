@@ -1,48 +1,87 @@
 # 状态与数据所有权
 
-> 状态：`Draft — Issue #2 tracer scope`
+> 状态：`Draft — Issue #4 complete ownership`
 > 最后更新：2026-09-13
 
-本文件确定 tracer 涉及状态和数据的唯一语义 Owner；物理对象与字段在
-[`../data/schema-catalog.md`](../data/schema-catalog.md) 和后续 Feature 设计登记。拥有清理协议不等于
-拥有业务数据：Account Privacy 证明清理完成，各 Feature 仍独占其状态、缓存和队列语义。
+本文件确定系统状态与数据族的唯一语义 Owner、权威来源、寿命和账户切换行为。物理对象与字段只在
+[Schema Catalog](../data/schema-catalog.md)定义。Account Privacy 拥有关闭协议，不拥有参与者的业务数据或队列 payload。
 
-## Tracer 状态与数据
+## 运行时状态与派生结果
 
-| ID | 类别 | 内容与权威来源 | 唯一 Owner | 保存位置/寿命 | 退出或账户切换 |
+| ID | 内容 | 唯一 Owner | 保存位置/寿命 | 权威与失效 | 退出/换号 |
 | --- | --- | --- | --- | --- | --- |
-| `STATE-SESSION` | 账户私有会话 | 当前设备认证会话；Supabase Auth 为权威 | Authentication & Session | 认证 SDK 本机存储；可跨重启 | 当前设备会话必须结束；其他设备会话不受影响 |
-| `STATE-ACCOUNT-SCOPE` | 可变运行时状态 | 当前允许访问的账户范围与 privacy barrier 状态 | Account Privacy | 内存；只为匹配的已认证会话打开，随会话关闭 | 先阻断旧范围读取，再清理并关闭；失败时保持不可访问 |
-| `STATE-NAVIGATION` | 瞬时 UI state | 认证门控、首页/地图 Tab、导航栈、待处理意图 | Application Shell | 内存；应用进程寿命 | 重置为登录门控；不得继承旧账户私有路由或地图 Tab |
-| `STATE-AUTH-FORM` | 瞬时 UI state | 邮箱、本次输入的密码、提交/错误状态 | Authentication & Session | 页面内存；页面寿命 | 清空；密码从不进入持久化、日志或其他 Interface |
-| `STATE-LOCATION` | 可变地点上下文 | 当前单点、地点 A/B 与 Marker/摘要状态 | Map / Location | 内存；进程寿命 | 全部清空。地点虽不是账户业务记录，本旅程把其视为会话上下文，避免下个账户看到旧任务 |
-| `DATA-FACILITY-RESULT` | 公共数据派生结果 | OSM 元素经五类归类、去重、2,000 米圆形过滤后的分析结果 | Nearby Facilities | 当前分析页内存；页面寿命 | 页面与私有导航一起释放；可从公共缓存重新生成 |
-| `CACHE-FACILITY` | 公共数据缓存 | 地点、半径、分类版本、结果完整性、OSM 查询/缓存时间与归因；OSM 为来源 | Nearby Facilities | SQLite；成功查询后最多 24 小时可用 | 保留；不得含账户 ID、收藏名称、用户标签或导航历史 |
-| `PREF-LANGUAGE` | 设备共享偏好 | 中文/English 选择 | Application Shell | 键值存储；跨重启 | 保留；它不绑定账户 |
+| `STATE-SESSION` | 当前设备认证会话与真实确认状态 | Authentication & Session | Supabase Auth SDK 本机状态；跨重启 | Supabase Auth 权威；远端拒绝后失效 | 结束当前设备会话；其他设备不受影响 |
+| `STATE-AUTH-FORM` | 邮箱、密码、提交与错误 | Authentication & Session | 页面内存 | 仅当前表单；密码不离开 Interface | 清空 |
+| `STATE-ACCOUNT-SCOPE` | 当前可访问账户与 privacy barrier | Account Privacy | 内存；账户生命周期 | 仅 `AUTH-001` 同账户可打开 | 先阻断读取，全部参与者完成后关闭 |
+| `STATE-NAVIGATION` | 门控、双 Tab、导航栈、待处理意图、组合请求版本 | Application Shell | 内存；进程寿命 | 当前 scope/请求版本决定有效性 | 重置登录门控并丢弃私有路由与晚到响应 |
+| `PREF-LANGUAGE` | 中文/English 设备偏好 | Application Shell | 键值存储；跨重启 | 本机最后一次明确选择 | 保留，不绑定账户 |
+| `STATE-HOME-REFRESH` | 加载、刷新和 60 秒成功冷却 | Home & Relocation Outlook | 页面/进程内存 | 成功强刷开始冷却；重启不恢复倒计时 | 释放 |
+| `STATE-LOCATION` | single、A、B、Marker、摘要与地图 viewport | Map / Location | 内存；进程寿命 | 最近一次合法明确动作；角色相互隔离 | 全部清空，避免泄漏旧任务 |
+| `STATE-TRANSIT-SELECTION` | 局部站点高亮 | Public Transportation | 页面内存 | 绑定当前交通结果 | 释放；从不写全局地点 |
+| `STATE-COST-TEMP` | 不保存的当前月支出 CPI 换算输入 | Cost of Living & Budget | 页面内存 | 只服务当前换算 | 释放，不进入预案或适配度 |
+| `RESULT-*` | Home、Cost、Safety、Facilities、Transit、Socio、Infrastructure、Suitability 当前结果 | 各分析 Feature | 页面/ViewModel 内存 | 必须绑定不可变地点/输入版本、日期、来源、口径和可用性 | 释放；公共缓存可重新生成 |
+| `STATE-PROPERTY-COMPARE` | 当前选中的 2–3 份实勘 | Property Inspection | 页面内存 | 只引用当前账户可见记录 | 清空 |
 
-## 账户私有数据与队列清理清单
+## 远端权威业务数据
 
-本 tracer 不创建以下记录，但 `ACCOUNT-07` 的验收必须证明旧账户留下的任何已存在项均被清除。
-远端 Supabase 记录继续作为权威来源；清理只作用于本机副本和未同步工作。
-
-| 状态/数据族 | 业务 Owner | 本机形态 | 权威远端 | `PRIVACY-001` 完成条件 |
+| 数据族 | 唯一 Owner | Supabase 权威对象 | 本机副本/队列 | 访问与生命周期 |
 | --- | --- | --- | --- | --- |
-| 收藏地点 | Map / Location | 按账户分区的 SQLite 私有缓存 | Supabase `user_saved_locations` 语义记录 | 旧账户缓存已删除 |
-| 收藏地点离线创建 | Map / Location | 按账户分区的 SQLite 创建队列 | 排队项尚无远端权威记录 | 旧账户未同步项已删除；不得在新账户范围重放 |
-| 预算预案、当前评估预案 | Cost of Living | 内存选择与按账户本机副本（若 owning design 建立） | Supabase 账户记录 | 旧账户内存选择和任何本机私有副本已删除 |
-| 评估偏好 | Account | 内存与按账户本机副本（若 owning design 建立） | Supabase 账户记录 | 旧账户值已删除；不得用作新账户默认值 |
-| ICI 权重 | Infrastructure | 内存与按账户本机副本（若 owning design 建立） | Supabase 账户记录 | 旧账户值已删除；不得用作新账户默认值 |
-| 隐患本人状态和投票待处理状态 | Hazard Reporting | 内存与按账户本机状态（若 owning design 建立） | Supabase 账户关联记录 | 旧账户私有视图状态和未完成本机工作已删除；公共隐患缓存若完全去身份化可保留 |
-| 房产实勘、草稿与私有元数据 | Property Inspection | 按账户 SQLite 私有副本/草稿 | Supabase 账户记录 | 旧账户草稿和私有副本已删除 |
-| 房产照片待传副本与同步队列 | Property Inspection | 按账户应用数据文件和 SQLite 队列 | 上传成功后由 Supabase Storage/元数据权威 | 旧账户待传文件和队列已删除；不得转交新账户 |
+| 注册资料 | Authentication & Session | `profiles` | 仅页面内存 | owner-only；认证邮箱/确认状态仍来自 Auth，不复制进 profile；Account Center 只消费 |
+| 收藏地点 | Map / Location | `user_saved_locations` | `saved_location_cache`、`saved_location_create_queue` | owner-only；前台双向同步；删除只在线并向本机传播 |
+| 预算预案与当前评估预案 | Cost of Living & Budget | `user_budget_scenarios` | 系统基线不建立本机副本 | owner-only；每账户至多一份 current；后续若需副本须先登记 Schema Catalog |
+| 评估偏好 | Account Center | `user_assessment_preferences` | 系统基线不建立本机副本 | owner-only；五项必填 `1–10`；后续若需副本须先登记 Schema Catalog |
+| ICI 权重 | Infrastructure Coverage | `user_ici_preferences` | 系统基线不建立本机副本 | owner-only；医疗/教育/交通，缺省语义为 5；与评估偏好不同 |
+| 隐患报告 | Hazard Reporting | `crowdsourced_hazards` | 页面/去身份公共读缓存（若建立） | authenticated 可读；author-only 写；`pending/resolved`；无审核者例外 |
+| 隐患投票 | Hazard Reporting | `crowdsourced_hazard_votes`；计数来自 `hazard_vote_counts` | 当前账户投票页面状态 | 每账户每报告至多一条；本人可改/撤回；客户端不直写计数 |
+| 房产实勘与风险快照 | Property Inspection | `property_inspections` | `property_drafts` 与可选私有读缓存 | owner-only；软删除/恢复；风险快照显式采集且不静默覆盖 |
+| 房产照片元数据 | Property Inspection | `property_inspection_photos` | `property_photo_upload_queue` | owner-only；最多 20 张；封面/说明与 Storage 文件分开 |
+| 房产照片文件 | Property Inspection | `inspection-photos` Storage bucket | 应用数据目录中的待传副本 | owner-only；上传成功后可删本机副本；清空回收站永久删除 |
 
-每个离线创建 Feature 独占自己的队列、重试规则和“已排队/已创建”语义。Account Privacy 只按
-Owner 清单执行与核实清除，不消费队列 payload，也不把排队项上传或改写为成功。
+## 公共资料、镜像与缓存
 
-## 保留与隔离不变量
+| 数据族 | 唯一 Owner | 远端/外部来源 | 本机形态 | 保留与不可用规则 |
+| --- | --- | --- | --- | --- |
+| 行政区/警区边界 | Geographic Context | 版本化只读边界对象 | 可替换公共缓存 | 版本是结果一部分；零/多匹配不以附近地区替代 |
+| 全国宏观资料 | Home & Relocation Outlook | Home 只读 View/RPC | `home_public_cache` | 缓存记录每个数据集最大观测日期；在线只以更近数据替换 |
+| 生活成本资料 | Cost of Living & Budget | Cost 只读 View/RPC | `cost_public_cache`，3 天 | 不含账户预案、收藏名称或用户输入 |
+| 犯罪资料 | Crime & Security | Crime 只读 View/RPC | `crime_public_cache`，3 天 | 显示官方年份；警区与行政区分开 |
+| 周边设施 | Nearby Facilities | Overpass/OSM | `facility_public_cache`，24 小时 | 只有完整响应可缓存为空；不含账户标识 |
+| 交通标准化结果 | Public Transportation | 维护者导入的 GTFS 只读结果 | 可替换公共缓存 | stale 可显示；incomplete/no active routes/no stops 分开 |
+| 社会经济资料 | Socio-economic | Socio 只读 View/RPC | 可替换公共缓存（若建立） | 每项保留层级、年份；一项失败不清空其他项 |
+| 基础设施资料 | Infrastructure Coverage | Infrastructure 只读 View/RPC + Transit 结果 | 可替换公共缓存（若建立） | 每分项保留日期；缺失不补零 |
 
-1. 所有账户私有本机记录和队列都带不可变账户分区；读取必须同时满足当前已打开账户范围。
-2. 应用先关闭旧账户读取，再尝试物理清理；物理清理失败时旧内容仍不可展示或同步。
-3. 公共缓存不绑定账户，可在退出后保留，但不能混入用户命名、收藏关系或其他可识别资料。
-4. Supabase 权威业务记录不会因当前设备退出而删除；换设备重新登录后可按各 Feature 同步规则恢复。
-5. 用户编辑/删除是否支持离线由 owning Feature 的产品事实决定；“创建队列”不自动授权离线编辑或删除。
+所有政府镜像由维护者在 Flutter 开发前一次性导入，镜像表业务列、类型和键跟随官方数据集；Flutter 不直接查询镜像。公开读取对象与本机缓存不包含账户 ID、自由文字或用户命名。
+
+## SQLite、文件与键值存储责任
+
+| 介质 | 允许内容 | 禁止成为 | Owner/清理 |
+| --- | --- | --- | --- |
+| SQLite 公共分区 | 上表列明的公共分析缓存、资料日期、版本和完整性 | 用户业务记录的权威来源；账户兴趣画像 | 各分析 Feature 独占 namespace/TTL；退出保留 |
+| SQLite 私有分区 | 收藏缓存/创建队列、可选预案/偏好副本、房产草稿、照片待传队列 | 跨账户共享缓存；通用队列 Owner | 各业务 Feature 独占 payload；Account Privacy 汇总清理 |
+| 应用数据文件目录 | 压缩后的房产照片待传副本 | 相册原件、永久照片权威、公开文件 | Property Inspection；上传成功可删，退出未同步副本必须清除 |
+| 键值存储 | 语言、小型无身份 UI 偏好、公共缓存数据集日期 | token 的自建副本、业务表、队列或自由文字 | Application Shell/相应公共缓存 Owner；语言退出保留 |
+
+首版离线写仅包括收藏地点创建队列和房产照片待传。收藏编辑/删除、隐患写、预案/偏好/ICI 权重写、房产记录的远端创建/编辑/删除均需在线；房产草稿可离线保存但不等于远端实勘已创建。
+
+## Privacy barrier 参与者清单
+
+| Owner | 必须清除的旧账户本机内容 | 明确保留 |
+| --- | --- | --- |
+| Authentication & Session | SDK 当前设备会话由 `AUTH-001` 结束 | 其他设备会话、远端业务记录 |
+| Application Shell | 私有导航栈、待处理意图、组合请求与 ViewModel | 语言偏好、无身份 shell 配置 |
+| Map / Location | `STATE-LOCATION`、收藏私有缓存与创建队列 | 公共地图/边界缓存 |
+| Cost of Living & Budget | 预案内存选择及任何私有副本 | Cost 公共缓存 |
+| Infrastructure Coverage | 账户 ICI 权重内存/副本 | 公共分项缓存 |
+| Hazard Reporting | 本人/投票私有视图状态与未完成请求 | 完全去身份的公共隐患读缓存 |
+| Property Inspection | 草稿、私有副本、比较选择、待传队列与文件 | 无 |
+| Account Center | 评估偏好内存/副本、账户页组合状态 | 无 |
+
+每项清理以不可变旧账户 ID 为目标并可重复执行。任何参与者失败时，`STATE-ACCOUNT-SCOPE` 保持关闭，已清理项不恢复，新登录入口保持阻断；用户可重试失败 Owner。Supabase 记录不会因退出而删除。
+
+## 所有权不变量
+
+1. 每项可变状态、远端记录、公共缓存和离线队列只有一个业务 Owner；存储 Adapter 不成为第二 Owner。
+2. 所有账户私有本机对象带不可变账户分区，读取还必须满足同账户 `opened` scope。
+3. “已排队”“草稿”“已上传元数据”“文件已上传”和“远端记录已创建”是不同状态，界面保留差异。
+4. 明确零、完整空结果、未知、权限失败、可重试不可用和不可重试不可用互不替代。
+5. 数据字段、键、RLS 和迁移状态只在 Schema Catalog 维护；Feature 文档只链接并说明访问方式。

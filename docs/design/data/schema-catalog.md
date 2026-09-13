@@ -1,44 +1,123 @@
 # Schema Catalog
 
-本文件是 LocateMY 设计中的数据对象目录，不替代学生编写的可执行 schema。Supabase DDL、RLS
-和索引最终以 `supabase/migrations/` 为权威；SQLite 以实际 migration 源文件为权威。AI 只定义
-对象契约和迁移目标，不生成 migration 或其他可提交代码。
+> 状态：`Draft — Issue #4 system object catalog complete`
+> 最后更新：2026-09-13
 
-系统设计先确定数据所有权和边界；Feature 设计只有在对象已登记或明确标记 `proposed` 后才能
-进入 `Ready for Development`。
+本文件是 LocateMY 数据对象、字段契约、访问规则和迁移状态的唯一目录，不替代学生编写的可执行 schema。Supabase DDL/RLS/Storage policy 最终以 `supabase/migrations/` 为权威；SQLite 以学生实现的 migration 为权威。系统与 Feature 文档只能引用这里的对象，不复制字段定义。
 
-## 对象状态
+## 状态与类型
 
-- `proposed`：已批准设计，尚无学生编写的可执行实现。
-- `implemented`：存在对应的可执行 migration 或本地 schema 实现。
-- `deprecated`：新 Feature 不再使用，并记录替代对象和迁移方向。
+- `proposed`：系统/Feature 设计目标，尚无对齐的学生实现。
+- `implemented`：现有 migration 已建立且语义与本目录一致；后续仍须以测试证明访问规则。
+- `deprecated`：不得被新设计消费，须记录替代对象或无损迁移前置条件。
+- 外部 `auth.users` 与第三方来源标为 `external`，不由本项目迁移。
+
+字段类型使用语言无关类别；具体 Postgres/SQLite 类型由学生 migration 固定。所有时间为带时区时刻，除政府数据集的 `date` 统计日期。所有坐标使用 WGS84，经度/纬度或 Point 表达必须在 owning design 选定一种公开形状。
 
 ## 对象目录
 
-| 对象 | 类型 | 状态 | Owner | 权威来源 | 迁移/实现 | 消费 Feature |
+### 身份与账户业务对象
+
+| 对象 | 类型 | 状态 | Owner | 关键字段与约束 | 访问规则 / 消费者 | 实现或迁移方向 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 尚未登记 | N/A | N/A | N/A | N/A | N/A | N/A |
+| `auth.users` | Supabase Auth | `external` | Authentication & Session | account id、email、email confirmed state；认证凭据不复制到 public | SDK 当前会话；Auth、Account | Supabase 托管 |
+| `profiles` | Supabase table | `implemented` | Authentication & Session | `id`=auth account id；可选 username/avatar/bio；updated at | owner-only CRUD；Auth 写注册资料，Account 只读呈现 | 现有 migration；真实邮箱/确认状态仍读 Auth |
+| `user_saved_locations` | Supabase table | `implemented` | Map / Location | id、user id、非空名称 ≤120、WGS84 point、created/updated at | owner-only CRUD；Map | 取代 `user_saved_regions`；坐标不伪装行政区 id |
+| `user_budget_scenarios` | Supabase table | `implemented` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负 basket adjustment/housing/transport/monthly net income、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost、Account、Socio、Suitability | 旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
+| `user_assessment_preferences` | Supabase table | `implemented` | Account Center | user id 主键；safety/cost/daily convenience/transit accessibility/infrastructure 均为整数 1–10；updated at | owner-only CRUD；Account、Suitability | 现有默认值不代表用户已设置；owning design 须决定首次完成标志或以记录存在为准 |
+| `user_ici_preferences` | Supabase table | `proposed` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 已有同名表是五个 0–1 权重，不能作为本契约的 implemented 证据；学生 migration 需迁移或替换 |
+| `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/update/delete；Hazard、Property count | 现有对象；公开不等于匿名；无 verified/rejected 或维护者例外 |
+| `crowdsourced_hazard_votes` | Supabase table | `implemented` | Hazard Reporting | hazard id + user id 复合主键、vote `-1/+1`、created/updated at | authenticated 仅管理本人票；Hazard | 撤回删除本人行；级联随报告删除 |
+| `hazard_vote_counts` | aggregate View/RPC | `proposed` | Hazard Reporting | hazard id、upvotes、downvotes；由全部 vote 行聚合，只暴露计数 | authenticated read；Hazard | 现有 security-invoker View 在“只读本人投票”的 RLS 下不能生成全局计数；owning design 须选择不泄露投票者身份的安全聚合 seam |
+| `property_inspections` | Supabase table | `proposed` | Property Inspection | id、user id、名称 1–200、地址、必需 WGS84 point、可空收藏 id、非负价格、四项 1–5、flood evidence、notes、风险警区/安全分/附近隐患数/采集时间、deleted/created/updated at | owner-only CRUD；Property | 现有表允许 location 为空，尚未满足地点/风险快照契约；风险四字段作为一个快照更新；soft delete 不删照片 |
+| `property_inspection_photos` | Supabase table | `proposed` | Property Inspection | id、inspection id、user id、唯一 storage path、可空说明 ≤1000、cover flag、created at；每实勘最多 20 | owner-only CRUD，且 user 必须拥有父实勘；Property | 现有表/部分 policy 已建立，但 update/delete 尚未完整证明父实勘 owner；删除封面回退规则归 Feature |
+| `inspection-photos` | private Storage bucket | `proposed` | Property Inspection | 对象路径首段 account id，继而 inspection id 与不可变 photo id；静态常见图片、压缩后上传 | owner-only select/insert/update/delete，且父实勘同 owner；Property | 现有 bucket 已建立，但 read/update/delete 仍须按父实勘关系加固；upsert 需 read/insert/update 权限 |
 
-## 对象模板
+### 公共政府镜像与边界对象
 
-### `<physical_name>`
+每张镜像表由维护者一次性导入；业务列、字段类型和键与对应官方数据集一致。客户端无写 grant。`source_dataset`、`imported_at` 等辅助元数据只能放在独立导入登记对象，不改变镜像业务列。
 
-- 类型：`Supabase table/view/RPC` / `SQLite table` / `Storage bucket`
-- 状态：`proposed`
-- Owner：
-- 权威性与数据来源：
-- 可执行 schema / migration：`尚未由学生建立` 或实际路径
-- 消费 Feature：
-- 访问规则：政府镜像写只读 View/RPC；项目自有表写 RLS 和账户隔离；SQLite 写账户分区、
-  TTL 或队列重试；Storage 写 bucket、对象路径语义和策略。
+| 对象 / 官方数据集 | 状态 | Owner | 业务键与字段 | 消费者 / 当前实现说明 |
+| --- | --- | --- | --- | --- |
+| `cpi_headline_inflation` | `proposed` | Home | `(date, division)`；inflation yoy/mom | Home；现有 `cpi_core` 只有 index，不能替代 |
+| `lfs_month_sa` | `proposed` | Home | `date`；employed、unemployment rate、participation rate | Home；现有 `lfs_month` 未证明为季调资料 |
+| `economic_indicators` | `proposed` | Home | `date`；leading、leading diffusion | Home；当前缺失 |
+| `gdp_qtr_real_sa` | `proposed` | Home | `(series, date)`；value | Home；现有年度 GDP/GNI 表不能替代季度季调序列 |
+| `hh_income` | `implemented` | Home | `date`；income mean/median | Home |
+| `price_catcher` / `pricecatcher` | `implemented` | Cost | `(date, premise_code, item_code)`；price | Cost；物理名可保留，来源 ID 仍为 `pricecatcher` |
+| `lookup_item` | `implemented` | Cost | `item_code`；item、unit、group、category | Cost |
+| `lookup_premise` | `implemented` | Cost | `premise_code`；premise/address/type/state/district | Cost |
+| `cpi_state` | `implemented` | Cost | `(state, date, division)`；index | Cost |
+| `cpi_state_inflation` | `proposed` | Cost | `(state, date, division)`；inflation yoy/mom | Cost；当前缺失 |
+| `hh_income_district` | `implemented` | Cost、Socio | `(state, district, date)`；income mean/median | Cost、Socio |
+| `hh_income_state` | `proposed` | Socio | `(state, date)`；income mean/median | Socio；现有 `hies_state` 不是同一数据集 |
+| `hh_inequality_district` | `implemented` | Socio | `(state, district, date)`；gini | Socio |
+| `hh_inequality_state` | `proposed` | Socio | `(state, date)`；gini | Socio；现有全国 `hh_inequality` 不能替代 |
+| `hies_state_percentile` | `proposed` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；现有全国 percentile 与州汇总表不能替代 |
+| `crime_district` | `proposed` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；现有 `crime_stats` 须验证数据集与键后迁移/重命名 |
+| `administrative_district_boundaries` | `proposed` | Geographic Context | boundary id、name、state、multipolygon、source version | Cost、Socio、Infrastructure；当前缺失 |
+| `police_districts_boundary` | `implemented` | Geographic Context | id、name、state、multipolygon、source version | Crime；现有对象缺 source version，需兼容补齐 |
+| `hh_access_amenities` | `implemented` | Infrastructure | `(state, district, date)`；piped water、sanitation、electricity | Infrastructure |
+| `hospital_beds` | `implemented` | Infrastructure | `(state, district, date, type)`；beds | Infrastructure |
+| `population_district` | `proposed` | Infrastructure | `(state, district, date, sex, age, ethnicity)`；population | Infrastructure；现有 `district_population` 缺维度，不能替代 |
+| `schools_district` | `proposed` | Infrastructure | `(state, district, date, stage, type)`；schools | Infrastructure；当前缺失 |
+| `teachers_district` | `implemented` | Infrastructure | `(state, district, date, stage, sex)`；teachers | Infrastructure |
+| `enrolment_school_district` | `implemented` | Infrastructure | `(state, district, date, stage, sex)`；students | Infrastructure |
 
-| 字段 | 类型 | 可空 | 默认值 | 语义/约束 | 索引或关系 |
-| --- | --- | --- | --- | --- | --- |
-| | | | | | |
+### 标准化 GTFS 对象
 
-- 主键：
-- 外键：
-- RLS / access policy：
-- Index：
-- 迁移与兼容方向：描述目标、前置检查和回滚语义，不写 SQL。
-- 数据安全：只使用清洗示例；不记录凭据、service-role key、真实用户数据或可识别测试资料。
+原始 ZIP 不作为 Flutter 查询对象。维护者为每次尝试保留来源、采集和解析状态；站点/路线键始终包含 feed id。
+
+| 对象 | 类型/状态 | Owner | 字段契约 | 访问规则 / 迁移方向 |
+| --- | --- | --- | --- | --- |
+| `gtfs_feed_snapshots` | Supabase table / `proposed` | Public Transportation | feed id、source id/url、captured at、parse status、service date range、failure reason；每次采集唯一标识 | authenticated read-only；保留失败尝试，不伪装空 feed |
+| `gtfs_stops` | Supabase table / `proposed` | Public Transportation | snapshot/feed/stop id、name、WGS84 point、location type、parent station | authenticated read-only；取代缺 feed id 的 `transit_stops` |
+| `gtfs_routes` | Supabase table / `proposed` | Public Transportation | snapshot/feed/route id、short name、route type | authenticated read-only |
+| `gtfs_stop_services` | Supabase table / `proposed` | Public Transportation | snapshot、feed、stop、route、service date、active flag；键可证明有效路线关联 | authenticated read-only；来源链为 routes→trips→stop_times→calendar/exception |
+| `transit_analysis_results` | Supabase View/RPC / `proposed` | Public Transportation | analysis point/radius/date、feed status、nearest distance、unique stops/routes、density、percentiles、score、availability、generated at | authenticated read-only；Infrastructure 必须复用相同结果 |
+| `transit_reference_grid` | Supabase table / `proposed` | Public Transportation | snapshot、1 km grid point、stop density、route count、percentiles | authenticated read-only；固定参照组，不依赖用户地点 |
+
+### 稳定公共读取对象
+
+Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字段、原始统计日期、来源 ID、资料完整性和导入批次；View 使用调用者权限，RPC 不以提权掩盖访问错误。
+
+| 对象 | 类型/状态 | Owner | 覆盖数据 | 消费者 |
+| --- | --- | --- | --- | --- |
+| `read_home_metrics` | security-invoker View/RPC / `proposed` | Home | 五个 Home 数据集 | Home |
+| `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、CPI、income | Cost |
+| `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
+| `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
+| `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
+| `read_transit_analysis` | security-invoker View/RPC / `proposed` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit、Infrastructure |
+
+### 本机对象
+
+| 对象 | 类型/状态 | Owner | 字段契约 | 寿命/访问 |
+| --- | --- | --- | --- | --- |
+| `home_public_cache` | SQLite / `proposed` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
+| `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
+| `crime_public_cache` | SQLite / `proposed` | Crime | police district、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
+| `facility_public_cache` | SQLite / `proposed` | Facilities | coordinate key、2,000 m、mapping version、完整结果/归因/query time、24-hour expiry | 只保存完整成功；无收藏名称/账户 id |
+| `saved_location_cache` | SQLite / `proposed` | Map | account id、remote id、name、point、remote version/timestamps、sync state | 同账户 opened scope；退出清除 |
+| `saved_location_create_queue` | SQLite / `proposed` | Map | account id、client id/idempotency key、name、point、created at、attempt/retry state/error class | 只排队 create；成功变 cache 行；退出清除未同步项 |
+| `property_drafts` | SQLite / `proposed` | Property | account id、draft id、全部表单字段、location、updated at | 同账户 scope；远端记录创建成功后按流程清除 |
+| `property_photo_upload_queue` | SQLite / `proposed` | Property | account/inspection/photo id、local file ref、target path、attempt/retry/error/upload state | 与应用数据文件同生；成功后删本机文件/queue；退出清除 |
+| `device_preferences` | key-value / `proposed` | Application Shell | locale 与小型无身份 UI 偏好 | 跨重启/账户保留；不放业务记录 |
+
+## 已弃用或不适配对象
+
+| 对象 | 状态 | 原因 | 替代/处理 |
+| --- | --- | --- | --- |
+| `user_saved_regions` | `deprecated` | 将坐标误建模为行政区 id | 仅有可证明历史坐标时迁移到 `user_saved_locations`；否则不可猜测转换；新代码无权访问 |
+| `user_property_inspections` | `deprecated` | JSON/图片 URL 形状不满足实勘、照片与风险生命周期 | 仅经显式数据审计后迁移到 normalized 对象；当前 API deny |
+| `cpi_core`、`lfs_month`、`gdp_gni_annual_real`、`district_population`、`hies_malaysia_percentile`、`hies_state`、`transit_stops` | `deprecated` for new design | 名称/粒度/字段不能证明满足 approved product dataset | 保留直至导入审计；消费者只接稳定读取对象，不直接兼容 |
+| `get_district_income_rank`、`get_district_prices`、`get_transit_density`、`match_police_district` | `deprecated` for new design | 旧签名不足以携带来源、版本、完整性与新领域语义 | 由 owning Feature 的稳定读取对象取代；确认无消费者后 remove |
+
+## 通用访问与迁移规则
+
+1. 暴露 schema 的 table/View/RPC 同时登记显式 grant、RLS/调用者权限和 allow/deny 测试；私有 `UPDATE` 同时保护原 owner 与新 owner，且有对应 SELECT 权限。
+2. 公开只表示所有已认证应用用户可读，不表示匿名可读或任意用户可写。客户端只能使用 publishable/anon key，不能持有 service-role。
+3. View 使用调用者权限；必须提权的 RPC 留在非暴露 schema、显式撤销默认执行权、内部校验账户，并由项目负责人逐项批准。
+4. Storage 文件与照片元数据不是原子对象。失败时保留可重试 queue；孤儿清理只处理可证明属于当前账户且无有效元数据的目标。
+5. 基线后的 schema 演进使用 add–migrate–remove：先添加新对象并验证双读/迁移，再切换消费者，最后经项目负责人批准移除旧对象。不得从行政区 id 猜坐标或从 fixture 制造迁移值。
+6. 示例只用清洗数据；迁移、测试和日志不得记录凭据、token、service-role key、真实邮箱、自由文字、照片或可识别精确地点。

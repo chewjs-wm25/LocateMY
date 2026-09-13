@@ -1,13 +1,13 @@
 # 系统风险与待决项
 
-> 状态：`Draft — Issue #2 tracer + Issue #3 boundary scope`
+> 状态：`Draft — Issue #4 system contract scope`
 > 最后更新：2026-09-13
 
-本文件记录 [TRACER-01](flows.md#tracer-01启动登录选址查看周边设施并退出) 与
-[完整 Feature map](feature-map.md) 暴露的系统风险和关闭条件。产品事实已由 Issue #1 批准，Feature
-边界与 DAG 已由项目负责人在 Issue #3 批准；它们不替 Feature owning design 决定实现细节。
+本文件记录完整 [Feature map](feature-map.md)、[Interface 注册表](interfaces.md)、
+[数据所有权](data-ownership.md)、[技术架构](architecture.md)与[关键流程](flows.md)暴露的系统风险和关闭条件。
+系统契约完整不表示具体 Adapter、schema migration 或 Feature design 已完成。
 
-## 已采用的 tracer 约束
+## 已采用的系统约束
 
 | 约束 | 依据 | 影响 |
 | --- | --- | --- |
@@ -28,16 +28,25 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-PRIVACY-01` | 未完成所有 Feature 设计前，私有状态 Owner 清单可能漏项，导致退出后残留 | `PRIVACY-001`、`ACCOUNT-07`、所有私有 Feature | privacy barrier 使用显式 Owner 清单；未登记 Owner 不能进入集成 | 对照完整 Feature map、Schema Catalog、SQLite 表、键值和文件目录逐项审计；注入每个 Owner 清理失败 | 系统 Baseline Gate 与 Account Privacy Ready 前 | Baseline 阻塞 |
 | `RISK-PRIVACY-02` | 结束认证会话后本机物理清理失败，用户无法安全进入下一账户 | `AUTH-001`、`PRIVACY-001`、账户切换 | 先阻断旧范围读取；失败停在无私有内容的清理恢复态，重试幂等 | 文件/SQLite 不可写、部分已删和进程重启故障注入 | Account Privacy Ready 前 | Feature Ready 阻塞 |
 | `RISK-OSM-01` | Overpass 限流、超时或部分响应可能被误判为真实空结果 | `FACILITY-001`、`FACILITY-002`、`FAC-01` | 只有可证明完整的响应才能产生覆盖/未覆盖；其余为未知或缓存降级 | 用完整、有意截断、超时、HTTP 限流和无效 payload 的代表查询验证 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
-| `RISK-CACHE-01` | 坐标精度、分类映射版本或缓存键不一致会复用错误地点/口径结果 | `LOCATION-001`、`CACHE-FACILITY` | 缓存键至少含分析坐标、2,000 米半径和分类版本；结果回带原地点 | 手工验算邻近坐标、版本升级和 24 小时边界；契约测试断言 key/result 一致 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
-| `RISK-CACHE-02` | 公共缓存若混入收藏名称或账户引用，会绕过退出清理泄露兴趣地点 | `CACHE-FACILITY`、`PRIVACY-001` | 公共缓存只保存分析所需坐标、公共结果、时间、版本和归因 | Schema Catalog 审查和退出后存储检查，确认没有账户/用户命名字段 | Schema 对象批准前 | Baseline 阻塞 |
+| `RISK-CACHE-01` | 坐标精度、分类映射版本或缓存键不一致会复用错误地点/口径结果 | `LOCATION-001`、`facility_public_cache` | 缓存键至少含分析坐标、2,000 米半径和分类版本；结果回带原地点 | 手工验算邻近坐标、版本升级和 24 小时边界；契约测试断言 key/result 一致 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
+| `RISK-CACHE-02` | 公共缓存若混入收藏名称或账户引用，会绕过退出清理泄露兴趣地点 | `facility_public_cache`、`PRIVACY-001` | 公共缓存只保存分析所需坐标、公共结果、时间、版本和归因 | Schema Catalog 审查和退出后存储检查，确认没有账户/用户命名字段 | Schema 对象批准前 | Baseline 阻塞 |
 | `RISK-GEO-01` | 马来西亚范围校验的数据源和边界精度尚未固定 | `LOCATION-001`、`MAP-01` | 范围外结果必须拒绝；不以字符串国家名或默认城市替代空间校验 | 用边境、岛屿、海域及明显范围外坐标验证候选方案 | Map / Location Ready 前 | Feature Ready 阻塞 |
 | `RISK-GEO-02` | 行政区与警区边界资料的版本、空间匹配和多匹配规则尚未固定 | Geographic Context；Cost、Crime、Socio-economic、Infrastructure | Feature map 将统计地理解析集中在 Geographic Context；两类口径分开返回且未解析不使用附近地区替代 | 用边界点、离岛、多边形重叠、无覆盖坐标及不同资料版本验证确定性结果 | Geographic Context Ready 前 | 下游 Feature Ready 阻塞 |
+| `RISK-SCHEMA-01` | 现有 migration 的若干镜像名、粒度或字段与批准数据集不一致，且缺少多个 required 数据集 | Home、Crime、Socio、Infrastructure、Transit | Schema Catalog 将旧对象标为新设计不可消费，并登记 canonical 镜像与稳定读取对象 | 对照官方 dataset schema、实际导入行数/最大日期/键唯一性；每个读取对象做完整/空/部分导入验收 | 系统 Baseline Gate 前给出迁移计划；各数据 Feature Ready 前实现 | Baseline 阻塞 |
+| `RISK-SCHEMA-02` | `user_ici_preferences` 现有五个 0–1 权重与三项 1–10 产品契约冲突 | Infrastructure、Account Privacy、Suitability | Schema Catalog 明确目标字段和旧表仅作迁移来源；中性 ICI 不读账户权重 | 两账户迁移样本验证三项值、默认 5、旧 safety/amenity 不进入新对象 | Infrastructure Ready 前 | Feature Ready 阻塞 |
+| `RISK-PREF-01` | 评估偏好现有数据库默认 5 可能把“尚未设置”误判为已完成五项偏好 | Account、Suitability | Suitability 只接受 `ACCOUNT-001 complete snapshot`；表存在与完成语义由 owning design 明确 | 新账户无偏好、首次保存、部分旧记录与换号场景 | Account Center Ready 前 | 下游 Suitability Ready 阻塞 |
+| `RISK-PROP-01` | “附近隐患数”的半径/空间口径尚无权威数值 | Hazard、Property、风险快照 | `HAZARD-002` 要求固定口径和采集时间，但系统不虚构半径 | 项目负责人选择口径并更新产品事实；用边界内外报告验证 | Property Inspection Ready 前 | Feature Ready 阻塞 |
+| `RISK-STORAGE-01` | Storage 文件上传与照片元数据写入不是原子操作，清空回收站也可能部分失败 | Property、Account Privacy | 显式队列、可重试不一致状态、owner path 与可证明孤儿补偿 | 注入上传/元数据/删除每一阶段失败和重启，验证无跨账户访问与不误报完成 | Property Inspection Ready 前 | Feature Ready 阻塞 |
+| `RISK-SYNC-01` | 收藏前台双向同步的幂等键、冲突和删除传播尚未精确定义 | Map、Account Privacy、跨设备恢复 | 系统只固定远端权威、create-only 离线队列、在线删除与触发时机 | 双设备创建/删除、重复请求、进程终止、晚到响应与换号测试 | Map / Location Ready 前 | Feature Ready 阻塞 |
+| `RISK-HAZARD-01` | 现有 `hazard_vote_counts` 在只允许读取本人投票的 RLS 下无法产生全部用户的公开计数 | Hazard 投票、详情与图层 | Schema Catalog 将聚合对象退回 proposed；公开契约只暴露计数，不暴露投票者身份 | 两账户投票后，两者读取相同总计数且不能枚举他人投票；匿名仍拒绝 | Hazard Reporting Ready 前 | Feature Ready 阻塞 |
+| `RISK-PROPERTY-01` | 现有实勘允许空地点，照片元数据与 Storage 的部分写/删 policy 只校验路径或行 owner，未完整绑定父实勘 owner | Property、风险快照、照片、回收站 | Schema Catalog 将三个对象退回 proposed 并要求父对象所有权和必需地点 | 尝试跨账户 inspection id 重绑/读写删照片；无地点实勘；回收站清空故障注入 | Property Inspection Ready 前 | Feature Ready 阻塞 |
+| `RISK-NFR-01` | 当前仓库尚无 SQLite、文件、本地化、地图和网络最小依赖，非功能约束未有可执行证据 | 全系统 | architecture 固定责任和测试证据，不提前选择具体包版本 | 实现者锁版本后跑依赖审查、两 locale 流程、离线/性能/可访问性测试 | Wave 1–4 相关 owning design Ready 前逐项关闭 | 非 Baseline 阻塞；对应 Feature Ready 阻塞 |
 
 ## 明确延后而非静默假设
 
-- Issue #3 只确定其余单点分析、A/B 比较、个人化地点适配度与设施摘要组合的责任 Owner、直接
-  设计依赖和波次；它们必须在各自 Capability 追踪与 Interface 登记完成后接入。
-- 本 tracer 只确认收藏创建队列和房产照片待传清理责任；其他离线写行为必须由对应产品事实与
-  owning Feature 设计授权，不能从通用 privacy barrier 推导。
-- 完整技术架构、composition root 与 Schema Catalog 对象仍由系统步骤 4–6 及后续 Feature 设计完成。
-  Issue #3 只批准 Feature 边界、DAG 与设计波次；风险控制不等于系统 Baseline Gate 已通过。
+- Issue #4 已覆盖系统 Interface、数据 Owner、技术架构、非功能约束与跨 Feature 流程；精确成员、
+  Adapter、migration 和测试实现仍只在 owning design/学生实现中完成。
+- 离线写只授权收藏 create queue、房产草稿和照片待传；其他业务创建、编辑和删除保持在线，不能从
+  通用 privacy barrier 或 SQLite 的存在推导离线能力。
+- Capability 的全量追踪链、独立系统审查和项目负责人 `Baselined` 批准仍属于后续 Gate；Issue #4
+  完成不自动改变系统 `Draft` 状态。
