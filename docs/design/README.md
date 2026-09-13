@@ -66,4 +66,8 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 | 类型 | 名称 | 状态 | Owner | 依赖波次 | 文档 |
 | --- | --- | --- | --- | --- | --- |
 | System | LocateMY | `Draft` | 项目负责人 | N/A | [系统设计入口](system/README.md) |
-| Feature / Module | 尚未登记 | `Not Started` | 待定 | 待定 | N/A |
+| Module | Application Shell | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
+| Feature | Authentication & Session | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
+| Feature | Map / Location | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
+| Feature | Nearby Facilities | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
+| Module | Account Privacy | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
