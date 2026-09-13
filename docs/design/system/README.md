@@ -3,6 +3,13 @@
 本入口规定第一阶段如何把产品事实变成可供滚动 Feature 设计消费的系统基线。系统设计状态为
 `Draft → Under Review → Baselined`；只有项目负责人可以设为 `Baselined`。
 
+## 当前进度
+
+| 步骤 | 状态 | 依据 |
+| --- | --- | --- |
+| 1. 关闭产品边界 | `Completed` — 2026-09-13 | [产品范围基线](../../knowledge_base/locatemy_product/capability_catalog.md#产品范围基线2026-09-13)：52 项已知 Capability 均已分类；45 项 `required` 均有权威事实源和可观测成果；项目负责人已在 Issue #1 确认。 |
+| 2–10 | `Not Started` | 依赖第 1 步的产品范围基线；系统整体维持 `Draft`。 |
+
 ## 固定步骤与完成条件
 
 1. **关闭产品边界**：读取 Capability Catalog、提交承诺、已知缺口和相关 Feature 事实源；每项
@@ -94,4 +101,3 @@ Capability ID 沿用产品知识库现有编号。两种 ID 不互换：Capabili
 变更提案必须记录原因、受影响的 Capability、Feature、Interface、数据对象和工作包。项目负责人
 批准后才修改；相关 Ready 设计退回 `Draft`，工作包标记 `Invalidated`。重新完成受影响审查后
 才能恢复状态。Interface 演进优先 add–migrate–remove。
-
