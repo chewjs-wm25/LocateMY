@@ -38,7 +38,7 @@ tags: [transit, station, coverage]
 
 - 候选来源为官方列出的全部 16 个 GTFS Static feed；系统可用覆盖登记缩小候选范围，但最终以站点坐标是否落入 1.5 公里为准，不按地点名称猜测城市。
 - 路线必须通过 `routes.txt → trips.txt → stop_times.txt` 关联到范围内站点，并且服务日期在 `calendar.txt` / `calendar_dates.txt` 中有效，才计入有效路线数。
-- GTFS ZIP 的下载、解析、去重、有效日期判断和评分在 Supabase 同步层完成；Flutter 读取标准化结果。
+- GTFS ZIP 的下载、解析、去重、有效日期判断和评分由维护者在手动数据准备中完成；Flutter 读取 Supabase 的标准化只读结果。当前不实现自动同步。
 - 每个 feed 保存 `feed_captured_at`；页面显示 feed 采集时间和本次刷新时间，不伪造统一统计日期。
 - Feed 可读取但长时间未刷新时仍可展示，并标记“可能过期”；解析失败或预期 feed 未取得时，页面标记资料不完整。
 - 某地点有预期 feed 获取失败时，可展示已成功取得的站点，但交通分显示“暂不可用”，不能把失败 feed 当作没有交通。
