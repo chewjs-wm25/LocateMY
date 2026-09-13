@@ -60,14 +60,14 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 
 ## 设计索引
 
-系统设计已建立但仍为 `Draft`。Feature/shared module 边界和依赖波次已由项目负责人在 Issue #3
-批准；系统 Interface、数据所有权、技术架构与关键流程已在 Issue #4 补齐，仍须完成全量追踪、
-独立审查、风险关闭及项目负责人 Baseline 批准。波次表示详细设计的最早起点，不是两名学生的分工；
+系统设计为 `Under Review`。Feature/shared module 边界和依赖波次已由项目负责人在 Issue #3
+批准；系统 Interface、数据所有权、技术架构与关键流程已在 Issue #4 补齐；Issue #5 已完成全量追踪、
+独立审查与 Baseline 阻塞关闭，正在等待项目负责人批准。波次表示详细设计的最早起点，不是两名学生的分工；
 各 owning design 仍须独立达到 Ready Gate。
 
 | 类型 | 名称 | 状态 | Owner | 依赖波次 | 文档 |
 | --- | --- | --- | --- | --- | --- |
-| System | LocateMY | `Draft` | 项目负责人 | N/A | [系统设计入口](system/README.md) |
+| System | LocateMY | `Under Review` | 项目负责人 | N/A | [系统设计入口](system/README.md) |
 | Feature | Authentication & Session | `Draft` | 待项目负责人分配 | 1 | [责任卡](system/feature-map.md#fm-auth) |
 | Module | Geographic Context | `Draft` | 待项目负责人分配 | 1 | [责任卡](system/feature-map.md#fm-geo) |
 | Module | Account Privacy | `Draft` | 待项目负责人分配 | 2 | [责任卡](system/feature-map.md#fm-privacy) |

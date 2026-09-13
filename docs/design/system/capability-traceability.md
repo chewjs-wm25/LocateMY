@@ -1,29 +1,63 @@
 # Capability 追踪
 
-> 状态：`Draft — Issue #2 tracer scope`
+> 状态：`Baseline candidate — Issue #5 full audit`
 > 最后更新：2026-09-13
 
-当前表只保留 Issue #2 tracer 的 8 条逐 Capability 追踪行。Issue #4 已补齐完整
-[Interface 注册表](interfaces.md)、[状态/数据所有权](data-ownership.md)和[关键流程验收 ID](flows.md)，
-但其余 37 项尚未逐行连接为完整追踪链；系统步骤 2 因此仍为 `In Progress`，不能把专题产物完整误判为
-Capability 全量追踪已完成。
+本表把全部 45 项 `required` Capability 连接到唯一 Owner、系统 Interface、权威数据/状态、验收场景、
+设计波次和产品事实。契约正文只在[系统注册表](interfaces.md)，对象定义只在
+[Schema Catalog](../data/schema-catalog.md)与[数据所有权](data-ownership.md)。
 
-| Capability | 唯一 Owner | 系统 Interface | 状态/数据 | 验收场景 | 产品事实 |
-| --- | --- | --- | --- | --- | --- |
-| `NAV-01` | Application Shell | `AUTH-001`、`PRIVACY-001` | `STATE-SESSION`、`STATE-ACCOUNT-SCOPE`、`STATE-NAVIGATION` | `AT-AUTH-01`、`AT-SWITCH-01`、`AT-OUT-02` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[全局导航](../../knowledge_base/locatemy_product/features/global_navigation.md) |
-| `NAV-02` | Application Shell | `SHELL-001` | `STATE-NAVIGATION`、`STATE-LOCATION` | `AT-LOC-01`、`AT-OUT-01` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[全局导航](../../knowledge_base/locatemy_product/features/global_navigation.md) |
-| `AUTH-01` | Authentication & Session | `AUTH-001` | `STATE-SESSION`、`STATE-AUTH-FORM` | `AT-AUTH-01` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[登录与注册](../../knowledge_base/locatemy_product/features/authentication.md) |
-| `MAP-01` | Map / Location | `LOCATION-001` | `STATE-LOCATION` | `AT-LOC-01`、`AT-LOC-02` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图、选址与收藏](../../knowledge_base/locatemy_product/features/map_location.md)、[提交承诺](../../knowledge_base/locatemy_product/submission_commitments.md) |
-| `MAP-03` | Map / Location | `LOCATION-001` | `STATE-LOCATION` | `AT-LOC-01` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图、选址与收藏](../../knowledge_base/locatemy_product/features/map_location.md) |
-| `MAP-06` | Map / Location | `LOCATION-001`、`SHELL-001` | `STATE-LOCATION`、`STATE-NAVIGATION` | `AT-LOC-01`、`AT-LOC-02`、`AT-ANALYSIS-01` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图、选址与收藏](../../knowledge_base/locatemy_product/features/map_location.md) |
-| `FAC-01` | Nearby Facilities | `FACILITY-001`、`FACILITY-002` | `RESULT-*`、`facility_public_cache` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[周边设施](../../knowledge_base/locatemy_product/features/nearby_facilities.md)、[覆盖模型](../../knowledge_base/locatemy_product/nearby_facilities_scoring.md) |
-| `ACCOUNT-07` | Authentication & Session | `AUTH-001`、`PRIVACY-001` | `STATE-SESSION`、`STATE-ACCOUNT-SCOPE`、`STATE-NAVIGATION`、`STATE-LOCATION` 及[私有清理清单](data-ownership.md#账户私有数据与队列清理清单) | `AT-OUT-01`、`AT-OUT-02`、`AT-SWITCH-01` | [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[账户中心](../../knowledge_base/locatemy_product/features/account.md)、[登录与注册](../../knowledge_base/locatemy_product/features/authentication.md) |
+| Capability | 唯一 Owner | Interface | 数据/状态 | 验收场景 | 波次 | 产品事实 |
+| --- | --- | --- | --- | --- | ---: | --- |
+| `NAV-01` | Application Shell | `AUTH-001`、`PRIVACY-001`、`SHELL-001` | `STATE-SESSION`、`STATE-ACCOUNT-SCOPE`、`STATE-NAVIGATION` | `AT-AUTH-01`、`AT-SWITCH-01`、`AT-OUT-02` | 3 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[导航](../../knowledge_base/locatemy_product/features/global_navigation.md) |
+| `NAV-02` | Application Shell | `SHELL-001`、`LOCATION-001` | `STATE-NAVIGATION`、`STATE-LOCATION` | `AT-LOC-01`、`AT-HOME-03` | 3 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[导航](../../knowledge_base/locatemy_product/features/global_navigation.md) |
+| `NAV-03` | Application Shell | `SHELL-001` | `PREF-LANGUAGE`、`device_preferences` | `AT-AUTH-01`、`AT-ANALYSIS-01`、`AT-SWITCH-01` | 3 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[导航](../../knowledge_base/locatemy_product/features/global_navigation.md)、[UI](../../knowledge_base/locatemy_product/ui_design_spec.md) |
+| `AUTH-01` | Authentication & Session | `AUTH-001`、`AUTH-002` | `STATE-SESSION`、`STATE-AUTH-FORM`、`auth.users` | `AT-AUTH-01`、`AT-OUT-02` | 1 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[认证](../../knowledge_base/locatemy_product/features/authentication.md) |
+| `AUTH-02` | Authentication & Session | `AUTH-001`、`AUTH-002` | `STATE-SESSION`、`STATE-AUTH-FORM`、`auth.users`、`profiles` | `AT-AUTH-02` | 1 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[认证](../../knowledge_base/locatemy_product/features/authentication.md) |
+| `AUTH-03` | Authentication & Session | `AUTH-001`、`AUTH-002` | `STATE-SESSION`、`auth.users` | `AT-AUTH-02` | 1 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[认证](../../knowledge_base/locatemy_product/features/authentication.md) |
+| `HOME-01` | Home & Relocation Outlook | `HOME-001` | `RESULT-*`、`read_home_metrics`、`home_public_cache` | `AT-HOME-01` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[首页](../../knowledge_base/locatemy_product/features/home.md)、[模型](../../knowledge_base/locatemy_product/home_index_scoring.md) |
+| `HOME-02` | Home & Relocation Outlook | `HOME-001` | `RESULT-*`、`read_home_metrics`、`home_public_cache` | `AT-HOME-01` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[模型](../../knowledge_base/locatemy_product/home_index_scoring.md) |
+| `HOME-03` | Home & Relocation Outlook | `HOME-001` | `STATE-HOME-REFRESH`、`home_public_cache` | `AT-HOME-02` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[首页](../../knowledge_base/locatemy_product/features/home.md) |
+| `MAP-01` | Map / Location | `LOCATION-001`、`LOCATION-002` | `STATE-LOCATION` | `AT-LOC-01`、`AT-LOC-02` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图](../../knowledge_base/locatemy_product/features/map_location.md) |
+| `MAP-02` | Map / Location | `LOCATION-001`、`LOCATION-003` | `STATE-LOCATION` | `AT-LOC-01`、`AT-LOC-02`、`AT-RACE-01` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图](../../knowledge_base/locatemy_product/features/map_location.md) |
+| `MAP-03` | Map / Location | `LOCATION-001` | `STATE-LOCATION` | `AT-LOC-01` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图](../../knowledge_base/locatemy_product/features/map_location.md) |
+| `MAP-04` | Map / Location | `LOCATION-001` | `STATE-LOCATION` | `AT-COMPARE-01`、`AT-COMPARE-02` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图](../../knowledge_base/locatemy_product/features/map_location.md) |
+| `MAP-05` | Map / Location | `LOCATION-001`、`PRIVACY-001` | `user_saved_locations`、`saved_location_cache`、`saved_location_create_queue` | `AT-SAVED-01`–`AT-SAVED-04` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图](../../knowledge_base/locatemy_product/features/map_location.md) |
+| `MAP-06` | Map / Location | `LOCATION-001`、`SHELL-001` | `STATE-LOCATION`、`STATE-NAVIGATION` | `AT-LOC-01`、`AT-LOC-02`、`AT-ANALYSIS-01` | 4 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[地图](../../knowledge_base/locatemy_product/features/map_location.md) |
+| `MAP-07` | Personalized Location Suitability | `SUITABILITY-001` | `RESULT-*`、`user_assessment_preferences`、`user_budget_scenarios` | `AT-SUIT-01`–`AT-SUIT-06` | 7 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[领域对象](../../knowledge_base/locatemy_product/domain_objects.md) |
+| `COST-01` | Cost of Living & Budget | `COST-001` | `read_cost_inputs`、`cost_public_cache`、`RESULT-*` | `AT-ANALYSIS-01`、`AT-COMPARE-01`、`AT-COMPARE-03` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[生活成本](../../knowledge_base/locatemy_product/features/cost_of_living.md) |
+| `COST-02` | Cost of Living & Budget | `COST-001` | `STATE-COST-TEMP`、`read_cost_inputs` | `AT-ANALYSIS-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[生活成本](../../knowledge_base/locatemy_product/features/cost_of_living.md) |
+| `COST-03` | Cost of Living & Budget | `COST-002`、`PRIVACY-001` | `user_budget_scenarios` | `AT-SUIT-02`、`AT-SUIT-04`、`AT-SUIT-06` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[生活成本](../../knowledge_base/locatemy_product/features/cost_of_living.md) |
+| `SAFE-01` | Crime & Security | `SAFETY-001`、`GEO-001` | `crime_district`、`read_safety_inputs`、`crime_public_cache` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md) |
+| `SAFE-02` | Crime & Security | `SAFETY-001`、`LOCATION-002`、`GEO-001` | `police_districts_boundary`、`crime_public_cache` | `AT-ANALYSIS-01`、`AT-RACE-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md) |
+| `SAFE-03` | Crime & Security | `SAFETY-001` | `RESULT-*`、`crime_district` | `AT-ANALYSIS-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md) |
+| `SOCIO-01` | Socio-economic | `SOCIO-001`、`GEO-001` | `read_socio_inputs`、`RESULT-*` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md) |
+| `SOCIO-02` | Socio-economic | `SOCIO-001`、`COST-002` | `hies_state_percentile`、`user_budget_scenarios` | `AT-ANALYSIS-01`、`AT-SUIT-04` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md) |
+| `SOCIO-03` | Socio-economic | `SOCIO-001` | `read_socio_inputs`、`RESULT-*` | `AT-COMPARE-01`、`AT-COMPARE-03` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md) |
+| `INFRA-01` | Infrastructure Coverage | `INFRA-001`、`TRANSIT-001`、`GEO-001` | `read_infrastructure_inputs`、`read_transit_analysis`、`RESULT-*` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[基础设施](../../knowledge_base/locatemy_product/features/infrastructure.md) |
+| `INFRA-02` | Infrastructure Coverage | `INFRA-001`、`PRIVACY-001` | `user_ici_preferences` | `AT-ANALYSIS-01`、`AT-SWITCH-01` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[基础设施](../../knowledge_base/locatemy_product/features/infrastructure.md) |
+| `FAC-01` | Nearby Facilities | `FACILITY-001`、`FACILITY-002` | `facility_public_cache`、`RESULT-*` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[设施](../../knowledge_base/locatemy_product/features/nearby_facilities.md) |
+| `TRANSIT-01` | Public Transportation | `TRANSIT-001` | `read_transit_analysis`、`transit_analysis_results`、`RESULT-*` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[交通](../../knowledge_base/locatemy_product/features/transportation.md) |
+| `TRANSIT-02` | Public Transportation | `TRANSIT-001` | `STATE-TRANSIT-SELECTION` | `AT-ANALYSIS-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[交通](../../knowledge_base/locatemy_product/features/transportation.md) |
+| `TRANSIT-03` | Public Transportation | `TRANSIT-001` | `gtfs_stops`、`transit_analysis_results` | `AT-ANALYSIS-01`、`AT-RACE-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[交通](../../knowledge_base/locatemy_product/features/transportation.md) |
+| `PROP-01` | Property Inspection | `PROPERTY-001`、`PRIVACY-001` | `property_inspections`、`property_drafts` | `AT-PROP-01`、`AT-PROP-04` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[实勘](../../knowledge_base/locatemy_product/features/property_inspection.md) |
+| `PROP-02` | Property Inspection | `PROPERTY-001`、`PRIVACY-001` | `property_inspection_photos`、`inspection-photos`、`property_photo_upload_queue` | `AT-PROP-02`、`AT-PROP-04`、`AT-PROP-06` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[实勘](../../knowledge_base/locatemy_product/features/property_inspection.md) |
+| `PROP-03` | Property Inspection | `PROPERTY-001`、`SAFETY-001`、`HAZARD-002` | `property_inspections`、`RESULT-*` | `AT-PROP-03`、`AT-PROP-04` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[实勘](../../knowledge_base/locatemy_product/features/property_inspection.md) |
+| `PROP-04` | Property Inspection | `PROPERTY-001` | `STATE-PROPERTY-COMPARE`、`property_inspections` | `AT-PROP-05` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[实勘](../../knowledge_base/locatemy_product/features/property_inspection.md) |
+| `PROP-05` | Property Inspection | `PROPERTY-001` | `property_inspections`、`property_inspection_photos`、`inspection-photos` | `AT-PROP-06` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[实勘](../../knowledge_base/locatemy_product/features/property_inspection.md) |
+| `HAZ-01` | Hazard Reporting | `HAZARD-001`、`LOCATION-002` | `crowdsourced_hazards` | `AT-HAZARD-01`、`AT-HAZARD-03`、`AT-HAZARD-05` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[隐患](../../knowledge_base/locatemy_product/features/hazard_reporting.md) |
+| `HAZ-02` | Hazard Reporting | `HAZARD-001`、`LOCATION-002` | `crowdsourced_hazards` | `AT-HAZARD-01`、`AT-HAZARD-02` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[隐患](../../knowledge_base/locatemy_product/features/hazard_reporting.md) |
+| `HAZ-03` | Hazard Reporting | `HAZARD-001` | `crowdsourced_hazard_votes`、`hazard_vote_counts` | `AT-HAZARD-03`、`AT-HAZARD-04` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[隐患](../../knowledge_base/locatemy_product/features/hazard_reporting.md) |
+| `HAZ-04` | Hazard Reporting | `HAZARD-001`、`SHELL-001` | `crowdsourced_hazards` | `AT-HAZARD-01`、`AT-HAZARD-03`、`AT-HAZARD-05` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[隐患](../../knowledge_base/locatemy_product/features/hazard_reporting.md) |
+| `ACCOUNT-01` | Account Center | `AUTH-001`、`SHELL-001` | `auth.users`、`profiles` | `AT-AUTH-02`、`AT-SWITCH-01` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[账户](../../knowledge_base/locatemy_product/features/account.md) |
+| `ACCOUNT-02` | Account Center | `SHELL-001`、`PROPERTY-001`、`HAZARD-001` | `STATE-NAVIGATION` | `AT-HAZARD-01`、`AT-PROP-01` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[账户](../../knowledge_base/locatemy_product/features/account.md) |
+| `ACCOUNT-07` | Authentication & Session | `AUTH-001`、`PRIVACY-001` | `STATE-SESSION`、`STATE-ACCOUNT-SCOPE`及[清理清单](data-ownership.md#privacy-barrier-参与者清单) | `AT-OUT-01`、`AT-OUT-02`、`AT-SWITCH-01` | 1 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[账户](../../knowledge_base/locatemy_product/features/account.md) |
+| `ACCOUNT-08` | Account Center | `ACCOUNT-001`、`PRIVACY-001` | `user_assessment_preferences` | `AT-SUIT-01`–`AT-SUIT-03`、`AT-SUIT-06` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[领域对象](../../knowledge_base/locatemy_product/domain_objects.md) |
+| `ACCOUNT-09` | Cost of Living & Budget | `COST-002` | `user_budget_scenarios` | `AT-SUIT-02`、`AT-SUIT-04`、`AT-SUIT-06` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[领域对象](../../knowledge_base/locatemy_product/domain_objects.md) |
 
 ## 完整性核对
 
-- Tracer 的 8 个 Capability 均为 Issue #1 批准的 `required`，每项只有一个系统 Owner。
-- 表内 Interface ID 均在 [Interface 注册表](interfaces.md)定义；没有引用未登记 Interface。
-- 表内状态/数据 ID 均在[状态与数据所有权](data-ownership.md)或 [Schema Catalog](../data/schema-catalog.md)定义。
-- 表内验收 ID 均在[关键流程](flows.md)定义，并覆盖成功、完整空结果、分类失败、权限、账户切换和离线行为。
-- 当前逐行核对只适用于 Issue #2；系统步骤 2 和 Baseline Gate 必须等全部 45 个 required
-  Capability 都满足同一条链后才能完成。
+- 45 项 `required` 各出现一次；7 项 `excluded` 未进入本表。
+- 每行 Owner 与 [Feature map](feature-map.md#capability-唯一归属)一致，波次与 DAG 一致。
+- 每个 ID 都有权威定义；范围表达式指向 [flows.md](flows.md) 中连续、逐项命名的验收 ID。
+- `proposed` 对象不是已实现声明；其责任与 Gate 见[基线审查](baseline-review.md#schema-迁移计划)。

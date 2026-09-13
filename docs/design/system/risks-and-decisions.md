@@ -1,6 +1,6 @@
 # 系统风险与待决项
 
-> 状态：`Draft — Issue #4 system contract scope`
+> 状态：`Under Review — Issue #5 baseline dispositions recorded`
 > 最后更新：2026-09-13
 
 本文件记录完整 [Feature map](feature-map.md)、[Interface 注册表](interfaces.md)、
@@ -44,9 +44,30 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 
 ## 明确延后而非静默假设
 
+### Issue #5 责任与 Baseline 处置
+
+| 风险 | 责任 Owner | Baseline 处置 |
+| --- | --- | --- |
+| `RISK-PRIVACY-01` | Account Privacy | 已按全部私有对象、状态、队列和文件核对 8 个参与者；Baseline 阻塞关闭，Account Privacy Ready 时仍须执行故障注入 |
+| `RISK-CACHE-02` | 各公共缓存所属分析 Feature | 已核对 Schema Catalog 的具名公共缓存与公共缓存不变量；Baseline 阻塞关闭，各对象批准时验证字段 |
+| `RISK-SCHEMA-01` | Geographic Context、Home、Cost、Crime、Transit、Socio-economic、Infrastructure | [Schema 迁移计划](baseline-review.md#schema-迁移计划)已分配 add/migrate/remove、证据与最迟 Gate；Baseline 阻塞关闭，实现仍阻塞各 owning Feature Ready |
+| `RISK-SESSION-01` | Authentication & Session | 保留至 Authentication Ready |
+| `RISK-PRIVACY-02` | Account Privacy | 保留至 Account Privacy Ready |
+| `RISK-OSM-01`、`RISK-CACHE-01` | Nearby Facilities | 保留至 Nearby Facilities Ready |
+| `RISK-GEO-01` | Map / Location | 保留至 Map Ready |
+| `RISK-GEO-02` | Geographic Context | 保留至 Geographic Context Ready |
+| `RISK-SCHEMA-02` | Infrastructure Coverage | 保留至 Infrastructure Ready |
+| `RISK-PREF-01` | Account Center | 保留至 Account Center Ready |
+| `RISK-PROP-01`、`RISK-STORAGE-01`、`RISK-PROPERTY-01` | Property Inspection（`RISK-PROP-01` 的口径决定仍由项目负责人批准） | 保留至 Property Ready |
+| `RISK-SYNC-01` | Map / Location | 保留至 Map Ready |
+| `RISK-HAZARD-01` | Hazard Reporting | 保留至 Hazard Ready |
+| `RISK-NFR-01` | 各相关 owning Feature；Application Shell 汇总 | Wave 1–4 owning design 逐项关闭 |
+
+上表为责任与 Gate disposition；风险内容、影响、验证方式和最迟关闭点仍只在主表定义。
+
 - Issue #4 已覆盖系统 Interface、数据 Owner、技术架构、非功能约束与跨 Feature 流程；精确成员、
   Adapter、migration 和测试实现仍只在 owning design/学生实现中完成。
 - 离线写只授权收藏 create queue、房产草稿和照片待传；其他业务创建、编辑和删除保持在线，不能从
   通用 privacy barrier 或 SQLite 的存在推导离线能力。
-- Capability 的全量追踪链、独立系统审查和项目负责人 `Baselined` 批准仍属于后续 Gate；Issue #4
-  完成不自动改变系统 `Draft` 状态。
+- Capability 全量追踪与独立系统审查已由 Issue #5 完成；只剩项目负责人记录版本并明确批准
+  `Baselined`。批准前系统状态为 `Under Review`。

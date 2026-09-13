@@ -1,22 +1,22 @@
 # 系统设计规范
 
-本入口规定第一阶段如何把产品事实变成可供滚动 Feature 设计消费的系统基线。系统设计状态为
-`Draft → Under Review → Baselined`；只有项目负责人可以设为 `Baselined`。
+本入口规定第一阶段如何把产品事实变成可供滚动 Feature 设计消费的系统基线。当前系统设计为
+`Under Review`；状态路径为 `Draft → Under Review → Baselined`，只有项目负责人可以设为 `Baselined`。
 
 ## 当前进度
 
 | 步骤 | 状态 | 依据 |
 | --- | --- | --- |
 | 1. 关闭产品边界 | `Completed` — 2026-09-13 | [产品范围基线](../../knowledge_base/locatemy_product/capability_catalog.md#产品范围基线2026-09-13)：52 项已知 Capability 均已分类；45 项 `required` 均有权威事实源和可观测成果；项目负责人已在 Issue #1 确认。 |
-| 2. 建立 Capability 追踪 | `In Progress` — 2026-09-13 | [Issue #2 tracer 追踪](capability-traceability.md)：8 项 required Capability 已形成完整链；其余 37 项待处理。 |
+| 2. 建立 Capability 追踪 | `Completed` — 2026-09-13 | [全量追踪](capability-traceability.md)：45 项 required Capability 均连接唯一 Owner、Interface、数据/状态、验收场景和设计波次。 |
 | 3. 划分 Feature 与 shared module | `Completed` — 2026-09-13 | [完整 Feature map](feature-map.md)：45 项 required Capability 已唯一归入 13 个 Feature 与 Application Shell；另有 2 个无直接 Capability 的 shared module 已通过跨 Feature 责任与删除测试；项目负责人已批准 Issue #3。 |
 | 4. 确定状态与数据所有权 | `Completed` — 2026-09-13 | [完整数据所有权](data-ownership.md)与 [Schema Catalog](../data/schema-catalog.md)：运行时状态、Supabase、SQLite、Storage、公共/私有缓存和离线队列均有唯一 Owner。 |
 | 5. 登记系统 Interface | `Completed` — 2026-09-13 | [完整 Interface 注册表](interfaces.md)：19 个跨 Feature Interface 与 4 个外部来源 seam 覆盖 `D01`–`D46`，并记录权限、异步和副作用。 |
 | 6. 确定技术架构 | `Completed` — 2026-09-13 | [技术架构与非功能约束](architecture.md)：固定 app/core/features、MVVM、composition root、依赖方向、外部系统和可测试约束。 |
 | 7. 描述关键流程 | `Completed` — 2026-09-13 | [8 个关键流程](flows.md)：覆盖会话/换号、单点/A-B、收藏同步、隐患、房产风险快照、适配度与首页刷新，并逐项定义失败/降级/权限/恢复。 |
 | 8. 建立依赖 DAG 与波次 | `Completed` — 2026-09-13 | [Issue #3 DAG](feature-map.md#dag-与设计波次)：16 个节点、46 条直接阻塞边与 7 个设计波次已登记且无循环；项目负责人已批准。 |
-| 9. 审计追踪与风险 | `In Progress` — 2026-09-13 | [系统风险登记](risks-and-decisions.md)已有关闭条件；全量 Capability 追踪与独立审查待处理。 |
-| 10. 批准基线 | `Not Started` | 系统整体仍为 `Draft`。 |
+| 9. 审计追踪与风险 | `Completed` — 2026-09-13 | [独立基线审查](baseline-review.md)已关闭 4 项 Baseline 阻塞发现；后续 Feature 风险均有 Owner、验证和最迟关闭点。 |
+| 10. 批准基线 | `Awaiting Owner Approval` | 基线候选为 `Under Review`；仅项目负责人可记录版本并批准 `Baselined`。 |
 
 ## 固定步骤与完成条件
 
@@ -59,6 +59,7 @@
 | `data-ownership.md` | 状态、Supabase、SQLite、Storage、缓存和离线队列所有权 |
 | `flows.md` | 关键跨 Feature 端到端流程及失败/降级语义 |
 | `risks-and-decisions.md` | 阻塞缺口、非阻塞假设、风险、验证方式和 ADR 链接 |
+| `baseline-review.md` | 独立审查维度、结构化发现、处置、迁移计划与 Baseline Gate 结论 |
 
 ## 当前 Draft 入口
 
@@ -69,10 +70,10 @@
 - [状态与数据所有权](data-ownership.md)
 - [关键流程](flows.md)
 - [风险与待决项](risks-and-decisions.md)
+- [独立基线审查](baseline-review.md)
 
-上述文件以 Issue #2 tracer 为骨架；Feature 边界与 DAG 已由 Issue #3 批准，系统契约、数据所有权、
-技术架构和关键流程已在 Issue #4 补齐。Capability 全量追踪、独立审查、风险关闭与项目负责人批准
-尚未完成，因此不代表 System Baseline Gate 已通过。
+Feature 边界与 DAG 已由 Issue #3 批准，系统契约、数据所有权、技术架构和关键流程已在 Issue #4
+补齐；Issue #5 已完成全量追踪与独立审查。项目负责人批准并记录版本前，候选仍为 `Under Review`。
 
 使用短文、表格和小型 Mermaid 图表达重要关系；不制作不驱动决策或验收的图。产品事实留在知识
 库，难以逆转且存在真实取舍的决定写入 ADR，系统文件只引用它们。
