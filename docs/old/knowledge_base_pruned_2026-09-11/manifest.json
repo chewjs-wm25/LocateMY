@@ -1,0 +1,58 @@
+{
+  "kb_id": "locatemy-product",
+  "version": "1.1.0",
+  "language": "zh-CN",
+  "canonical_entry": "README.md",
+  "purpose": "LocateMY current product functionality and redevelopment scope for AI agents",
+  "source_priority": [
+    "current_user_instruction",
+    "code_verified_answer",
+    "docs_screenshot",
+    "functional_docs",
+    "legacy_docs"
+  ],
+  "status_vocabulary": [
+    "working",
+    "partial",
+    "prototype",
+    "placeholder",
+    "excluded"
+  ],
+  "indexes": [
+    "capability_catalog.md",
+    "domain_objects.md",
+    "persistence_matrix.md",
+    "known_gaps.md",
+    "redevelopment_scope.md",
+    "ui_design_spec.md",
+    "home_outlook_scoring.md"
+  ],
+  "ui_artifacts": [
+    "../../UI/LocateMY_UI.md",
+    "../../UI/HomePage.md"
+  ],
+  "feature_documents": [
+    "features/global_navigation.md",
+    "features/authentication.md",
+    "features/home.md",
+    "features/map_location.md",
+    "features/cost_of_living.md",
+    "features/crime_security.md",
+    "features/socio_economic.md",
+    "features/infrastructure.md",
+    "features/nearby_facilities.md",
+    "features/transportation.md",
+    "features/property_inspection.md",
+    "features/hazard_reporting.md",
+    "features/account.md",
+    "features/excluded_features.md"
+  ],
+  "capability_count": 49,
+  "notes": [
+    "Implementation architecture is intentionally excluded.",
+    "home_outlook_scoring.md is a proposed product model, not verified current behavior.",
+    "UI Markdown files contain visible Chinese and English interfaces only; design rationale lives in ui_design_spec.md.",
+    "Visible UI is not sufficient evidence of a working capability.",
+    "Use capability status and feature documents before making implementation claims."
+  ]
+}

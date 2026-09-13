@@ -1,0 +1,188 @@
+{
+    "title_en": "List of Datasets on data.gov.my",
+    "title_ms": "Senarai Set Data di data.gov.my",
+    "title_sort": 1,
+    "description_en": "List of datasets published via the data catalogue",
+    "description_ms": "Senarai set data yang diterbitkan di katalog data",
+    "exclude_openapi": false,
+    "manual_trigger": "",
+    "data_as_of": "2026-09-09 23:59",
+    "last_updated": "2026-09-10 04:25",
+    "next_update": "2026-09-11 00:10",
+    "methodology_en": "This data is aggregated from the list of datasets extracted from the site's internal API.",
+    "methodology_ms": "Data ini dihasilkan daripada senarai set data yang dikueri daripada API dalaman portal.",
+    "caveat_en": "—",
+    "caveat_ms": "—",
+    "publication_en": "The list of datasets here is fully consistent with the site's [data catalogue](https://data.gov.my/data-catalogue/).",
+    "publication_ms": "Senarai set data di sini adalah selaras dengan [katalog data](https://data.gov.my/ms-MY/data-catalogue/).",
+    "link_parquet": "https://storage.data.gov.my/metrics/dataset_list.parquet",
+    "link_csv": "https://storage.data.gov.my/metrics/dataset_list.csv",
+    "frequency": "MONTHLY",
+    "geography": [],
+    "demography": [],
+    "dataset_begin": 2023,
+    "dataset_end": 2026,
+    "data_source": [
+        "JDN",
+        "KD"
+    ],
+    "site_category": [
+        {
+            "site": "datagovmy",
+            "category_en": "Metadata",
+            "category_ms": "Metadata",
+            "category_sort": 120,
+            "subcategory_en": "Site Content",
+            "subcategory_ms": "Kandungan Portal",
+            "subcategory_sort": 10
+        }
+    ],
+    "fields": [
+        {
+            "name": "id",
+            "title_en": "Dataset ID",
+            "title_ms": "ID Set Data",
+            "description_en": "[String] Unique identifier for the dataset",
+            "description_ms": "[String] Pengecam unik untuk set data"
+        },
+        {
+            "name": "date_created",
+            "title_en": "Date Created",
+            "title_ms": "Tarikh Dicipta",
+            "description_en": "[Date] Date the dataset was created, in YYYY-MM-DD format",
+            "description_ms": "[Tarikh] Tarikh set data dicipta, dalam format YYYY-MM-DD"
+        },
+        {
+            "name": "title_en",
+            "title_en": "Title (English)",
+            "title_ms": "Tajuk (Inggeris)",
+            "description_en": "[String] Title of the dataset in English",
+            "description_ms": "[String] Tajuk set data dalam Bahasa Inggeris"
+        },
+        {
+            "name": "category_en",
+            "title_en": "Category (English)",
+            "title_ms": "Kategori (Inggeris)",
+            "description_en": "[String] Dataset's category in English",
+            "description_ms": "[String] Kategori set data dalam Bahasa Inggeris"
+        },
+        {
+            "name": "subcategory_en",
+            "title_en": "Subcategory (English)",
+            "title_ms": "Subkategori (Inggeris)",
+            "description_en": "[String] Dataset's subcategory in English",
+            "description_ms": "[String] Subkategori set data dalam Bahasa Inggeris"
+        },
+        {
+            "name": "title_bm",
+            "title_en": "Title (Malay)",
+            "title_ms": "Tajuk (Melayu)",
+            "description_en": "[String] Title of the dataset in Malay",
+            "description_ms": "[String] Tajuk set data dalam Bahasa Melayu"
+        },
+        {
+            "name": "category_bm",
+            "title_en": "Category (Malay)",
+            "title_ms": "Kategori (Melayu)",
+            "description_en": "[String] Dataset's category in Malay",
+            "description_ms": "[String] Kategori set data dalam Bahasa Melayu"
+        },
+        {
+            "name": "subcategory_bm",
+            "title_en": "Subcategory (Malay)",
+            "title_ms": "Subkategori (Melayu)",
+            "description_en": "[String] Dataset's subcategory in Malay",
+            "description_ms": "[String] Subkategori set data dalam Bahasa Melayu"
+        },
+        {
+            "name": "source",
+            "title_en": "Source",
+            "title_ms": "Sumber",
+            "description_en": "[String] Name(s) of the dataset's source agency",
+            "description_ms": "[String] Nama agensi sumber bagi set data tersebut, mungkin lebih daripada satu"
+        },
+        {
+            "name": "frequency",
+            "title_en": "Data Frequency",
+            "title_ms": "Frekuensi Data",
+            "description_en": "[String] The frequency of the data contained within the dataset",
+            "description_ms": "[String] Frekuensi data yang terkandung dalam set data"
+        },
+        {
+            "name": "geography",
+            "title_en": "Geography",
+            "title_ms": "Geografi",
+            "description_en": "[String] Geographical level covered by the dataset",
+            "description_ms": "[String] Tahap geografi yang diliputi oleh set data"
+        },
+        {
+            "name": "demography",
+            "title_en": "Demography",
+            "title_ms": "Demografi",
+            "description_en": "[String] Demographic breakdowns contained within the dataset",
+            "description_ms": "[String] Pecahan demografi yang terkandung dalam set data"
+        },
+        {
+            "name": "dataset_begin",
+            "title_en": "First Year",
+            "title_ms": "Tahun Pertama",
+            "description_en": "[Integer] Earliest year covered by the dataset",
+            "description_ms": "[Integer] Tahun terawal yang terkandung dalam set data"
+        },
+        {
+            "name": "dataset_end",
+            "title_en": "Last Year",
+            "title_ms": "Tahun Terakhir",
+            "description_en": "[Integer] Most recent year covered by the dataset",
+            "description_ms": "[Integer] Tahun terkini yang terkandung dalam set data"
+        }
+    ],
+    "dataviz": [
+        {
+            "dataviz_id": "table",
+            "title_en": "Table",
+            "title_ms": "Jadual",
+            "chart_type": "TABLE",
+            "config": {
+                "precision": 0,
+                "filter_columns": [],
+                "freeze_columns": [
+                    "id"
+                ]
+            }
+        }
+    ],
+    "translations_en": {
+        "date": "Date",
+        "id": "ID",
+        "title_en": "Title (EN)",
+        "category_en": "Category (EN)",
+        "subcategory_en": "Subcategory (EN)",
+        "title_ms": "Title (BM)",
+        "category_ms": "Category (BM)",
+        "subcategory_ms": "Subcategory (BM)",
+        "source": "Source",
+        "frequency": "Data Frequency",
+        "geography": "Geography",
+        "demography": "Demography",
+        "dataset_begin": "First Year",
+        "dataset_end": "Last Year"
+    },
+    "translations_ms": {
+        "date": "Tarikh",
+        "id": "ID",
+        "title_en": "Tajuk (BI)",
+        "category_en": "Kategori (BI)",
+        "subcategory_en": "Subkategori (BI)",
+        "title_ms": "Tajuk (BM)",
+        "category_ms": "Kategori (BM)",
+        "subcategory_ms": "Subkategori (BM)",
+        "source": "Sumber",
+        "frequency": "Frekuensi Data",
+        "geography": "Geografi",
+        "demography": "Demografi",
+        "dataset_begin": "Tahun Pertama",
+        "dataset_end": "Tahun Terakhir"
+    },
+    "related_datasets": []
+}
