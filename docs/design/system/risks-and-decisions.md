@@ -4,8 +4,8 @@
 > 最后更新：2026-09-13
 
 本文件记录 [TRACER-01](flows.md#tracer-01启动登录选址查看周边设施并退出) 与
-[完整 Feature map](feature-map.md) 暴露的系统风险和关闭条件。产品事实已由 Issue #1 批准；
-Feature 边界与 DAG 是 Issue #3 的待批设计，不替 Feature owning design 决定实现细节。
+[完整 Feature map](feature-map.md) 暴露的系统风险和关闭条件。产品事实已由 Issue #1 批准，Feature
+边界与 DAG 已由项目负责人在 Issue #3 批准；它们不替 Feature owning design 决定实现细节。
 
 ## 已采用的 tracer 约束
 
@@ -40,4 +40,4 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 - 本 tracer 只确认收藏创建队列和房产照片待传清理责任；其他离线写行为必须由对应产品事实与
   owning Feature 设计授权，不能从通用 privacy barrier 推导。
 - 完整技术架构、composition root 与 Schema Catalog 对象仍由系统步骤 4–6 及后续 Feature 设计完成。
-  Issue #3 的 DAG 与设计波次在项目负责人批准前保持 `Under Review`；风险控制不等于这些设计已批准。
+  Issue #3 只批准 Feature 边界、DAG 与设计波次；风险控制不等于系统 Baseline Gate 已通过。

@@ -1,6 +1,6 @@
 # Feature 与 shared module 边界
 
-> 状态：`Draft — Issue #3，待项目负责人批准`
+> 状态：`Draft — Issue #3 边界与 DAG 已批准`
 > 最后更新：2026-09-13
 
 本文件是 Feature/shared module 责任、直接设计依赖和设计波次的唯一真相。Capability 的产品含义与
@@ -395,8 +395,9 @@ flowchart LR
 - [x] 每个 shared module 都有跨 Feature 消费者和删除测试依据。
 - [x] 46 条边均记录具体设计阻塞物，不含仅为方便的顺序。
 - [x] 全部节点都有波次；每条边严格从较小波次指向较大波次。
-- [ ] 项目负责人批准 Feature/shared module 边界与 DAG。
+- [x] 项目负责人于 2026-09-13 批准 Feature/shared module 边界与 DAG，并要求同步关闭 Issue #3。
 - [x] 本文件只有设计 Markdown，没有可编译代码或可直接复用的实现。
 
-项目负责人批准前，本文件保持 `Draft`，系统步骤 3 与步骤 8 保持 `Under Review`，不得据此生成
-`Ready for Development` 工作包。批准时在 Issue #3 留下明确记录，再把相应步骤设为 `Completed`。
+Issue #3 的批准只关闭系统步骤 3 与步骤 8；系统整体在 Baseline Gate 完成前仍为 `Draft`。各节点可按
+波次进入后续系统追踪与 owning design，但只有项目负责人另行批准的 Feature 才能进入
+`Ready for Development` 并生成工作包。
