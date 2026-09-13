@@ -15,6 +15,8 @@ LocateMY 当前处于前期研究与 UI 原型阶段。原型用于展示页面�
 
 LocateMY 是一次性的大学项目。交付重点是学生对 Flutter，以及 SQLite、设备本地文件、键值存储和 Supabase 的数据处理能力；不以长期运营、自动化数据同步或额外安全能力为目标。设计应保持技术栈和数据规模最小，仅实现已确认的产品行为与基础账号隔离。
 
+所有可提交的应用、migration、测试和含程序逻辑的配置必须由两名学生亲自编写。AI 只参与系统与 Feature 设计、工作包生成、只读代码审查和测试执行；不能生成或修改可提交代码。
+
 政府数据的一次性导入范围仅限本知识库已列为 LocateMY 功能输入的全部政府开放数据集，不扩展至整个政府开放数据目录。OSM 设施数据不属于政府数据镜像；GTFS 按运营方官方 feed 的既有数据边界处理。任何首次导入失败的数据集在 Flutter 中必须显示“资料暂不可用”，不得以空值或部分数据伪装完整结果。
 
 ## Agent 必读
@@ -38,6 +40,8 @@ LocateMY 是一次性的大学项目。交付重点是学生对 Flutter，以及
 
 涉及实施设计、Feature 边界、MVVM、Interface 或数据访问规格时，产品事实仍以
 本知识库为准；实现设计规范见 [docs/design/README.md](../../../design/README.md)。
+
+划分跨 Feature 产品边界或定义组合用例前，读[协作规范](./cross_feature_collaboration.md)。
 
 ## 状态词
 
@@ -83,6 +87,7 @@ LocateMY 是面向马来西亚搬迁和居住选址的移动应用。核心是�
 - [completeness_audit.md](./completeness_audit.md)：当前 UI 原型的页面、读数、公式、数据源与缺口审计矩阵。
 - [capability_catalog.md](./capability_catalog.md)：稳定功能 ID、状态、范围分类与权威事实源。
 - [domain_objects.md](./domain_objects.md)：业务对象和字段语义。
+- [cross_feature_collaboration.md](./cross_feature_collaboration.md)：跨 Feature 的协作边界、契约语义、组合用例和验证责任。
 - [persistence_matrix.md](./persistence_matrix.md)：内存、本机、远端与账号隔离边界。
 - [known_gaps.md](./known_gaps.md)：无操作控件、数据混用、文案与行为不一致。
 - [redevelopment_scope.md](./redevelopment_scope.md)：重开发默认包含、已决定排除与默认排除项。

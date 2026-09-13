@@ -35,3 +35,7 @@ Use the default five triage labels. See `docs/agents/triage-labels.md`.
 ### Domain docs
 
 This is a single-context repo. See `docs/agents/domain.md`.
+
+### Design docs
+
+涉及系统设计、Feature 实施设计、AI 设计审查或生成开发工作包时，先读 `docs/design/README.md`。

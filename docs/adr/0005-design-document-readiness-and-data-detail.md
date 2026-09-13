@@ -1,3 +1,7 @@
 # Design-document readiness and implementation detail
 
+## Status
+
+Superseded by ADR 0011 — 2026-09-13
+
 Each document shows its route, owner, last-updated date, dependencies, and consumed and exposed interface IDs, and moves from Draft to Ready for Development, Implemented, and Integrated. The project manager maintains the authoritative Chinese design and sets Ready for Development; the implementer marks Implemented; both collaborators set Integrated after acceptance checks and interface and File Manifest synchronization, with no separate approval process. It supplies enough direct database and algorithm detail to implement the page, while a shared owner retains the complete definition and the page links to it. Interface IDs use the globally searchable `<OWNER>-<NNN>` form; if implementation exposes a design defect, the same change updates the authoritative document and affected contract references before the work can be Integrated.

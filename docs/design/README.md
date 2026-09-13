@@ -1,29 +1,69 @@
-# LocateMY 实施设计索引
+# LocateMY 设计工作入口
 
-本目录是 LocateMY 中文实施设计的唯一权威。每个可独立交付的 Feature 在
-`features/` 有一份完整纵切面设计；只有跨 Feature 且拥有状态、规则、数据访问
-或公开契约的能力才在 `modules/` 有文档。数据对象的完整定义在
-`data/schema-catalog.md`。
+本目录是 LocateMY 中文设计的唯一权威。产品范围、领域语义、公式和数据边界仍以
+[`CONTEXT.md`](../../CONTEXT.md) 与
+[`docs/knowledge_base/locatemy_product/`](../knowledge_base/locatemy_product/) 为准；本目录规定
+如何把这些事实变成系统基线、Feature 实施设计和人类开发工作包。
 
-开始或修改实现设计前，先读 [ADR 0010](../adr/0010-feature-first-implementation-design-standard.md)。
-产品范围、领域语义、数据边界和公式事实仍以 `CONTEXT.md` 与
-`docs/knowledge_base/locatemy_product/` 为准。
+开始设计或审查前先读 [ADR 0011](../adr/0011-human-coded-ai-designed-delivery-process.md)。按任务
+继续读取：
 
-## 文档状态
+- 系统设计、Capability 追踪、依赖波次或基线变更：[`system/README.md`](system/README.md)
+- Feature 设计：[`features/_template.md`](features/_template.md)
+- shared module 设计：[`modules/_template.md`](modules/_template.md)
+- 数据对象设计：[`data/schema-catalog.md`](data/schema-catalog.md)
+- 人类工作包生成或失效：[`handoff/README.md`](handoff/README.md)
 
-`Draft` 表示规格仍有未决实现事实；`Ready for Development` 表示可以无猜测地
-开始实现；`Implemented` 表示代码已完成；`Integrated` 表示验收、接口引用和
-File Manifest 已同步。
+## 代码边界
 
-| Feature | 状态 | 文档 | 公开 Interface | 数据对象 |
-| --- | --- | --- | --- | --- |
-| 尚未迁移 | N/A | 现有页面设计仅作迁移输入 | N/A | N/A |
+AI 产出**可实现规格，不产出可提交代码**。设计可以规定路径、符号名、参数与返回语义、
+状态、公式、流程和测试场景；使用表格、自然语言、数学表达式、状态机和必要的语言无关
+伪代码表达。设计不得包含完整类、可编译函数体、SQL migration、测试代码或带程序逻辑的
+配置。两名学生亲自编写和修改所有可提交代码与测试。
 
-## 模板与单一真相
+AI 可以只读检查代码、运行测试、比较设计与实现并报告缺陷。报告描述问题、预期行为和
+验证方式，不提供可直接粘贴的修复实现。
 
-- 新 Feature 从 [Feature 模板](features/_template.md) 开始。
-- 新共享模块从 [共享模块模板](modules/_template.md) 开始。
-- 每个数据对象先登记到 [Schema Catalog](data/schema-catalog.md)，再被 Feature
-  的 Data Access Matrix 引用。
-- Interface 的完整契约只写在其 owning Feature 或 shared module；索引表只列 ID
-  和链接。
+## 权威与角色
+
+- **项目负责人**：唯一产品与架构决策人；批准 `Baselined`、`Ready for Development` 和
+  `Integrated`；维护 shared file、composition root、migration 顺序与最终整合。
+- **学生实现者**：只实现已分配的代码和测试；可声明 `Implemented`；发现设计问题时按固定
+  格式上报，不自行改变公开契约、数据模型或可观察行为。
+- **设计 AI**：提出和编辑设计、生成上下文包与工作包、执行审查；只有项目负责人批准的
+  综合结论进入权威设计。
+
+当前两名学生的具体 Feature 分配等待项目负责人提供分工资料后决定。
+
+## 交付节奏
+
+1. 一次完成整个系统设计并由项目负责人设为 `Baselined`。
+2. 按依赖 DAG 设计基础波次；详细 Feature 设计只领先人类实现一个波次。
+3. 每份 Feature 经独立审查、综合修订及项目负责人批准后进入 `Ready for Development`。
+4. 从锁定版本生成工作包；学生在独立短期分支中亲自实现代码和测试。
+5. 每波完成功能测试与集成；最终执行系统验收、回归和大学提交检查。
+
+## 单一真相
+
+- Capability 的产品含义只在产品知识库定义。
+- 系统 Interface 注册表只列 ID、Owner、消费者、用途、状态及 owning document 链接。
+- Interface 完整契约只在 owning Feature 或 shared module 中定义。
+- 数据对象完整定义只在 Schema Catalog；Feature 只写自身访问方式。
+- 人类工作包只摘录当前任务所需内容并链接锁定版本，不产生设计决定。
+- 模型对话与推理不入库；只保留审查维度、问题、影响、决定和未关闭项。
+
+## 变更规则
+
+基线后变更必须记录原因以及受影响的 Capability、Feature、Interface、数据对象和工作包，并由
+项目负责人批准。相关 `Ready for Development` 文档退回 `Draft`；受影响工作包标记
+`Invalidated`。契约变更优先采用 add–migrate–remove，完成重新审查后才能恢复状态。
+
+## 设计索引
+
+系统设计尚未建立，状态为 `Draft`。Feature 与 shared module 在系统基线确认边界和依赖波次后
+登记；测试用的认证与异步结果设计已删除，不代表当前设计完成度。
+
+| 类型 | 名称 | 状态 | Owner | 依赖波次 | 文档 |
+| --- | --- | --- | --- | --- | --- |
+| System | LocateMY | `Draft` | 项目负责人 | N/A | [系统设计入口](system/README.md) |
+| Feature / Module | 尚未登记 | `Not Started` | 待定 | 待定 | N/A |
