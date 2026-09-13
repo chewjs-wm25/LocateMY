@@ -1,11 +1,11 @@
 # 系统风险与待决项
 
-> 状态：`Draft — Issue #2 tracer scope`
+> 状态：`Draft — Issue #2 tracer + Issue #3 boundary scope`
 > 最后更新：2026-09-13
 
-本文件只记录 [TRACER-01](flows.md#tracer-01启动登录选址查看周边设施并退出) 暴露的架构风险和
-关闭条件。产品事实已由 Issue #1 批准；本 tracer 没有新增产品决策，也没有替未经过的 Feature
-设计实现细节。
+本文件记录 [TRACER-01](flows.md#tracer-01启动登录选址查看周边设施并退出) 与
+[完整 Feature map](feature-map.md) 暴露的系统风险和关闭条件。产品事实已由 Issue #1 批准；
+Feature 边界与 DAG 是 Issue #3 的待批设计，不替 Feature owning design 决定实现细节。
 
 ## 已采用的 tracer 约束
 
@@ -31,12 +31,13 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-CACHE-01` | 坐标精度、分类映射版本或缓存键不一致会复用错误地点/口径结果 | `LOCATION-001`、`CACHE-FACILITY` | 缓存键至少含分析坐标、2,000 米半径和分类版本；结果回带原地点 | 手工验算邻近坐标、版本升级和 24 小时边界；契约测试断言 key/result 一致 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
 | `RISK-CACHE-02` | 公共缓存若混入收藏名称或账户引用，会绕过退出清理泄露兴趣地点 | `CACHE-FACILITY`、`PRIVACY-001` | 公共缓存只保存分析所需坐标、公共结果、时间、版本和归因 | Schema Catalog 审查和退出后存储检查，确认没有账户/用户命名字段 | Schema 对象批准前 | Baseline 阻塞 |
 | `RISK-GEO-01` | 马来西亚范围校验的数据源和边界精度尚未固定 | `LOCATION-001`、`MAP-01` | 范围外结果必须拒绝；不以字符串国家名或默认城市替代空间校验 | 用边境、岛屿、海域及明显范围外坐标验证候选方案 | Map / Location Ready 前 | Feature Ready 阻塞 |
+| `RISK-GEO-02` | 行政区与警区边界资料的版本、空间匹配和多匹配规则尚未固定 | Geographic Context；Cost、Crime、Socio-economic、Infrastructure | Feature map 将统计地理解析集中在 Geographic Context；两类口径分开返回且未解析不使用附近地区替代 | 用边界点、离岛、多边形重叠、无覆盖坐标及不同资料版本验证确定性结果 | Geographic Context Ready 前 | 下游 Feature Ready 阻塞 |
 
 ## 明确延后而非静默假设
 
-- 其余五类单点分析、A/B 比较、个人化地点适配度与设施摘要组合不属于本 tracer；它们必须在各自
-  Capability 追踪和 Interface 登记完成后接入。
+- Issue #3 只确定其余单点分析、A/B 比较、个人化地点适配度与设施摘要组合的责任 Owner、直接
+  设计依赖和波次；它们必须在各自 Capability 追踪与 Interface 登记完成后接入。
 - 本 tracer 只确认收藏创建队列和房产照片待传清理责任；其他离线写行为必须由对应产品事实与
   owning Feature 设计授权，不能从通用 privacy barrier 推导。
-- 完整技术架构、composition root、Schema Catalog 对象、依赖 DAG 和设计波次仍由系统步骤 6、8
-  及后续 Feature 设计完成。本文件的风险控制不等于这些设计已完成。
+- 完整技术架构、composition root 与 Schema Catalog 对象仍由系统步骤 4–6 及后续 Feature 设计完成。
+  Issue #3 的 DAG 与设计波次在项目负责人批准前保持 `Under Review`；风险控制不等于这些设计已批准。

@@ -60,14 +60,26 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 
 ## 设计索引
 
-系统设计尚未建立，状态为 `Draft`。Feature 与 shared module 在系统基线确认边界和依赖波次后
-登记；测试用的认证与异步结果设计已删除，不代表当前设计完成度。
+系统设计尚未建立，状态为 `Draft`。下列 Feature 与 shared module 是 Issue #3 的待批责任边界；
+波次表示详细设计的最早起点，不是两名学生的分工。项目负责人批准边界与 DAG 后才可据此推进
+owning design；测试用的认证与异步结果设计已删除，不代表当前设计完成度。
 
 | 类型 | 名称 | 状态 | Owner | 依赖波次 | 文档 |
 | --- | --- | --- | --- | --- | --- |
 | System | LocateMY | `Draft` | 项目负责人 | N/A | [系统设计入口](system/README.md) |
-| Module | Application Shell | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
-| Feature | Authentication & Session | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
-| Feature | Map / Location | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
-| Feature | Nearby Facilities | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
-| Module | Account Privacy | `Draft` | 待项目负责人分配 | 待步骤 8 | [Tracer 边界](system/feature-map.md#tracer-owner) |
+| Feature | Authentication & Session | `Draft` | 待项目负责人分配 | 1 | [责任卡](system/feature-map.md#fm-auth) |
+| Module | Geographic Context | `Draft` | 待项目负责人分配 | 1 | [责任卡](system/feature-map.md#fm-geo) |
+| Module | Account Privacy | `Draft` | 待项目负责人分配 | 2 | [责任卡](system/feature-map.md#fm-privacy) |
+| Module | Application Shell | `Draft` | 待项目负责人分配 | 3 | [责任卡](system/feature-map.md#fm-shell) |
+| Feature | Home & Relocation Outlook | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-home) |
+| Feature | Map / Location | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-map) |
+| Feature | Cost of Living & Budget | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-cost) |
+| Feature | Crime & Security | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-safety) |
+| Feature | Nearby Facilities | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-facilities) |
+| Feature | Public Transportation | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-transit) |
+| Feature | Hazard Reporting | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-hazard) |
+| Feature | Socio-economic | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-socio) |
+| Feature | Infrastructure Coverage | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-infra) |
+| Feature | Property Inspection | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-property) |
+| Feature | Account Center | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-account) |
+| Feature | Personalized Location Suitability | `Draft` | 待项目负责人分配 | 7 | [责任卡](system/feature-map.md#fm-suitability) |

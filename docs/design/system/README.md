@@ -9,12 +9,12 @@
 | --- | --- | --- |
 | 1. 关闭产品边界 | `Completed` — 2026-09-13 | [产品范围基线](../../knowledge_base/locatemy_product/capability_catalog.md#产品范围基线2026-09-13)：52 项已知 Capability 均已分类；45 项 `required` 均有权威事实源和可观测成果；项目负责人已在 Issue #1 确认。 |
 | 2. 建立 Capability 追踪 | `In Progress` — 2026-09-13 | [Issue #2 tracer 追踪](capability-traceability.md)：8 项 required Capability 已形成完整链；其余 37 项待处理。 |
-| 3. 划分 Feature 与 shared module | `In Progress` — 2026-09-13 | [Tracer Feature map](feature-map.md)：经过的 3 个 Feature、2 个 shared module 已唯一归属。 |
+| 3. 划分 Feature 与 shared module | `Under Review` — 2026-09-13 | [完整 Feature map](feature-map.md)：45 项 required Capability 已唯一归入 13 个 Feature 与 Application Shell；另有 2 个无直接 Capability 的 shared module 已通过跨 Feature 责任与删除测试，待项目负责人批准。 |
 | 4. 确定状态与数据所有权 | `In Progress` — 2026-09-13 | [Tracer 数据所有权](data-ownership.md)：经过的状态、公共缓存及退出清理责任已关闭。 |
 | 5. 登记系统 Interface | `In Progress` — 2026-09-13 | [Tracer Interface](interfaces.md)：5 个跨 Feature Interface 和 1 个外部来源 seam 已登记；其余 seam 待处理。 |
 | 6. 确定技术架构 | `Not Started` | Issue #2 只记录 tracer 直接暴露的外部来源和存储边界。 |
 | 7. 描述关键流程 | `In Progress` — 2026-09-13 | [TRACER-01](flows.md#tracer-01启动登录选址查看周边设施并退出) 已覆盖；其余规定流程待处理。 |
-| 8. 建立依赖 DAG 与波次 | `Not Started` | 等完整 Feature/shared module 边界。 |
+| 8. 建立依赖 DAG 与波次 | `Under Review` — 2026-09-13 | [Issue #3 DAG](feature-map.md#dag-与设计波次)：16 个节点、46 条直接阻塞边与 7 个设计波次已登记且无循环，待项目负责人批准。 |
 | 9. 审计追踪与风险 | `In Progress` — 2026-09-13 | [Tracer 风险](risks-and-decisions.md)已有关闭条件；全量审计待处理。 |
 | 10. 批准基线 | `Not Started` | 系统整体仍为 `Draft`。 |
 
@@ -69,7 +69,9 @@
 - [关键流程](flows.md)
 - [风险与待决项](risks-and-decisions.md)
 
-上述文件当前只完成 Issue #2 的关键旅程 tracer，不代表系统 Baseline Gate 已通过。
+上述文件以 Issue #2 的关键旅程 tracer 为已验收骨架；Feature 边界与 DAG 已由 Issue #3 扩展到
+全部 required Capability，但仍待项目负责人批准。其余系统专题仍只达到各自标明的范围，不代表
+System Baseline Gate 已通过。
 
 使用短文、表格和小型 Mermaid 图表达重要关系；不制作不驱动决策或验收的图。产品事实留在知识
 库，难以逆转且存在真实取舍的决定写入 ADR，系统文件只引用它们。

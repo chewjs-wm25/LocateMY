@@ -5,7 +5,8 @@
 
 当前表只封闭 [TRACER-01](flows.md#tracer-01启动登录选址查看周边设施并退出) 的 required
 Capability。每行从产品事实连到唯一 Owner、系统 Interface、状态/数据和验收证据；所有标识都在
-所链接的系统文件中定义。其余 37 项 required Capability 仍待系统设计步骤 2，不能视为已追踪。
+所链接的系统文件中定义。[完整 Feature map](feature-map.md#capability-唯一归属)已为其余 37 项指定
+唯一责任 Owner，但它们的 Interface、状态/数据与验收证据仍待系统设计步骤 2 补齐，不能视为完整追踪。
 
 | Capability | 唯一 Owner | 系统 Interface | 状态/数据 | 验收场景 | 产品事实 |
 | --- | --- | --- | --- | --- | --- |
@@ -26,5 +27,5 @@ Capability。每行从产品事实连到唯一 Owner、系统 Interface、状态
   非 tracer 私有数据只引用一个清理清单，不在此复制所有权。
 - 表内 14 个验收 ID 均在[Tracer 验收场景](flows.md#tracer-验收场景)定义，并覆盖成功、完整空结果、
   可重试/不可重试失败、认证权限、账户切换和离线行为。
-- 当前完成条件只适用于 Issue #2；系统步骤 2 和 Baseline Gate 必须等全部 45 个 required
-  Capability 都满足同一条链后才能完成。
+- 当前完成条件只适用于 Issue #2；Feature map 中的唯一 Owner 不是完整追踪链。系统步骤 2 和
+  Baseline Gate 必须等全部 45 个 required Capability 都满足同一条链后才能完成。
