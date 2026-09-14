@@ -5,7 +5,8 @@
 [`docs/knowledge_base/locatemy_product/`](../knowledge_base/locatemy_product/) 为准；本目录规定
 如何把这些事实变成系统基线、Feature 实施设计和人类开发工作包。
 
-开始设计或审查前先读 [ADR 0011](../adr/0011-human-coded-ai-designed-delivery-process.md)。按任务
+开始设计或审查前先读 [ADR 0011](../adr/0011-human-coded-ai-designed-delivery-process.md) 与
+[ADR 0013](../adr/0013-autonomous-design-ai-ready-approval.md)。按任务
 继续读取：
 
 - 系统设计、Capability 追踪、依赖波次或基线变更：[`system/README.md`](system/README.md)
@@ -30,20 +31,20 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 
 ## 权威与角色
 
-- **项目负责人**：唯一产品与架构决策人；批准 `Baselined`、`Ready for Development` 和
-  `Integrated`；维护 shared file、composition root、migration 顺序与最终整合。
+- **项目负责人**：唯一产品与架构决策人；批准 `Baselined` 和 `Integrated`；维护 shared file、
+  composition root、migration 顺序与最终整合。
 - **学生实现者**：只实现已分配的代码和测试；可声明 `Implemented`；发现设计问题时按固定
   格式上报，不自行改变公开契约、数据模型或可观察行为。
-- **设计 AI**：提出和编辑设计、生成上下文包与工作包、执行审查；只有项目负责人批准的
-  综合结论进入权威设计。
+- **设计 AI**：提出和编辑设计、生成上下文包与工作包、执行审查，并依 ADR 0013 在独立审查
+  完成后批准 remaining owning designs 的 `Ready for Development`。
 
-实现 Owner 在全部 owning design 完成后由项目负责人统一分配；实现 Owner 尚未指定不阻碍项目负责人批准某份设计进入 `Ready for Development`。在分配前，Ready 设计仍只冻结协调契约，不生成或派发人类工作包。
+实现 Owner 在全部 owning design 完成后由项目负责人统一分配；实现 Owner 尚未指定不阻碍设计 AI 依 ADR 0013 批准某份设计进入 `Ready for Development`。在分配前，Ready 设计仍只冻结协调契约，不生成或派发人类工作包。
 
 ## 交付节奏
 
 1. 一次完成整个系统设计并由项目负责人设为 `Baselined`。
 2. 按依赖 DAG 设计基础波次；详细 Feature 设计只领先人类实现一个波次。
-3. 每份 Feature 经独立审查、综合修订及项目负责人批准后进入 `Ready for Development`。
+3. 每份 Feature 经独立审查、综合修订及设计 AI 依 ADR 0013 批准后进入 `Ready for Development`。
 4. 从锁定版本生成工作包；学生在独立短期分支中亲自实现代码和测试。
 5. 每波完成功能测试与集成；最终执行系统验收、回归和大学提交检查。
 
@@ -80,14 +81,14 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | --- | --- | --- | --- | --- | --- |
 | System | LocateMY | `Baselined` (`5d11769`) | 项目负责人 | N/A | [系统设计入口](system/README.md) |
 | Feature | Authentication & Session | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 1 | [实施设计](features/authentication-and-session.md) |
-| Module | Geographic Context | `Draft` | 待项目负责人分配 | 1 | [实施设计](modules/geographic-context.md) |
+| Module | Geographic Context | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 1 | [实施设计](modules/geographic-context.md) |
 | Module | Account Privacy | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 2 | [实施设计](modules/account-privacy.md) |
-| Module | Application Shell | `Draft` | 待项目负责人分配 | 3 | [责任卡](system/feature-map.md#fm-shell) |
-| Feature | Home & Relocation Outlook | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-home) |
-| Feature | Map / Location | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-map) |
-| Feature | Cost of Living & Budget | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-cost) |
+| Module | Application Shell | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 3 | [实施设计](modules/application-shell.md) |
+| Feature | Home & Relocation Outlook | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 4 | [实施设计](features/home-and-relocation-outlook.md) |
+| Feature | Map / Location | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 4 | [实施设计](features/map-and-location.md) |
+| Feature | Cost of Living & Budget | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/cost-of-living-and-budget.md) |
 | Feature | Crime & Security | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-safety) |
-| Feature | Nearby Facilities | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-facilities) |
+| Feature | Nearby Facilities | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/nearby-facilities.md) |
 | Feature | Public Transportation | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-transit) |
 | Feature | Hazard Reporting | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-hazard) |
 | Feature | Socio-economic | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-socio) |

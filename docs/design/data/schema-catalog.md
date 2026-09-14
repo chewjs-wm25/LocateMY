@@ -22,8 +22,8 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | `auth.users` | Supabase Auth | `external` | Authentication & Session | account id、email、email confirmed state；认证凭据不复制到 public | SDK 当前会话；Auth、Account | Supabase 托管 |
 | `profiles` | Supabase table | `implemented` | Authentication & Session | `id`=auth account id；可选 username/avatar/bio；updated at | owner-only CRUD；Auth 写注册资料，Account 只读呈现 | 现有 migration；真实邮箱/确认状态仍读 Auth |
-| `user_saved_locations` | Supabase table | `implemented` | Map / Location | id、user id、非空名称 ≤120、WGS84 point、created/updated at | owner-only CRUD；Map | 取代 `user_saved_regions`；坐标不伪装行政区 id |
-| `user_budget_scenarios` | Supabase table | `implemented` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负 basket adjustment/housing/transport/monthly net income、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost、Account、Socio、Suitability | 旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
+| `user_saved_locations` | Supabase table | `proposed` | Map / Location | id、user id、每次 create 的客户端幂等键（同账户唯一）、非空名称 ≤120、WGS84 point、created/updated at、删除标记及删除版本 | owner-only 同步读取与 CRUD；Map | Supabase 是权威；删除保留可同步的墓碑，待所有客户端已观察后再由受控维护操作清理。现有对象缺少幂等/删除传播契约，学生 migration 须 add–migrate–validate |
+| `user_budget_scenarios` | Supabase table | `implemented` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负的额外生活开销/住房/交通/月净收入、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost、Account、Socio、Suitability | 额外生活开销为空表示无额外开销；旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
 | `user_assessment_preferences` | Supabase table | `implemented` | Account Center | user id 主键；safety/cost/daily convenience/transit accessibility/infrastructure 均为整数 1–10；updated at | owner-only CRUD；Account、Suitability | 现有默认值不代表用户已设置；owning design 须决定首次完成标志或以记录存在为准 |
 | `user_ici_preferences` | Supabase table | `proposed` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 已有同名表是五个 0–1 权重，不能作为本契约的 implemented 证据；学生 migration 需迁移或替换 |
 | `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/update/delete；Hazard、Property count | 现有对象；公开不等于匿名；无 verified/rejected 或维护者例外 |
@@ -47,7 +47,7 @@
 | `price_catcher` / `pricecatcher` | `implemented` | Cost | `(date, premise_code, item_code)`；price | Cost；物理名可保留，来源 ID 仍为 `pricecatcher` |
 | `lookup_item` | `implemented` | Cost | `item_code`；item、unit、group、category | Cost |
 | `lookup_premise` | `implemented` | Cost | `premise_code`；premise/address/type/state/district | Cost |
-| `cpi_state` | `implemented` | Cost | `(state, date, division)`；index | Cost |
+| `cpi_state` | `implemented` | Cost | `(state, date, division)`；index；临时换算同时读取地点所属州与全国 Headline/Overall CPI 的同月记录 | Cost |
 | `cpi_state_inflation` | `proposed` | Cost | `(state, date, division)`；inflation yoy/mom | Cost；当前缺失 |
 | `hh_income_district` | `implemented` | Cost、Socio | `(state, district, date)`；income mean/median | Cost、Socio |
 | `hh_income_state` | `proposed` | Socio | `(state, date)`；income mean/median | Socio；现有 `hies_state` 不是同一数据集 |
@@ -85,7 +85,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | 对象 | 类型/状态 | Owner | 覆盖数据 | 消费者 |
 | --- | --- | --- | --- | --- |
 | `read_home_metrics` | security-invoker View/RPC / `proposed` | Home | 五个 Home 数据集 | Home |
-| `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、CPI、income | Cost |
+| `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、行政区收入，以及地点所属州与全国的 Headline/Overall CPI 同月输入 | Cost |
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
@@ -100,7 +100,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
 | `crime_public_cache` | SQLite / `proposed` | Crime | reporting state、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
 | `facility_public_cache` | SQLite / `proposed` | Facilities | coordinate key、2,000 m、mapping version、完整结果/归因/query time、24-hour expiry | 只保存完整成功；无收藏名称/账户 id |
-| `saved_location_cache` | SQLite / `proposed` | Map | account id、remote id、name、point、remote version/timestamps、sync state | 同账户 opened scope；退出清除 |
+| `saved_location_cache` | SQLite / `proposed` | Map | account id、remote id、name、point、remote version/timestamps、删除标记、sync state | 同账户 opened scope；退出清除；墓碑仅用于同步，不作为用户可见收藏 |
 | `saved_location_create_queue` | SQLite / `proposed` | Map | account id、client id/idempotency key、name、point、created at、attempt/retry state/error class | 只排队 create；成功变 cache 行；退出清除未同步项 |
 | `property_drafts` | SQLite / `proposed` | Property | account id、draft id、全部表单字段、location、updated at | 同账户 scope；远端记录创建成功后按流程清除 |
 | `property_photo_upload_queue` | SQLite / `proposed` | Property | account/inspection/photo id、local file ref、target path、attempt/retry/error/upload state | 与应用数据文件同生；成功后删本机文件/queue；退出清除 |

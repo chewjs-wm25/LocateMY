@@ -77,8 +77,8 @@
 
 1. authenticated 用户命名合法地点。在线时 `LOCATION-001` Owner 写 `user_saved_locations`；离线时写同账户 `saved_location_create_queue`，UI 显示“已排队”。
 2. 冷启动已打开 scope、登录后、回到前台或用户手动重试时，Map 读取自己的队列，按 client id/idempotency key 依序创建远端记录。
-3. 成功项转为 `saved_location_cache` 的远端记录并移出队列；随后拉取远端变更，合并本账户记录，实现换设备恢复和删除传播。
-4. 删除只在线；远端成功后删除/更新本机缓存。另设备下一次前台同步移除已删除项。
+3. 成功项转为 `saved_location_cache` 的远端记录并移出队列；随后按远端版本拉取本账户变更，合并记录与删除墓碑，实现换设备恢复和删除传播。
+4. 删除只在线；远端成功后写入可同步墓碑并更新本机缓存。另设备下一次前台同步移除用户可见项；旧缓存或晚到 create 不得复活该项。
 
 | 分支 | 系统结果 | 用户恢复 |
 | --- | --- | --- |
@@ -145,7 +145,7 @@
 
 ### 成功顺序
 
-1. Account Center 通过 `ACCOUNT-001` 保存五项 `1–10` 评估偏好；Cost 通过 `COST-002` 保存预算预案并选择每账户唯一 current。
+1. Account Center 通过 `ACCOUNT-001` 保存五项 `1–10` 评估偏好；Cost 通过 `COST-002` 保存预算预案并发布 current 或无 current 的事实（完整预案语义见其 owning design）。
 2. 成功写入后发布带版本的变化事实；Shell 使当前账户相关地点摘要/A-B 适配度请求失效并重新组合。
 3. `SUITABILITY-001` 读取同一账户偏好、current 预案语境，以及同一地点的 Safety、个人预算压力、Facilities、Transit 和中性 ICI。
 4. 全部中/高优先级维度可用时计算；低优先级缺失可排除并说明；A/B 只有两端均可算时并列。

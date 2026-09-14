@@ -82,6 +82,8 @@ LocateMY 是面向马来西亚搬迁和居住选址的移动应用。核心是�
 
 单个地点周边设施覆盖的公式、OSM 标签、数据源、缓存和缺失规则见 [nearby_facilities_scoring.md](./nearby_facilities_scoring.md)。
 
+生活成本统一篮子的版本化项目、数量、权重与基准冻结规则见 [cost_basket_v1.md](./cost_basket_v1.md)。
+
 ## 横向知识
 
 - [completeness_audit.md](./completeness_audit.md)：当前 UI 原型的页面、读数、公式、数据源与缺口审计矩阵。
