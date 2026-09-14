@@ -19,6 +19,7 @@
 | `STATE-LOCATION` | single、A、B、Marker、摘要与地图 viewport | Map / Location | 内存；进程寿命 | 最近一次合法明确动作；角色相互隔离 | 全部清空，避免泄漏旧任务 |
 | `STATE-TRANSIT-SELECTION` | 局部站点高亮 | Public Transportation | 页面内存 | 绑定当前交通结果 | 释放；从不写全局地点 |
 | `STATE-COST-TEMP` | 不保存的当前月支出 CPI 换算输入 | Cost of Living & Budget | 页面内存 | 只服务当前换算 | 释放，不进入预案或适配度 |
+| `STATE-INFRA-WEIGHT-PREVIEW` | 当前单点的合法未保存医疗/教育/交通权重、preview 与 last saved 恢复目标 | Infrastructure Coverage | 当前账户的页面内存 | 只影响本 Feature single account-weighted ICI；远端 `user_ici_preferences` 是 last saved 权威，成功保存才发布跨设备变化 | 清空；不得进入 A/B、地点摘要、Suitability 或新账户 |
 | `RESULT-*` | Home、Cost、Safety、Facilities、Transit、Socio、Infrastructure、Suitability 当前结果 | 各分析 Feature | 页面/ViewModel 内存 | 必须绑定不可变地点/输入版本、日期、来源、口径和可用性 | 释放；公共缓存可重新生成 |
 | `STATE-PROPERTY-COMPARE` | 当前选中的 2–3 份实勘 | Property Inspection | 页面内存 | 只引用当前账户可见记录 | 清空 |
 
@@ -30,7 +31,7 @@
 | 收藏地点 | Map / Location | `user_saved_locations` | `saved_location_cache`、`saved_location_create_queue` | owner-only；前台双向同步；删除只在线并向本机传播 |
 | 预算预案与当前评估预案 | Cost of Living & Budget | `user_budget_scenarios` | 系统基线不建立本机副本 | owner-only；每账户至多一份 current；后续若需副本须先登记 Schema Catalog |
 | 评估偏好 | Account Center | `user_assessment_preferences` | 系统基线不建立本机副本 | owner-only；只有 `configured_at` 非空的完整五项 `1–10` 快照可供 Suitability 使用；未配置的预填 `5` 不作为输入；后续若需副本须先登记 Schema Catalog |
-| ICI 权重 | Infrastructure Coverage | `user_ici_preferences` | 系统基线不建立本机副本 | owner-only；医疗/教育/交通，缺省语义为 5；与评估偏好不同 |
+| ICI 权重 | Infrastructure Coverage | `user_ici_preferences` | `STATE-INFRA-WEIGHT-PREVIEW` 仅页面内存 | owner-only；远端为 last saved 医疗/教育/交通权重，缺省语义为 5；preview 不跨设备且与评估偏好不同 |
 | 隐患报告 | Hazard Reporting | `crowdsourced_hazards` | 页面/去身份公共读缓存（若建立） | authenticated 可读；author-only insert/delete 与自身状态更新；发布后内容/位置/上报时间不可变；`pending/resolved`；无审核者例外 |
 | 隐患投票 | Hazard Reporting | `crowdsourced_hazard_votes`；计数来自 `hazard_vote_counts` | 当前账户投票页面状态 | 每账户每报告至多一条；本人可改/撤回；客户端不直写计数 |
 | 房产实勘与风险快照 | Property Inspection | `property_inspections` | `property_drafts` 与可选私有读缓存 | owner-only；软删除/恢复；风险快照按 Schema Catalog 的原子字段组显式采集且不静默覆盖；仅两项完整风险输入可整体 create/replace |

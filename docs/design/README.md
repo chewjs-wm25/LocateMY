@@ -92,7 +92,7 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | Feature | Public Transportation | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/public-transportation.md) |
 | Feature | Hazard Reporting | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/hazard-reporting.md) |
 | Feature | Socio-economic | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-socio) |
-| Feature | Infrastructure Coverage | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-infra) |
+| Feature | Infrastructure Coverage | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/infrastructure-coverage.md) |
 | Feature | Property Inspection | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/property-inspection.md) |
 | Feature | Account Center | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/account-center.md) |
 | Feature | Personalized Location Suitability | `Draft` | 待项目负责人分配 | 7 | [责任卡](system/feature-map.md#fm-suitability) |
