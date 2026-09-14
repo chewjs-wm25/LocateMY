@@ -21,8 +21,8 @@
 | `SAFETY-001` | Crime & Security | Application Shell；Property Inspection；Personalized Location Suitability | 州级安全结果与趋势 | `Draft` | [责任卡](feature-map.md#fm-safety) |
 | `FACILITY-001` | Nearby Facilities | Application Shell；Map / Location 摘要；Personalized Location Suitability | 2 公里五类 OSM 覆盖结果 | `Ready for Development` | [Nearby Facilities](../features/nearby-facilities.md) |
 | `TRANSIT-001` | Public Transportation | Application Shell；Infrastructure Coverage；Personalized Location Suitability | 站点、有效路线、连通性分与局部选择 | `Draft` | [责任卡](feature-map.md#fm-transit) |
-| `HAZARD-001` | Hazard Reporting | Application Shell；Map / Location；Account Center | 公共隐患与账户投票 | `Draft` | [责任卡](feature-map.md#fm-hazard) |
-| `HAZARD-002` | Hazard Reporting | Property Inspection | 风险快照的附近公共隐患数 | `Draft` | [责任卡](feature-map.md#fm-hazard) |
+| `HAZARD-001` | Hazard Reporting | Application Shell；Map / Location；Account Center | 发布后内容不可变的公共隐患、作者状态/删除与账户投票 | `Ready for Development` | [Hazard Reporting](../features/hazard-reporting.md) |
+| `HAZARD-002` | Hazard Reporting | Property Inspection | 风险快照的附近公共隐患数 | `Ready for Development` | [Hazard Reporting](../features/hazard-reporting.md) |
 | `SOCIO-001` | Socio-economic | Application Shell | 收入、结构、基尼、分布和收入位置 | `Draft` | [责任卡](feature-map.md#fm-socio) |
 | `INFRA-001` | Infrastructure Coverage | Application Shell；Personalized Location Suitability | 账户权重与中性 ICI | `Draft` | [责任卡](feature-map.md#fm-infra) |
 | `PROPERTY-001` | Property Inspection | Application Shell；Account Center | 实勘、照片、比较、回收站与风险快照 | `Draft` | [责任卡](feature-map.md#fm-property) |

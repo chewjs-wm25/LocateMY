@@ -90,7 +90,7 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | Feature | Crime & Security | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-safety) |
 | Feature | Nearby Facilities | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/nearby-facilities.md) |
 | Feature | Public Transportation | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-transit) |
-| Feature | Hazard Reporting | `Draft` | 待项目负责人分配 | 5 | [责任卡](system/feature-map.md#fm-hazard) |
+| Feature | Hazard Reporting | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/hazard-reporting.md) |
 | Feature | Socio-economic | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-socio) |
 | Feature | Infrastructure Coverage | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-infra) |
 | Feature | Property Inspection | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-property) |

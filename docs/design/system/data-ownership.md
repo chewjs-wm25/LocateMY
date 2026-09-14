@@ -31,7 +31,7 @@
 | 预算预案与当前评估预案 | Cost of Living & Budget | `user_budget_scenarios` | 系统基线不建立本机副本 | owner-only；每账户至多一份 current；后续若需副本须先登记 Schema Catalog |
 | 评估偏好 | Account Center | `user_assessment_preferences` | 系统基线不建立本机副本 | owner-only；五项必填 `1–10`；后续若需副本须先登记 Schema Catalog |
 | ICI 权重 | Infrastructure Coverage | `user_ici_preferences` | 系统基线不建立本机副本 | owner-only；医疗/教育/交通，缺省语义为 5；与评估偏好不同 |
-| 隐患报告 | Hazard Reporting | `crowdsourced_hazards` | 页面/去身份公共读缓存（若建立） | authenticated 可读；author-only 写；`pending/resolved`；无审核者例外 |
+| 隐患报告 | Hazard Reporting | `crowdsourced_hazards` | 页面/去身份公共读缓存（若建立） | authenticated 可读；author-only insert/delete 与自身状态更新；发布后内容/位置/上报时间不可变；`pending/resolved`；无审核者例外 |
 | 隐患投票 | Hazard Reporting | `crowdsourced_hazard_votes`；计数来自 `hazard_vote_counts` | 当前账户投票页面状态 | 每账户每报告至多一条；本人可改/撤回；客户端不直写计数 |
 | 房产实勘与风险快照 | Property Inspection | `property_inspections` | `property_drafts` 与可选私有读缓存 | owner-only；软删除/恢复；风险快照显式采集且不静默覆盖 |
 | 房产照片元数据 | Property Inspection | `property_inspection_photos` | `property_photo_upload_queue` | owner-only；最多 20 张；封面/说明与 Storage 文件分开 |

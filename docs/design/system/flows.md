@@ -99,15 +99,16 @@
 
 1. 用户从入口或地图长按取得合法坐标，经 `SHELL-001` 打开表单；类型不预选，trim 后标题与类型必填。
 2. `HAZARD-001` 在线创建远端报告；成功后发布 created 结果，地图通过 `LOCATION-002` 刷新公开图层并可打开详情。
-3. authenticated 用户可分页/viewport 读取公开报告；本人可改 `pending/resolved`、编辑或删除自己的报告。
-4. 赞成/反对写本人唯一投票，撤回删除该行；显示计数只来自 `hazard_vote_counts`。
+3. authenticated 用户可分页/viewport 读取公开报告；本人可改自己的 `pending/resolved` 状态或删除自己的报告。创建提交前可修正表单输入；成功发布后内容、位置和上报时间不可编辑。
+4. 赞成/反对写本人唯一投票，撤回删除该行；显示计数只来自 authenticated 的受控
+   `hazard_vote_counts` RPC，且不返回投票者身份。
 
 | 分支 | 系统结果 | 用户恢复 |
 | --- | --- | --- |
 | 表单非法/范围外 | validation failure，不写远端 | 修正字段/位置 |
 | 写入网络失败 | retryable failure；首版不排队且不显示成功 | 保留安全表单状态并在线重试 |
 | 未认证 | `authentication required`；公共隐患在本产品仍限 authenticated | 登录后重试 |
-| 非作者编辑/删除 | permission failure，记录不改变 | 返回详情；不展示可执行作者操作 |
+| 非作者更新状态/删除，或作者修改已发布内容 | permission/contract failure，记录不改变 | 返回详情；不展示不允许的操作 |
 | 修改他人投票/直接计数 | permission/contract failure | 只允许本人投票动作 |
 | 图层分页失败 | 保留已成功页并标记不完整，不把缺页当无隐患 | 重试当前 viewport |
 | 报告被并发删除/改变 | conflict/not found，刷新详情和计数 | 返回图层或重新操作 |
@@ -137,7 +138,9 @@
 | 清空部分失败 | 未完成项留在回收站并列明；不报告全部成功 | 重试失败项；已删项幂等 |
 | 换号有待传文件 | barrier 删除旧账户草稿、queue 和本机文件；远端已上传对象保留 | 旧账户重新登录后从远端恢复已成功项 |
 
-风险附近隐患的半径/范围尚未由产品事实固定，`RISK-PROP-01` 在 Property owning design Ready 前必须由项目负责人解决；流程只要求同一固定口径随快照保存。
+`HAZARD-002` 固定按房产坐标 2,000m Haversine 圆形（`d <= 2,000m` 含边界）只计公开
+`pending` 报告；结果携带半径、统计时间和可用性，`resolved`、失败或 partial 不当 0。Property
+在两项风险输入完整时才随快照保存，具体运行时证据仍由 `RISK-PROP-01` 追踪。
 
 验收：`AT-PROP-01` 草稿/新增/编辑/重启；`AT-PROP-02` 20 张、封面、说明和离线上传；`AT-PROP-03` 风险创建/坐标变化/显式刷新/失败保留；`AT-PROP-04` 两账户隔离；`AT-PROP-05` 2–3 对比；`AT-PROP-06` 回收站恢复与部分失败清空。
 

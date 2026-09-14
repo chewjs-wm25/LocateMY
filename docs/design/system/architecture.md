@@ -90,7 +90,7 @@ Application Shell → Wave 4–7 Feature。配置失败停在不可重试启动�
 
 | 维度 | 系统约束 | 必须出现的验证证据 |
 | --- | --- | --- |
-| Security | 每个远端私有对象验证 owner allow、另一账户 deny、匿名 deny；公开隐患验证 authenticated read 与 author-only write；客户端无高权限密钥 | 数据库 policy 测试与 Storage policy 测试分别覆盖 select/insert/update/delete；构建产物秘密扫描无 service-role/数据库凭据 |
+| Security | 每个远端私有对象验证 owner allow、另一账户 deny、匿名 deny；公开隐患验证 authenticated read、author-only insert/delete 与仅自身状态更新，发布后内容不可变；客户端无高权限密钥 | 数据库 policy 测试与 Storage policy 测试分别覆盖 select/insert/update/delete；构建产物秘密扫描无 service-role/数据库凭据 |
 | Account isolation | 私有内存、SQLite、队列和文件先按账户分区再按当前 scope 读取；换号不继承 ViewModel 或待处理意图 | 注入两个账户与每个私有 Owner；切换前后逐项证明旧值不可读、不可同步，清理失败时主应用仍关闭 |
 | Offline | 读取优先使用仍有效或明确 stale 的缓存；只有收藏创建和照片待传使用已授权队列；编辑/删除及其他创建在线完成 | 飞行模式覆盖缓存命中/过期、收藏排队、照片待传、重复同步、进程重启与冲突；“已排队”从不显示“已创建” |
 | Internationalization | 中文与 English 覆盖同一页面、动态状态、来源、错误、复数与恢复动作；设备语言偏好跨重启且跨账户保留 | 两种 locale 运行完整流程清单；缺少 key 在测试失败，日期/数字/复数按 locale 呈现 |

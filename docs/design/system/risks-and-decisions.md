@@ -16,6 +16,7 @@
 | 周边设施归 Feature 所有并保留完整性分支 | `FAC-01` 与覆盖模型 | 空结果、未知和失败不会被同一个可空列表混淆 |
 | 当前设备退出经过 privacy barrier | `ACCOUNT-07`、数据保留边界 | 会话结束与本机清理都完成后才开放新登录；其他设备与远端记录不受影响 |
 | 公共设施缓存与语言偏好跨退出保留 | 已批准产品分类和数据边界 | 清理不会误删无账户数据；公共缓存不得夹带账户资料 |
+| 发布后隐患内容不可变 | 项目负责人 Q8 决定 | 创建前允许修正表单；发布后仅作者可更新自身 `pending/resolved` 状态或删除，内容/位置/上报时间不被任何角色修改 |
 
 这些约束是已批准产品事实在系统 seam 上的直接表达，尚未达到“难以逆转且经过真实技术取舍”的
 ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是否记录 ADR。
@@ -36,10 +37,11 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-COST-01` | Cost 的地点指数、个人预案与临时换算口径若未固定，会生成不一致的预算和适配度输入 | `COST-01`–`03`、`ACCOUNT-09` | 项目负责人已固定核心市场指数、个人预案、临时换算和 current 删除语义；完整契约见 [Cost owning design](../features/cost-of-living-and-budget.md) | Cost 实现/集成验证核心篮子缺失、CPI 缺失/不同月、删除最后一份及删除 current 后显式选择 | 设计决定已关闭；实现/集成验收保留证据 | 不再阻塞 Cost Ready；实现/集成验收阻塞 |
 | `RISK-SCHEMA-02` | `user_ici_preferences` 现有五个 0–1 权重与三项 1–10 产品契约冲突 | Infrastructure、Account Privacy、Suitability | Schema Catalog 明确目标字段和旧表仅作迁移来源；中性 ICI 不读账户权重 | 两账户迁移样本验证三项值、默认 5、旧 safety/amenity 不进入新对象 | Infrastructure Ready 前 | Feature Ready 阻塞 |
 | `RISK-PREF-01` | 评估偏好现有数据库默认 5 可能把“尚未设置”误判为已完成五项偏好 | Account、Suitability | Suitability 只接受 `ACCOUNT-001 complete snapshot`；表存在与完成语义由 owning design 明确 | 新账户无偏好、首次保存、部分旧记录与换号场景 | Account Center Ready 前 | 下游 Suitability Ready 阻塞 |
-| `RISK-PROP-01` | “附近隐患数”的半径/空间口径尚无权威数值 | Hazard、Property、风险快照 | `HAZARD-002` 要求固定口径和采集时间，但系统不虚构半径 | 项目负责人选择口径并更新产品事实；用边界内外报告验证 | Property Inspection Ready 前 | Feature Ready 阻塞 |
+| `RISK-PROP-01` | 风险快照若未把附近隐患数的固定空间口径与可用性一并保存，会使历史读数不可解释 | Hazard、Property、风险快照 | 项目负责人已固定：房产坐标 2,000m Haversine 圆形、`d <= 2,000m`、只计 public `pending`；`HAZARD-002` 回带半径、统计时间和可用性，失败/partial 不当 0 | 用边界内/外、恰 2,000m、pending/resolved 和失败/partial 情景验证；Property 验证随快照保存而非静默重算 | Property Inspection Ready 前 | Feature Ready 阻塞 |
 | `RISK-STORAGE-01` | Storage 文件上传与照片元数据写入不是原子操作，清空回收站也可能部分失败 | Property、Account Privacy | 显式队列、可重试不一致状态、owner path 与可证明孤儿补偿 | 注入上传/元数据/删除每一阶段失败和重启，验证无跨账户访问与不误报完成 | Property Inspection Ready 前 | Feature Ready 阻塞 |
 | `RISK-SYNC-01` | 收藏前台双向同步的幂等键、冲突和删除传播曾未精确定义 | Map、Account Privacy、跨设备恢复 | 项目负责人于 2026-09-14 决定：每次 create 使用同账户唯一客户端幂等键；Supabase 远端版本为冲突权威；在线删除写入可同步墓碑，旧缓存和晚到队列不得复活已删除收藏 | Map 实现/集成验收覆盖双设备创建/删除、重放、进程终止、晚到响应、墓碑传播与换号；migration 验证唯一键、版本与墓碑访问控制 | 设计决定已关闭；实现/集成验收保留证据 | 不再阻塞 Map Ready；实现/集成验收阻塞 |
-| `RISK-HAZARD-01` | 现有 `hazard_vote_counts` 在只允许读取本人投票的 RLS 下无法产生全部用户的公开计数 | Hazard 投票、详情与图层 | Schema Catalog 将聚合对象退回 proposed；公开契约只暴露计数，不暴露投票者身份 | 两账户投票后，两者读取相同总计数且不能枚举他人投票；匿名仍拒绝 | Hazard Reporting Ready 前 | Feature Ready 阻塞 |
+| `RISK-HAZARD-01` | 全局投票计数若绕过本人 vote RLS 或暴露投票者身份，会泄露账户行为 | Hazard 投票、详情与图层 | 项目负责人已选受控 `SECURITY DEFINER` RPC：固定空/安全 `search_path`、RPC 内验证 authenticated 调用者、撤销默认及 anon execute，只返回 `hazard_id/upvotes/downvotes`；底层 vote 继续本人可读写 | 两账户写不同票后读取相同计数；任一账户不能枚举他人票；anon、无效调用者和 search-path 注入均被拒绝 | Hazard Reporting 实现/集成验收 | 不再阻塞 Hazard Ready；实现/集成验收阻塞 |
+| `RISK-HAZARD-02` | 现有 author-update policy 若允许发布后改写报告内容，会破坏公共报告的不可变性 | Hazard 报告、图层、详情与风险计数 | 项目负责人 Q8 已固定发布后仅作者可更新自身 `pending/resolved`；Schema Catalog 将对象退回 proposed，要求 migration 收紧 update policy | 作者状态更新成功；作者改 type/title/description/location/report time、非作者更新和任何维护者更新均被拒绝；成功状态更新在详情/列表/图层一致可见 | Hazard Reporting 实现/集成验收 | 不再阻塞 Hazard Ready；实现/集成验收阻塞 |
 | `RISK-PROPERTY-01` | 现有实勘允许空地点，照片元数据与 Storage 的部分写/删 policy 只校验路径或行 owner，未完整绑定父实勘 owner | Property、风险快照、照片、回收站 | Schema Catalog 将三个对象退回 proposed 并要求父对象所有权和必需地点 | 尝试跨账户 inspection id 重绑/读写删照片；无地点实勘；回收站清空故障注入 | Property Inspection Ready 前 | Feature Ready 阻塞 |
 | `RISK-NFR-01` | 当前仓库尚无 SQLite、文件、本地化、地图和网络最小依赖，非功能约束未有可执行证据 | 全系统 | architecture 固定责任和测试证据，不提前选择具体包版本；Application Shell 已冻结本地化和可访问性的可观察契约 | 实现者锁版本后跑依赖审查、两 locale 流程、离线/性能/可访问性测试 | Application Shell Ready 前完成契约审查；运行时证据在其实现/集成验收关闭；其余 Wave 1–4 Owner 仍在各自 Ready 前逐项关闭 | 非 Baseline 阻塞；Application Shell 实现/集成及其他对应 Feature Ready 阻塞 |
 
@@ -60,9 +62,10 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-GEO-02` | Geographic Context | 保留至 Geographic Context Ready |
 | `RISK-SCHEMA-02` | Infrastructure Coverage | 保留至 Infrastructure Ready |
 | `RISK-PREF-01` | Account Center | 保留至 Account Center Ready |
-| `RISK-PROP-01`、`RISK-STORAGE-01`、`RISK-PROPERTY-01` | Property Inspection（`RISK-PROP-01` 的口径决定仍由项目负责人批准） | 保留至 Property Ready |
+| `RISK-PROP-01`、`RISK-STORAGE-01`、`RISK-PROPERTY-01` | Property Inspection（`RISK-PROP-01` 的 2,000m pending-only 口径已由项目负责人批准） | 保留至 Property Ready；风险快照保存及运行时证据仍待验证 |
 | `RISK-SYNC-01` | Map / Location | 项目负责人已固定客户端幂等、远端版本权威与删除墓碑传播；双设备/重放/换号证据留 Map 实现/集成验收 |
-| `RISK-HAZARD-01` | Hazard Reporting | 保留至 Hazard Ready |
+| `RISK-HAZARD-01` | Hazard Reporting | 项目负责人已选安全 RPC 契约；两账户、匿名和安全 search-path 运行时证据留实现/集成验收 |
+| `RISK-HAZARD-02` | Hazard Reporting | 项目负责人 Q8 已固定发布后内容不可变；status-only update migration 与权限/一致性证据留实现/集成验收 |
 | `RISK-NFR-01` | 各相关 owning Feature；Application Shell 汇总 | Application Shell 已于 2026-09-14 完成门控、语言和可访问性契约审查并进入 Ready；运行时依赖/两 locale/可访问性证据留在其实现与集成验收。其余 Wave 1–4 owning design 仍逐项关闭。 |
 
 上表为责任与 Gate disposition；风险内容、影响、验证方式和最迟关闭点仍只在主表定义。
