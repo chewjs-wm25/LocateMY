@@ -28,7 +28,7 @@ canonical: true
 - 账户两条 Saved Comparisons（`ACCOUNT-05`，`excluded`）。
 - 账户 My Comments 与 Liked Areas（`ACCOUNT-06`，`excluded`）。
 - 周边设施条目右箭头与“其他 N 个地点”（`FAC-02`，`excluded`）。
-- 治安页 `and N more properties...` 文本（实现缺陷，须移除）。
+- 治安页的任何最近房产预览、逐行详情或 `and N more properties...` 文本（实现缺陷，须移除；只保留 Portfolio/新增房产导航）。
 
 ## 只改变外观、不影响业务
 

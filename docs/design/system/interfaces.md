@@ -18,7 +18,7 @@
 | `HOME-001` | Home & Relocation Outlook | Application Shell | 全国搬家时机、宏观卡与刷新状态 | `Ready for Development` | [Home & Relocation Outlook](../features/home-and-relocation-outlook.md) |
 | `COST-001` | Cost of Living & Budget | Application Shell；Personalized Location Suitability | 地点成本、个人预算压力与临时 CPI 等效换算 | `Ready for Development` | [Cost of Living & Budget](../features/cost-of-living-and-budget.md) |
 | `COST-002` | Cost of Living & Budget | Account Center；Socio-economic；Personalized Location Suitability；Application Shell | 预算预案及 current/无 current 的变化事实 | `Ready for Development` | [Cost of Living & Budget](../features/cost-of-living-and-budget.md) |
-| `SAFETY-001` | Crime & Security | Application Shell；Property Inspection；Personalized Location Suitability | 州级安全结果与趋势 | `Draft` | [责任卡](feature-map.md#fm-safety) |
+| `SAFETY-001` | Crime & Security | Application Shell；Property Inspection；Personalized Location Suitability | 州级安全结果与趋势 | `Ready for Development` | [Crime & Security](../features/crime-and-security.md) |
 | `FACILITY-001` | Nearby Facilities | Application Shell；Map / Location 摘要；Personalized Location Suitability | 2 公里五类 OSM 覆盖结果 | `Ready for Development` | [Nearby Facilities](../features/nearby-facilities.md) |
 | `TRANSIT-001` | Public Transportation | Application Shell；Infrastructure Coverage；Personalized Location Suitability | 站点、有效路线、连通性分与局部选择 | `Draft` | [责任卡](feature-map.md#fm-transit) |
 | `HAZARD-001` | Hazard Reporting | Application Shell；Map / Location；Account Center | 发布后内容不可变的公共隐患、作者状态/删除与账户投票 | `Ready for Development` | [Hazard Reporting](../features/hazard-reporting.md) |

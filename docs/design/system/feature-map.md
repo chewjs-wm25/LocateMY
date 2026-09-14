@@ -261,7 +261,7 @@ Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下
 | `D08` | Map / Location → Cost of Living & Budget | 成本分析只接收合法不可变地点或 A/B 引用 |
 | `D09` | Geographic Context → Cost of Living & Budget | 地点到 PriceCatcher 行政区语境的解析先于数据查询 |
 | `D10` | Account Privacy → Cost of Living & Budget | 预案与当前选择的本机状态必须隔离和清理 |
-| `D11` | Application Shell → Crime & Security | 分析导航、返回地图和图层贡献使用 Shell Interface |
+| `D11` | Application Shell → Crime & Security | 分析导航与返回地图使用 Shell Interface |
 | `D12` | Map / Location → Crime & Security | 治安结果绑定合法不可变地点 |
 | `D13` | Geographic Context → Crime & Security | 州解析与失败语义先于安全模型 |
 | `D14` | Application Shell → Nearby Facilities | 分析导航和摘要组合使用 Shell Interface |
