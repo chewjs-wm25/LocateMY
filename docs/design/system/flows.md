@@ -149,7 +149,7 @@
 
 ### 成功顺序
 
-1. Account Center 通过 `ACCOUNT-001` 保存五项 `1–10` 评估偏好；Cost 通过 `COST-002` 保存预算预案并发布 current 或无 current 的事实（完整预案语义见其 owning design）。
+1. Account Center 通过 `ACCOUNT-001` 保存五项 `1–10` 评估偏好；Cost 通过 `COST-002` 保存预算预案并发布 current 或无 current 的事实。预案的月净收入只供预算压力，家庭月度总收入只供 Socio 收入位置（完整字段语义见其 owning design）。
 2. 成功写入后发布带版本的变化事实；Shell 使当前账户相关地点摘要/A-B 适配度请求失效并重新组合。
 3. `SUITABILITY-001` 读取 `ACCOUNT-001` 的同一账户 complete preference snapshot、`COST-002` 的 current 预案语境，以及同一地点的 Safety、个人预算压力、Facilities、Transit 和中性 ICI。
 4. 全部中/高优先级维度可用时计算；低优先级缺失可排除并说明；A/B 只有两端均可算时并列。

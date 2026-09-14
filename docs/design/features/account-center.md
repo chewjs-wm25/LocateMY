@@ -59,7 +59,7 @@
 | 打开账户中心 | 组合真实邮箱、验证状态、已配置偏好或设置入口、current 预案摘要和业务入口 | 任一来源不可用时其他独立内容可保留；未知验证、未配置偏好、无 current 和失败分别说明 | 不显示固定姓名/邮箱/验证徽章或演示统计；状态、错误和操作不只依赖颜色。 |
 | 首次确认五项偏好 | 全部有效值经远端成功保存后显示已配置快照，并使同账户 Suitability 请求失效 | 表单可用预填 `5`，但在成功确认前明确为未配置；验证、权限、冲突或网络失败保留最后已保存事实，不发布变化 | 五项有名称、当前值、范围和低/中/高文字说明；可通过辅助技术逐项操作并理解一次确认结果。 |
 | 修改已配置偏好或跨设备恢复 | 成功修改发布新版本；另一设备/重启按远端 complete snapshot 恢复 | `configured_at` 为 null 的旧行仍为未配置；读取或保存失败不使用草稿/旧账户值冒充已保存快照 | 不猜测旧默认行曾获确认；换号后仅显示新账户远端状态。 |
-| 查看当前评估预案并进入管理 | 显示 Cost 所给 current 的名称、额外生活开销（RM/月）、住房、交通、月净收入及缺失值，或清晰的无 current；accepted 后进入预算 Owner 的管理任务并能返回账户 | Cost unavailable 或 Shell rejected 时保留原因与重试/返回路径 | 摘要不是 Account 的副本；不把无 current 自动替换为其他预案，且严格使用 Cost 所定义的字段术语。 |
+| 查看当前评估预案并进入管理 | 显示 Cost 所给 current 的名称、额外生活开销（RM/月）、住房、交通、月净收入、家庭月度总收入及缺失值，或清晰的无 current；accepted 后进入预算 Owner 的管理任务并能返回账户 | Cost unavailable 或 Shell rejected 时保留原因与重试/返回路径 | 摘要不是 Account 的副本；两种收入的用途与缺失状态分开说明，不把无 current 自动替换为其他预案，且严格使用 Cost 所定义的字段术语。 |
 | 进入房产档案或本人隐患报告 | Shell accepted 后进入目标 Feature，返回账户任务语境 | 目标尚未组合、范围变化或目的地不适用时 rejected；不读取/展示目标数据 | 房产与隐患的数据、权限、加载及空态由各 Owner 呈现；入口有可访问名称。 |
 | 请求退出并确认 | 向 Shell 提交退出意图；完成后由 Shell/`AUTH-001`/`PRIVACY-001` 回到登录入口 | 取消保持当前账户；任一阶段失败进入无私有内容的清理恢复态 | Account Center 不声明退出成功，也不结束其他设备会话；关闭起旧账户组合不可再见。 |
 
@@ -81,7 +81,7 @@
 | `ACCOUNT-01` | 已验证、未验证、验证未知及 Auth 读取失败 | 打开账户中心 | 仅显示真实邮箱和 Auth 确认事实；未知有明确状态，不显示固定 verified。 |
 | `ACCOUNT-02` | 房产/本人隐患目标可用、未组合、被门控拒绝及返回 | 选择两个业务入口 | accepted 时交给目标 Owner 并可返回；rejected 保留原因，不显示目标 fixture 或泄露数据。 |
 | `ACCOUNT-08` | 新账户、首次完整五项确认、任一无效值、远端写失败、已配置后修改、旧默认行、跨设备恢复与两账户切换 | 查看、确认或修改偏好 | 未配置不输入 Suitability；成功完整确认才发布跨设备 complete snapshot；失败不发布；旧行保持未配置；A 的状态不进入 B。 |
-| `ACCOUNT-09` 入口 | current、无 current、摘要字段缺失、Cost unavailable 与 Shell rejected | 查看预案行并进入管理 | 精确呈现 Cost 提供的名称、额外生活开销、住房、交通、月净收入及缺失；无 current 仍有管理入口；拒绝/不可用保留原因且不创建/选择预案。 |
+| `ACCOUNT-09` 入口 | current、无 current、摘要字段缺失、Cost unavailable 与 Shell rejected | 查看预案行并进入管理 | 精确呈现 Cost 提供的名称、额外生活开销、住房、交通、月净收入、家庭月度总收入及缺失；月净收入只用于预算压力，家庭月度总收入只用于 Socio 收入位置；无 current 仍有管理入口；拒绝/不可用保留原因且不创建/选择预案。 |
 | `ACCOUNT-07` 入口 | 确认、取消、Auth 会话结束失败、Privacy 关闭失败和 Shell 协调失败 | 请求退出 | 取消保持当前账户；确认后 Account 不再显示私有组合；只有 Shell 协调 Auth 与 Privacy 全部成功才到登录，任一失败显示无私有内容的恢复态。 |
 | `ACCOUNT-01`–`08` | 中文/English、屏幕阅读器、键盘/替代输入、200% 字体、长邮箱和错误状态 | 浏览账户页并完成主要动作 | 同一功能和状态有完整文字、可访问名称和可理解顺序；长内容不遮挡主要操作，信息不只由颜色或图标传达。 |
 
@@ -89,7 +89,7 @@
 - [x] Auth、退出、预算预案、ICI 权重、语言和目标数据仍属于原 Owner。
 - [x] `configured_at` 的完整语义、既有行处理和迁移方向已由项目负责人 Q13 固定，并在知识库、Schema Catalog、数据所有权和风险记录同步。
 - [x] `RISK-PREF-01` 的独立 Standards/Spec 双轴审查及 migration 方向复核已完成。
-- [x] 设计 AI 已依 ADR 0013 批准 `Ready for Development`。
+- [x] Q18 的 current 预案摘要字段与 Cost/Socio 影响已完成独立 Standards/Spec 双轴规格与边界复审；家庭月度总收入和月净收入分别显示缺失且不可互相替代。
 
 ## 7. Change Log
 
@@ -100,3 +100,5 @@
 | 2026-09-14 | `Draft` | 双轴审查修复：账户入口只经 Shell 导航；Suitability 只消费 `ACCOUNT-001`；预案摘要回指 Cost 的已冻结字段 | `ACCOUNT-001`、`COST-002`、`SHELL-001`、`ACCOUNT-02`、`ACCOUNT-08`、D35–D38、D41 | 待复审 |
 | 2026-09-14 | `Draft` | 标准审查移除 Account 对认证底表的错误读取路径，真实身份资料只来自 `AUTH-001` | `ACCOUNT-01`、`AUTH-001`、`auth.users`、`profiles`、D36 | 待复审 |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `ACCOUNT-01`、`ACCOUNT-02`、`ACCOUNT-08`、`ACCOUNT-001`、D35–D38、D41 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Draft` | 项目负责人 Q18 批准 current 摘要新增家庭月度总收入；它与月净收入分别服务 Socio 收入位置和预算压力，等待影响复审 | `ACCOUNT-09`、`COST-002`、`user_budget_scenarios`、Socio-economic | 项目负责人 |
+| 2026-09-14 | `Ready for Development` | Q18 current 摘要与 Cost/Socio 边界的独立 Standards/Spec 双轴影响复审通过；恢复 Ready，migration 与旧资料处理仍为实现 Gate | `ACCOUNT-09`、`COST-002`、`ACCOUNT-001`、`user_budget_scenarios`、Socio-economic | 设计 AI（项目负责人授权） |

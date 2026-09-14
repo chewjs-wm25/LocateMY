@@ -23,7 +23,7 @@
 | `TRANSIT-001` | Public Transportation | Application Shell；Infrastructure Coverage；Personalized Location Suitability | 站点/有效路线聚合、连通性分及资料状态 | `Ready for Development` | [Public Transportation](../features/public-transportation.md) |
 | `HAZARD-001` | Hazard Reporting | Application Shell；Map / Location | 发布后内容不可变的公共隐患、作者状态/删除与账户投票 | `Ready for Development` | [Hazard Reporting](../features/hazard-reporting.md) |
 | `HAZARD-002` | Hazard Reporting | Property Inspection | 风险快照的附近公共隐患数 | `Ready for Development` | [Hazard Reporting](../features/hazard-reporting.md) |
-| `SOCIO-001` | Socio-economic | Application Shell | 收入、结构、基尼、分布和收入位置 | `Draft` | [责任卡](feature-map.md#fm-socio) |
+| `SOCIO-001` | Socio-economic | Application Shell | 收入、结构、基尼、分布和收入位置 | `Ready for Development` | [Socio-economic](../features/socio-economic.md) |
 | `INFRA-001` | Infrastructure Coverage | Application Shell；Personalized Location Suitability | 账户权重与中性 ICI | `Ready for Development` | [Infrastructure Coverage](../features/infrastructure-coverage.md) |
 | `PROPERTY-001` | Property Inspection | Application Shell | 实勘、照片、比较、回收站与风险快照 | `Ready for Development` | [Property Inspection](../features/property-inspection.md) |
 | `ACCOUNT-001` | Account Center | Application Shell；Personalized Location Suitability | 账户评估偏好快照/变化与账户页意图 | `Ready for Development` | [Account Center](../features/account-center.md) |

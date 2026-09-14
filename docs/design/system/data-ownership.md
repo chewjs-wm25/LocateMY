@@ -29,7 +29,7 @@
 | --- | --- | --- | --- | --- |
 | 注册资料 | Authentication & Session | `profiles` | 仅页面内存 | owner-only；认证邮箱/确认状态仍来自 Auth，不复制进 profile；Account Center 只经 `AUTH-001` 消费真实认证资料 |
 | 收藏地点 | Map / Location | `user_saved_locations` | `saved_location_cache`、`saved_location_create_queue` | owner-only；前台双向同步；删除只在线并向本机传播 |
-| 预算预案与当前评估预案 | Cost of Living & Budget | `user_budget_scenarios` | 系统基线不建立本机副本 | owner-only；每账户至多一份 current；后续若需副本须先登记 Schema Catalog |
+| 预算预案与当前评估预案 | Cost of Living & Budget | `user_budget_scenarios` | 系统基线不建立本机副本 | owner-only；每账户至多一份 current；月净收入仅供预算压力、家庭月度总收入仅供 Socio 收入位置，均可缺失且不互代；后续若需副本须先登记 Schema Catalog |
 | 评估偏好 | Account Center | `user_assessment_preferences` | 系统基线不建立本机副本 | owner-only；只有 `configured_at` 非空的完整五项 `1–10` 快照可供 Suitability 使用；未配置的预填 `5` 不作为输入；后续若需副本须先登记 Schema Catalog |
 | ICI 权重 | Infrastructure Coverage | `user_ici_preferences` | `STATE-INFRA-WEIGHT-PREVIEW` 仅页面内存 | owner-only；远端为 last saved 医疗/教育/交通权重，缺省语义为 5；preview 不跨设备且与评估偏好不同 |
 | 隐患报告 | Hazard Reporting | `crowdsourced_hazards` | 页面/去身份公共读缓存（若建立） | authenticated 可读；author-only insert/delete 与自身状态更新；发布后内容/位置/上报时间不可变；`pending/resolved`；无审核者例外 |
