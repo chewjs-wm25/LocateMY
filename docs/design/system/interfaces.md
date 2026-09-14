@@ -25,7 +25,7 @@
 | `HAZARD-002` | Hazard Reporting | Property Inspection | 风险快照的附近公共隐患数 | `Ready for Development` | [Hazard Reporting](../features/hazard-reporting.md) |
 | `SOCIO-001` | Socio-economic | Application Shell | 收入、结构、基尼、分布和收入位置 | `Draft` | [责任卡](feature-map.md#fm-socio) |
 | `INFRA-001` | Infrastructure Coverage | Application Shell；Personalized Location Suitability | 账户权重与中性 ICI | `Draft` | [责任卡](feature-map.md#fm-infra) |
-| `PROPERTY-001` | Property Inspection | Application Shell | 实勘、照片、比较、回收站与风险快照 | `Draft` | [责任卡](feature-map.md#fm-property) |
+| `PROPERTY-001` | Property Inspection | Application Shell | 实勘、照片、比较、回收站与风险快照 | `Ready for Development` | [Property Inspection](../features/property-inspection.md) |
 | `ACCOUNT-001` | Account Center | Application Shell；Personalized Location Suitability | 账户评估偏好快照/变化与账户页意图 | `Ready for Development` | [Account Center](../features/account-center.md) |
 | `SUITABILITY-001` | Personalized Location Suitability | Application Shell | 五维输入的个人化地点适配度 | `Draft` | [责任卡](feature-map.md#fm-suitability) |
 

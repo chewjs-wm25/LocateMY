@@ -38,8 +38,8 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-TRANSIT-01` | 任一预期 GTFS feed 的旧快照、缺失、失败或超服务日期范围若被混成无服务或完整结果，会把未知路线伪装为交通覆盖 | `TRANSIT-001`、`INFRA-01`、Suitability transit dimension | 项目负责人于 2026-09-14 固定 per-feed usable/stale/missing/failed/out-of-service-range，availability 仅为 available/incomplete/unavailable，且仅 available 有 served/no_stops/no_active_routes；实际使用 stale feed 仅附 warning | Transit 实现/集成验证第 30 天、超过 30 天、可解析/不可解析、分析日边界内/外、部分 feed、零站/零路线及 Infrastructure 同结果复用 | 设计决定已关闭；实现/集成验收保留证据 | 不再阻塞 Transit Ready；实现/集成验收阻塞 |
 | `RISK-SCHEMA-02` | `user_ici_preferences` 现有五个 0–1 权重与三项 1–10 产品契约冲突 | Infrastructure、Account Privacy、Suitability | Schema Catalog 明确目标字段和旧表仅作迁移来源；中性 ICI 不读账户权重 | 两账户迁移样本验证三项值、默认 5、旧 safety/amenity 不进入新对象 | Infrastructure Ready 前 | Feature Ready 阻塞 |
 | `RISK-PREF-01` | 评估偏好现有数据库默认 5 可能把“尚未设置”误判为已完成五项偏好 | Account、Suitability | 项目负责人 Q13 固定 nullable `configured_at`：null 的默认 5 只预填；一次成功确认完整五项才写入并发布 `ACCOUNT-001 complete snapshot`；后续修改保留；旧记录保持 null，不猜测升级 | 验证新账户、首次完整确认、写入失败、旧默认记录、跨设备恢复和换号；migration 证明新增列与旧记录为 null | Account Center Ready 前 | 下游 Suitability Ready 阻塞 |
-| `RISK-PROP-01` | 风险快照若未把附近隐患数的固定空间口径与可用性一并保存，会使历史读数不可解释 | Hazard、Property、风险快照 | 项目负责人已固定：房产坐标 2,000m Haversine 圆形、`d <= 2,000m`、只计 public `pending`；`HAZARD-002` 回带半径、统计时间和可用性，失败/partial 不当 0 | 用边界内/外、恰 2,000m、pending/resolved 和失败/partial 情景验证；Property 验证随快照保存而非静默重算 | Property Inspection Ready 前 | Feature Ready 阻塞 |
-| `RISK-STORAGE-01` | Storage 文件上传与照片元数据写入不是原子操作，清空回收站也可能部分失败 | Property、Account Privacy | 显式队列、可重试不一致状态、owner path 与可证明孤儿补偿 | 注入上传/元数据/删除每一阶段失败和重启，验证无跨账户访问与不误报完成 | Property Inspection Ready 前 | Feature Ready 阻塞 |
+| `RISK-PROP-01` | 风险快照若未把附近隐患数的固定空间口径与可用性一并保存，会使历史读数不可解释 | Hazard、Property、风险快照 | 项目负责人 Q14 固定：Schema Catalog 中的原子风险快照组只在同一坐标的 `SAFETY-001` 与 `HAZARD-002` 均完整 `available` 时整体 create/replace；失败/partial 不写新组并保留旧组，本次失败只作为操作结果。附近数口径仍由 `HAZARD-002` 唯一规定 | 用边界内/外、恰 2,000m、pending/resolved、完整/partial/失败、旧组保留与显式刷新情景验证；Property 验证随快照整体保存而非静默重算 | Property Inspection Ready 前 | Feature Ready 阻塞 |
+| `RISK-STORAGE-01` | 草稿照片转换、Storage 文件上传与照片元数据写入不是原子操作，清空回收站也可能部分失败 | Property、Account Privacy | `property_draft_photos` 以 account/draft 隔离并跨重启保留；仅 inspection 远端创建成功才整体转换为正式待传项，失败保留草稿照片重试；待传/Storage 继续使用可重试不一致状态与可证明孤儿补偿 | 注入草稿转换、上传/元数据/删除每一阶段失败和重启，验证无跨账户访问、不重复冒充已发布且不误报完成 | Property Inspection Ready 前 | Feature Ready 阻塞 |
 | `RISK-SYNC-01` | 收藏前台双向同步的幂等键、冲突和删除传播曾未精确定义 | Map、Account Privacy、跨设备恢复 | 项目负责人于 2026-09-14 决定：每次 create 使用同账户唯一客户端幂等键；Supabase 远端版本为冲突权威；在线删除写入可同步墓碑，旧缓存和晚到队列不得复活已删除收藏 | Map 实现/集成验收覆盖双设备创建/删除、重放、进程终止、晚到响应、墓碑传播与换号；migration 验证唯一键、版本与墓碑访问控制 | 设计决定已关闭；实现/集成验收保留证据 | 不再阻塞 Map Ready；实现/集成验收阻塞 |
 | `RISK-HAZARD-01` | 全局投票计数若绕过本人 vote RLS 或暴露投票者身份，会泄露账户行为 | Hazard 投票、详情与图层 | 项目负责人已选受控 `SECURITY DEFINER` RPC：固定空/安全 `search_path`、RPC 内验证 authenticated 调用者、撤销默认及 anon execute，只返回 `hazard_id/upvotes/downvotes`；底层 vote 继续本人可读写 | 两账户写不同票后读取相同计数；任一账户不能枚举他人票；anon、无效调用者和 search-path 注入均被拒绝 | Hazard Reporting 实现/集成验收 | 不再阻塞 Hazard Ready；实现/集成验收阻塞 |
 | `RISK-HAZARD-02` | 现有 author-update policy 若允许发布后改写报告内容，会破坏公共报告的不可变性 | Hazard 报告、图层、详情与风险计数 | 项目负责人 Q8 已固定发布后仅作者可更新自身 `pending/resolved`；Schema Catalog 将对象退回 proposed，要求 migration 收紧 update policy | 作者状态更新成功；作者改 type/title/description/location/report time、非作者更新和任何维护者更新均被拒绝；成功状态更新在详情/列表/图层一致可见 | Hazard Reporting 实现/集成验收 | 不再阻塞 Hazard Ready；实现/集成验收阻塞 |
@@ -113,7 +113,7 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 
 - Issue #4 已覆盖系统 Interface、数据 Owner、技术架构、非功能约束与跨 Feature 流程；跨 Owner
   可观察语义在 owning design 完成，Adapter、migration 和测试实现仍由 Owner/学生实现。
-- 离线写只授权收藏 create queue、房产草稿和照片待传；其他业务创建、编辑和删除保持在线，不能从
+- 离线写只授权收藏 create queue、房产草稿、`property_draft_photos` 与 `property_photo_upload_queue`；其他业务创建、编辑和删除保持在线，不能从
   通用 privacy barrier 或 SQLite 的存在推导离线能力。
 - Capability 全量追踪与独立系统审查已由 Issue #5 完成；项目负责人已于 2026-09-13 批准
   `5d11769` 为 `Baselined`。后续风险按各 owning design 的 Ready Gate 关闭。

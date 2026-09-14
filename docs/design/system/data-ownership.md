@@ -33,9 +33,10 @@
 | ICI 权重 | Infrastructure Coverage | `user_ici_preferences` | 系统基线不建立本机副本 | owner-only；医疗/教育/交通，缺省语义为 5；与评估偏好不同 |
 | 隐患报告 | Hazard Reporting | `crowdsourced_hazards` | 页面/去身份公共读缓存（若建立） | authenticated 可读；author-only insert/delete 与自身状态更新；发布后内容/位置/上报时间不可变；`pending/resolved`；无审核者例外 |
 | 隐患投票 | Hazard Reporting | `crowdsourced_hazard_votes`；计数来自 `hazard_vote_counts` | 当前账户投票页面状态 | 每账户每报告至多一条；本人可改/撤回；客户端不直写计数 |
-| 房产实勘与风险快照 | Property Inspection | `property_inspections` | `property_drafts` 与可选私有读缓存 | owner-only；软删除/恢复；风险快照显式采集且不静默覆盖 |
-| 房产照片元数据 | Property Inspection | `property_inspection_photos` | `property_photo_upload_queue` | owner-only；最多 20 张；封面/说明与 Storage 文件分开 |
-| 房产照片文件 | Property Inspection | `inspection-photos` Storage bucket | 应用数据目录中的待传副本 | owner-only；上传成功后可删本机副本；清空回收站永久删除 |
+| 房产实勘与风险快照 | Property Inspection | `property_inspections` | `property_drafts` 与可选私有读缓存 | owner-only；软删除/恢复；风险快照按 Schema Catalog 的原子字段组显式采集且不静默覆盖；仅两项完整风险输入可整体 create/replace |
+| 房产草稿照片 | Property Inspection | 无远端权威对象 | `property_draft_photos` 与应用数据目录本机副本 | account/draft 绑定、跨重启可续填；远端 inspection 成功后才转换为正式待传照片，全部转换前保留草稿照片；退出清除 |
+| 房产照片元数据 | Property Inspection | `property_inspection_photos` | `property_photo_upload_queue` | owner-only；最多 20 张；封面/说明与 Storage 文件分开；只在已有同账户远端 inspection 后进入待传队列 |
+| 房产照片文件 | Property Inspection | `inspection-photos` Storage bucket | 应用数据目录中的草稿/待传副本 | owner-only；上传成功后可删本机副本；清空回收站永久删除 |
 
 ## 公共资料、镜像与缓存
 
@@ -57,11 +58,11 @@
 | 介质 | 允许内容 | 禁止成为 | Owner/清理 |
 | --- | --- | --- | --- |
 | SQLite 公共分区 | 上表列明的公共分析缓存、资料日期、版本和完整性 | 用户业务记录的权威来源；账户兴趣画像 | 各分析 Feature 独占 namespace/TTL；退出保留 |
-| SQLite 私有分区 | 收藏缓存/创建队列、可选预案/偏好副本、房产草稿、照片待传队列 | 跨账户共享缓存；通用队列 Owner | 各业务 Feature 独占 payload；Account Privacy 汇总清理 |
-| 应用数据文件目录 | 压缩后的房产照片待传副本 | 相册原件、永久照片权威、公开文件 | Property Inspection；上传成功可删，退出未同步副本必须清除 |
+| SQLite 私有分区 | 收藏缓存/创建队列、可选预案/偏好副本、房产草稿/草稿照片、照片待传队列 | 跨账户共享缓存；通用队列 Owner | 各业务 Feature 独占 payload；Account Privacy 汇总清理 |
+| 应用数据文件目录 | 压缩后的房产草稿照片与待传副本 | 相册原件、永久照片权威、公开文件 | Property Inspection；草稿转换或上传成功后按其生命周期清理，退出所有未同步副本必须清除 |
 | 键值存储 | 语言、小型无身份 UI 偏好、公共缓存数据集日期 | token 的自建副本、业务表、队列或自由文字 | Application Shell/相应公共缓存 Owner；语言退出保留 |
 
-首版离线写仅包括收藏地点创建队列和房产照片待传。收藏编辑/删除、隐患写、预案/偏好/ICI 权重写、房产记录的远端创建/编辑/删除均需在线；房产草稿可离线保存但不等于远端实勘已创建。
+首版离线写仅包括收藏地点创建队列、房产草稿照片与房产照片待传。收藏编辑/删除、隐患写、预案/偏好/ICI 权重写、房产记录的远端创建/编辑/删除均需在线；房产草稿及草稿照片可离线保存但不等于远端实勘或照片已发布。
 
 ## Privacy barrier 参与者清单
 
@@ -73,7 +74,7 @@
 | Cost of Living & Budget | 预案内存选择及任何私有副本 | Cost 公共缓存 |
 | Infrastructure Coverage | 账户 ICI 权重内存/副本 | 公共分项缓存 |
 | Hazard Reporting | 本人/投票私有视图状态与未完成请求 | 完全去身份的公共隐患读缓存 |
-| Property Inspection | 草稿、私有副本、比较选择、待传队列与文件 | 无 |
+| Property Inspection | 草稿、草稿照片、本机副本、比较选择、待传队列与文件 | 无 |
 | Account Center | 评估偏好内存/副本、账户页组合状态 | 无 |
 
 每项清理以不可变旧账户 ID 为目标并可重复执行。任何参与者失败时，`STATE-ACCOUNT-SCOPE` 保持关闭，已清理项不恢复，新登录入口保持阻断；用户可重试失败 Owner。Supabase 记录不会因退出而删除。
