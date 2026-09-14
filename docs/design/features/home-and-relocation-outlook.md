@@ -1,7 +1,7 @@
 # Home & Relocation Outlook
 
 > 状态：`Ready for Development`
-> Owner：`待项目负责人统一分配`
+> Owner：`A`
 > 系统基线：`5d11769`
 > 依赖波次：`4`
 > 最后更新：`2026-09-14`

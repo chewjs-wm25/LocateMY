@@ -1,7 +1,7 @@
 # Property Inspection
 
 > 状态：`Ready for Development`
-> Owner：`待项目负责人分配（实现学生分配不阻碍设计 Ready）`
+> Owner：`B`
 > 系统基线：`5d11769`
 > 依赖波次：`6`
 > 最后更新：`2026-09-14`

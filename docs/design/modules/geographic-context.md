@@ -1,7 +1,7 @@
 # Geographic Context
 
 > 状态：`Ready for Development`
-> Owner：`待项目负责人分配（实现学生分配不阻碍设计 Ready）`
+> Owner：`B`
 > 系统基线：`5d11769`
 > 消费 Feature：Cost of Living & Budget；Crime & Security；Socio-economic；Infrastructure Coverage
 > 最后更新：2026-09-14

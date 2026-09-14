@@ -38,7 +38,10 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 - **设计 AI**：提出和编辑设计、生成上下文包与工作包、执行审查，并依 ADR 0013 在独立审查
   完成后批准 remaining owning designs 的 `Ready for Development`。
 
-实现 Owner 在全部 owning design 完成后由项目负责人统一分配；实现 Owner 尚未指定不阻碍设计 AI 依 ADR 0013 批准某份设计进入 `Ready for Development`。在分配前，Ready 设计仍只冻结协调契约，不生成或派发人类工作包。
+Owner 字段中的 `A` 代表项目负责人本人，`B` 代表另一名组员；该别名只用于人员归属，正文中的
+地点 A/B 仍表示两地比较角色。
+
+实现 Owner 在全部 owning design 完成后由项目负责人统一分配；当前 owning design 已由项目负责人以 A、B 完成分配。Owner 分配不改变已冻结的协调契约；人类工作包仍须按锁定版本生成并经 Development Release 才能派发。
 
 ## 交付节奏
 
@@ -80,19 +83,19 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | 类型 | 名称 | 状态 | Owner | 依赖波次 | 文档 |
 | --- | --- | --- | --- | --- | --- |
 | System | LocateMY | `Baselined` (`5d11769`) | 项目负责人 | N/A | [系统设计入口](system/README.md) |
-| Feature | Authentication & Session | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 1 | [实施设计](features/authentication-and-session.md) |
-| Module | Geographic Context | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 1 | [实施设计](modules/geographic-context.md) |
-| Module | Account Privacy | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 2 | [实施设计](modules/account-privacy.md) |
-| Module | Application Shell | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 3 | [实施设计](modules/application-shell.md) |
-| Feature | Home & Relocation Outlook | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 4 | [实施设计](features/home-and-relocation-outlook.md) |
-| Feature | Map / Location | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 4 | [实施设计](features/map-and-location.md) |
-| Feature | Cost of Living & Budget | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/cost-of-living-and-budget.md) |
-| Feature | Crime & Security | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/crime-and-security.md) |
-| Feature | Nearby Facilities | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/nearby-facilities.md) |
-| Feature | Public Transportation | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/public-transportation.md) |
-| Feature | Hazard Reporting | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 5 | [实施设计](features/hazard-reporting.md) |
-| Feature | Socio-economic | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/socio-economic.md) |
-| Feature | Infrastructure Coverage | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/infrastructure-coverage.md) |
-| Feature | Property Inspection | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/property-inspection.md) |
-| Feature | Account Center | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/account-center.md) |
-| Feature | Personalized Location Suitability | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 7 | [实施设计](features/personalized-location-suitability.md) |
+| Feature | Authentication & Session | `Ready for Development`（2026-09-14） | A | 1 | [实施设计](features/authentication-and-session.md) |
+| Module | Geographic Context | `Ready for Development`（2026-09-14） | B | 1 | [实施设计](modules/geographic-context.md) |
+| Module | Account Privacy | `Ready for Development`（2026-09-14） | A | 2 | [实施设计](modules/account-privacy.md) |
+| Module | Application Shell | `Ready for Development`（2026-09-14） | A | 3 | [实施设计](modules/application-shell.md) |
+| Feature | Home & Relocation Outlook | `Ready for Development`（2026-09-14） | A | 4 | [实施设计](features/home-and-relocation-outlook.md) |
+| Feature | Map / Location | `Ready for Development`（2026-09-14） | A | 4 | [实施设计](features/map-and-location.md) |
+| Feature | Cost of Living & Budget | `Ready for Development`（2026-09-14） | B | 5 | [实施设计](features/cost-of-living-and-budget.md) |
+| Feature | Crime & Security | `Ready for Development`（2026-09-14） | B | 5 | [实施设计](features/crime-and-security.md) |
+| Feature | Nearby Facilities | `Ready for Development`（2026-09-14） | A | 5 | [实施设计](features/nearby-facilities.md) |
+| Feature | Public Transportation | `Ready for Development`（2026-09-14） | A | 5 | [实施设计](features/public-transportation.md) |
+| Feature | Hazard Reporting | `Ready for Development`（2026-09-14） | A | 5 | [实施设计](features/hazard-reporting.md) |
+| Feature | Socio-economic | `Ready for Development`（2026-09-14） | B | 6 | [实施设计](features/socio-economic.md) |
+| Feature | Infrastructure Coverage | `Ready for Development`（2026-09-14） | B | 6 | [实施设计](features/infrastructure-coverage.md) |
+| Feature | Property Inspection | `Ready for Development`（2026-09-14） | B | 6 | [实施设计](features/property-inspection.md) |
+| Feature | Account Center | `Ready for Development`（2026-09-14） | A | 6 | [实施设计](features/account-center.md) |
+| Feature | Personalized Location Suitability | `Ready for Development`（2026-09-14） | B | 7 | [实施设计](features/personalized-location-suitability.md) |

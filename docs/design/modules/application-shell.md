@@ -1,7 +1,7 @@
 # Application Shell
 
 > 状态：`Ready for Development`
-> Owner：`待项目负责人分配（实现学生分配不阻碍设计 Ready）`
+> Owner：`A`
 > 系统基线：`5d11769`
 > 消费 Feature：Home & Relocation Outlook、Map / Location、Cost of Living & Budget、Crime & Security、Nearby Facilities、Public Transportation、Hazard Reporting、Socio-economic、Infrastructure Coverage、Property Inspection、Account Center、Personalized Location Suitability
 > 最后更新：`2026-09-14`

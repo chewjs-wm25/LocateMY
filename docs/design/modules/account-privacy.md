@@ -1,7 +1,7 @@
 # Account Privacy
 
 > 状态：`Ready for Development`
-> Owner：`待项目负责人分配（实现学生分配不阻碍设计 Ready）`
+> Owner：`A`
 > 系统基线：`5d11769`
 > 消费 Feature：Application Shell、Map / Location、Cost of Living & Budget、Infrastructure Coverage、Hazard Reporting、Property Inspection、Account Center
 > 最后更新：`2026-09-14`

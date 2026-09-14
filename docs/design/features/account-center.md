@@ -1,7 +1,7 @@
 # Account Center
 
 > 状态：`Ready for Development`
-> Owner：`待项目负责人分配`
+> Owner：`A`
 > 系统基线：`5d11769`
 > 依赖波次：`6`
 > 最后更新：`2026-09-14`
