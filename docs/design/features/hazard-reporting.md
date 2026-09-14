@@ -96,15 +96,15 @@ Property 另以 `HAZARD-002` 取得 complete count 与时间，连同其自身�
 ## 6. 验收与 Ready Gate
 
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- |
-| `HAZ-01` | 五类创建与验证 | 从明确入口和合法长按各创建一份报告 | 类型、trim 标题、描述/地点校验、加载、成功、失败重试和真实远端创建均可观察；无默认类型或离线伪排队 |
-| `HAZ-01`、`HAZ-04` | 创建前更正、作者状态与删除 | 创建提交前更正类型/标题/描述/位置；发布后作者切换 pending/resolved，确认删除；另一账户尝试状态/删除或任何人尝试改已发布内容 | 创建字段校验、permission、contract failure、conflict/not found 和 retryable failure 各自可见；成功状态后详情、本人列表和地图受影响条目刷新，晚到状态保存不覆盖更新/删除；已发布内容不可变，状态不表示审核，删除取消无副作用 |
-| `HAZ-02` | 图层、详情、范围分页 | authenticated 用户移动 viewport、加载多页、点击报告 | 图层/详情来自远端，点击回传类型化意图；完整空、后页失败和 partial 清楚区分，已成功页保留；Map 不改分析地点 |
-| `HAZ-03` | 单票、撤回与安全计数 | 两账户对同一报告投相反票、改票或撤回；匿名读取 | 每账户最多一票；两账户看到同一 up/down count；任一账户无法枚举他人 vote，匿名与无效调用者不能取得 counts |
-| `HAZ-03` | 并发与失败 | 同账户并发 vote，或在写后发生网络/删除冲突 | 权威读取后不出现双票或虚构计数；失败显示未确认并可重试/刷新 |
-| `HAZ-04` | 本人列表、定位与账户切换 | 查看本人列表、定位、退出并以另一账户进入 | 仅本人记录可管理；定位保留返回任务；旧账户作者/投票状态和未完成请求不出现、不提交或重放 |
-| `HAZARD-002` | 风险计数口径 | 对内/外、恰 2,000m、pending/resolved 报告请求计数 | 仅边界内及恰边界的 pending 被计数；结果带半径、统计时间与 available；failure/partial 不为 0，且不写快照 |
-| 全部 | 可访问性与范围隔离 | 阅读加载、空、错误、投票、状态和安全说明 | 每种状态有文字、非颜色唯一表达；隐患不进入安全指数、地点摘要或适配度，且无审核功能 |
+| --- | --- | --- | --- |
+| `HAZ-01` / `AT-HAZARD-01`、`AT-HAZARD-05` | 五类创建与验证 | 从明确入口和合法长按各创建一份报告 | 类型、trim 标题、描述/地点校验、加载、成功、失败重试和真实远端创建均可观察；无默认类型或离线伪排队 |
+| `HAZ-01`、`HAZ-04` / `AT-HAZARD-01`、`AT-HAZARD-03` | 创建前更正、作者状态与删除 | 创建提交前更正类型/标题/描述/位置；发布后作者切换 pending/resolved，确认删除；另一账户尝试状态/删除或任何人尝试改已发布内容 | 创建字段校验、permission、contract failure、conflict/not found 和 retryable failure 各自可见；成功状态后详情、本人列表和地图受影响条目刷新，晚到状态保存不覆盖更新/删除；已发布内容不可变，状态不表示审核，删除取消无副作用 |
+| `HAZ-02` / `AT-HAZARD-01`、`AT-HAZARD-02` | 图层、详情、范围分页 | authenticated 用户移动 viewport、加载多页、点击报告 | 图层/详情来自远端，点击回传类型化意图；完整空、后页失败和 partial 清楚区分，已成功页保留；Map 不改分析地点 |
+| `HAZ-03` / `AT-HAZARD-03`、`AT-HAZARD-04` | 单票、撤回与安全计数 | 两账户对同一报告投相反票、改票或撤回；匿名读取 | 每账户最多一票；两账户看到同一 up/down count；任一账户无法枚举他人 vote，匿名与无效调用者不能取得 counts |
+| `HAZ-03` / `AT-HAZARD-04` | 并发与失败 | 同账户并发 vote，或在写后发生网络/删除冲突 | 权威读取后不出现双票或虚构计数；失败显示未确认并可重试/刷新 |
+| `HAZ-04` / `AT-HAZARD-01`、`AT-HAZARD-03` | 本人列表、定位与账户切换 | 查看本人列表、定位、退出并以另一账户进入 | 仅本人记录可管理；定位保留返回任务；旧账户作者/投票状态和未完成请求不出现、不提交或重放 |
+| `HAZARD-002` / `AT-PROP-03` | 风险计数口径 | 对内/外、恰 2,000m、pending/resolved 报告请求计数 | 仅边界内及恰边界的 pending 被计数；结果带半径、统计时间与 available；failure/partial 不为 0，且不写快照 |
+| 全部 / `AT-HAZARD-01`–`AT-HAZARD-05` | 可访问性与范围隔离 | 阅读加载、空、错误、投票、状态和安全说明 | 每种状态有文字、非颜色唯一表达；隐患不进入安全指数、地点摘要或适配度，且无审核功能 |
 
 - [x] `HAZ-01`–`04` 追踪至唯一 Owner、`HAZARD-001`、数据对象、产品事实与验收情景；
   `HAZARD-002` 的下游口径、失败语义和 Property 消费者明确。
@@ -124,3 +124,4 @@ Property 另以 `HAZARD-002` 取得 complete count 与时间，连同其自身�
 | 2026-09-14 | `Draft` | 项目负责人 Q8 覆盖先前内容编辑假设：发布后内容、位置和上报时间不可变，作者只可标记自身 pending/resolved 或删除 | `HAZ-01`、`HAZ-04`、`HAZARD-001`、`crowdsourced_hazards`、Application Shell、Map / Location、Account Center | 项目负责人（Q8） |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `HAZ-01`–`04`、`HAZARD-001`、`HAZARD-002`、D18–D20 | 设计 AI（项目负责人授权） |
 | 2026-09-14 | `Ready for Development` | Account Center 双轴审查移除其作为 `HAZARD-001` 消费者的错误登记；账户入口只提交 Shell 导航意图，不读取隐患数据 | `HAZARD-001`、`SHELL-001`、Account Center | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查修复验收表并补齐 canonical `AT-HAZARD-*` / `AT-PROP-03` 追踪；不改变可观察契约 | `HAZ-01`–`04`、`HAZARD-002`、`FLOW-05`、`FLOW-06` | 项目负责人（本次审查） |

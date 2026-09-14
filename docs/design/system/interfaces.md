@@ -1,6 +1,6 @@
 # 系统 Interface 注册表
 
-> 状态：`Draft — Issue #4 complete registry`
+> 状态：`Baselined — 5d11769`
 > 最后更新：2026-09-14
 
 本表是跨 Feature Interface 摘要与外部 seam 的唯一真相。完整协调语义留给 owning Feature/shared module 设计；数据字段只在 [Schema Catalog](../data/schema-catalog.md) 定义。

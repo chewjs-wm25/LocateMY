@@ -112,7 +112,7 @@ Map 只寄宿并返回选中意图；选择仍由 Transit 维护，不移动全�
 | `TRANSIT-01` | A/B 完整可比、单侧不可用、资料版本/分析日期不一致及交换 | 进入比较、交换 A/B | 两端保留各自来源/日期/状态；仅可比时给差异，永不自动推荐；交换不混淆地点。对应 `AT-COMPARE-01`、`AT-COMPARE-03`。 |
 | `TRANSIT-02`、`TRANSIT-03` | 列表与 Marker 互选、no stops、部分资料、换地点/结果、关闭 scope | 选择站点、查看局部分布图、换点或退出 | 同一局部站点高亮且文字说明充分；图含中心/圆/站点，空/部分/失效可解释；选择不会改变全局地点/主地图，过期选择被丢弃。对应 `AT-ANALYSIS-01`、`AT-RACE-01`。 |
 | `TRANSIT-001` / Infrastructure | 同地点、同日期、同 snapshot/reference grid 的交通页与 ICI 输入；交通不可评分 | 先读交通结果再显示 ICI | Infrastructure 消费同一 connectivity fact，不重查/重算；不可评分交通按 ICI 缺失规则处理，不能变成低分或零。对应 `AT-ANALYSIS-01`、`AT-COMPARE-03`。 |
-| 全部 | 中文/English、动态字体、屏幕阅读器及颜色不可见 | 阅读分数、来源、异常状态、选择与地图 | 状态、范围、来源、日期、选中和限制均有文本/可访问名称，图形与颜色不是唯一表达。 |
+| 全部 / `AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-RACE-01` | 中文/English、动态字体、屏幕阅读器及颜色不可见 | 阅读分数、来源、异常状态、选择与地图 | 状态、范围、来源、日期、选中和限制均有文本/可访问名称，图形与颜色不是唯一表达。 |
 
 - [x] `TRANSIT-01`–`03` 可追踪至唯一 Owner、`TRANSIT-001`、资料对象、产品事实和验收情景。
 - [x] `D16`、`D17`、`D28`、`D45` 分别由 Shell、Map 与 canonical connectivity result 的消费者关系覆盖；不复制 ICI 或 Suitability 契约。
@@ -128,3 +128,4 @@ Map 只寄宿并返回选中意图；选择仍由 Transit 维护，不移动全�
 | 2026-09-14 | `Draft` | 项目负责人 Q11 固定 GTFS 快照 >30 天 stale 与服务日期范围规则，消除资料新鲜度 Ready 阻塞 | `RISK-TRANSIT-01`、`TRANSIT-001`、`gtfs_feed_snapshots`、`transit_analysis_results`、Infrastructure Coverage | 项目负责人 |
 | 2026-09-14 | `Draft` | 项目负责人 Q12 固定 per-feed/整体 GTFS 状态矩阵；将页面选择/地图呈现移出 `TRANSIT-001`，经既有 `LOCATION-002` 声明式 seam 协调 | `TRANSIT-001`、`LOCATION-002`、`STATE-TRANSIT-SELECTION`、`read_transit_analysis`、Infrastructure Coverage、D17、`RISK-TRANSIT-01` | 项目负责人 |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `TRANSIT-01`–`03`、`TRANSIT-001`、`LOCATION-002`、D16/D17/D28/D45 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查补齐可访问性验收的 canonical `AT-*`；不改变交通状态矩阵或结果契约 | `TRANSIT-01`–`03`、`AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-RACE-01` | 项目负责人（本次审查） |

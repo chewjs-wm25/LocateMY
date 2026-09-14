@@ -75,7 +75,7 @@
 | 基尼同比变化 | [社会经济：基尼系数](../../knowledge_base/locatemy_product/features/socio_economic.md#基尼系数) | 仅在当前基尼与其紧邻上一 DOSM 统计年份都属于同一实际层级、同一资料集且均可用时，应用唯一的同比绝对差公式。 | 显示该公式结果规定的上升或下降及绝对变化；上一年缺失、层级回退改变、资料集改变或任一读数不可用时，同比变化 unavailable，保留当前基尼及原因，不以不同层级/年份补造趋势。 |
 | 年份选择与缺失分类 | [社会经济：年份、缺失与文案](../../knowledge_base/locatemy_product/features/socio_economic.md#年份缺失与文案) | 对当前单点同时可得的公共读数，优先采用它们共同完整的最新 DOSM 原始统计 `date`；没有共同年份时，每项取自身层级、资料集和所需字段完整的最新 `date`，并显示年份不同。结构/分布/位置的百分位按同一 state/date/variable 成组验证。 | `missing year` 表示该层级/资料集无可用统计日期；`missing level` 表示 Geo 已解析但该指标在允许层级均无匹配读数；`missing data` 表示已有目标日期/层级但必需字段为空或资料不可读；`unresolved geography` 表示必需州或行政区为 unresolved/ambiguous。缺失不为 0，也不用附近地点、插值或不同日期替代。 |
 | B40/M40/T20 与收入分布 | [社会经济：地区收入结构与分布](../../knowledge_base/locatemy_product/features/socio_economic.md#地区收入结构) | 结构以同州、同 date、完整 `mean(P1…P100)` 与 `maximum(P40/P80)` 应用唯一推导；曲线以同州、同 date、完整 `median(P1…P100)` 连接真实观测点。 | B40/M40/T20 始终为州级参考估算；分布始终为州级收入分布参考。不得将其说成行政区官方读数，不做曲线插值/平滑，也不使用全国百分位或州汇总表。 |
-| 当前预案收入位置 | `COST-002`；[社会经济：用户收入位置](../../knowledge_base/locatemy_product/features/socio_economic.md#用户收入位置) | 只用 current 评估预案的已保存家庭月度总收入和该地点 resolved state 的最新完整 `median` P1–P100 资料。 | 月净收入不得替代家庭月度总收入；相邻真实点之间的线性插值、命中点与 P1/P100 边界的输出均按唯一事实源；其结果是州级参考估算，不反写预案或参与官方统计。 |
+| 当前预案收入位置 | `COST-002`；[社会经济：用户收入位置](../../knowledge_base/locatemy_product/features/socio_economic.md#用户收入位置socio-02) | 只用 current 评估预案的已保存家庭月度总收入和该地点 resolved state 的最新完整 `median` P1–P100 资料。 | 月净收入不得替代家庭月度总收入；相邻真实点之间的线性插值、命中点与 P1/P100 边界的输出均按唯一事实源；其结果是州级参考估算，不反写预案或参与官方统计。 |
 | A/B 可比性 | [FLOW-03](../system/flows.md#flow-03地点-ab-比较)；`SOCIO-001` | 每个读数独立比较两端的结果元数据；收入位置另要求同账户同一 current 预案版本，且仍不作为地点间社会经济差异。 | 仅两端均 `available` 且层级、DOSM date、单位、资料集/来源、official/reference 或推导定义和完整性相同时显示差异。其他情况为 `incomparable`，列出差异属性或一侧状态；不从不同年、层级或部分分布生成差异。 |
 | 数据对象与公共/私有边界 | [Schema Catalog](../data/schema-catalog.md#公共政府镜像与边界对象)；[数据所有权](../system/data-ownership.md#公共资料镜像与缓存) | 只经 `read_socio_inputs` 使用五个 canonical DOSM 镜像；账户收入只经 `COST-002` 取得。 | `hh_income_state`、`hh_inequality_state`、`hies_state_percentile` 和读取对象在实现前仍为 proposed；现有全国或错误粒度对象不得替代。可选公共缓存仅含公共结果/版本/日期/完整性。 |
 
@@ -83,13 +83,13 @@
 
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
 | --- | --- | --- | --- |
-| `SOCIO-01` | resolved 行政区有当前和连续上一年基尼；另一地点仅有州级基尼或上一年缺失 | 打开单点页 | 每项优先行政区并独立回退州级；收入为名义 RM/月、基尼为 0–1，均带实际层级、年份、来源；只有同层级连续年份才显示产品事实定义的基尼升降/绝对变化，其他情况明确同比 unavailable。 |
-| `SOCIO-01` | 结构/分布州资料完整；分别缺一个百分位、variable、年份或资料读取失败 | 阅读结构和图表 | 完整集合才显示全量推导/曲线；partial 与 unavailable 保持不同，缺失不补零，仍明确州级参考估算。 |
-| `SOCIO-01` | 行政区或州 unresolved/ambiguous、行政区无匹配、州无匹配、字段空值 | 打开或刷新 | `unresolved geography`、`missing level`、`missing year`、`missing data` 分别可见；其他独立读数不被清空。 |
-| `SOCIO-02` | 同账户 current 有家庭月度总收入，州 median 分布完整，输入恰中点/两点间/低于 P1/高于 P100 | 打开收入位置 | 显示正确州级参考位置或边界状态；不称官方阶层判定。 |
-| `SOCIO-02` | 无 current、current 缺家庭月度总收入、只有月净收入、未保存编辑、换号、州不可解析或 partial median 分布 | 打开收入位置或切换账户 | 仅收入位置 unavailable，说明输入/资料原因；公共读数保留，旧账户收入不进入新账户。 |
-| `SOCIO-03` | 两端同层级/年/单位/来源/定义且完整；或其中一项层级、年、单位、来源、定义、完整性或状态不同；交换 A/B | 比较和交换 | 仅合格指标显示差异；其余并列原值与 specific incomparable 原因，无总分、赢家或自动推荐。 |
-| `SOCIO-01`–`03` | 中文/English、长金额/日期、图表、估算和错误状态 | 阅读完整、部分或不可用页 | 单位、层级、年份、官方/估算、来源及错误有文本和可访问名称；非颜色传达，图表有文字摘要。 |
+| `SOCIO-01` / `AT-ANALYSIS-01` | resolved 行政区有当前和连续上一年基尼；另一地点仅有州级基尼或上一年缺失 | 打开单点页 | 每项优先行政区并独立回退州级；收入为名义 RM/月、基尼为 0–1，均带实际层级、年份、来源；只有同层级连续年份才显示产品事实定义的基尼升降/绝对变化，其他情况明确同比 unavailable。 |
+| `SOCIO-01` / `AT-ANALYSIS-01` | 结构/分布州资料完整；分别缺一个百分位、variable、年份或资料读取失败 | 阅读结构和图表 | 完整集合才显示全量推导/曲线；partial 与 unavailable 保持不同，缺失不补零，仍明确州级参考估算。 |
+| `SOCIO-01` / `AT-ANALYSIS-01` | 行政区或州 unresolved/ambiguous、行政区无匹配、州无匹配、字段空值 | 打开或刷新 | `unresolved geography`、`missing level`、`missing year`、`missing data` 分别可见；其他独立读数不被清空。 |
+| `SOCIO-02` / `AT-ANALYSIS-01`、`AT-SUIT-04` | 同账户 current 有家庭月度总收入，州 median 分布完整，输入恰中点/两点间/低于 P1/高于 P100 | 打开收入位置 | 显示正确州级参考位置或边界状态；不称官方阶层判定。 |
+| `SOCIO-02` / `AT-ANALYSIS-01`、`AT-SUIT-04` | 无 current、current 缺家庭月度总收入、只有月净收入、未保存编辑、换号、州不可解析或 partial median 分布 | 打开收入位置或切换账户 | 仅收入位置 unavailable，说明输入/资料原因；公共读数保留，旧账户收入不进入新账户。 |
+| `SOCIO-03` / `AT-COMPARE-01`、`AT-COMPARE-03` | 两端同层级/年/单位/来源/定义且完整；或其中一项层级、年、单位、来源、定义、完整性或状态不同；交换 A/B | 比较和交换 | 仅合格指标显示差异；其余并列原值与 specific incomparable 原因，无总分、赢家或自动推荐。 |
+| `SOCIO-01`–`03` / 上述 `AT-*` | 中文/English、长金额/日期、图表、估算和错误状态 | 阅读完整、部分或不可用页 | 单位、层级、年份、官方/估算、来源及错误有文本和可访问名称；非颜色传达，图表有文字摘要。 |
 
 - [x] `SOCIO-01`–`03` 可追踪至 Socio Owner、`SOCIO-001`、`D21`–`D24`、唯一事实源、数据对象和验收情景。
 - [x] 复合评分、购买力换算、预案持久化和地理解析仍分别归既有 Owner；本设计未改变其契约或数据模型。
@@ -104,3 +104,4 @@
 | 2026-09-14 | `Draft` | Issue #20 建立 Wave 6 Socio-economic owning design，冻结层级/年份/回退、百分位推导、current 预案收入位置及逐项 A/B 可比性 | `SOCIO-01`–`03`、`SOCIO-001`、`read_socio_inputs`、五个社会经济 DOSM 镜像、D21–D24 | 待独立审查与设计 AI 依 ADR 0013 批准 |
 | 2026-09-14 | `Draft` | 项目负责人 Q18 批准收入位置使用 current 的家庭月度总收入、月净收入不可替代；并补齐产品既定的同层级连续年份基尼同比展示 | `SOCIO-01`–`03`、`SOCIO-001`、`COST-002`、`user_budget_scenarios`、Cost、Account Center | 项目负责人 |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴审查关闭全部发现；Q18 对 Cost/Account 的字段与用途分离影响复审通过；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready，资料导入与 migration 证据保留为实现 Gate | `SOCIO-01`–`03`、`SOCIO-001`、`COST-002`、`ACCOUNT-001`、`read_socio_inputs`、D21–D24 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查修复收入位置锚点并补齐 canonical 验收追踪；不改变统计口径或推导规则 | `SOCIO-01`–`03`、`AT-ANALYSIS-01`、`AT-COMPARE-*`、`AT-SUIT-04` | 项目负责人（本次审查） |

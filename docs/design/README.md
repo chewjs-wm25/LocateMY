@@ -67,6 +67,13 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 - 人类工作包只摘录当前任务所需内容并链接锁定版本，不产生设计决定。
 - 模型对话与推理不入库；只保留审查维度、问题、影响、决定和未关闭项。
 
+## 设计文档一致性规则
+
+- 系统基线中的注册表使用 `Baselined — <version>`；Interface 的设计成熟度仍逐行记录，运行时实现证据不得把已批准的系统契约降回 `Draft`。
+- owning Feature 从自身依赖方向描述契约：对应用消费者提供产品 Interface，消费外部来源 seam；外部 Adapter 的内部策略仍归该 owning Feature。
+- Feature 验收表保留具体场景，并显式标出 `flows.md` / Capability Traceability 中对应的 canonical `AT-*`，使系统验收与 owning design 可双向追踪。
+- `Ready for Development` 文档必须在正文 Ready Gate 中明确确认独立审查、阻塞关闭及批准事实；Issue 评论和 Change Log 只保留历史证据，不能代替正文自证。
+
 ## 变更规则
 
 基线后变更必须记录原因以及受影响的 Capability、Feature、Interface、数据对象和工作包，并由

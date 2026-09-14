@@ -95,7 +95,7 @@
 | `PROP-03` | 两账户、伪造 inspection ID/Storage path、必需地点与关闭中晚到结果 | 切换账户并尝试读写/上传/删除 | 仅 owner 可访问父实勘及照片；无地点记录被拒绝；旧范围内容不显示、不提交或重放。覆盖 `RISK-PROPERTY-01`、`AT-PROP-04`。 |
 | `PROP-04` | 2、3、少于 2、超过 3、已删除/他人项 | 从档案选择对比 | 只有 2–3 个当前账户活动实勘可并排；比较不保存、不混同地点 A/B，也不把不可见项带入。对应 `AT-PROP-05`。 |
 | `PROP-05` | 软删除、恢复、确认取消、清空与照片部分失败 | 删除实勘、进入回收站、恢复或确认清空 | 删除先保留记录和照片；取消无副作用；清空只影响当前账户且永久删除文件/元数据/记录，partial 明确、可重试且不误报完成。覆盖 `RISK-STORAGE-01`、`AT-PROP-06`。 |
-| 全部 | 中文/English、动态字体、读屏/非颜色状态 | 阅读表单、风险、上传、比较和回收站 | 字段错误、上传/删除、风险可用性、来源/时间、空态和权限错误均有文字等价信息；主要操作和数值在 200% 字体下可用。 |
+| 全部 / `AT-PROP-01`–`AT-PROP-06` | 中文/English、动态字体、读屏/非颜色状态 | 阅读表单、风险、上传、比较和回收站 | 字段错误、上传/删除、风险可用性、来源/时间、空态和权限错误均有文字等价信息；主要操作和数值在 200% 字体下可用。 |
 
 - [x] `PROP-01`–`05` 各自追踪至唯一 Owner、`PROPERTY-001`、数据对象、产品事实源和验收情景。
 - [x] `D30`–`D34` 只消费已 Ready 的 Shell、Location、Privacy、Safety 和 Hazard 契约；未复制或改变其权威语义。
@@ -113,3 +113,4 @@
 | 2026-09-14 | `Draft` | 项目负责人 Q14 冻结风险快照原子写入/替换与失败保留；字段组唯一归 Schema Catalog，平均公式与 Storage 路径形状改为权威指针 | `property_inspections`、`PROPERTY-001`、`PROP-01`、`PROP-03`、`RISK-PROP-01`、`RISK-PROPERTY-01` | 项目负责人（Q14） |
 | 2026-09-14 | `Draft` | 项目负责人 Q15 新增可跨重启的 account/draft 草稿照片、创建后整体转换为正式待传照片及退出清理；统一 online-required 术语 | `property_draft_photos`、`property_photo_upload_queue`、`PROPERTY-001`、`PROP-01`、`PROP-02`、`RISK-STORAGE-01` | 项目负责人（Q15） |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `PROP-01`–`05`、`PROPERTY-001`、D30–D34 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查补齐全域可访问性验收的 canonical `AT-PROP-*`；不改变可观察契约 | `PROP-01`–`05`、`AT-PROP-01`–`06` | 项目负责人（本次审查） |

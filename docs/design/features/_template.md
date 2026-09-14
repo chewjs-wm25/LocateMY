@@ -46,6 +46,7 @@
 | | | | |
 
 契约描述动作族、领域事实与可观察结果，不规定语言级符号、参数名、DTO、内部事件、超时、重试、去重、取消或 Adapter 策略。只有跨模块可见的安全、账户、幂等或副作用不变量写入本节。
+owning Feature 从自身依赖方向分类：向应用消费者提供产品 Interface，消费外部来源 seam；外部 seam 的 Owner 仍为负责封装该 Adapter 的 owning Feature。
 
 ## 4. 用户可观察行为与跨模块流程
 
@@ -69,12 +70,16 @@
 | --- | --- | --- | --- |
 | | | | |
 
+每项验收情景同时标出系统 `flows.md` / Capability Traceability 中对应的 canonical `AT-*`；场景正文仍须写出本 Feature 的具体输入与可观察结果。
+
 - [ ] 每项 Capability 可追踪到 Owner、协调契约、数据/事实源与验收情景。
 - [ ] 跨 Owner 的责任、文件边界和可观察副作用没有冲突。
 - [ ] 需要固定的公式和业务规则链接至唯一事实源，并写明应用口径。
 - [ ] 非正常用户结果及适用的权限、账户切换、离线或安全边界已覆盖。
 - [ ] 独立审查发现已关闭，或由设计 AI 依 ADR 0013 明确接受。
 - [ ] 阻塞问题已关闭；设计 AI 已依 ADR 0013 批准 `Ready for Development`。
+
+以上两项必须在 owning design 正文中自证；Issue 评论或 Change Log 不能替代勾选结果。
 
 ## 7. Change Log
 

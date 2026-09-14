@@ -93,7 +93,7 @@ Owner 可在自己的目录内组织内部文件。受控边界只固定上述�
 | `MAP-05` | 在线 CRUD、双设备恢复、离线 create 后重启/重放、删除传播、冲突、换号和权限失败 | 命名收藏、手动/前台同步、删除、切换账户 | Supabase 结果为权威；离线只显示 queued；同一 create 不重复、删除传播到其他设备、旧账户缓存/队列不能在新账户呈现。对应 `AT-SAVED-01`–`AT-SAVED-04`。 |
 | `MAP-06` | 有合法单点、有效 A/B、无地点，以及六类一项或多项 unavailable/partial/cached | 从详情进入完整分析或比较 | 只把不可变合法引用交给 Shell；无合法前置地点不可进入；每项结果独立保留来源/日期/口径/可用性，Map 不合成或置零。对应 `AT-ANALYSIS-01`、`AT-COMPARE-03`。 |
 | `MAP-01`、`MAP-05` / `PRIVACY-001` | scope opened、关闭中、关闭失败重试、账户 A→B 切换与晚到搜索/同步结果 | 登录、退出/换号、重试关闭、恢复网络 | opened 前无私有地点/收藏；关闭开始即不可访问旧内容，Map 对自身私有状态处理完成后才报告；新账户不继承任何地点、名称或 queued create。对应 `AT-SAVED-04`、`AT-RACE-01`。 |
-| `LOCATION-002` / Hazard、Facilities、Transit | 图层被允许、隐藏、拒绝、viewport 更新、点击、长按合法/非法坐标 | 显示/点击图层或长按 | Map 正确承载提供方图层和意图；Transit 仅提交当前页面的中心/圆/稳定站点 Marker/选中意图，旧 viewport 不覆盖新 viewport；点击/长按不静默改变地点，写入和业务语义仍归提供方。 |
+| `LOCATION-002` / Hazard、Facilities、Transit；`AT-ANALYSIS-01`、`AT-HAZARD-01`、`AT-RACE-01` | 图层被允许、隐藏、拒绝、viewport 更新、点击、长按合法/非法坐标 | 显示/点击图层或长按 | Map 正确承载提供方图层和意图；Transit 仅提交当前页面的中心/圆/稳定站点 Marker/选中意图，旧 viewport 不覆盖新 viewport；点击/长按不静默改变地点，写入和业务语义仍归提供方。 |
 
 - [x] `MAP-01`–`MAP-06` 可追踪至 Map Owner、`LOCATION-001`/`LOCATION-002`、事实源、数据对象及验收情景；`MAP-07` 明确追踪至 Suitability Owner 而非复制其契约。
 - [x] Application Shell、Account Privacy、Map、图层提供方和分析提供方的责任、文件边界与可观察副作用无重叠。
@@ -111,3 +111,4 @@ Owner 可在自己的目录内组织内部文件。受控边界只固定上述�
 | 2026-09-14 | `Draft` | Issue #11 建立 Wave 4 Map / Location owning design，冻结合法地点引用、地图图层宿主、账户隔离的收藏同步及分析导航边界 | `MAP-01`–`MAP-06`、`LOCATION-001`–`003`、`STATE-LOCATION`、`user_saved_locations`、`saved_location_cache`、`saved_location_create_queue`、`SHELL-001`、`PRIVACY-001`、D05/D06/D08/D12/D15/D17/D22/D26/D31/D40 | 待独立审查与设计 AI 依 ADR 0013 批准 |
 | 2026-09-14 | `Ready for Development` | 项目负责人固定范围与收藏同步决定；独立规格/边界审查确认契约、资料、风险和验收链完整 | `MAP-01`–`MAP-06`、`LOCATION-001`–`003`、`RISK-GEO-01`、`RISK-SYNC-01`、`user_saved_locations`、`saved_location_cache`、`saved_location_create_queue` | 设计 AI（项目负责人依 ADR 0013 授权） |
 | 2026-09-14 | `Ready for Development` | 项目负责人 Q12 确认 Public Transportation 经既有 `LOCATION-002` 提交声明式站点分布图；Map 的通用图层宿主语义不变 | `LOCATION-002`、Public Transportation、D17 | 项目负责人 |
+| 2026-09-14 | `Ready for Development` | 全面设计审查补齐图层宿主验收的 canonical `AT-*`；不改变可观察契约 | `LOCATION-002`、`AT-ANALYSIS-01`、`AT-HAZARD-01`、`AT-RACE-01` | 项目负责人（本次审查） |

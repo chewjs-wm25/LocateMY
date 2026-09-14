@@ -85,8 +85,8 @@
 | `SAFE-01` | 州 resolved、unresolved、ambiguous、边界版本变化及州外/相邻地区诱因 | 选择地点后分析 | 只使用 resolved reporting state；其余显示可解释 unavailable；无警区、行政区或邻近地区回退。对应 `AT-LOC-01`、`AT-LOC-02`。 |
 | `SAFE-03` | all、assault、property、可用/不可用具体 type | 切换筛选 | 只有趋势变化；指数、最新年和总体案件数不变，筛选范围有文字说明。对应 `AT-ANALYSIS-01`。 |
 | `SAFE-01` | 有效 A/B、单侧不可用、年份/口径/完整性/版本不同及混合缓存 | 比较或交换 A/B | 并列原值；仅可比时显示差异，其他显示原因；交换仅改变呈现顺序。对应 `AT-COMPARE-01`、`AT-COMPARE-03`。 |
-| `SAFETY-001` / Property、Suitability、Shell | 风险快照请求、地点摘要、主地图返回及 Hazard 数据存在 | 从消费者请求或返回 | 结果含保存所需州/年份/来源/可用性；Crime 不写 Property，不产出安全图层，也不混入 Hazard。 |
-| 可访问性与披露 | 中文/English、动态字体、图表/颜色、来源与模型限制 | 阅读单点或比较页 | 文字等价信息覆盖读数、趋势、筛选作用域、状态和限制；州级而非警区/个人风险的口径清楚可见。 |
+| `SAFETY-001` / Property、Suitability、Shell；`AT-PROP-03`、`AT-SUIT-01`、`AT-ANALYSIS-01` | 风险快照请求、地点摘要、主地图返回及 Hazard 数据存在 | 从消费者请求或返回 | 结果含保存所需州/年份/来源/可用性；Crime 不写 Property，不产出安全图层，也不混入 Hazard。 |
+| 可访问性与披露 / `AT-ANALYSIS-01`、`AT-COMPARE-03` | 中文/English、动态字体、图表/颜色、来源与模型限制 | 阅读单点或比较页 | 文字等价信息覆盖读数、趋势、筛选作用域、状态和限制；州级而非警区/个人风险的口径清楚可见。 |
 
 - [x] `SAFE-01`、`SAFE-03` 追踪到 Crime Owner、`SAFETY-001`、资料对象、唯一事实源与验收情景。
 - [x] `SAFETY-001` 与 `SHELL-001`、`LOCATION-001`、`GEO-001`、Property/Suitability 消费边的职责和副作用无冲突。
@@ -105,3 +105,4 @@
 | 2026-09-14 | `Draft` | 独立审查补齐房产入口与最近房产 Shell 组合槽；不引入 Crime→Property 的数据依赖或 Ready blocker | `SHELL-001`、`PROPERTY-001`、Property Inspection、Crime 页组合槽 | 待独立审查与设计 AI 依 ADR 0013 批准 |
 | 2026-09-14 | `Draft` | 项目负责人 Q10 移除 Crime 页最近房产预览及组合槽，仅保留档案/新增的纯导航 | `SHELL-001`、Crime 房产入口、`PROPERTY-001` 消费者摘要、产品/UI 事实源 | 项目负责人 |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `SAFE-01`、`SAFE-03`、`SAFETY-001`、D11–D13、D33、D43 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查补齐消费者与可访问性验收的 canonical `AT-*`；不改变州级安全契约 | `SAFETY-001`、`AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-PROP-03`、`AT-SUIT-01` | 项目负责人（本次审查） |

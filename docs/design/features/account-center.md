@@ -69,7 +69,7 @@
 
 | 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
 | --- | --- | --- | --- |
-| 真实身份资料 | `AUTH-001`；[认证设计](authentication-and-session.md#对外协调契约) | Account 只消费 Auth 当前账户的邮箱与确认事实 | Account 不直读 `auth.users` 或 `profiles`，也不从其他资料推导邮箱/验证。 |
+| 真实身份资料 | `AUTH-001`；[认证设计](authentication-and-session.md#3-对外协调契约) | Account 只消费 Auth 当前账户的邮箱与确认事实 | Account 不直读 `auth.users` 或 `profiles`，也不从其他资料推导邮箱/验证。 |
 | 评估偏好与完成语义 | `user_assessment_preferences`；[评估偏好领域对象](../../knowledge_base/locatemy_product/domain_objects.md#assessment-preferences-评估偏好) | Supabase 是跨设备权威；字段、RLS 与 migration 只见 Schema Catalog | null `configured_at` 意味未配置；默认 `5` 只可预填。完整确认成功才产生 complete snapshot；后续成功修改保持 configured。 |
 | 当前评估预案 | `COST-002`；[预算预案领域对象](../../knowledge_base/locatemy_product/domain_objects.md#budget-scenario-预算预案) | Account 不直读或写 `user_budget_scenarios` | 只显示 Cost 的 `COST-002` 已冻结 current/no-current 摘要及状态；管理与 current 变化归 Cost。 |
 | 本机私有状态 | `PRIVACY-001`；[数据所有权](../system/data-ownership.md#privacy-barrier-参与者清单) | Account 只清理自己的偏好内存/副本和组合状态 | 远端偏好不因退出删除；语言不属于该关闭 payload。 |
@@ -77,19 +77,21 @@
 ## 6. 验收与 Ready Gate
 
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- |
-| `ACCOUNT-01` | 已验证、未验证、验证未知及 Auth 读取失败 | 打开账户中心 | 仅显示真实邮箱和 Auth 确认事实；未知有明确状态，不显示固定 verified。 |
-| `ACCOUNT-02` | 房产/本人隐患目标可用、未组合、被门控拒绝及返回 | 选择两个业务入口 | accepted 时交给目标 Owner 并可返回；rejected 保留原因，不显示目标 fixture 或泄露数据。 |
-| `ACCOUNT-08` | 新账户、首次完整五项确认、任一无效值、远端写失败、已配置后修改、旧默认行、跨设备恢复与两账户切换 | 查看、确认或修改偏好 | 未配置不输入 Suitability；成功完整确认才发布跨设备 complete snapshot；失败不发布；旧行保持未配置；A 的状态不进入 B。 |
-| `ACCOUNT-09` 入口 | current、无 current、摘要字段缺失、Cost unavailable 与 Shell rejected | 查看预案行并进入管理 | 精确呈现 Cost 提供的名称、额外生活开销、住房、交通、月净收入、家庭月度总收入及缺失；月净收入只用于预算压力，家庭月度总收入只用于 Socio 收入位置；无 current 仍有管理入口；拒绝/不可用保留原因且不创建/选择预案。 |
-| `ACCOUNT-07` 入口 | 确认、取消、Auth 会话结束失败、Privacy 关闭失败和 Shell 协调失败 | 请求退出 | 取消保持当前账户；确认后 Account 不再显示私有组合；只有 Shell 协调 Auth 与 Privacy 全部成功才到登录，任一失败显示无私有内容的恢复态。 |
-| `ACCOUNT-01`–`08` | 中文/English、屏幕阅读器、键盘/替代输入、200% 字体、长邮箱和错误状态 | 浏览账户页并完成主要动作 | 同一功能和状态有完整文字、可访问名称和可理解顺序；长内容不遮挡主要操作，信息不只由颜色或图标传达。 |
+| --- | --- | --- | --- |
+| `ACCOUNT-01` / `AT-AUTH-02`、`AT-SWITCH-01` | 已验证、未验证、验证未知及 Auth 读取失败 | 打开账户中心 | 仅显示真实邮箱和 Auth 确认事实；未知有明确状态，不显示固定 verified。 |
+| `ACCOUNT-02` / `AT-HAZARD-01`、`AT-PROP-01` | 房产/本人隐患目标可用、未组合、被门控拒绝及返回 | 选择两个业务入口 | accepted 时交给目标 Owner 并可返回；rejected 保留原因，不显示目标 fixture 或泄露数据。 |
+| `ACCOUNT-08` / `AT-SUIT-01`–`AT-SUIT-03`、`AT-SUIT-06` | 新账户、首次完整五项确认、任一无效值、远端写失败、已配置后修改、旧默认行、跨设备恢复与两账户切换 | 查看、确认或修改偏好 | 未配置不输入 Suitability；成功完整确认才发布跨设备 complete snapshot；失败不发布；旧行保持未配置；A 的状态不进入 B。 |
+| `ACCOUNT-09` 入口 / `AT-SUIT-02`、`AT-SUIT-04`、`AT-SUIT-06` | current、无 current、摘要字段缺失、Cost unavailable 与 Shell rejected | 查看预案行并进入管理 | 精确呈现 Cost 提供的名称、额外生活开销、住房、交通、月净收入、家庭月度总收入及缺失；月净收入只用于预算压力，家庭月度总收入只用于 Socio 收入位置；无 current 仍有管理入口；拒绝/不可用保留原因且不创建/选择预案。 |
+| `ACCOUNT-07` 入口 / `AT-OUT-01`、`AT-OUT-02`、`AT-SWITCH-01` | 确认、取消、Auth 会话结束失败、Privacy 关闭失败和 Shell 协调失败 | 请求退出 | 取消保持当前账户；确认后 Account 不再显示私有组合；只有 Shell 协调 Auth 与 Privacy 全部成功才到登录，任一失败显示无私有内容的恢复态。 |
+| `ACCOUNT-01`–`08` / 上述 `AT-*` | 中文/English、屏幕阅读器、键盘/替代输入、200% 字体、长邮箱和错误状态 | 浏览账户页并完成主要动作 | 同一功能和状态有完整文字、可访问名称和可理解顺序；长内容不遮挡主要操作，信息不只由颜色或图标传达。 |
 
 - [x] `ACCOUNT-01`、`ACCOUNT-02`、`ACCOUNT-08` 具有唯一 Owner、Interface、事实源与验收情景；已排除入口不重新引入。
 - [x] Auth、退出、预算预案、ICI 权重、语言和目标数据仍属于原 Owner。
 - [x] `configured_at` 的完整语义、既有行处理和迁移方向已由项目负责人 Q13 固定，并在知识库、Schema Catalog、数据所有权和风险记录同步。
 - [x] `RISK-PREF-01` 的独立 Standards/Spec 双轴审查及 migration 方向复核已完成。
 - [x] Q18 的 current 预案摘要字段与 Cost/Socio 影响已完成独立 Standards/Spec 双轴规格与边界复审；家庭月度总收入和月净收入分别显示缺失且不可互相替代。
+- [x] 独立 Standards/Spec 双轴审查发现已关闭，且 Q18 影响复审已通过。
+- [x] 阻塞问题已关闭；设计 AI 已依 ADR 0013 批准 `Ready for Development`。
 
 ## 7. Change Log
 
@@ -102,3 +104,4 @@
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `ACCOUNT-01`、`ACCOUNT-02`、`ACCOUNT-08`、`ACCOUNT-001`、D35–D38、D41 | 设计 AI（项目负责人授权） |
 | 2026-09-14 | `Draft` | 项目负责人 Q18 批准 current 摘要新增家庭月度总收入；它与月净收入分别服务 Socio 收入位置和预算压力，等待影响复审 | `ACCOUNT-09`、`COST-002`、`user_budget_scenarios`、Socio-economic | 项目负责人 |
 | 2026-09-14 | `Ready for Development` | Q18 current 摘要与 Cost/Socio 边界的独立 Standards/Spec 双轴影响复审通过；恢复 Ready，migration 与旧资料处理仍为实现 Gate | `ACCOUNT-09`、`COST-002`、`ACCOUNT-001`、`user_budget_scenarios`、Socio-economic | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查补齐正文 Ready Gate、canonical 验收追踪、表格与 Auth 锚点；不改变可观察契约 | `ACCOUNT-01`、`ACCOUNT-02`、`ACCOUNT-07`–`09`、`ACCOUNT-001`、`AT-*` | 项目负责人（本次审查） |

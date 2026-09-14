@@ -52,7 +52,6 @@ Owner 契约、受控文件边界和验收情景；Feature 内部的类型、文
 | ID | 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
 | --- | --- | --- | --- | --- |
 | `FACILITY-001` | Application Shell；Map / Location 摘要；Personalized Location Suitability | 为一个合法不可变地点提供固定 2,000 米范围的五类设施结果和声明式设施呈现贡献；单点与 A/B 的每一端分别取得自己的结果。每项结果回带地点、半径、类别映射版本、来源、查询/缓存时间及完整性。 | 输入是地点引用与 `cache-allowed` 或 `refresh`。输出为 fresh、cached、complete-empty、retryable unavailable 或 non-retryable unavailable；类别层面完整且 `N_c=0` 才是“范围内暂无已收录设施”，查询失败、超时、限流、无效或部分外部响应为 unknown/unavailable，绝不以零替代。A/B 只有两端各自为完整且同一半径/类别映射版本时才可比较；否则输出带原因的不可比性。`refresh` 绕过缓存；失败可降级为仍在 24 小时内的缓存，并标为 cached。 | 只在 opened 主应用中读取；OSM 资料和缓存不含账户标识。Feature 只读外部资料、读写公共设施缓存并提交其图层贡献；不写账户资料、全局地点或其他 Feature 结果。 |
-| `FACILITY-002` | Overpass（外部 seam） | 接受完整 OSM 原始元素集，或把限流、超时、网络、无效及部分响应清楚传回 Feature。 | 只有可证明完整的 Node、Way、Relation 响应可以进行归类并得出覆盖或 complete-empty；外部 seam 的网络请求、取消、重试、超时、限流与 Adapter 细节归 Feature 内部，不构成跨 Owner 契约。 | 无账户权限或用户业务副作用；原始外部资料不得越过 Feature 被消费者当作产品结果使用。 |
 
 ### 消费
 
@@ -61,6 +60,7 @@ Owner 契约、受控文件边界和验收情景；Feature 内部的类型、文
 | `SHELL-001` | Application Shell | 接收单点/A-B 分析导航、返回上下文，并向地点摘要/比较组合提供结果 | 只有 opened 主应用 scope 可接受目的地；Shell 保留地点、来源、日期、范围和不可用原因，且不把分项失败隐藏为成功 |
 | `LOCATION-001` | Map / Location | 读取单点或 A/B 的合法不可变地点引用 | 使用 `valid location reference`；`absent`、`outside Malaysia`、`invalid coordinate` 或 `same comparison point` 不能触发查询、缓存写入或图层贡献 |
 | `LOCATION-002` | Map / Location | 提交已加载结果的声明式设施图层，并接收点击意图 | 接受/隐藏/拒绝按 Map 契约；贡献包括显示条件、稳定 OSM 条目标识、类别/名称/距离等由本 Feature 定义的内容及类型化点击意图。Map 只呈现和转交，不解释设施业务内容；图层更新不得改变分析地点。 |
+| `FACILITY-002` | Nearby Facilities（Overpass Adapter 对端） | 从 Overpass / OpenStreetMap 取得完整 OSM 原始元素集，或分类的限流、超时、网络、无效及部分响应 | 只有可证明完整的 Node、Way、Relation 响应可用于归类并得出覆盖或 complete-empty；网络请求、取消、重试、超时、限流与 Adapter 细节归 Feature 内部。原始外部资料不得越过 Feature 被应用消费者当作产品结果使用。 |
 
 ## 4. 用户可观察行为与跨模块流程
 
@@ -85,20 +85,20 @@ Feature 另以 `LOCATION-002` 提交声明式贡献。Shell 决定导航、摘�
 | 形成可解释的设施结果 | OSM Node、Way、Relation 与相同事实源 | Node 使用自身坐标，Way/Relation 使用返回代表中心点；以 `element_type + osm_id` 去重；每类按直线距离由近到远取前三项 | `N_c>0` 且完整为覆盖；`N_c=0` 且完整才为空类别；未知永不计未覆盖。设施总数与有记录类别数可展示为数量摘要，但未知存在时不显示确定覆盖比例 |
 | 保留数据来源与许可披露 | OpenStreetMap / Overpass；[事实源的来源与许可要求](../../knowledge_base/locatemy_product/nearby_facilities_scoring.md#缓存与页面状态) | 每次结果携带 `数据来源：OpenStreetMap`、查询或缓存时间、缓存状态和 OSM 覆盖限制 | 不能用 `schools_district`、`hospital_beds` 或其他行政区汇总推算 2km POI；页面显示 OSM 署名和版权/许可链接 |
 | 公共缓存 | `facility_public_cache`（完整定义见 [Schema Catalog](../data/schema-catalog.md)） | 有效期 24 小时；缓存键至少含分析坐标、2,000 米半径及分类映射版本；`refresh` 绕过缓存 | 公共缓存不含账户标识；只有完整响应可缓存为空。失败仅能使用仍有效缓存且必须标示为 cached；缓存结果回带原地点，过期/版本不匹配不可冒充 fresh |
-| 供个人化地点适配度复用 | `FACILITY-001` 与 [个人化地点适配度定义](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability) | 只向适配度消费者公开五类完整性与已确认覆盖类别数，不输出新的设施综合分 | 五类均可确定时，其日常便利转换由消费者按唯一公式计算；任一类别未知时该维度缺失，未知不能当未覆盖 |
+| 供个人化地点适配度复用 | `FACILITY-001` 与 [个人化地点适配度定义](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-个人化地点适配度) | 只向适配度消费者公开五类完整性与已确认覆盖类别数，不输出新的设施综合分 | 五类均可确定时，其日常便利转换由消费者按唯一公式计算；任一类别未知时该维度缺失，未知不能当未覆盖 |
 
 ## 6. 验收与 Ready Gate
 
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
 | --- | --- | --- | --- |
-| `FAC-01` | 正常完整覆盖 | 对合法单点打开分析 | 固定 2km 圆形范围内显示五类、数量、每类最近三项、直线距离、来源/时间；不显示 0–100 分、路线、质量或营业状态 |
-| `FAC-01` | 完整空结果 | 查询完整且某类或全部类别无匹配设施 | 该类明确为范围内暂无已收录设施；全部为空使用完整空文案，不把它描述为现实不存在 |
-| `FAC-01` | 部分外部响应 | 外部返回被截断或完整性不能确认 | 所受影响类别为 unknown/unavailable，不以 0 或未覆盖呈现；不缓存为 complete-empty |
-| `FAC-01` | 不可用结果 | 发生超时、限流、网络或无效响应 | 显示分类不可用原因；有未过期缓存则仅展示并标为 cached，无缓存则资料暂不可用 |
-| `FAC-01` | 缓存与刷新 | 在 24 小时内重复读取，再主动刷新 | 有效缓存带缓存时间/状态；刷新绕过缓存，成功后带新查询时间，失败遵守缓存降级语义 |
-| `FAC-01` | 不可变地点与 A/B | 对单点、A、B 分别发起读取，且让先前请求晚于新请求返回 | 每个结果与其地点/角色相符；晚到结果不能覆盖另一地点；两端不完整或口径不一致时不比较 |
-| `FAC-01` | 摘要与地图贡献 | 由 Shell 组合地点摘要，并请求 Map 呈现设施贡献 | 摘要遵守完整/未知规则；Map 只按声明呈现和回传点击，既不改分析地点也不提供排除的设施详情/路线 |
-| `FAC-01` | 披露与可访问性 | 阅读正常、空、缓存和不可用状态 | 每种状态有文字而非仅颜色；显示 OpenStreetMap 来源、时间、覆盖限制、署名和版权链接 |
+| `FAC-01` / `AT-ANALYSIS-01` | 正常完整覆盖 | 对合法单点打开分析 | 固定 2km 圆形范围内显示五类、数量、每类最近三项、直线距离、来源/时间；不显示 0–100 分、路线、质量或营业状态 |
+| `FAC-01` / `AT-ANALYSIS-01` | 完整空结果 | 查询完整且某类或全部类别无匹配设施 | 该类明确为范围内暂无已收录设施；全部为空使用完整空文案，不把它描述为现实不存在 |
+| `FAC-01` / `AT-ANALYSIS-01` | 部分外部响应 | 外部返回被截断或完整性不能确认 | 所受影响类别为 unknown/unavailable，不以 0 或未覆盖呈现；不缓存为 complete-empty |
+| `FAC-01` / `AT-ANALYSIS-01` | 不可用结果 | 发生超时、限流、网络或无效响应 | 显示分类不可用原因；有未过期缓存则仅展示并标为 cached，无缓存则资料暂不可用 |
+| `FAC-01` / `AT-ANALYSIS-01` | 缓存与刷新 | 在 24 小时内重复读取，再主动刷新 | 有效缓存带缓存时间/状态；刷新绕过缓存，成功后带新查询时间，失败遵守缓存降级语义 |
+| `FAC-01` / `AT-COMPARE-03` | 不可变地点与 A/B | 对单点、A、B 分别发起读取，且让先前请求晚于新请求返回 | 每个结果与其地点/角色相符；晚到结果不能覆盖另一地点；两端不完整或口径不一致时不比较 |
+| `FAC-01` / `AT-ANALYSIS-01` | 摘要与地图贡献 | 由 Shell 组合地点摘要，并请求 Map 呈现设施贡献 | 摘要遵守完整/未知规则；Map 只按声明呈现和回传点击，既不改分析地点也不提供排除的设施详情/路线 |
+| `FAC-01` / `AT-ANALYSIS-01` | 披露与可访问性 | 阅读正常、空、缓存和不可用状态 | 每种状态有文字而非仅颜色；显示 OpenStreetMap 来源、时间、覆盖限制、署名和版权链接 |
 
 - [x] `FAC-01` 可追踪到 Nearby Facilities Owner、`FACILITY-001`/`FACILITY-002`、
   `facility_public_cache`、唯一产品事实源及上述验收情景。
@@ -117,3 +117,4 @@ Feature 另以 `LOCATION-002` 提交声明式贡献。Shell 决定导航、摘�
 | --- | --- | --- | --- | --- |
 | 2026-09-14 | `Draft` | 为 Issue #12 建立 Wave 5 owning design；等待独立审查与 Ready Gate 运行时风险证据 | `FAC-01`、`FACILITY-001`、`FACILITY-002`、`facility_public_cache`、Map / Location、Application Shell、Personalized Location Suitability | — |
 | 2026-09-14 | `Ready for Development` | 独立审查确认范围、契约、完整性、缓存、Map/Shell 边界与验收链完整 | `FAC-01`、`FACILITY-001`、`FACILITY-002`、`RISK-OSM-01`、`RISK-CACHE-01` | 设计 AI（项目负责人依 ADR 0013 授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查按 Feature 依赖方向将外部 seam 统一归入消费，并补齐验收追踪及失效锚点；不改变外部来源或产品结果 | `FAC-01`、`FACILITY-002`、`AT-ANALYSIS-01`、`AT-COMPARE-03` | 项目负责人（本次审查） |

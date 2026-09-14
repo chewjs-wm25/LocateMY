@@ -89,12 +89,12 @@ Owner 可在自己的 Feature 目录内组织实现；以上是跨 Owner 文件�
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
 | --- | --- | --- | --- |
 | `INFRA-01` | resolved 行政区、五项完整资料、交通 `available/served`，且每项来源/日期不同 | 打开单点页 | 五个 0–100 分项和 ICI 依唯一公式显示，明确行政区/1,500m、来源、每项日期、参照组/模型与覆盖非质量含义。对应 `AT-ANALYSIS-01`。 |
-| `INFRA-01` | Geo unresolved/ambiguous；四项任意资料/人口年份不合格；Transit incomplete/unavailable/no_stops/no_active_routes；明确零与实际 stale available 交通 | 打开或刷新单点页 | 受影响项为 missing 并保留上游原因；明确零仍为 0，actual stale available 交通分仍可用并带 warning；不足三项基础权重时 ICI unavailable，绝不补零/猜测地区/重算交通。 |
+| `INFRA-01` / `AT-ANALYSIS-01` | Geo unresolved/ambiguous；四项任意资料/人口年份不合格；Transit incomplete/unavailable/no_stops/no_active_routes；明确零与实际 stale available 交通 | 打开或刷新单点页 | 受影响项为 missing 并保留上游原因；明确零仍为 0，actual stale available 交通分仍可用并带 warning；不足三项基础权重时 ICI unavailable，绝不补零/猜测地区/重算交通。 |
 | `INFRA-01` | A/B 完整且相容；一端 partial；日期、来源、行政区/半径、参照组或模型不相容；交换 A/B | 打开比较并交换 | 每端绑定自己的地点与元数据；只有相容时显示差异，其他情况显示不可比原因且无赢家。对应 `AT-COMPARE-01`、`AT-COMPARE-03`。 |
-| `INFRA-02` | 新账户无权重记录；权重 `5/5/5`；合法自定义 `1–10`；边界值 1/10；无效/失败保存、retry 与恢复 last saved | 打开并调整三个权重 | 无记录为中性 `5`；合法调整立即产生标记的 single `unsaved preview`；成功保存才发布跨设备变化。失败保留草稿/preview，可 retry 或恢复 last saved；三个分项原值不变。 |
+| `INFRA-02` / `AT-ANALYSIS-01`、`AT-SWITCH-01` | 新账户无权重记录；权重 `5/5/5`；合法自定义 `1–10`；边界值 1/10；无效/失败保存、retry 与恢复 last saved | 打开并调整三个权重 | 无记录为中性 `5`；合法调整立即产生标记的 single `unsaved preview`；成功保存才发布跨设备变化。失败保留草稿/preview，可 retry 或恢复 last saved；三个分项原值不变。 |
 | `INFRA-01` / A/B；`INFRA-02` / Suitability | 同一地点有已保存或 unsaved 自定义账户权重，打开 A/B、摘要/Suitability；neutral ICI 缺失 | 返回比较/摘要/适配度输入 | single 页面可用账户权重/preview；A/B、摘要和 Suitability 只获得 `5/5/5` neutral ICI，且中性结果不可用时保留原因。对应 `AT-COMPARE-01`、`AT-SUIT-01`。 |
 | `INFRA-02` / Privacy | A、B 两账户各有权重；保存中换号、scope close 或晚到结果 | 切换账户/退出后再打开 | A 权重、未完成写入和结果不进入 B；close 期间没有 account-weighted ICI；公共分项不含私有信息。对应 `AT-SWITCH-01`、`AT-RACE-01`。 |
-| `INFRA-01`–`02` | 中文/English、长数字、资料缺失、颜色不可辨或键盘/读屏操作 | 阅读与调整 | 分项、权重、状态、日期、来源、等级及不可用原因均有文本和可访问名称；不以颜色、图标或滑块位置作为唯一含义。 |
+| `INFRA-01`–`02` / `AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-SWITCH-01` | 中文/English、长数字、资料缺失、颜色不可辨或键盘/读屏操作 | 阅读与调整 | 分项、权重、状态、日期、来源、等级及不可用原因均有文本和可访问名称；不以颜色、图标或滑块位置作为唯一含义。 |
 
 - [x] `INFRA-01`、`INFRA-02` 可追踪到 Owner、`INFRA-001`、事实源、数据对象和验收情景。
 - [x] `D25`–`D29` 与下游 `D46` 的责任明确；地点、Geo、交通、隐私、评估偏好与 Suitability 没有被本 Feature 接管。
@@ -110,3 +110,4 @@ Owner 可在自己的 Feature 目录内组织实现；以上是跨 Owner 文件�
 | 2026-09-14 | `Draft` | Issue #19 建立 Wave 6 Infrastructure Coverage owning design，冻结五项 ICI、账户权重、missing 规则、canonical Transit 复用和 neutral 输出；不改变既有数据模型或批准契约 | `INFRA-01`、`INFRA-02`、`INFRA-001`、`user_ici_preferences`、`read_infrastructure_inputs`、`TRANSIT-001`、D25–D29、D46 | 待独立审查 |
 | 2026-09-14 | `Draft` | 项目负责人批准 Q16/Q17：single 合法未保存权重即时预览、失败保留/retry/恢复 last saved、仅成功保存发布跨设备变化；A/B 固定 neutral ICI | `INFRA-01`、`INFRA-02`、`INFRA-001`、`STATE-INFRA-WEIGHT-PREVIEW`、`user_ici_preferences`、D46 | 项目负责人；独立审查待完成 |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `INFRA-01`、`INFRA-02`、`INFRA-001`、D25–D29、D46 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查补齐缺失资料、权重和可访问性验收的 canonical `AT-*`；不改变 ICI 契约 | `INFRA-01`、`INFRA-02`、`AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-SWITCH-01` | 项目负责人（本次审查） |

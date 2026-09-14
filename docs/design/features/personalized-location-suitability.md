@@ -14,7 +14,7 @@
 - 用户成果：在已开启账户范围中，用户可对一个合法地点查看可解释的 `0–100` 个人化地点适配度，或准确看到偏好、当前预案或具体维度为何不可用；在 A/B 中，仅两端均合格且可比时并列显示，绝不标示赢家或自动推荐。
 - 包含的 Capability ID：`MAP-07`。
 - 不包含及原因：不产生安全、成本、设施、交通或 ICI 的原始结果；不读取/保存偏好、预案或 ICI 权重；不控制地图选点、地点详情导航或六类分析；不提供客观宜居评级、推荐或排序。它们分别属于上游 Feature 或 Application Shell。
-- 产品事实源：[个人化地点适配度领域对象](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-个人化地点适配度)、[地图适配度规则](../../knowledge_base/locatemy_product/features/map_location.md#个人化地点适配度map-07)、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#地点详情折叠卡)、[生活成本规则](../../knowledge_base/locatemy_product/features/cost_of_living.md#预算压力)。
+- 产品事实源：[个人化地点适配度领域对象](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-个人化地点适配度)、[地图适配度规则](../../knowledge_base/locatemy_product/features/map_location.md#个人化地点适配度map-07)、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#地图和分析入口)、[生活成本规则](../../knowledge_base/locatemy_product/features/cost_of_living.md#预算压力)。
 - 原型差异：移除以 fixture、默认偏好、默认预算或其余四维拼出的读数；地点详情只显示实际可计算结果或精确原因，社会经济和用户隐患不加入输入。
 
 ## 2. 依赖、责任与文件边界
@@ -47,7 +47,7 @@
 ### 消费
 
 | ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `SHELL-001` | Application Shell | 进入地点详情/A-B 槽位、提交设置入口和组合结果 | 仅 opened scope 的合格地点/任务可被接受；rejected/authentication required 保留 Shell 原因，不改写为分析资料失败。 |
 | `LOCATION-001` | Map / Location | 取得 single 或 A/B 合法不可变地点引用 | 仅 valid reference 可计算；absent、outside Malaysia、invalid coordinate、same comparison point 或过期引用均不产出适配度。 |
 | `ACCOUNT-001` | Account Center | 取得同账户五项已配置偏好与版本 | 只接受五项完整 `1–10` 且有 `configured_at` 的 complete snapshot；不存在、null、草稿、保存失败或身份不符为 `prerequisite missing`。 |
@@ -84,14 +84,14 @@
 ## 6. 验收与 Ready Gate
 
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `MAP-07` / `AT-SUIT-01` | 同账户 complete 五项偏好、current 预案、五个合格 canonical 维度，含明确 `0` 分和 Transit stale warning | 打开地点详情 | 唯一事实源规则生成 `0–100`；五维、转换、权重、口径/日期/来源和 stale warning 可解释；明确零保留，stale 不静默消失。 |
 | `MAP-07` / `AT-SUIT-02` | 偏好不存在/`configured_at` null、无 current、未保存偏好或预案编辑、current 保存失败 | 打开详情或完成设置动作 | 分别显示 `prerequisite missing`，有对应设置/恢复入口；默认 `5`、其他预案、临时 CPI 和家庭月度总收入都不代替输入。 |
 | `MAP-07` / `AT-SUIT-03` | 安全、成本、设施、交通、ICI 各自 unavailable/partial/unknown/no route；缺失维度优先级分别为低、中、高；所有维度不可用 | 打开或刷新详情 | 低优先级缺失排除并重归一化且披露；中/高缺失无总分；所有无可用维度使用固定不可用文案。设施 unknown、不完整交通和 neutral ICI missing 不作为 `0`。 |
 | `MAP-07` / `AT-SUIT-04` | current 切换、删除 current、补齐/清空住房/交通/月净收入、完整/partial basket，以及地点或上游版本变化 | 管理预案后返回或刷新地点 | 仅已保存 current 的完整个人预算压力可供成本维度；成功版本变化即时使旧结果失效并重算；失败/旧结果不覆盖新语境。 |
 | `MAP-07` / `AT-SUIT-05` | A/B 两端均可算且纳入/排除集合完全一致、共同输入相容；单侧 prerequisite/dimension 缺失；两端可算但纳入/排除集合、偏好/current/模型或规则版本不相容；交换 | 进入/交换 A/B | 合格时只并列两个原始读数和覆盖说明；不可用与 incomparable 原因区分。incomparable 时仍保留各自原分和覆盖说明；任何情况不显示数值差值、赢家或自动推荐，交换不重算或混淆地点。 |
 | `MAP-07` / `AT-SUIT-06` | 账户 A/B 不同偏好/current，保存中换号、scope close、晚到请求 | 切换账户、退出或快速换点 | A 的偏好、预案、总分和晚到结果不进入 B；关闭期间无个人化总分；公共结果不泄露私有输入。 |
-| `MAP-07` | 中文/English、读屏/键盘、200% 字体、长原因/日期/金额、颜色不可见 | 阅读可用、部分和不可用状态 | 分数不是唯一表达；五维、权重、覆盖、限制、状态和设置入口均有可访问文字和合理顺序。 |
+| `MAP-07` / `AT-SUIT-01`–`AT-SUIT-06` | 中文/English、读屏/键盘、200% 字体、长原因/日期/金额、颜色不可见 | 阅读可用、部分和不可用状态 | 分数不是唯一表达；五维、权重、覆盖、限制、状态和设置入口均有可访问文字和合理顺序。 |
 
 - [x] `MAP-07` 可追踪至唯一 Owner、`SUITABILITY-001`、D39–D46、产品事实、运行时状态与验收情景。
 - [x] 原始分析、偏好/预案持久化、ICI 内部权重、地图导航和推荐仍分别归既有 Owner。
@@ -103,6 +103,7 @@
 ## 7. Change Log
 
 | 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
-| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | 2026-09-14 | `Draft` | Issue #21 建立 Wave 7 Personalized Location Suitability owning design，冻结五维门槛、转换/重归一化、解释及 A/B 无赢家边界 | `MAP-07`、`SUITABILITY-001`、`RESULT-*`、D39–D46、Account、Cost、Crime、Facilities、Transit、Infrastructure、Application Shell、Map | 待独立审查 |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴审查关闭公式重复、未定义状态与 A/B 可比性歧义；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `MAP-07`、`SUITABILITY-001`、`RESULT-*`、D39–D46、`AT-SUIT-01`–`06` | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查修复表格、UI 锚点并补齐全域可访问性验收追踪；不改变适配度规则 | `MAP-07`、`SUITABILITY-001`、`AT-SUIT-01`–`06` | 项目负责人（本次审查） |

@@ -15,7 +15,7 @@
 - 用户成果：已开启账户范围的用户可对合法单点看到本地价格、核心市场篮子估算月支出、覆盖率和可用时的地点成本指数；可对 A/B 按同一口径并列结果及差异；可管理按账户隔离的一份当前评估预案，使个人 `ScenarioSpend12`、预算压力和个人化地点适配度重算；没有可用预案金额时，仍可使用不保存的“当前月支出”CPI 等效换算。
 - 包含的 Capability ID：`COST-01`、`COST-02`、`COST-03`、`ACCOUNT-09`。
 - 不包含及原因：`COST-04`（商品/商家下钻）是 `excluded`，不显示入口；不拥有地点选择、行政区解析、家庭收入百分位、适配度总分或账户评估偏好；不以州级 CPI 称作行政区 CPI，不提供租金或交通的公共默认金额。
-- 产品事实源：[生活成本与预算](../../knowledge_base/locatemy_product/features/cost_of_living.md)、[核心业务对象](../../knowledge_base/locatemy_product/domain_objects.md#budget-scenario-预算预案)、[提交承诺](../../knowledge_base/locatemy_product/submission_commitments.md#生活成本与预算)、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#生活成本与预算)。
+- 产品事实源：[生活成本与预算](../../knowledge_base/locatemy_product/features/cost_of_living.md)、[核心业务对象](../../knowledge_base/locatemy_product/domain_objects.md#budget-scenario-预算预案)、[提交承诺](../../knowledge_base/locatemy_product/submission_commitments.md#生活成本与预算)、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#生活成本)。
 - 原型差异：移除 fixture、固定指数、错误的商品 `/月` 单位、未完成的预案选择及无回调“查看商家”。单项价格显示其真实商品单位；RM/月仅用于模型计算的月支出。临时输入不再冒充预案或预算压力输入。
 
 ## 2. 依赖、责任与文件边界
@@ -92,14 +92,14 @@ Owner 可在自己的 Feature 目录内组织文件；上述只是跨 Owner 受�
 ## 6. 验收与 Ready Gate
 
 | Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- |
-| `COST-01` | 合法单点、resolved 行政区、核心市场完整 12 月资料且覆盖率 ≥80%；另有 current 的住房/交通与月净收入 | 打开成本分析 | 显示真实单位本地价格、核心市场 `ObservedSpend12`、覆盖率和可解释地点成本指数；同时显示个人 `ScenarioSpend12`、地点基线与个人预算压力；每项带地点、资料/模型来源和日期，不称官方 CPI/评级。 |
-| `COST-01` | 核心市场缺商品、少于 6 个月、覆盖率不足、Geo unresolved/ambiguous 或资料不可读；或住房/交通/收入未填写 | 打开或刷新分析 | 显示可得 observed/partial 读数和覆盖/Geo 原因；核心市场完整时仍显示地点成本指数，即使个人预案不完整；个人输入缺失时只省略 `ScenarioSpend12`/压力及适配度成本输入，不以零、最近月、州/全国价格或家庭收入补齐。 |
+| --- | --- | --- | --- |
+| `COST-01` / `AT-ANALYSIS-01` | 合法单点、resolved 行政区、核心市场完整 12 月资料且覆盖率 ≥80%；另有 current 的住房/交通与月净收入 | 打开成本分析 | 显示真实单位本地价格、核心市场 `ObservedSpend12`、覆盖率和可解释地点成本指数；同时显示个人 `ScenarioSpend12`、地点基线与个人预算压力；每项带地点、资料/模型来源和日期，不称官方 CPI/评级。 |
+| `COST-01` / `AT-ANALYSIS-01` | 核心市场缺商品、少于 6 个月、覆盖率不足、Geo unresolved/ambiguous 或资料不可读；或住房/交通/收入未填写 | 打开或刷新分析 | 显示可得 observed/partial 读数和覆盖/Geo 原因；核心市场完整时仍显示地点成本指数，即使个人预案不完整；个人输入缺失时只省略 `ScenarioSpend12`/压力及适配度成本输入，不以零、最近月、州/全国价格或家庭收入补齐。 |
 | `COST-01` | A/B 均完整且同口径；一侧缺失/部分；篮子/单位/日期或预算场景不相容；交换 A/B | 打开比较、切换显示顺序 | 两端保留原地点和元数据；只有相容时显示差异；不相容时显示不可比原因及可用原值，无赢家或自动推荐。对应 `AT-COMPARE-01`、`AT-COMPARE-03`。 |
 | `COST-01` | 3 天缓存命中、用户刷新、网络失败有有效缓存、无缓存/过期缓存 | 重开或刷新同一地点 | 结果准确标为 fresh/cached/stale/partial/unavailable，含资料日期与取得时间；刷新不改地点/预案；不用 fixture。对应 `AT-ANALYSIS-01`。 |
-| `COST-02` | 无可用预案金额时的有效/无效临时输入，最新共同月份州/全国 Headline/Overall CPI 可用/缺失/不同月，离页返回 | 输入当前月支出 | 仅同月、同口径 CPI 可得时显示 `EquivalentRM = InputRM × StateHeadlineCPI / NationalHeadlineCPI` 的独立且不保存结果；无效/不可用有原因；离页清除，绝不改变预案、压力或 Suitability。 |
+| `COST-02` / `AT-ANALYSIS-01` | 无可用预案金额时的有效/无效临时输入，最新共同月份州/全国 Headline/Overall CPI 可用/缺失/不同月，离页返回 | 输入当前月支出 | 仅同月、同口径 CPI 可得时按唯一产品事实显示独立且不保存的等效结果；无效/不可用有原因；离页清除，绝不改变预案、压力或 Suitability。 |
 | `COST-03`、`ACCOUNT-09` | 两账户分别新建、重命名、编辑、选择、删除最后一份、删除 current；月净/家庭总收入分别缺失或明确为 RM 0；保存失败；current 变化；退出/换号 | 管理预算预案并返回地点摘要/A-B | 仅 owner 看见/修改自己的已保存预案；最后一份可删除；删除 current 后为无 current，直到显式选择且绝不自动选择其他预案；月净收入仅重算预算压力/Suitability，家庭月度总收入仅重算 Socio 收入位置；旧预案缺字段保持缺失；失败不发布；关闭后 A 的 current/副本不进入 B。对应 `AT-SUIT-02`、`AT-SUIT-04`、`AT-SUIT-06`。 |
-| `COST-01`–`03` | 中文/English、动态文字、颜色不可用、长数字/金额/百分比 | 阅读正常、部分、缓存、不可用和保存失败状态 | 同一功能/状态均有完整文字和可访问名称；单位、日期、估算/官方/输入边界及错误原因不只靠颜色。 |
+| `COST-01`–`03` / `AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-SUIT-02`、`AT-SUIT-04`、`AT-SUIT-06` | 中文/English、动态文字、颜色不可用、长数字/金额/百分比 | 阅读正常、部分、缓存、不可用和保存失败状态 | 同一功能/状态均有完整文字和可访问名称；单位、日期、估算/官方/输入边界及错误原因不只靠颜色。 |
 
 - [x] `COST-01`–`03`、`ACCOUNT-09` 均映射至 Cost Owner、`COST-001`/`COST-002`、唯一事实源、数据对象和验收情景。
 - [x] `D07`–`D10`、`SHELL-001`、`LOCATION-001`、`GEO-001`、`PRIVACY-001` 的责任、账户边界和副作用不重叠。
@@ -122,3 +122,4 @@ Owner 可在自己的 Feature 目录内组织文件；上述只是跨 Owner 受�
 | 2026-09-14 | `Ready for Development` | Account Center 双轴审查将 `COST-002` 的账户摘要字段显式冻结为名称、额外生活开销、住房、交通、月净收入及缺失状态；不改变预案模型或所有权 | `COST-002`、`ACCOUNT-09`、Account Center | 设计 AI（项目负责人授权） |
 | 2026-09-14 | `Draft` | 项目负责人 Q18 批准 additive 的可空非负家庭月度总收入；它仅供 Socio 收入位置，月净收入仍仅供个人预算压力；旧预案不猜测补齐，等待影响复审 | `COST-002`、`ACCOUNT-09`、`SOCIO-001`、`user_budget_scenarios`、Account Center、Socio-economic | 项目负责人 |
 | 2026-09-14 | `Ready for Development` | Q18 additive 字段的独立 Standards/Spec 双轴影响复审通过；恢复 Ready，migration 与旧资料导入仍为实现 Gate | `COST-002`、`ACCOUNT-09`、`SOCIO-001`、`user_budget_scenarios`、Account Center、Socio-economic | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | 全面设计审查修复表格、事实源锚点与 canonical 验收追踪，并移除验收表中的重复公式正文；不改变业务规则 | `COST-01`–`03`、`ACCOUNT-09`、`AT-ANALYSIS-01`、`AT-COMPARE-*`、`AT-SUIT-*` | 项目负责人（本次审查） |
