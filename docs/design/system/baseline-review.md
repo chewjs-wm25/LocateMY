@@ -47,7 +47,7 @@
 | Map / 4 | 本机收藏缓存/创建队列 | 双设备、幂等 create、在线删除传播、换号清理 | 有可证明坐标才迁移 `user_saved_regions`，否则 deny 后移除 | Map Ready |
 | Cost / 5 | `cpi_state_inflation` 与 `read_cost_inputs` | 官方键、覆盖率、日期和同口径 A/B | 稳定读取切换后移除旧 RPC | Cost Ready |
 | Crime / 5 | canonical `crime_district`、`read_safety_inputs` | 官方 schema/键、最新完整年度、五年趋势、州级聚合 | 消费者切换后移除/改名旧 `crime_stats` | Crime Ready |
-| Transit / 5 | feed snapshots、标准化 stops/routes/services、reference grid 与读取对象 | feed 解析、有效服务日、缺 feed、失败/过期、唯一站点/路线 | 切换后移除不带 feed identity 的 `transit_stops`/旧 RPC | Transit Ready |
+| Transit / 5 | feed snapshots、标准化 stops/routes/services、reference grid 与读取对象 | feed 解析、有效服务日、缺 feed、失败/过期、唯一站点/路线，以及 >30 天 stale 与分析日超服务范围 unavailable | 切换后移除不带 feed identity 的 `transit_stops`/旧 RPC | Transit Ready |
 | Hazard / 5 | 安全聚合 `hazard_vote_counts` seam | 两账户读同一计数且不能枚举他人票；匿名拒绝 | 新聚合通过后移除不安全 View | Hazard Ready |
 | Socio / 6 | 州收入/基尼/百分位与 `read_socio_inputs` | 层级、年份、P1/P100 边界和 A/B 可比性 | 切换后移除全国/错误粒度替代物与旧 RPC | Socio Ready |
 | Infrastructure / 6 | population/schools、读取对象及三项 `1–10` ICI 权重 | 官方维度/键、缺失重归一化、两账户默认/迁移样本 | 切换后移除旧五项 `0–1` 权重和错误粒度对象 | Infrastructure Ready |

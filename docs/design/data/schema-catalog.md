@@ -71,11 +71,11 @@
 
 | 对象 | 类型/状态 | Owner | 字段契约 | 访问规则 / 迁移方向 |
 | --- | --- | --- | --- | --- |
-| `gtfs_feed_snapshots` | Supabase table / `proposed` | Public Transportation | feed id、source id/url、captured at、parse status、service date range、failure reason；每次采集唯一标识 | authenticated read-only；保留失败尝试，不伪装空 feed |
+| `gtfs_feed_snapshots` | Supabase table / `proposed` | Public Transportation | feed id、source id/url、captured at、parse status、service date range、failure reason；每次采集唯一标识 | authenticated read-only；保留失败尝试，不伪装空 feed；资料状态规则见公共交通事实源 |
 | `gtfs_stops` | Supabase table / `proposed` | Public Transportation | snapshot/feed/stop id、name、WGS84 point、location type、parent station | authenticated read-only；取代缺 feed id 的 `transit_stops` |
 | `gtfs_routes` | Supabase table / `proposed` | Public Transportation | snapshot/feed/route id、short name、route type | authenticated read-only |
 | `gtfs_stop_services` | Supabase table / `proposed` | Public Transportation | snapshot、feed、stop、route、service date、active flag；键可证明有效路线关联 | authenticated read-only；来源链为 routes→trips→stop_times→calendar/exception |
-| `transit_analysis_results` | Supabase View/RPC / `proposed` | Public Transportation | analysis point/radius/date、feed status、nearest distance、unique stops/routes、density、percentiles、score、availability、generated at | authenticated read-only；Infrastructure 必须复用相同结果 |
+| `transit_analysis_results` | Supabase View/RPC / `proposed` | Public Transportation | analysis point/radius/date、feed status、nearest distance、unique stops/routes、density、percentiles、score、availability、service outcome、stale warning、generated at | authenticated read-only；Transit 的稳定读取结果；完整资料状态语义见公共交通事实源 |
 | `transit_reference_grid` | Supabase table / `proposed` | Public Transportation | snapshot、1 km grid point、stop density、route count、percentiles | authenticated read-only；固定参照组，不依赖用户地点 |
 
 ### 稳定公共读取对象
@@ -90,7 +90,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
 | `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
-| `read_transit_analysis` | security-invoker View/RPC / `proposed` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit、Infrastructure |
+| `read_transit_analysis` | security-invoker View/RPC / `proposed` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit |
 
 ### 本机对象
 

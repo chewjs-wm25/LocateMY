@@ -25,7 +25,7 @@
 | `lib/app/` | Application Shell | 已开启 scope 下地图 Tab、类型化分析/表单/返回导航及组合槽位 | 地点校验、收藏同步、图层业务语义 | 消费 `LOCATION-001`；按 `SHELL-001` 接收 Map 的导航意图与图层点击意图 |
 | `lib/features/account_privacy/` | Account Privacy | 开启/关闭账户范围和关闭证明 | Map 的地点/收藏 payload 或地图缓存实现 | `PRIVACY-001` 要求 Map 清理旧账户 `STATE-LOCATION`、收藏缓存和创建队列 |
 | Map / Location 外部搜索 seam | Map / Location | 取得限于马来西亚的候选名称与坐标 | 最终空间合法性、可变地点状态 | `LOCATION-003` 的候选仍须以 `LOCATION-001` 完成范围及坐标校验 |
-| 寄宿图层 Feature | Hazard Reporting、Nearby Facilities | 各自图层内容、权限、刷新、领域标识与点击后的业务意图 | 底图、相机、全局选点、其他图层的解释 | 经 `LOCATION-002` 提交声明式贡献；Map 只呈现并转交类型化意图 |
+| 寄宿图层 Feature | Hazard Reporting、Nearby Facilities、Public Transportation | 各自图层内容、权限、刷新、领域标识与点击后的业务意图 | 底图、相机、全局选点、其他图层的解释 | 经 `LOCATION-002` 提交声明式贡献；Map 只呈现并转交类型化意图 |
 
 Owner 可在自己的目录内组织内部文件。受控边界只固定上述跨 Owner 入口，不规定内部符号、SDK/Adapter、缓存键、网络时序、冲突处理算法或测试实现。
 
@@ -46,7 +46,7 @@ Owner 可在自己的目录内组织内部文件。受控边界只固定上述�
 | ID | 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
 | --- | --- | --- | --- | --- |
 | `LOCATION-001` | Application Shell；Cost；Crime；Facilities；Transit；Hazard；Socio-economic；Infrastructure；Property Inspection；Personalized Location Suitability | 接受用户点选、已选搜索候选或明确业务选点任务，校验后发布与可变选点隔离的不可变合法地点引用；维护 single、A、B、property 四种地点角色及相应 Marker/卡片。 | 输入为候选坐标和所请求角色，或读取时指定角色。输出为 `valid location reference`，或 `absent`、`outside Malaysia`、`invalid coordinate`、`same comparison point`。A/B 只表示呈现顺序；不同角色互不静默改写；读取已发布快照无副作用。候选的国家文字或来源声明不能代替最终空间校验。 | 只在 `PRIVACY-001` 对同一账户为 `opened` 的主应用流程接受或读取。合法选择只更新对应角色及地图呈现；不申请 GPS、不解析行政区、不计算分析结果。较旧候选或结果不得覆盖较新的用户请求；scope 关闭时丢弃地点状态与晚到结果。 |
-| `LOCATION-002` | Hazard Reporting；Nearby Facilities | 为寄宿 Feature 接收声明式图层、显示条件、稳定条目标识和点击意图；对合法长按坐标返回创建意图。Map 根据可见范围组织覆盖物和相机，但不解释业务内容。 | 图层贡献返回 `accepted`、`hidden` 或 `rejected(reason)`；点击仅回传提供方定义的领域标识和类型化意图，不暴露地图内部对象。合法长按产生地点/创建意图；非法或范围外坐标为 `rejected(reason)`。较旧 viewport 结果不得覆盖较新 viewport。 | 图层读取权限由提供方负责，长按创建须 authenticated。Map 更新覆盖物或相机，不改变单点/A/B/分析地点，除非用户明确确认选点；不写报告、设施或安全结果。 |
+| `LOCATION-002` | Hazard Reporting；Nearby Facilities；Public Transportation | 为寄宿 Feature 接收声明式图层、显示条件、稳定条目标识和点击意图；对合法长按坐标返回创建意图。Map 根据可见范围组织覆盖物和相机，但不解释业务内容。 | 图层贡献返回 `accepted`、`hidden` 或 `rejected(reason)`；点击仅回传提供方定义的领域标识和类型化意图，不暴露地图内部对象。Transit 贡献只描述当前交通页的分析中心、1.5km 圆、稳定 `feed_id + stop_id` Marker 与选中意图；合法长按产生地点/创建意图；非法或范围外坐标为 `rejected(reason)`。较旧 viewport 结果不得覆盖较新 viewport。 | 图层读取权限由提供方负责，长按创建须 authenticated。Map 更新覆盖物或相机，不改变单点/A/B/分析地点，除非用户明确确认选点；Transit 的选择仍属其页面局部状态。Map 不写报告、设施或交通结果。 |
 
 ### 消费
 
@@ -93,7 +93,7 @@ Owner 可在自己的目录内组织内部文件。受控边界只固定上述�
 | `MAP-05` | 在线 CRUD、双设备恢复、离线 create 后重启/重放、删除传播、冲突、换号和权限失败 | 命名收藏、手动/前台同步、删除、切换账户 | Supabase 结果为权威；离线只显示 queued；同一 create 不重复、删除传播到其他设备、旧账户缓存/队列不能在新账户呈现。对应 `AT-SAVED-01`–`AT-SAVED-04`。 |
 | `MAP-06` | 有合法单点、有效 A/B、无地点，以及六类一项或多项 unavailable/partial/cached | 从详情进入完整分析或比较 | 只把不可变合法引用交给 Shell；无合法前置地点不可进入；每项结果独立保留来源/日期/口径/可用性，Map 不合成或置零。对应 `AT-ANALYSIS-01`、`AT-COMPARE-03`。 |
 | `MAP-01`、`MAP-05` / `PRIVACY-001` | scope opened、关闭中、关闭失败重试、账户 A→B 切换与晚到搜索/同步结果 | 登录、退出/换号、重试关闭、恢复网络 | opened 前无私有地点/收藏；关闭开始即不可访问旧内容，Map 对自身私有状态处理完成后才报告；新账户不继承任何地点、名称或 queued create。对应 `AT-SAVED-04`、`AT-RACE-01`。 |
-| `LOCATION-002` / Hazard、Facilities | 图层被允许、隐藏、拒绝、viewport 更新、点击、长按合法/非法坐标 | 显示/点击图层或长按 | Map 正确承载提供方图层和意图；旧 viewport 不覆盖新 viewport；点击/长按不静默改变地点，写入和业务语义仍归提供方。 |
+| `LOCATION-002` / Hazard、Facilities、Transit | 图层被允许、隐藏、拒绝、viewport 更新、点击、长按合法/非法坐标 | 显示/点击图层或长按 | Map 正确承载提供方图层和意图；Transit 仅提交当前页面的中心/圆/稳定站点 Marker/选中意图，旧 viewport 不覆盖新 viewport；点击/长按不静默改变地点，写入和业务语义仍归提供方。 |
 
 - [x] `MAP-01`–`MAP-06` 可追踪至 Map Owner、`LOCATION-001`/`LOCATION-002`、事实源、数据对象及验收情景；`MAP-07` 明确追踪至 Suitability Owner 而非复制其契约。
 - [x] Application Shell、Account Privacy、Map、图层提供方和分析提供方的责任、文件边界与可观察副作用无重叠。
@@ -110,3 +110,4 @@ Owner 可在自己的目录内组织内部文件。受控边界只固定上述�
 | --- | --- | --- | --- | --- |
 | 2026-09-14 | `Draft` | Issue #11 建立 Wave 4 Map / Location owning design，冻结合法地点引用、地图图层宿主、账户隔离的收藏同步及分析导航边界 | `MAP-01`–`MAP-06`、`LOCATION-001`–`003`、`STATE-LOCATION`、`user_saved_locations`、`saved_location_cache`、`saved_location_create_queue`、`SHELL-001`、`PRIVACY-001`、D05/D06/D08/D12/D15/D17/D22/D26/D31/D40 | 待独立审查与设计 AI 依 ADR 0013 批准 |
 | 2026-09-14 | `Ready for Development` | 项目负责人固定范围与收藏同步决定；独立规格/边界审查确认契约、资料、风险和验收链完整 | `MAP-01`–`MAP-06`、`LOCATION-001`–`003`、`RISK-GEO-01`、`RISK-SYNC-01`、`user_saved_locations`、`saved_location_cache`、`saved_location_create_queue` | 设计 AI（项目负责人依 ADR 0013 授权） |
+| 2026-09-14 | `Ready for Development` | 项目负责人 Q12 确认 Public Transportation 经既有 `LOCATION-002` 提交声明式站点分布图；Map 的通用图层宿主语义不变 | `LOCATION-002`、Public Transportation、D17 | 项目负责人 |
