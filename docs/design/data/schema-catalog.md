@@ -29,7 +29,7 @@
 | `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/update/delete；Hazard、Property count | 现有对象；公开不等于匿名；无 verified/rejected 或维护者例外 |
 | `crowdsourced_hazard_votes` | Supabase table | `implemented` | Hazard Reporting | hazard id + user id 复合主键、vote `-1/+1`、created/updated at | authenticated 仅管理本人票；Hazard | 撤回删除本人行；级联随报告删除 |
 | `hazard_vote_counts` | aggregate View/RPC | `proposed` | Hazard Reporting | hazard id、upvotes、downvotes；由全部 vote 行聚合，只暴露计数 | authenticated read；Hazard | 现有 security-invoker View 在“只读本人投票”的 RLS 下不能生成全局计数；owning design 须选择不泄露投票者身份的安全聚合 seam |
-| `property_inspections` | Supabase table | `proposed` | Property Inspection | id、user id、名称 1–200、地址、必需 WGS84 point、可空收藏 id、非负价格、四项 1–5、flood evidence、notes、风险警区/安全分/附近隐患数/采集时间、deleted/created/updated at | owner-only CRUD；Property | 现有表允许 location 为空，尚未满足地点/风险快照契约；风险四字段作为一个快照更新；soft delete 不删照片 |
+| `property_inspections` | Supabase table | `proposed` | Property Inspection | id、user id、名称 1–200、地址、必需 WGS84 point、可空收藏 id、非负价格、四项 1–5、flood evidence、notes、风险统计州/州级安全指数/附近隐患数/采集时间、deleted/created/updated at | owner-only CRUD；Property | 现有表允许 location 为空，尚未满足地点/风险快照契约；风险四字段作为一个快照更新；soft delete 不删照片 |
 | `property_inspection_photos` | Supabase table | `proposed` | Property Inspection | id、inspection id、user id、唯一 storage path、可空说明 ≤1000、cover flag、created at；每实勘最多 20 | owner-only CRUD，且 user 必须拥有父实勘；Property | 现有表/部分 policy 已建立，但 update/delete 尚未完整证明父实勘 owner；删除封面回退规则归 Feature |
 | `inspection-photos` | private Storage bucket | `proposed` | Property Inspection | 对象路径首段 account id，继而 inspection id 与不可变 photo id；静态常见图片、压缩后上传 | owner-only select/insert/update/delete，且父实勘同 owner；Property | 现有 bucket 已建立，但 read/update/delete 仍须按父实勘关系加固；upsert 需 read/insert/update 权限 |
 
@@ -54,9 +54,9 @@
 | `hh_inequality_district` | `implemented` | Socio | `(state, district, date)`；gini | Socio |
 | `hh_inequality_state` | `proposed` | Socio | `(state, date)`；gini | Socio；现有全国 `hh_inequality` 不能替代 |
 | `hies_state_percentile` | `proposed` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；现有全国 percentile 与州汇总表不能替代 |
-| `crime_district` | `proposed` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；现有 `crime_stats` 须验证数据集与键后迁移/重命名 |
+| `crime_district` | `proposed` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；按 `state` 聚合为州级结果，现有 `crime_stats` 须验证数据集与键后迁移/重命名 |
 | `administrative_district_boundaries` | `proposed` | Geographic Context | boundary id、name、state、multipolygon、source version | Cost、Socio、Infrastructure；批准导入 DOSM OpenDOSM `administrative_2_district.geojson` commit `21a78e98efd4cd9b022a27a1bf67d167076b7591`，但当前尚未导入/审计 |
-| `police_districts_boundary` | `implemented` | Geographic Context | id、name、state、multipolygon、source version | Crime；现有对象缺 source version，且尚未取得 PDRM 或明确授权持有人的正式边界资料、书面许可与冻结版本；不可作为完整契约证据 |
+| `police_districts_boundary` | `retiring` | 无 | id、name、state、multipolygon、source version | 禁止新消费者；警区多边形资料不可获取，待无消费者后由 migration 删除；历史 migration 不回写 |
 | `hh_access_amenities` | `implemented` | Infrastructure | `(state, district, date)`；piped water、sanitation、electricity | Infrastructure |
 | `hospital_beds` | `implemented` | Infrastructure | `(state, district, date, type)`；beds | Infrastructure |
 | `population_district` | `proposed` | Infrastructure | `(state, district, date, sex, age, ethnicity)`；population | Infrastructure；现有 `district_population` 缺维度，不能替代 |

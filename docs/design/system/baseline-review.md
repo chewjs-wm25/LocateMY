@@ -42,11 +42,11 @@
 | Owner / 波次 | add | migrate / validate | remove 条件 | 最迟完成 |
 | --- | --- | --- | --- | --- |
 | Authentication / 1 | 保留 `profiles`，加固与 Auth identity 的一致性约束 | 两账户 CRUD 与真实邮箱/确认状态不复制验证 | 无替代消费者后移除任何旧认证资料副本 | Authentication Ready |
-| Geographic Context / 1 | `administrative_district_boundaries`；补 `police_districts_boundary.source version` | 边界点、离岛、重叠、零匹配、多版本样本 | `match_police_district` 无消费者后移除 | Geographic Context Ready |
+| Geographic Context / 1 | `administrative_district_boundaries` | 边界点、离岛、重叠、零匹配、多版本样本 | `police_districts_boundary` 无消费者后移除 | Geographic Context Ready |
 | Home / 4 | 四个缺失 canonical 镜像与 `read_home_metrics` | 官方 schema、键、行数、最大日期、完整/部分/空导入 | 稳定读取切换后移除不适配 Home 旧对象 | Home Ready |
 | Map / 4 | 本机收藏缓存/创建队列 | 双设备、幂等 create、在线删除传播、换号清理 | 有可证明坐标才迁移 `user_saved_regions`，否则 deny 后移除 | Map Ready |
 | Cost / 5 | `cpi_state_inflation` 与 `read_cost_inputs` | 官方键、覆盖率、日期和同口径 A/B | 稳定读取切换后移除旧 RPC | Cost Ready |
-| Crime / 5 | canonical `crime_district`、`read_safety_inputs` | 官方 schema/键、最新完整年度、五年趋势、警区绑定 | 消费者切换后移除/改名旧 `crime_stats` | Crime Ready |
+| Crime / 5 | canonical `crime_district`、`read_safety_inputs` | 官方 schema/键、最新完整年度、五年趋势、州级聚合 | 消费者切换后移除/改名旧 `crime_stats` | Crime Ready |
 | Transit / 5 | feed snapshots、标准化 stops/routes/services、reference grid 与读取对象 | feed 解析、有效服务日、缺 feed、失败/过期、唯一站点/路线 | 切换后移除不带 feed identity 的 `transit_stops`/旧 RPC | Transit Ready |
 | Hazard / 5 | 安全聚合 `hazard_vote_counts` seam | 两账户读同一计数且不能枚举他人票；匿名拒绝 | 新聚合通过后移除不安全 View | Hazard Ready |
 | Socio / 6 | 州收入/基尼/百分位与 `read_socio_inputs` | 层级、年份、P1/P100 边界和 A/B 可比性 | 切换后移除全国/错误粒度替代物与旧 RPC | Socio Ready |

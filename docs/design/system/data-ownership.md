@@ -41,10 +41,10 @@
 
 | 数据族 | 唯一 Owner | 远端/外部来源 | 本机形态 | 保留与不可用规则 |
 | --- | --- | --- | --- | --- |
-| 行政区/警区边界 | Geographic Context | 版本化只读边界对象 | 可替换公共缓存 | 版本是结果一部分；零/多匹配不以附近地区替代 |
+| 行政区边界 | Geographic Context | 版本化只读边界对象 | 可替换公共缓存 | 版本是结果一部分；零/多匹配不以附近地区替代 |
 | 全国宏观资料 | Home & Relocation Outlook | Home 只读 View/RPC | `home_public_cache` | 缓存记录每个数据集最大观测日期；在线只以更近数据替换 |
 | 生活成本资料 | Cost of Living & Budget | Cost 只读 View/RPC | `cost_public_cache`，3 天 | 不含账户预案、收藏名称或用户输入 |
-| 犯罪资料 | Crime & Security | Crime 只读 View/RPC | `crime_public_cache`，3 天 | 显示官方年份；警区与行政区分开 |
+| 犯罪资料 | Crime & Security | Crime 只读 View/RPC | `crime_public_cache`，3 天 | 显示官方年份与州级口径；原始警区记录只用于州汇总 |
 | 周边设施 | Nearby Facilities | Overpass/OSM | `facility_public_cache`，24 小时 | 只有完整响应可缓存为空；不含账户标识 |
 | 交通标准化结果 | Public Transportation | 维护者导入的 GTFS 只读结果 | 可替换公共缓存 | stale 可显示；incomplete/no active routes/no stops 分开 |
 | 社会经济资料 | Socio-economic | Socio 只读 View/RPC | 可替换公共缓存（若建立） | 每项保留层级、年份；一项失败不清空其他项 |

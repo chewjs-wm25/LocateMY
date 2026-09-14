@@ -34,9 +34,9 @@ canonical: true
 | COST-02 | 临时月预算换算 | partial | 无预案时显示页面内存临时输入，离页丢失 | `required` |
 | COST-03 | 预算预案 CRUD | partial | 远端增查改删名称及三类金额，但页面编辑能力不完整 | `required` |
 | COST-04 | 查看商家 | placeholder | 按钮无回调 | `excluded` |
-| SAFE-01 | 安全指数与趋势 | working | 整体指数、犯罪分类、按类趋势 | `required` |
-| SAFE-02 | 安全地图 | working | 警区边界与分析地点 | `required` |
-| SAFE-03 | 犯罪类别筛选 | working | 仅改变趋势线，不改变总分和地图 | `required` |
+| SAFE-01 | 州级安全指数与趋势 | working | 州级整体指数、犯罪分类、按类趋势 | `required` |
+| SAFE-02 | 安全地图 | excluded | 警区边界资料不可获取，警区地图已从范围移除 | `excluded` |
+| SAFE-03 | 犯罪类别筛选 | working | 仅改变州级趋势线，不改变总分 | `required` |
 | SOCIO-01 | 收入结构 | working | B40/M40/T20、收入、排名、基尼与分布 | `required` |
 | SOCIO-02 | 用户收入位置 | partial | 当前页面没有真实用户收入位置数据服务；社会经济页面保留示例/缺失状态 | `required` |
 | SOCIO-03 | 两地社会经济对比 | partial | A/B 比较总览和详情可展示示例收入、基尼读数；尚未接入真实数据 | `required` |
@@ -95,9 +95,8 @@ canonical: true
 | COST-01 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 单点报告显示本地价格、篮子估算月支出、生活成本指数与资料覆盖；比较页以相同口径并列 A/B |
 | COST-02 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 没有可用预案金额时，用户可输入当前月支出获得 CPI 等效换算，离开页面后不保存 |
 | COST-03 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 用户可按账户新增、重命名、选择、编辑金额和删除预算预案；切换后依赖读数立即重算 |
-| SAFE-01 | [crime_security](features/crime_security.md) | 单点页显示警区安全指数 0–100、最新完整年度案件数和最近五年趋势 |
-| SAFE-02 | [crime_security](features/crime_security.md) | 安全地图显示警区边界与当前分析地点 |
-| SAFE-03 | [crime_security](features/crime_security.md) | 切换犯罪类别只改变趋势图，并在控件下说明作用域 |
+| SAFE-01 | [crime_security](features/crime_security.md) | 单点页显示州级安全指数 0–100、最新完整年度案件数和最近五年趋势 |
+| SAFE-03 | [crime_security](features/crime_security.md) | 切换犯罪类别只改变州级趋势图，并在控件下说明作用域 |
 | SOCIO-01 | [socio_economic](features/socio_economic.md) | 单点页显示行政区（或标注州级回退）收入中位数、B40/M40/T20 和基尼系数及各自统计年份 |
 | SOCIO-02 | [socio_economic](features/socio_economic.md) | 用户输入家庭月收入后看到州级参考百分位位置，或明确的低于 P1、高于 P100、暂不可用状态 |
 | SOCIO-03 | [socio_economic](features/socio_economic.md) | 地点比较以 A/B 并列收入和基尼等相同口径读数，不可比时说明原因 |
@@ -122,4 +121,4 @@ canonical: true
 | ACCOUNT-08 | [account](features/account.md)、[domain_objects](domain_objects.md) | 用户可设置五项必填 `1–10` 评估偏好，并在重启或换设备后恢复 |
 | ACCOUNT-09 | [account](features/account.md)、[domain_objects](domain_objects.md) | 用户可选择并保存一份当前评估预案，切换后预算压力与适配度立即重算 |
 
-本基线由项目负责人于 2026-09-13 逐项确认：`COST-04`、`FAC-02`、`ACCOUNT-03`–`ACCOUNT-06` 定为 `excluded`；语言偏好存本机键值存储且不绑定账号；ICI 权重按账户保存、默认 5、只影响基础设施单点 ICI；新增 `MAP-07`、`ACCOUNT-08`、`ACCOUNT-09`。`COST-02`、`HAZ-03`、`PROP-05` 与 [ui_design_spec](ui_design_spec.md) 的冲突已按[提交承诺](submission_commitments.md)修正。Issue #1 追踪。
+本基线由项目负责人于 2026-09-13 逐项确认：`COST-04`、`FAC-02`、`ACCOUNT-03`–`ACCOUNT-06` 定为 `excluded`；语言偏好存本机键值存储且不绑定账号；ICI 权重按账户保存、默认 5、只影响基础设施单点 ICI；新增 `MAP-07`、`ACCOUNT-08`、`ACCOUNT-09`。`COST-02`、`HAZ-03`、`PROP-05` 与 [ui_design_spec](ui_design_spec.md) 的冲突已按[提交承诺](submission_commitments.md)修正。2026-09-14，项目负责人因警区多边形边界资料不可获取，将 `SAFE-02` 改为 `excluded`，并将 `SAFE-01`／`SAFE-03` 固定为州级口径。Issue #1 追踪。

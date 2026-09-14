@@ -111,7 +111,7 @@
 | 修改他人投票/直接计数 | permission/contract failure | 只允许本人投票动作 |
 | 图层分页失败 | 保留已成功页并标记不完整，不把缺页当无隐患 | 重试当前 viewport |
 | 报告被并发删除/改变 | conflict/not found，刷新详情和计数 | 返回图层或重新操作 |
-| 治安分析 | 隐患不进入 `SAFETY-001` 分数或警区统计 | 不适用 |
+| 治安分析 | 隐患不进入 `SAFETY-001` 分数或州级犯罪统计 | 不适用 |
 
 验收：`AT-HAZARD-01` 五类创建/详情/本人列表；`AT-HAZARD-02` viewport 分页与失败；`AT-HAZARD-03` 两账户作者权限；`AT-HAZARD-04` 投票切换/撤回/计数；`AT-HAZARD-05` 离线写不伪装排队。
 

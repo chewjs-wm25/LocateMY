@@ -1,9 +1,9 @@
 # Capability 追踪
 
 > 状态：`Baselined — 5d11769`
-> 最后更新：2026-09-13
+> 最后更新：2026-09-14
 
-本表把全部 45 项 `required` Capability 连接到唯一 Owner、系统 Interface、权威数据/状态、验收场景、
+本表把全部 44 项 `required` Capability 连接到唯一 Owner、系统 Interface、权威数据/状态、验收场景、
 设计波次和产品事实。契约正文只在[系统注册表](interfaces.md)，对象定义只在
 [Schema Catalog](../data/schema-catalog.md)与[数据所有权](data-ownership.md)。
 
@@ -29,7 +29,6 @@
 | `COST-02` | Cost of Living & Budget | `COST-001` | `STATE-COST-TEMP`、`read_cost_inputs` | `AT-ANALYSIS-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[生活成本](../../knowledge_base/locatemy_product/features/cost_of_living.md) |
 | `COST-03` | Cost of Living & Budget | `COST-002`、`PRIVACY-001` | `user_budget_scenarios` | `AT-SUIT-02`、`AT-SUIT-04`、`AT-SUIT-06` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[生活成本](../../knowledge_base/locatemy_product/features/cost_of_living.md) |
 | `SAFE-01` | Crime & Security | `SAFETY-001`、`GEO-001` | `crime_district`、`read_safety_inputs`、`crime_public_cache` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md) |
-| `SAFE-02` | Crime & Security | `SAFETY-001`、`LOCATION-002`、`GEO-001` | `police_districts_boundary`、`crime_public_cache` | `AT-ANALYSIS-01`、`AT-RACE-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md) |
 | `SAFE-03` | Crime & Security | `SAFETY-001` | `RESULT-*`、`crime_district` | `AT-ANALYSIS-01` | 5 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md) |
 | `SOCIO-01` | Socio-economic | `SOCIO-001`、`GEO-001` | `read_socio_inputs`、`RESULT-*` | `AT-ANALYSIS-01`、`AT-COMPARE-03` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md) |
 | `SOCIO-02` | Socio-economic | `SOCIO-001`、`COST-002` | `hies_state_percentile`、`user_budget_scenarios` | `AT-ANALYSIS-01`、`AT-SUIT-04` | 6 | [目录](../../knowledge_base/locatemy_product/capability_catalog.md)、[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md) |
@@ -57,7 +56,7 @@
 
 ## 完整性核对
 
-- 45 项 `required` 各出现一次；7 项 `excluded` 未进入本表。
+- 44 项 `required` 各出现一次；8 项 `excluded` 未进入本表。
 - 每行 Owner 与 [Feature map](feature-map.md#capability-唯一归属)一致，波次与 DAG 一致。
 - 每个 ID 都有权威定义；范围表达式指向 [flows.md](flows.md) 中连续、逐项命名的验收 ID。
 - `proposed` 对象不是已实现声明；其责任与 Gate 见[基线审查](baseline-review.md#schema-迁移计划)。

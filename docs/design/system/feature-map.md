@@ -1,7 +1,7 @@
 # Feature 与 shared module 边界
 
 > 状态：`Draft — Issue #3 边界与 DAG 已批准`
-> 最后更新：2026-09-13
+> 最后更新：2026-09-14
 
 本文件是 Feature/shared module 责任、直接设计依赖和设计波次的唯一真相。Capability 的产品含义与
 可观测成果仍以 [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md) 为准；
@@ -32,7 +32,7 @@
 | Map / Location | Feature | `MAP-01`、`MAP-02`、`MAP-03`、`MAP-04`、`MAP-05`、`MAP-06` | 6 |
 | Personalized Location Suitability | Feature | `MAP-07` | 1 |
 | Cost of Living & Budget | Feature | `COST-01`、`COST-02`、`COST-03`、`ACCOUNT-09` | 4 |
-| Crime & Security | Feature | `SAFE-01`、`SAFE-02`、`SAFE-03` | 3 |
+| Crime & Security | Feature | `SAFE-01`、`SAFE-03` | 2 |
 | Socio-economic | Feature | `SOCIO-01`、`SOCIO-02`、`SOCIO-03` | 3 |
 | Infrastructure Coverage | Feature | `INFRA-01`、`INFRA-02` | 2 |
 | Nearby Facilities | Feature | `FAC-01` | 1 |
@@ -40,7 +40,7 @@
 | Property Inspection | Feature | `PROP-01`、`PROP-02`、`PROP-03`、`PROP-04`、`PROP-05` | 5 |
 | Hazard Reporting | Feature | `HAZ-01`、`HAZ-02`、`HAZ-03`、`HAZ-04` | 4 |
 | Account Center | Feature | `ACCOUNT-01`、`ACCOUNT-02`、`ACCOUNT-08` | 3 |
-| **合计** | 13 个 Feature、1 个有 Capability 的 shared module | **全部 45 项 `required`** | **45** |
+| **合计** | 13 个 Feature、1 个有 Capability 的 shared module | **全部 44 项 `required`** | **44** |
 
 Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下方已证明的跨 Feature
 责任成立。Application Shell 作为已验收 tracer 的 shared module，继续拥有三个全局导航 Capability。
@@ -62,11 +62,11 @@ Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下
 ### Geographic Context
 
 - **类型 / 波次**：shared module / Wave 1；Capability：无。
-- **用户成果**：各地区分析对同一坐标使用明确且互不混淆的行政区、州和警区口径。
-- **拥有**：从已验证地点引用解析州、行政区或警区的规则、边界资料版本、未解析/多匹配语义及可测试 seam。
+- **用户成果**：各地区分析对同一坐标使用明确且互不混淆的行政区和州口径。
+- **拥有**：从已验证地点引用解析州或行政区的规则、边界资料版本、未解析/多匹配语义及可测试 seam。
 - **不拥有**：马来西亚范围校验、可变选点、地图图层、任何指标或地区统计回退规则。
 - **输入**：调用方从合法地点引用取得的坐标值、所请求的地理口径；不读取 Map / Location 的可变状态。
-- **输出**：带边界资料版本的 resolved context，或明确的 unresolved / ambiguous 原因；行政区与警区分开返回。
+- **输出**：带边界资料版本的 resolved context，或明确的 unresolved / ambiguous 原因；州与行政区各自返回。
 - **直接依赖**：无内部节点；边界资料是外部输入。
 - **成立依据**：Cost of Living & Budget、Crime & Security、Socio-economic、Infrastructure Coverage
   均需坐标到统计区域的解析。删除该模块会把边界版本与歧义规则复制到四个 Feature；生产边界解析与
@@ -118,7 +118,7 @@ Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下
 - **用户成果**：用户可在马来西亚地图点选或搜索地点，管理单点与 A/B、收藏地点并进入合法分析流程。
 - **拥有**：可变地点上下文、Geoapify 候选接入、马来西亚范围校验、底图/选点/手势、单点与 A/B 角色、
   收藏权威记录的本机缓存与离线创建队列、分析目标快照和地图图层宿主。
-- **不拥有**：行政区/警区解析、六类分析结果、个人化地点适配度、隐患图层内容或应用级路由。
+- **不拥有**：行政区/州解析、六类分析结果、个人化地点适配度、隐患图层内容或应用级路由。
 - **输入**：地图手势、地点名称候选、收藏动作、同步触发和业务图层贡献。
 - **输出**：不可变合法地点引用、单点/A/B/收藏状态、同步状态、图层点击意图和分析导航意图。
 - **直接依赖**：Application Shell（`D05`）、Account Privacy（`D06`）。
@@ -140,11 +140,11 @@ Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下
 ### Crime & Security
 
 - **类型 / 波次**：Feature / Wave 5。
-- **用户成果**：用户看到地点所属警区的安全指数、案件数、五年趋势、类别筛选和警区边界；A/B 可比时并列。
-- **拥有**：官方犯罪统计读取、警区安全模型、趋势/筛选语义、3 天公共缓存和安全图层贡献。
+- **用户成果**：用户看到地点所属统计州的安全指数、案件数、五年趋势和类别筛选；A/B 可比时并列。
+- **拥有**：官方犯罪统计读取、州级安全模型、趋势/筛选语义和 3 天公共缓存。
 - **不拥有**：公共隐患报告、行政区统计、房产记录、可变选点或个人受害概率推断。
-- **输入**：合法地点引用、resolved police district 和 `crime_district` 公共资料。
-- **输出**：带警区/年份/来源/完整性的安全结果，或未解析/资料缺失/不可比原因；声明式警区图层。
+- **输入**：合法地点引用、resolved state 和 `crime_district` 公共资料。
+- **输出**：带统计州/年份/来源/完整性的安全结果，或未解析/资料缺失/不可比原因；不贡献安全地图图层。
 - **直接依赖**：Application Shell（`D11`）、Map / Location（`D12`）、Geographic Context（`D13`）。
 
 <a id="fm-facilities"></a>
@@ -262,8 +262,8 @@ Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下
 | `D09` | Geographic Context → Cost of Living & Budget | 地点到 PriceCatcher 行政区语境的解析先于数据查询 |
 | `D10` | Account Privacy → Cost of Living & Budget | 预案与当前选择的本机状态必须隔离和清理 |
 | `D11` | Application Shell → Crime & Security | 分析导航、返回地图和图层贡献使用 Shell Interface |
-| `D12` | Map / Location → Crime & Security | 治安结果与图层绑定合法不可变地点 |
-| `D13` | Geographic Context → Crime & Security | 警区解析与失败语义先于安全模型 |
+| `D12` | Map / Location → Crime & Security | 治安结果绑定合法不可变地点 |
+| `D13` | Geographic Context → Crime & Security | 州解析与失败语义先于安全模型 |
 | `D14` | Application Shell → Nearby Facilities | 分析导航和摘要组合使用 Shell Interface |
 | `D15` | Map / Location → Nearby Facilities | 2 公里查询只接收合法不可变地点 |
 | `D16` | Application Shell → Public Transportation | 分析导航与比较组合使用 Shell Interface |
@@ -283,7 +283,7 @@ Account Privacy 与 Geographic Context 没有直接 Capability；它们只因下
 | `D30` | Application Shell → Property Inspection | 档案/表单/地图选点返回与风险刷新使用 Shell 工作流 |
 | `D31` | Map / Location → Property Inspection | 房产地点和地图返回必须使用合法地点引用 |
 | `D32` | Account Privacy → Property Inspection | 草稿、私有副本、照片待传文件/队列必须隔离和清理 |
-| `D33` | Crime & Security → Property Inspection | 创建、坐标变化或显式刷新需要可保存的警区/安全结果 |
+| `D33` | Crime & Security → Property Inspection | 创建、坐标变化或显式刷新需要可保存的统计州/州级安全结果 |
 | `D34` | Hazard Reporting → Property Inspection | 同一风险刷新需要附近公共隐患计数及失败语义 |
 | `D35` | Application Shell → Account Center | 账户入口及各业务导航/退出意图使用 Shell Interface |
 | `D36` | Authentication & Session → Account Center | 真实邮箱、验证状态和退出结果来自认证 Owner |
@@ -390,7 +390,7 @@ flowchart LR
 
 ## 审批 Gate
 
-- [x] 45 项 `required` Capability 均出现一次且只有一个责任 Owner。
+- [x] 44 项 `required` Capability 均出现一次且只有一个责任 Owner。
 - [x] 每个 Feature 均有用户成果、责任、非责任、输入、输出和直接依赖。
 - [x] 每个 shared module 都有跨 Feature 消费者和删除测试依据。
 - [x] 46 条边均记录具体设计阻塞物，不含仅为方便的顺序。

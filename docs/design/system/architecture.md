@@ -17,7 +17,7 @@
 | Supabase Data API / Postgres | 账户业务记录的权威来源；维护者一次性导入的政府镜像；稳定的只读 View/RPC | Flutter 直写政府镜像、自动数据同步、以 RLS 代替客户端账户门控 |
 | Supabase Storage | 房产实勘私有照片的权威文件 | 房产字段、照片说明/封面、离线待传状态 |
 | OpenStreetMap tiles | 主地图和 Feature 局部地图底图 | 周边设施查询、路线规划、离线地图 |
-| Geoapify | 限于马来西亚的地点候选 | 最终马来西亚范围判定、行政区/警区统计口径 |
+| Geoapify | 限于马来西亚的地点候选 | 最终马来西亚范围判定、行政区/州统计口径 |
 | Overpass / OSM | 2 公里周边设施原始元素 | 政府统计、设施质量/营业状态、账户资料 |
 | 官方 GTFS Static feeds | 维护者手动准备标准化交通结果的原始来源 | Flutter 运行时下载/解析、后台更新、实际通勤评价 |
 

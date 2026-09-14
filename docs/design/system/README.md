@@ -78,6 +78,10 @@ Feature 边界与 DAG 已由 Issue #3 批准，系统契约、数据所有权、
 使用短文、表格和小型 Mermaid 图表达重要关系；不制作不驱动决策或验收的图。产品事实留在知识
 库，难以逆转且存在真实取舍的决定写入 ADR，系统文件只引用它们。
 
+## 基线后的范围变更
+
+2026-09-14，项目负责人确认警区多边形边界资料不可获取：`SAFE-02` 转为 `excluded`，`SAFE-01`／`SAFE-03` 转为州级口径，Geographic Context 移除警区解析。历史 Baseline 的 45 项统计保留为当时记录；当前范围为 44 项 `required`。受影响契约与 Gate 见 [风险记录](risks-and-decisions.md#risk-geo-02-资料决定与未关闭证据)。
+
 ## 系统 Interface 注册规则
 
 Interface ID 使用全局可搜索的 `<OWNER>-<NNN>`。系统注册表只保存摘要；动作族、可观察结果、

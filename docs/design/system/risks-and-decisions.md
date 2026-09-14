@@ -31,7 +31,7 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-CACHE-01` | 坐标精度、分类映射版本或缓存键不一致会复用错误地点/口径结果 | `LOCATION-001`、`facility_public_cache` | 缓存键至少含分析坐标、2,000 米半径和分类版本；结果回带原地点 | 手工验算邻近坐标、版本升级和 24 小时边界；契约测试断言 key/result 一致 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
 | `RISK-CACHE-02` | 公共缓存若混入收藏名称或账户引用，会绕过退出清理泄露兴趣地点 | `facility_public_cache`、`PRIVACY-001` | 公共缓存只保存分析所需坐标、公共结果、时间、版本和归因 | Schema Catalog 审查和退出后存储检查，确认没有账户/用户命名字段 | Schema 对象批准前 | Baseline 阻塞 |
 | `RISK-GEO-01` | 马来西亚范围校验的数据源和边界精度尚未固定 | `LOCATION-001`、`MAP-01` | 范围外结果必须拒绝；不以字符串国家名或默认城市替代空间校验 | 用边境、岛屿、海域及明显范围外坐标验证候选方案 | Map / Location Ready 前 | Feature Ready 阻塞 |
-| `RISK-GEO-02` | 行政区与警区边界资料的版本、空间匹配和多匹配规则尚未固定 | Geographic Context；Cost、Crime、Socio-economic、Infrastructure | Feature map 将统计地理解析集中在 Geographic Context；两类口径分开返回且未解析不使用附近地区替代 | 用边界点、离岛、多边形重叠、无覆盖坐标及不同资料版本验证确定性结果 | Geographic Context Ready 前 | 下游 Feature Ready 阻塞 |
+| `RISK-GEO-02` | 行政区边界资料的版本、空间匹配和多匹配规则尚未固定 | Geographic Context；Cost、Crime、Socio-economic、Infrastructure | Feature map 将行政统计地理解析集中在 Geographic Context；州与行政区各自返回且未解析不使用附近地区替代 | 用边界点、离岛、多边形重叠、无覆盖坐标及不同资料版本验证确定性结果 | Geographic Context Ready 前 | 下游 Feature Ready 阻塞 |
 | `RISK-SCHEMA-01` | 现有 migration 的若干镜像名、粒度或字段与批准数据集不一致，且缺少多个 required 数据集 | Home、Crime、Socio、Infrastructure、Transit | Schema Catalog 将旧对象标为新设计不可消费，并登记 canonical 镜像与稳定读取对象 | 对照官方 dataset schema、实际导入行数/最大日期/键唯一性；每个读取对象做完整/空/部分导入验收 | 系统 Baseline Gate 前给出迁移计划；各数据 Feature Ready 前实现 | Baseline 阻塞 |
 | `RISK-SCHEMA-02` | `user_ici_preferences` 现有五个 0–1 权重与三项 1–10 产品契约冲突 | Infrastructure、Account Privacy、Suitability | Schema Catalog 明确目标字段和旧表仅作迁移来源；中性 ICI 不读账户权重 | 两账户迁移样本验证三项值、默认 5、旧 safety/amenity 不进入新对象 | Infrastructure Ready 前 | Feature Ready 阻塞 |
 | `RISK-PREF-01` | 评估偏好现有数据库默认 5 可能把“尚未设置”误判为已完成五项偏好 | Account、Suitability | Suitability 只接受 `ACCOUNT-001 complete snapshot`；表存在与完成语义由 owning design 明确 | 新账户无偏好、首次保存、部分旧记录与换号场景 | Account Center Ready 前 | 下游 Suitability Ready 阻塞 |
@@ -85,9 +85,10 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
   `21a78e98efd4cd9b022a27a1bf67d167076b7591`；实际导入审计还必须记录该文件的
   SHA-256 `3edb1022b2de371bba6b7afb9802b6fc6d747c86dbcc40abf2374a9134f3c561`。许可依据、
   固定文件链接与研究边界见[决策简报](../../research/geographic-context-boundary-source-decision-brief-2026-09-14.md)。
-- **警区资料前置条件**：由 PDRM 或其明确授权的资料持有人交付正式警区多边形、书面许可和可复现的
-  资料版本；交付前警区解析及 `SAFE-02` 不可用，且不得以行政区、警局点位或第三方资料替代。
-- **仍未满足的关闭证据**：两类资料均尚未证明已导入、可读或通过稳定公共读取路径暴露；尚未以实际资料
+- **范围变更（2026-09-14）**：项目负责人确认警区多边形资料不可获取，故移除警区解析与 `SAFE-02`，
+  `police_districts_boundary` 退役。Crime 仅消费行政边界解析出的州，并聚合 `crime_district.state`；不得以
+  行政区、警局点位或第三方资料产生警区结果。
+- **仍未满足的关闭证据**：行政区资料尚未证明已导入、可读或通过稳定公共读取路径暴露；尚未以实际资料
   验证边界点、离岛、重叠、零覆盖和版本变化。故 `RISK-GEO-02` 保持未关闭，Geographic Context 保持
   `Draft`，不推进 Issue #7 的 Ready Gate。
 
