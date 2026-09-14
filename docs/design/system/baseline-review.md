@@ -2,7 +2,7 @@
 
 > 审查日期：2026-09-13
 > 审查对象：`a9bd539` 后的 Issue #5 基线候选
-> 结论：`Ready for owner approval`；设计 AI 不批准 `Baselined`
+> 结论：`Baselined` — 项目负责人于 2026-09-13 批准 `5d11769`
 
 本文件只保存审查维度、发现、影响、处置和开放项。系统规格仍由各 owning document 持有。
 
@@ -16,7 +16,7 @@
 | 契约 | [interfaces.md](interfaces.md)、[feature-map.md](feature-map.md) | 19 个内部 Interface 与 4 个外部 seam；`D01`–`D46` 每边恰有一个 owning Interface 覆盖 |
 | 数据 | [data-ownership.md](data-ownership.md)、[Schema Catalog](../data/schema-catalog.md) | 状态、远端对象、缓存、队列、文件各有唯一 Owner；现有/目标状态没有混写为实现事实 |
 | 追踪 | [capability-traceability.md](capability-traceability.md)、[flows.md](flows.md) | 每项 required Capability 均连接 Owner、Interface、数据/状态、验收场景、波次和产品事实 |
-| 可实施性 | Interface owning-design Gate、下方迁移计划 | 下游可补精确成员、Adapter 和 migration，不需重新决定系统 Owner、依赖或可观察行为 |
+| 可实施性 | Interface owning-design Gate、下方迁移计划 | 下游可补封装的实现结构、Adapter 和 migration，不需重新决定系统 Owner、依赖或可观察行为 |
 | 人工编码边界 | 全部 `docs/design/` 当前产物 | 未发现完整类、可编译函数体、SQL migration、测试代码或可直接提交实现 |
 | 文档结构 | `docs/design/system/README.md` 及专题指针 | 入口只维护流程、状态与指针；契约、对象、流程和审查各有单一权威位置 |
 
@@ -65,6 +65,6 @@
 - [x] 45 条 required 追踪链无断点。
 - [x] Baseline 阻塞发现为零；后续风险均有 Owner、验证和最迟关闭点。
 - [x] 独立审查发现已关闭；无待负责人接受的偏差。
-- [ ] 项目负责人记录基线版本并明确批准 `Baselined`。
+- [x] 项目负责人于 2026-09-13 记录基线版本 `5d11769` 并明确批准 `Baselined`。
 
-候选版本在负责人批准时记录为批准 commit SHA；批准前系统状态保持 `Under Review`。
+批准版本为 `5d11769`；系统状态为 `Baselined`。

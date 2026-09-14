@@ -1,6 +1,6 @@
 # Capability 追踪
 
-> 状态：`Baseline candidate — Issue #5 full audit`
+> 状态：`Baselined — 5d11769`
 > 最后更新：2026-09-13
 
 本表把全部 45 项 `required` Capability 连接到唯一 Owner、系统 Interface、权威数据/状态、验收场景、

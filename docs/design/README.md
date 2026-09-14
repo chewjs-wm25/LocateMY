@@ -16,10 +16,14 @@
 
 ## 代码边界
 
-AI 产出**可实现规格，不产出可提交代码**。设计可以规定路径、符号名、参数与返回语义、
-状态、公式、流程和测试场景；使用表格、自然语言、数学表达式、状态机和必要的语言无关
-伪代码表达。设计不得包含完整类、可编译函数体、SQL migration、测试代码或带程序逻辑的
-配置。两名学生亲自编写和修改所有可提交代码与测试。
+AI 产出**高层协调设计，不产出可提交代码**。Feature/shared module 设计规定用户可观察成果、
+模块职责、跨 Owner 契约、受控文件边界、验收情景及不可自由发挥的业务规则。它不预先规定
+内部文件拆分、符号、状态机、SDK 映射、运行时策略或测试组织；这些由代码 Owner 在不改变
+可观察契约的前提下决定。
+
+公式、输入口径、单位、边界和结果语义仍须固定，但公式正文只在产品知识库维护；数据字段、
+RLS 和迁移只在 Schema Catalog 维护。设计不得包含完整类、可编译函数体、SQL migration、
+测试代码或带程序逻辑的配置。两名学生亲自编写和修改所有可提交代码与测试。
 
 AI 可以只读检查代码、运行测试、比较设计与实现并报告缺陷。报告描述问题、预期行为和
 验证方式，不提供可直接粘贴的修复实现。
@@ -43,11 +47,18 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 4. 从锁定版本生成工作包；学生在独立短期分支中亲自实现代码和测试。
 5. 每波完成功能测试与集成；最终执行系统验收、回归和大学提交检查。
 
+## Pilot 校准
+
+Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时风险留作 Ready Gate 阻塞项，
+并冻结其跨 Owner 可观察语义与安全不变量。超时、取消/过期响应、去重、补偿和 Adapter 细节
+属于 owning module 的内部策略。后续 Feature 只读取所消费上游的 owning design；系统注册表继续
+只保留摘要与链接。详见 [ADR 0012](../adr/0012-high-level-design-coordination-boundaries.md)。
+
 ## 单一真相
 
 - Capability 的产品含义只在产品知识库定义。
 - 系统 Interface 注册表只列 ID、Owner、消费者、用途、状态及 owning document 链接。
-- Interface 完整契约只在 owning Feature 或 shared module 中定义。
+- Interface 的完整协调语义只在 owning Feature 或 shared module 中定义。
 - 数据对象完整定义只在 Schema Catalog；Feature 只写自身访问方式。
 - 人类工作包只摘录当前任务所需内容并链接锁定版本，不产生设计决定。
 - 模型对话与推理不入库；只保留审查维度、问题、影响、决定和未关闭项。
@@ -60,17 +71,17 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 
 ## 设计索引
 
-系统设计为 `Under Review`。Feature/shared module 边界和依赖波次已由项目负责人在 Issue #3
+系统设计为 `Baselined`（`5d11769`）。Feature/shared module 边界和依赖波次已由项目负责人在 Issue #3
 批准；系统 Interface、数据所有权、技术架构与关键流程已在 Issue #4 补齐；Issue #5 已完成全量追踪、
-独立审查与 Baseline 阻塞关闭，正在等待项目负责人批准。波次表示详细设计的最早起点，不是两名学生的分工；
+独立审查与 Baseline 阻塞关闭，项目负责人已记录并批准该基线。波次表示详细设计的最早起点，不是两名学生的分工；
 各 owning design 仍须独立达到 Ready Gate。
 
 | 类型 | 名称 | 状态 | Owner | 依赖波次 | 文档 |
 | --- | --- | --- | --- | --- | --- |
-| System | LocateMY | `Under Review` | 项目负责人 | N/A | [系统设计入口](system/README.md) |
-| Feature | Authentication & Session | `Draft` | 待项目负责人分配 | 1 | [责任卡](system/feature-map.md#fm-auth) |
-| Module | Geographic Context | `Draft` | 待项目负责人分配 | 1 | [责任卡](system/feature-map.md#fm-geo) |
-| Module | Account Privacy | `Draft` | 待项目负责人分配 | 2 | [责任卡](system/feature-map.md#fm-privacy) |
+| System | LocateMY | `Baselined` (`5d11769`) | 项目负责人 | N/A | [系统设计入口](system/README.md) |
+| Feature | Authentication & Session | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 1 | [实施设计](features/authentication-and-session.md) |
+| Module | Geographic Context | `Draft` | 待项目负责人分配 | 1 | [实施设计](modules/geographic-context.md) |
+| Module | Account Privacy | `Draft` | 待项目负责人分配 | 2 | [实施设计](modules/account-privacy.md) |
 | Module | Application Shell | `Draft` | 待项目负责人分配 | 3 | [责任卡](system/feature-map.md#fm-shell) |
 | Feature | Home & Relocation Outlook | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-home) |
 | Feature | Map / Location | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-map) |

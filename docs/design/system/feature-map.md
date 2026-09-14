@@ -398,6 +398,6 @@ flowchart LR
 - [x] 项目负责人于 2026-09-13 批准 Feature/shared module 边界与 DAG，并要求同步关闭 Issue #3。
 - [x] 本文件只有设计 Markdown，没有可编译代码或可直接复用的实现。
 
-Issue #3 的批准只关闭系统步骤 3 与步骤 8；系统整体在 Baseline Gate 完成前仍为 `Draft`。各节点可按
+Issue #3 的批准只关闭系统步骤 3 与步骤 8；系统已由项目负责人以 `5d11769` 设为 `Baselined`。各节点可按
 波次进入后续系统追踪与 owning design，但只有项目负责人另行批准的 Feature 才能进入
 `Ready for Development` 并生成工作包。

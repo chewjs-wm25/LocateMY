@@ -1,7 +1,7 @@
 # 系统设计规范
 
 本入口规定第一阶段如何把产品事实变成可供滚动 Feature 设计消费的系统基线。当前系统设计为
-`Under Review`；状态路径为 `Draft → Under Review → Baselined`，只有项目负责人可以设为 `Baselined`。
+`Baselined`（版本 `5d11769`）；状态路径为 `Draft → Under Review → Baselined`，只有项目负责人可以设为 `Baselined`。
 
 ## 当前进度
 
@@ -16,7 +16,7 @@
 | 7. 描述关键流程 | `Completed` — 2026-09-13 | [8 个关键流程](flows.md)：覆盖会话/换号、单点/A-B、收藏同步、隐患、房产风险快照、适配度与首页刷新，并逐项定义失败/降级/权限/恢复。 |
 | 8. 建立依赖 DAG 与波次 | `Completed` — 2026-09-13 | [Issue #3 DAG](feature-map.md#dag-与设计波次)：16 个节点、46 条直接阻塞边与 7 个设计波次已登记且无循环；项目负责人已批准。 |
 | 9. 审计追踪与风险 | `Completed` — 2026-09-13 | [独立基线审查](baseline-review.md)已关闭 4 项 Baseline 阻塞发现；后续 Feature 风险均有 Owner、验证和最迟关闭点。 |
-| 10. 批准基线 | `Awaiting Owner Approval` | 基线候选为 `Under Review`；仅项目负责人可记录版本并批准 `Baselined`。 |
+| 10. 批准基线 | `Completed` — 2026-09-13 | 项目负责人批准提交 `5d11769` 为系统基线，系统状态为 `Baselined`。 |
 
 ## 固定步骤与完成条件
 
@@ -73,16 +73,16 @@
 - [独立基线审查](baseline-review.md)
 
 Feature 边界与 DAG 已由 Issue #3 批准，系统契约、数据所有权、技术架构和关键流程已在 Issue #4
-补齐；Issue #5 已完成全量追踪与独立审查。项目负责人批准并记录版本前，候选仍为 `Under Review`。
+补齐；Issue #5 已完成全量追踪与独立审查，项目负责人已记录并批准版本 `5d11769`。
 
 使用短文、表格和小型 Mermaid 图表达重要关系；不制作不驱动决策或验收的图。产品事实留在知识
 库，难以逆转且存在真实取舍的决定写入 ADR，系统文件只引用它们。
 
 ## 系统 Interface 注册规则
 
-Interface ID 使用全局可搜索的 `<OWNER>-<NNN>`。系统注册表只保存摘要；精确成员、领域类型、
-失败码、幂等性和副作用在第二阶段的 owning Feature/shared module 中补全。消费者只有在所需
-上游精确契约进入 `Ready for Development` 后，才能开始自己的详细设计。
+Interface ID 使用全局可搜索的 `<OWNER>-<NNN>`。系统注册表只保存摘要；动作族、可观察结果、
+授权和跨 Owner 副作用在第二阶段的 owning Feature/shared module 中补全。语言级成员和内部
+策略由 Owner 封装。消费者只有在所需上游协调契约进入 `Ready for Development` 后，才能开始自己的详细设计。
 
 Capability ID 沿用产品知识库现有编号。两种 ID 不互换：Capability 表示用户能力，Interface
 表示实现边界。
@@ -110,14 +110,14 @@ Capability ID 沿用产品知识库现有编号。两种 ID 不互换：Capabili
 
 ## Baseline Gate
 
-- [ ] 所有已知 Capability 已分类，required 项无遗漏。
-- [ ] Feature/shared module、状态和数据均有唯一 Owner。
-- [ ] 跨 Feature Interface、关键流程和直接阻塞边完整且无循环依赖。
-- [ ] 技术架构及非功能约束足以约束第二阶段设计。
-- [ ] required Capability 的追踪链无断点。
-- [ ] 阻塞问题为零；非阻塞假设有影响范围、验证方式和最迟解决点。
-- [ ] 独立审查发现已关闭或由项目负责人明确接受。
-- [ ] 项目负责人记录基线版本并批准 `Baselined`。
+- [x] 所有已知 Capability 已分类，required 项无遗漏。
+- [x] Feature/shared module、状态和数据均有唯一 Owner。
+- [x] 跨 Feature Interface、关键流程和直接阻塞边完整且无循环依赖。
+- [x] 技术架构及非功能约束足以约束第二阶段设计。
+- [x] required Capability 的追踪链无断点。
+- [x] 阻塞问题为零；非阻塞假设有影响范围、验证方式和最迟解决点。
+- [x] 独立审查发现已关闭或由项目负责人明确接受。
+- [x] 项目负责人于 2026-09-13 记录基线版本 `5d11769` 并批准 `Baselined`。
 
 ## 基线变更
 

@@ -55,8 +55,8 @@
 | `hh_inequality_state` | `proposed` | Socio | `(state, date)`；gini | Socio；现有全国 `hh_inequality` 不能替代 |
 | `hies_state_percentile` | `proposed` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；现有全国 percentile 与州汇总表不能替代 |
 | `crime_district` | `proposed` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；现有 `crime_stats` 须验证数据集与键后迁移/重命名 |
-| `administrative_district_boundaries` | `proposed` | Geographic Context | boundary id、name、state、multipolygon、source version | Cost、Socio、Infrastructure；当前缺失 |
-| `police_districts_boundary` | `implemented` | Geographic Context | id、name、state、multipolygon、source version | Crime；现有对象缺 source version，需兼容补齐 |
+| `administrative_district_boundaries` | `proposed` | Geographic Context | boundary id、name、state、multipolygon、source version | Cost、Socio、Infrastructure；批准导入 DOSM OpenDOSM `administrative_2_district.geojson` commit `21a78e98efd4cd9b022a27a1bf67d167076b7591`，但当前尚未导入/审计 |
+| `police_districts_boundary` | `implemented` | Geographic Context | id、name、state、multipolygon、source version | Crime；现有对象缺 source version，且尚未取得 PDRM 或明确授权持有人的正式边界资料、书面许可与冻结版本；不可作为完整契约证据 |
 | `hh_access_amenities` | `implemented` | Infrastructure | `(state, district, date)`；piped water、sanitation、electricity | Infrastructure |
 | `hospital_beds` | `implemented` | Infrastructure | `(state, district, date, type)`；beds | Infrastructure |
 | `population_district` | `proposed` | Infrastructure | `(state, district, date, sex, age, ethnicity)`；population | Infrastructure；现有 `district_population` 缺维度，不能替代 |
