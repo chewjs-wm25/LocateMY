@@ -95,4 +95,4 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | Feature | Infrastructure Coverage | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/infrastructure-coverage.md) |
 | Feature | Property Inspection | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/property-inspection.md) |
 | Feature | Account Center | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/account-center.md) |
-| Feature | Personalized Location Suitability | `Draft` | 待项目负责人分配 | 7 | [责任卡](system/feature-map.md#fm-suitability) |
+| Feature | Personalized Location Suitability | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 7 | [实施设计](features/personalized-location-suitability.md) |

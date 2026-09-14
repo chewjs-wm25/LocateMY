@@ -27,7 +27,7 @@
 | `INFRA-001` | Infrastructure Coverage | Application Shell；Personalized Location Suitability | 账户权重与中性 ICI | `Ready for Development` | [Infrastructure Coverage](../features/infrastructure-coverage.md) |
 | `PROPERTY-001` | Property Inspection | Application Shell | 实勘、照片、比较、回收站与风险快照 | `Ready for Development` | [Property Inspection](../features/property-inspection.md) |
 | `ACCOUNT-001` | Account Center | Application Shell；Personalized Location Suitability | 账户评估偏好快照/变化与账户页意图 | `Ready for Development` | [Account Center](../features/account-center.md) |
-| `SUITABILITY-001` | Personalized Location Suitability | Application Shell | 五维输入的个人化地点适配度 | `Draft` | [责任卡](feature-map.md#fm-suitability) |
+| `SUITABILITY-001` | Personalized Location Suitability | Application Shell | 五维输入的个人化地点适配度 | `Ready for Development` | [Personalized Location Suitability](../features/personalized-location-suitability.md) |
 
 ## 外部来源 seam
 
