@@ -79,7 +79,7 @@
 - [x] **`RISK-GEO-02`**：批准的行政区边界已按固定版本导入并记录来源、原始/派生 hash 和修复标识；离岛、边界点、重叠、零覆盖和版本事实的证据见风险记录。
 - [x] **Schema 可用性（`RISK-SCHEMA-01` 的本 Module 部分）**：`administrative_district_boundaries` 已按 Catalog 导入；稳定 RPC、authenticated-only 权限和实际导入审计均已验证。
 - [x] **实现前独立审查**：已审查 Capability、Interface、数据、流程、风险、无可提交代码边界和本文件链接；固定资料验证、远端导入/权限验收与安全顾问发现均已记录，受控 RPC 例外由项目负责人接受。
-- [x] **项目负责人批准**：项目负责人于 2026-09-14 批准本 Module 为 `Ready for Development`；实现学生仍待另行分配，不阻碍设计状态。
+- [x] **项目负责人批准**：项目负责人于 2026-09-14 批准本 Module 为 `Ready for Development`；实现 Owner 已由项目负责人分配为 `B`。
 
 Ready Gate 完成判据：下列复选项全部成立，且上述未关闭 Gate 已由项目负责人记录处置。
 
