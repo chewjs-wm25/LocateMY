@@ -1,7 +1,7 @@
 # Account Privacy
 
-> 状态：`Draft`
-> Owner：`待项目负责人分配`
+> 状态：`Ready for Development`
+> Owner：`待项目负责人分配（实现学生分配不阻碍设计 Ready）`
 > 系统基线：`5d11769`
 > 消费 Feature：Application Shell、Map / Location、Cost of Living & Budget、Infrastructure Coverage、Hazard Reporting、Property Inspection、Account Center
 > 最后更新：`2026-09-14`
@@ -82,12 +82,14 @@ Owner 可在自己的目录内组织实现，但不得改变 `PRIVACY-001` 的�
 - [x] 系统基线的八个参与 Owner 与其私有本机状态均有唯一业务 Owner 和可检查 close 结果；公共缓存、语言、远端记录及其他设备会话明确在范围外。
 - [x] 验收覆盖首次/重复 open-close、逐 Owner 部分失败、重试、强制退出与两账户切换。
 - [x] `RISK-PRIVACY-01` 与 `RISK-PRIVACY-02` 的可观察风险情景已固定：完整清单不得漏项；任一 Owner 未完成、SQLite/文件不可用、部分处理或重启后均保持旧范围不可访问，且同一旧账户可恢复关闭。
-- [ ] 项目负责人须处置系统风险登记的时序：`risks-and-decisions.md` 当前把 `RISK-PRIVACY-01` 的逐 Owner 验证和 `RISK-PRIVACY-02` 的本机故障验证列为 Account Privacy Ready 前关闭，但 ADR 0012 将 Adapter、运行时策略和测试组织留给实现 Owner。负责人应记录这些证据是设计审查即可关闭，还是移至实现后的集成验收；在该处置前本设计不能进入 Ready。
-- [ ] 独立标准/规格审查发现已关闭或由项目负责人明确接受。
-- [ ] 项目负责人已批准 `Ready for Development` 并分配实现 Owner。
+- [x] 项目负责人已决定风险生命周期：Ready 审查关闭 `RISK-PRIVACY-01` 的完整参与清单/关闭证明，以及 `RISK-PRIVACY-02` 的隐私屏障与恢复语义；逐 Owner、SQLite/文件、部分处理和重启的故障注入作为实现后的 Account Privacy 集成验收证据。该安排保留可观察不变量，且不把 Adapter、运行时策略或测试组织写入本设计。
+- [x] **标准/规格审查**：项目负责人授权设计 AI 审查 `PRIVACY-001`、八个参与 Owner、`FLOW-01`、数据所有权、两项 privacy 风险及 ADR 0011/0012；未发现契约、范围、Owner、流程或实现边界冲突。该 Module 将关闭证明集中在单一 Interface，参与 Owner 继续封装各自 payload 与实现策略。
+- [x] **项目负责人批准**：项目负责人授权设计 AI 于 2026-09-14 批准本 Module 为 `Ready for Development`；实现 Owner 将在全部 owning design 完成后统一分配，不阻碍 Ready 状态。
 
 ## 5. Change Log
 
 | 日期 | 状态 | 变更原因 | 影响的 Feature / Interface / 数据对象 | 批准者 |
 | --- | --- | --- | --- | --- |
 | 2026-09-14 | `Draft` | Issue #8 建立 Wave 2 owning design，冻结账户范围 lifecycle、Owner-attributed close 结果与 privacy barrier；不改变各 Feature payload 所有权 | `PRIVACY-001`、`AUTH-001`、`STATE-ACCOUNT-SCOPE`、`ACCOUNT-07`、D01/D03/D06/D10/D20/D29/D32/D37 | 待项目负责人批准 |
+| 2026-09-14 | `Draft` | 项目负责人决定 privacy 风险的设计/集成两阶段关闭，并确认实现 Owner 统一延后分配 | `RISK-PRIVACY-01`、`RISK-PRIVACY-02`、`PRIVACY-001` | 项目负责人 |
+| 2026-09-14 | `Ready for Development` | 项目负责人授权设计 AI 完成标准/规格审查并批准；实现学生暂未分配 | `PRIVACY-001`、`ACCOUNT-07`、`RISK-PRIVACY-01`、`RISK-PRIVACY-02` | 项目负责人（授权设计 AI） |

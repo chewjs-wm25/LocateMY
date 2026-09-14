@@ -1,7 +1,7 @@
 # Geographic Context
 
-> 状态：`Draft`
-> Owner：`待项目负责人分配`
+> 状态：`Ready for Development`
+> Owner：`待项目负责人分配（实现学生分配不阻碍设计 Ready）`
 > 系统基线：`5d11769`
 > 消费 Feature：Cost of Living & Budget；Crime & Security；Socio-economic；Infrastructure Coverage
 > 最后更新：2026-09-14
@@ -44,7 +44,7 @@
 
 | 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
 | --- | --- | --- | --- |
-| 行政统计地理解析 | [Schema Catalog：`administrative_district_boundaries`](../data/schema-catalog.md#公共政府镜像与边界对象)；[`GEO-002`](../system/interfaces.md#外部来源-seam) | Geographic Context 经版本化只读边界对象读取；Flutter 不直接查询镜像表 | 返回州和行政区的边界事实、来源与版本；对象当前为 `proposed`，未验证前不能声称可用 |
+| 行政统计地理解析 | [Schema Catalog：`administrative_district_boundaries`](../data/schema-catalog.md#公共政府镜像与边界对象)；[`GEO-002`](../system/interfaces.md#外部来源-seam) | Geographic Context 经版本化只读边界对象读取；Flutter 不直接查询镜像表 | 返回州和行政区的边界事实、来源与版本；已导入、审计并通过固定空间样本验证 |
 | 州级治安语境 | [治安事实源](../../knowledge_base/locatemy_product/features/crime_security.md#计算范围) | Crime 只消费 `GEO-001` 的州结果；其后按 `crime_district.state` 聚合 | 不读取或解析警区边界；统计州归并规则由治安事实源定义 |
 | 下游行政区、州级资料与回退 | [生活成本](../../knowledge_base/locatemy_product/features/cost_of_living.md)、[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md#已确认的产品口径)、[基础设施](../../knowledge_base/locatemy_product/features/infrastructure.md) | Geo 仅提供地理事实；各 Feature 按自己的事实源读取统计资料并决定是否允许州级回退 | Geo 不把行政区缺失改为州级成功，也不决定指标缺失、可比性或回退文案 |
 | 公共缓存与退出边界 | [数据所有权](../system/data-ownership.md#公共资料镜像与缓存) | 可替换公共缓存不含账户字段；退出可保留 | 版本属于结果；零/多匹配不以附近地区替代 |
@@ -53,6 +53,7 @@
 
 - **口径分离**：行政区用于收入、供水、供电、医疗、教育等地区统计；州结果用于州级犯罪统计。任何消费者均不得将一种结果当成另一种。
 - **逐层诚实**：请求的每个层级各自报告结果。州已解析不证明行政区已解析；反之亦然。
+- **候选集完整**：坐标在边界上或落入重叠区时，所有覆盖它的行政区均为候选并返回 `ambiguous`；只有恰有一个候选时才返回 `resolved`。这同样适用于统计州，故州级治安可能不可用而非猜选州。
 - **版本可见**：resolved、unresolved 与 ambiguous 都携带足以识别所用边界资料的来源/版本事实；消费者在展示、缓存或比较时保留它，而不以读取时间替代资料版本。
 - **无推测回退**：零匹配、多匹配、资料不可读、版本不可验证均不产生任一地区的伪解析。下游仅可应用其事实源已明确授权的统计层级回退。
 
@@ -75,17 +76,17 @@
 
 ### 未关闭 Ready Gates
 
-- [ ] **`RISK-GEO-02`（阻塞 Geographic Context 与下游 Feature Ready）**：项目负责人确认可用行政区边界资料的权威来源、许可/导入版本，并用边界点、离岛、重叠、零覆盖坐标和跨版本样本证明空间匹配与多匹配语义。最迟在 Geographic Context 进入 `Ready for Development` 前关闭；证据写入风险记录而非本设计复制。
-- [ ] **Schema 可用性（`RISK-SCHEMA-01` 的本 Module 部分）**：`administrative_district_boundaries` 已按 Catalog 导入并可读，稳定公开读取路径、访问控制和实际导入审计均有证据。最迟在 Geographic Context `Ready for Development` 前关闭。
-- [ ] **实现前独立审查**：审查 Capability、Interface、数据、流程、风险、无可提交代码边界和本文件链接；所有发现由项目负责人解决或明确接受。
-- [ ] **项目负责人批准**：只有项目负责人可将本文件设为 `Ready for Development`；当前 Owner 仍待分配。
+- [x] **`RISK-GEO-02`**：批准的行政区边界已按固定版本导入并记录来源、原始/派生 hash 和修复标识；离岛、边界点、重叠、零覆盖和版本事实的证据见风险记录。
+- [x] **Schema 可用性（`RISK-SCHEMA-01` 的本 Module 部分）**：`administrative_district_boundaries` 已按 Catalog 导入；稳定 RPC、authenticated-only 权限和实际导入审计均已验证。
+- [x] **实现前独立审查**：已审查 Capability、Interface、数据、流程、风险、无可提交代码边界和本文件链接；固定资料验证、远端导入/权限验收与安全顾问发现均已记录，受控 RPC 例外由项目负责人接受。
+- [x] **项目负责人批准**：项目负责人于 2026-09-14 批准本 Module 为 `Ready for Development`；实现学生仍待另行分配，不阻碍设计状态。
 
 Ready Gate 完成判据：下列复选项全部成立，且上述未关闭 Gate 已由项目负责人记录处置。
 
 - [x] 共享必要性、消费者、Owner（待分配）和受控文件边界明确。
 - [x] `GEO-001` / `GEO-002` 的协调契约、数据/事实源与可观察副作用有单一来源。
 - [x] 行政区与州的口径分离、版本保留和无推测回退已链接唯一事实源并写明应用语义。
-- [ ] 阻塞问题归零；独立审查完成；项目负责人已批准 `Ready for Development`。
+- [x] 阻塞问题归零；独立审查完成；项目负责人已批准 `Ready for Development`。
 
 ## 5. Change Log
 
@@ -94,3 +95,5 @@ Ready Gate 完成判据：下列复选项全部成立，且上述未关闭 Gate 
 | 2026-09-14 | `Draft` | Issue #7 建立 Wave 1 Geographic Context owning design | Cost、Crime、Socio-economic、Infrastructure；`GEO-001`、`GEO-002`；两类边界对象 | 待项目负责人审查 |
 | 2026-09-14 | `Draft` | 项目负责人选定行政区运行资料；详见 [`RISK-GEO-02`](../system/risks-and-decisions.md#risk-geo-02-资料决定与未关闭证据) | Cost、Crime、Socio-economic、Infrastructure；`GEO-001`、`GEO-002`；行政区边界对象 | 项目负责人 |
 | 2026-09-14 | `Draft` | 项目负责人确认警区多边形边界不可获取，移除警区解析和 `SAFE-02`；Crime 改消费州结果并聚合原始警区记录 | Crime；`GEO-001`、`GEO-002`；`police_districts_boundary` 退役 | 项目负责人 |
+| 2026-09-14 | `Draft` | 项目负责人确认边界点与重叠返回完整 `ambiguous` 候选集；导入可修复源内退化环，但不裁剪或消除资料重叠 | `GEO-001`、`GEO-002`；行政区边界导入审计 | 项目负责人 |
+| 2026-09-14 | `Ready for Development` | 项目负责人接受 authenticated-only 受控 RPC 例外并批准完成资料导入、空间验证和独立审查；实现学生暂未分配 | Geographic Context；`GEO-001`、`GEO-002`；行政区边界与导入审计 | 项目负责人 |

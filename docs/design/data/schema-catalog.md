@@ -55,7 +55,8 @@
 | `hh_inequality_state` | `proposed` | Socio | `(state, date)`；gini | Socio；现有全国 `hh_inequality` 不能替代 |
 | `hies_state_percentile` | `proposed` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；现有全国 percentile 与州汇总表不能替代 |
 | `crime_district` | `proposed` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；按 `state` 聚合为州级结果，现有 `crime_stats` 须验证数据集与键后迁移/重命名 |
-| `administrative_district_boundaries` | `proposed` | Geographic Context | boundary id、name、state、multipolygon、source version | Cost、Socio、Infrastructure；批准导入 DOSM OpenDOSM `administrative_2_district.geojson` commit `21a78e98efd4cd9b022a27a1bf67d167076b7591`，但当前尚未导入/审计 |
+| `government_dataset_imports` | `implemented` | Geographic Context | `(dataset id, source version, derived geometry hash)`；source URL/SHA-256、transform、row count、import time | 行政区边界的不可变导入审计；客户端无表读权 |
+| `administrative_district_boundaries` | `implemented` | Geographic Context | `(boundary id, source version, derived geometry hash)`；state、district、multipolygon | 160 个 DOSM `administrative_2_district` 边界已导入；7 个退化环按 `RISK-GEO-02` 修复，重叠保持候选；客户端无表读权 |
 | `police_districts_boundary` | `retiring` | 无 | id、name、state、multipolygon、source version | 禁止新消费者；警区多边形资料不可获取，待无消费者后由 migration 删除；历史 migration 不回写 |
 | `hh_access_amenities` | `implemented` | Infrastructure | `(state, district, date)`；piped water、sanitation、electricity | Infrastructure |
 | `hospital_beds` | `implemented` | Infrastructure | `(state, district, date, type)`；beds | Infrastructure |
@@ -79,12 +80,13 @@
 
 ### 稳定公共读取对象
 
-Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字段、原始统计日期、来源 ID、资料完整性和导入批次；View 使用调用者权限，RPC 不以提权掩盖访问错误。
+Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字段、原始统计日期、来源 ID、资料完整性和导入批次；View 使用调用者权限。RPC 默认不以提权掩盖访问错误；`read_administrative_boundary_candidates` 是已审计的例外：它只向 authenticated 返回固定候选与来源事实，表本身不授予客户端读权。
 
 | 对象 | 类型/状态 | Owner | 覆盖数据 | 消费者 |
 | --- | --- | --- | --- | --- |
 | `read_home_metrics` | security-invoker View/RPC / `proposed` | Home | 五个 Home 数据集 | Home |
 | `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、CPI、income | Cost |
+| `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
 | `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
@@ -96,7 +98,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | --- | --- | --- | --- | --- |
 | `home_public_cache` | SQLite / `proposed` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
 | `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
-| `crime_public_cache` | SQLite / `proposed` | Crime | police district、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
+| `crime_public_cache` | SQLite / `proposed` | Crime | reporting state、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
 | `facility_public_cache` | SQLite / `proposed` | Facilities | coordinate key、2,000 m、mapping version、完整结果/归因/query time、24-hour expiry | 只保存完整成功；无收藏名称/账户 id |
 | `saved_location_cache` | SQLite / `proposed` | Map | account id、remote id、name、point、remote version/timestamps、sync state | 同账户 opened scope；退出清除 |
 | `saved_location_create_queue` | SQLite / `proposed` | Map | account id、client id/idempotency key、name、point、created at、attempt/retry state/error class | 只排队 create；成功变 cache 行；退出清除未同步项 |

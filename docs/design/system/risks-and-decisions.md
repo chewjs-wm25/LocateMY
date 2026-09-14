@@ -25,8 +25,8 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | ID | 风险 | 影响范围 | 当前控制 | 验证方式 | 最迟关闭点 | 阻塞性 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `RISK-SESSION-01` | Supabase Flutter SDK 在 token 过期、离线和刷新失败时可能保留不可用于门控的本机会话 | `AUTH-001`、`NAV-01`、离线启动 | 只允许明确有效或成功刷新的会话打开账户范围；过期缓存、刷新中和刷新失败均保持门控 | 项目锁定版本的官方源码与测试确认冷启动、过期 token、可重试网络失败和远端拒绝；见[关闭证据](#risk-session-01-关闭证据) | 2026-09-14 已关闭；`supabase_flutter` / `gotrue` 版本改变时重开 | 已关闭；不再阻塞 Authentication Ready |
-| `RISK-PRIVACY-01` | 未完成所有 Feature 设计前，私有状态 Owner 清单可能漏项，导致退出后残留 | `PRIVACY-001`、`ACCOUNT-07`、所有私有 Feature | privacy barrier 使用显式 Owner 清单；未登记 Owner 不能进入集成 | 对照完整 Feature map、Schema Catalog、SQLite 表、键值和文件目录逐项审计；注入每个 Owner 清理失败 | 系统 Baseline Gate 与 Account Privacy Ready 前 | Baseline 阻塞 |
-| `RISK-PRIVACY-02` | 结束认证会话后本机物理清理失败，用户无法安全进入下一账户 | `AUTH-001`、`PRIVACY-001`、账户切换 | 先阻断旧范围读取；失败停在无私有内容的清理恢复态，重试幂等 | 文件/SQLite 不可写、部分已删和进程重启故障注入 | Account Privacy Ready 前 | Feature Ready 阻塞 |
+| `RISK-PRIVACY-01` | 未完成所有 Feature 设计前，私有状态 Owner 清单可能漏项，导致退出后残留 | `PRIVACY-001`、`ACCOUNT-07`、所有私有 Feature | privacy barrier 使用显式 Owner 清单；未登记 Owner 不能进入集成 | Ready 前：对照完整 Feature map、Schema Catalog 与数据所有权审查清单和每项关闭结果；集成验收：对每个实际 Owner 注入清理失败 | Ready 前关闭设计风险；实现后的 Account Privacy 集成验收关闭运行时证据 | Ready 阻塞（设计审查）；集成阻塞（运行时证据） |
+| `RISK-PRIVACY-02` | 结束认证会话后本机物理清理失败，用户无法安全进入下一账户 | `AUTH-001`、`PRIVACY-001`、账户切换 | 先阻断旧范围读取；失败停在无私有内容的清理恢复态，重试幂等 | Ready 前：审查故障时仍关闭旧范围、可恢复关闭的可观察契约与验收情景；集成验收：文件/SQLite 不可写、部分已处理和进程重启故障注入 | Ready 前关闭设计风险；实现后的 Account Privacy 集成验收关闭运行时证据 | Ready 阻塞（设计审查）；集成阻塞（运行时证据） |
 | `RISK-OSM-01` | Overpass 限流、超时或部分响应可能被误判为真实空结果 | `FACILITY-001`、`FACILITY-002`、`FAC-01` | 只有可证明完整的响应才能产生覆盖/未覆盖；其余为未知或缓存降级 | 用完整、有意截断、超时、HTTP 限流和无效 payload 的代表查询验证 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
 | `RISK-CACHE-01` | 坐标精度、分类映射版本或缓存键不一致会复用错误地点/口径结果 | `LOCATION-001`、`facility_public_cache` | 缓存键至少含分析坐标、2,000 米半径和分类版本；结果回带原地点 | 手工验算邻近坐标、版本升级和 24 小时边界；契约测试断言 key/result 一致 | Nearby Facilities Ready 前 | Feature Ready 阻塞 |
 | `RISK-CACHE-02` | 公共缓存若混入收藏名称或账户引用，会绕过退出清理泄露兴趣地点 | `facility_public_cache`、`PRIVACY-001` | 公共缓存只保存分析所需坐标、公共结果、时间、版本和归因 | Schema Catalog 审查和退出后存储检查，确认没有账户/用户命名字段 | Schema 对象批准前 | Baseline 阻塞 |
@@ -48,11 +48,11 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 
 | 风险 | 责任 Owner | Baseline 处置 |
 | --- | --- | --- |
-| `RISK-PRIVACY-01` | Account Privacy | 已按全部私有对象、状态、队列和文件核对 8 个参与者；Baseline 阻塞关闭，Account Privacy Ready 时仍须执行故障注入 |
+| `RISK-PRIVACY-01` | Account Privacy | 已按全部私有对象、状态、队列和文件核对 8 个参与者；Baseline 阻塞关闭。Ready 审查确认完整清单和关闭不变量；逐 Owner 故障注入留待实现后的集成验收 |
 | `RISK-CACHE-02` | 各公共缓存所属分析 Feature | 已核对 Schema Catalog 的具名公共缓存与公共缓存不变量；Baseline 阻塞关闭，各对象批准时验证字段 |
 | `RISK-SCHEMA-01` | Geographic Context、Home、Cost、Crime、Transit、Socio-economic、Infrastructure | [Schema 迁移计划](baseline-review.md#schema-迁移计划)已分配 add/migrate/remove、证据与最迟 Gate；Baseline 阻塞关闭，实现仍阻塞各 owning Feature Ready |
 | `RISK-SESSION-01` | Authentication & Session | 2026-09-14 已以项目锁定版本证据关闭；依赖版本改变时重开 |
-| `RISK-PRIVACY-02` | Account Privacy | 保留至 Account Privacy Ready |
+| `RISK-PRIVACY-02` | Account Privacy | Ready 审查关闭隐私屏障与恢复语义；文件/SQLite/部分处理/重启故障注入留待实现后的集成验收 |
 | `RISK-OSM-01`、`RISK-CACHE-01` | Nearby Facilities | 保留至 Nearby Facilities Ready |
 | `RISK-GEO-01` | Map / Location | 保留至 Map Ready |
 | `RISK-GEO-02` | Geographic Context | 保留至 Geographic Context Ready |
@@ -88,9 +88,21 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 - **范围变更（2026-09-14）**：项目负责人确认警区多边形资料不可获取，故移除警区解析与 `SAFE-02`，
   `police_districts_boundary` 退役。Crime 仅消费行政边界解析出的州，并聚合 `crime_district.state`；不得以
   行政区、警局点位或第三方资料产生警区结果。
-- **仍未满足的关闭证据**：行政区资料尚未证明已导入、可读或通过稳定公共读取路径暴露；尚未以实际资料
-  验证边界点、离岛、重叠、零覆盖和版本变化。故 `RISK-GEO-02` 保持未关闭，Geographic Context 保持
-  `Draft`，不推进 Issue #7 的 Ready Gate。
+- **空间语义决定（2026-09-14）**：边界点或重叠区的每个覆盖行政区都是候选；多个候选一律完整返回
+  `ambiguous`，不按面积、名称或邻近性挑选。此规则也约束统计州，因此州级治安在多州候选时不可用。源内
+  退化环可在导入时修复为有效多边形；审计必须同时保留原始 source hash、修复标识和派生几何 hash。资料
+  本身的重叠不裁剪、不合并。
+- **本地资料验证（2026-09-14）**：已下载固定 commit，SHA-256 与批准值一致。PostGIS 3.5.2 验证 160 个
+  `MultiPolygon`、16 个州/联邦直辖区、160 个唯一边界标识和 WGS84 SRID；7 个含退化环的几何经
+  `ST_CollectionExtract(ST_MakeValid(...), 3)` 后均有效且非空，确定性派生几何清单 hash 为
+  `929e7ce03417d284972f6550820806d0a29179f532b1c6c77f6bf5473bc1cb7f`。固定样本验证了非主离岛、
+  边界点（两个候选）、零覆盖、合成重叠和不同资料版本；原资料有 311 对正面积重叠，其中 56 对跨州，均按
+  `ambiguous` 保留。
+- **远端关闭证据（2026-09-14）**：已关联 Supabase 项目已导入 160 行修复后边界及 1 行不可变审计；
+  无效/空几何为 0，16 个州/联邦直辖区均在。稳定 RPC 对离岛返回 1 个候选、对固定真实边界点返回 2 个候选、
+  对范围外点返回 0 个候选；每行均关联审计。authenticated 无直接表读权但可执行 RPC，anon 无 RPC 权限。
+  外键覆盖索引与 GiST 空间索引均已建立。`RISK-GEO-02` 的资料、空间和读取风险已关闭；项目负责人已接受
+  authenticated-only 受控 RPC 例外并于 2026-09-14 批准 Geographic Context 转为 `Ready for Development`。
 
 - Issue #4 已覆盖系统 Interface、数据 Owner、技术架构、非功能约束与跨 Feature 流程；跨 Owner
   可观察语义在 owning design 完成，Adapter、migration 和测试实现仍由 Owner/学生实现。

@@ -37,7 +37,7 @@ AI 可以只读检查代码、运行测试、比较设计与实现并报告缺�
 - **设计 AI**：提出和编辑设计、生成上下文包与工作包、执行审查；只有项目负责人批准的
   综合结论进入权威设计。
 
-当前两名学生的具体 Feature 分配等待项目负责人提供分工资料后决定。
+实现 Owner 在全部 owning design 完成后由项目负责人统一分配；实现 Owner 尚未指定不阻碍项目负责人批准某份设计进入 `Ready for Development`。在分配前，Ready 设计仍只冻结协调契约，不生成或派发人类工作包。
 
 ## 交付节奏
 
@@ -81,7 +81,7 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | System | LocateMY | `Baselined` (`5d11769`) | 项目负责人 | N/A | [系统设计入口](system/README.md) |
 | Feature | Authentication & Session | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 1 | [实施设计](features/authentication-and-session.md) |
 | Module | Geographic Context | `Draft` | 待项目负责人分配 | 1 | [实施设计](modules/geographic-context.md) |
-| Module | Account Privacy | `Draft` | 待项目负责人分配 | 2 | [实施设计](modules/account-privacy.md) |
+| Module | Account Privacy | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 2 | [实施设计](modules/account-privacy.md) |
 | Module | Application Shell | `Draft` | 待项目负责人分配 | 3 | [责任卡](system/feature-map.md#fm-shell) |
 | Feature | Home & Relocation Outlook | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-home) |
 | Feature | Map / Location | `Draft` | 待项目负责人分配 | 4 | [责任卡](system/feature-map.md#fm-map) |
