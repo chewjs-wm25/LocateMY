@@ -56,7 +56,7 @@ Catalog 落地的 `supabase/migrations/`。Feature Owner 可在 `lib/features/ha
 
 | ID | 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
 | --- | --- | --- | --- | --- |
-| `HAZARD-001` | Application Shell；Map / Location；Account Center | 创建、读取公共报告/详情、本人列表、本人状态标记/删除和本人投票；提供声明式公共图层及类型化详情/创建意图。报告类型固定为 flood、crime、traffic、infrastructure、other；状态只为作者自己的 `pending/resolved`。 | 输入为 opened scope、由 `LOCATION-002` 给出的合法创建意图、创建字段、本人状态动作、viewport/分页、稳定报告 ID 或 vote 动作。创建前可更正 type、标题、描述和位置；成功发布后 type、trim 后标题、描述、位置、report time 与 author 不可编辑。状态成功返回权威更新记录；公共读取返回页及其完整性；本人列表只返回该账户作者记录；投票返回当前账户选择与全局计数。标题 trim 后为空、超长字段、无效类型/坐标、缺失 ID、空页、权限拒绝、冲突或可重试不可用均明确分类；空页不等于图层完整为空。 | authenticated 才可读公共报告；仅作者创建、更新自身状态或删除自己的报告；每账户每报告至多一行 vote，赞成/反对更新本人行，撤回删除本人行。计数只通过 `hazard_vote_counts` 读取，不直接由客户端写入，也不暴露投票者身份；无审核/维护者例外。隐患写必须在线。 |
+| `HAZARD-001` | Application Shell；Map / Location | 创建、读取公共报告/详情、本人列表、本人状态标记/删除和本人投票；提供声明式公共图层及类型化详情/创建意图。报告类型固定为 flood、crime、traffic、infrastructure、other；状态只为作者自己的 `pending/resolved`。 | 输入为 opened scope、由 `LOCATION-002` 给出的合法创建意图、创建字段、本人状态动作、viewport/分页、稳定报告 ID 或 vote 动作。创建前可更正 type、标题、描述和位置；成功发布后 type、trim 后标题、描述、位置、report time 与 author 不可编辑。状态成功返回权威更新记录；公共读取返回页及其完整性；本人列表只返回该账户作者记录；投票返回当前账户选择与全局计数。标题 trim 后为空、超长字段、无效类型/坐标、缺失 ID、空页、权限拒绝、冲突或可重试不可用均明确分类；空页不等于图层完整为空。 | authenticated 才可读公共报告；仅作者创建、更新自身状态或删除自己的报告；每账户每报告至多一行 vote，赞成/反对更新本人行，撤回删除本人行。计数只通过 `hazard_vote_counts` 读取，不直接由客户端写入，也不暴露投票者身份；无审核/维护者例外。隐患写必须在线。 |
 | `HAZARD-002` | Property Inspection | 为一个合法房产地点返回附近公共隐患计数，供创建、坐标改变或显式风险刷新时随快照保存。 | 输入为合法房产地点。输出为 count、2,000m 半径、统计时间和 available，或带原因的 unavailable/partial；只计 Haversine `d <= 2,000m` 的 `pending` 公开报告，`resolved` 不计。失败或 partial 不返回 0。 | 只读公共报告，不写实勘、报告或快照；调用不改变图层、报告状态或官方安全结果。Property 决定何时将完整结果写入其私有风险快照。 |
 
 ### 消费
@@ -123,3 +123,4 @@ Property 另以 `HAZARD-002` 取得 complete count 与时间，连同其自身�
 | 2026-09-14 | `Draft` | Issue #14 建立 Wave 5 owning design；项目负责人固定安全 vote-count RPC 及 HAZARD-002 的 2,000m pending-only 口径 | `HAZ-01`–`04`、`HAZARD-001`、`HAZARD-002`、`crowdsourced_hazards`、`crowdsourced_hazard_votes`、`hazard_vote_counts`、Property Inspection | 项目负责人（Q6、Q7） |
 | 2026-09-14 | `Draft` | 项目负责人 Q8 覆盖先前内容编辑假设：发布后内容、位置和上报时间不可变，作者只可标记自身 pending/resolved 或删除 | `HAZ-01`、`HAZ-04`、`HAZARD-001`、`crowdsourced_hazards`、Application Shell、Map / Location、Account Center | 项目负责人（Q8） |
 | 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `HAZ-01`–`04`、`HAZARD-001`、`HAZARD-002`、D18–D20 | 设计 AI（项目负责人授权） |
+| 2026-09-14 | `Ready for Development` | Account Center 双轴审查移除其作为 `HAZARD-001` 消费者的错误登记；账户入口只提交 Shell 导航意图，不读取隐患数据 | `HAZARD-001`、`SHELL-001`、Account Center | 设计 AI（项目负责人授权） |

@@ -94,5 +94,5 @@ Wave 1 的首份 owning design 必须把每个外部 seam 的可验证运行时�
 | Feature | Socio-economic | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-socio) |
 | Feature | Infrastructure Coverage | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-infra) |
 | Feature | Property Inspection | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-property) |
-| Feature | Account Center | `Draft` | 待项目负责人分配 | 6 | [责任卡](system/feature-map.md#fm-account) |
+| Feature | Account Center | `Ready for Development`（2026-09-14） | 待项目负责人分配 | 6 | [实施设计](features/account-center.md) |
 | Feature | Personalized Location Suitability | `Draft` | 待项目负责人分配 | 7 | [责任卡](system/feature-map.md#fm-suitability) |
