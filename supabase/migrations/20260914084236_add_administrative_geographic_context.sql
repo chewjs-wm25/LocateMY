@@ -38,9 +38,6 @@ alter table public.administrative_district_boundaries enable row level security;
 
 create index administrative_district_boundaries_geom_idx
   on public.administrative_district_boundaries using gist (boundary_geom);
-create index administrative_district_boundaries_audit_idx
-  on public.administrative_district_boundaries
-    (source_dataset, source_version, derived_geometry_sha256);
 
 -- This public RPC is the only client read path. It returns every covering
 -- candidate plus the immutable import facts; Geographic Context classifies
@@ -104,3 +101,4 @@ comment on table public.administrative_district_boundaries is
   'DOSM administrative district boundary mirror; only read through its stable RPC.';
 
 commit;
+;

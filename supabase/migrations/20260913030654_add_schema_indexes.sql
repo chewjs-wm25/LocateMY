@@ -16,4 +16,4 @@ create policy "legacy property inspection API disabled"
   for all
   to anon, authenticated
   using (false)
-  with check (false);
+  with check (false);;

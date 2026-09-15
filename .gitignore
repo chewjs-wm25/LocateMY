@@ -33,6 +33,7 @@ migrate_working_dir/
 .gradle/
 /build/
 /coverage/
+node_modules/
 
 # Symbolication related
 app.*.symbols

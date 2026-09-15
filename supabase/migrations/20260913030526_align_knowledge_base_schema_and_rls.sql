@@ -393,3 +393,4 @@ create trigger crowdsourced_hazard_votes_set_updated_at before update on public.
   for each row execute function public.update_updated_at_column();
 
 commit;
+;
