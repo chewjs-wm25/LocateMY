@@ -1,0 +1,29 @@
+@startuml
+!include theme.puml
+title Geographic Context - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [No standalone page\nconsumer-facing result states] as view
+}
+package "Application" <<application>> {
+  [Geographic Context ViewModel] as vm
+  [Resolve administrative context] as uc
+  [GEO-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [State / district resolution\nprovenance and ambiguity rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Boundary Adapter\n(GEO-002)] as adapter
+  database "Versioned public cache" as cache
+}
+database "Supabase boundary RPC\n(read_administrative_boundary_candidates)" as rpc
+view --> vm
+vm --> uc
+uc --> domain
+uc --> api
+uc --> adapter
+uc --> cache
+adapter --> rpc
+note right of api : Consumed by Cost, Crime,\nSocio-economic and Infrastructure
+@enduml

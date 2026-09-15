@@ -1,0 +1,35 @@
+@startuml
+!include theme.puml
+title Property Inspection - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Inspection form, detail, comparison\nand recycle-bin views] as view
+}
+package "Application" <<application>> {
+  [Inspection ViewModel] as vm
+  [Manage inspections, photos and risk snapshots] as uc
+  [PROPERTY-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Inspection lifecycle, four site scores,\nphoto queue and explicit risk-snapshot rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Inspection repository Adapter] as records
+  [Photo Storage Adapter] as photos
+  database "Private drafts, files\nand upload queue" as local
+}
+rectangle "LOCATION-001 + SAFETY-001\nHAZARD-002 + PRIVACY-001" as inputs
+database "Supabase inspection records\nand photo metadata" as db
+folder "Supabase Storage\ninspection-photos" as storage
+view --> vm
+vm --> uc
+uc --> domain
+inputs --> uc
+uc --> api
+uc --> records
+records --> db
+uc --> photos
+photos --> storage
+records --> local
+photos --> local
+@enduml

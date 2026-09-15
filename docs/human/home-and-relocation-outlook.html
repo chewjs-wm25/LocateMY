@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../design/features/">
+<title>Home &amp; Relocation Outlook 开发协作契约</title>
+<style>
+:root { color-scheme: light; --ink:#172033; --muted:#526176; --line:#d8dee9; --panel:#f7f9fc; --accent:#075985; --code:#0f172a; }
+* { box-sizing:border-box; } html { font-size:16px; } body { max-width:1080px; margin:0 auto; padding:42px 28px 64px; color:var(--ink); background:#fff; font:16px/1.7 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; } main { min-width:0; } h1,h2,h3,h4 { line-height:1.28; color:#0b2239; scroll-margin-top:1rem; } h1 { font-size:2rem; margin:0 0 1rem; padding-bottom:.7rem; border-bottom:3px solid var(--accent); } h2 { margin:2.5rem 0 .85rem; padding-top:.2rem; font-size:1.45rem; } h3 { margin:1.75rem 0 .65rem; font-size:1.16rem; } p { margin:.7rem 0; } a { color:var(--accent); } blockquote { margin:1rem 0; padding:.7rem 1rem; border-left:4px solid #7dd3fc; background:#f0f9ff; color:#27425a; } ul,ol { padding-left:1.6rem; } li { margin:.25rem 0; } table { width:100%; margin:1rem 0 1.3rem; border-collapse:collapse; display:block; overflow-x:auto; } th,td { padding:.6rem .7rem; vertical-align:top; text-align:left; border:1px solid var(--line); } th { background:#eaf2f8; font-weight:700; } tr:nth-child(even) td { background:#fbfcfe; } pre { margin:1rem 0; padding:1rem; overflow:auto; border-radius:7px; background:var(--code); color:#e2e8f0; font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace; } code { font: .9em ui-monospace,SFMono-Regular,Consolas,monospace; } :not(pre)>code { padding:.12em .32em; border-radius:4px; background:#eef2f7; color:#182b3d; } hr { border:0; border-top:1px solid var(--line); margin:2rem 0; } @media print { body { max-width:none; padding:0; font-size:10.5pt; } a { color:inherit; text-decoration:none; } pre { white-space:pre-wrap; overflow:visible; } table { overflow:visible; } }
+</style>
+</head>
+<body>
+<main>
+<p><strong>人类阅读版 HTML 导出</strong> · 来源：<a href="home-and-relocation-outlook.md">Home &amp; Relocation Outlook 开发协作契约（Markdown）</a></p>
+<h1>Home &amp; Relocation Outlook 开发协作契约</h1>
+<blockquote>
+<p>Owner：<code>A</code><br>
+依赖顺序：Wave 4；消费已冻结的 Application Shell <code>SHELL-001</code>，并向 Shell 提供 <code>HOME-001</code> 公共入口与 fake。<br>
+定义完成：Shell 能只凭本文件读取、呈现和刷新全国首页结果，并安全提交“探索地图”意图；不需要 Home 的内部文件、Supabase Adapter 或缓存实现。</p>
+</blockquote>
+<p>本文件是 Home &amp; Relocation Outlook 唯一的跨 Owner 开发协作契约；同名 HTML 是供人阅读的等价导出，不是平行的发布或治理工件。它只固定可观察结果、公开 Dart seam、数据边界与联验；<code>lib/features/home_relocation_outlook/</code> 内的页面、状态管理、计算组织、缓存策略、并发/取消/重试和测试组织由 A 决定。公式正文只在产品知识库，字段、RLS 与迁移只在 Schema Catalog。</p>
+<h2>1. 任务成果</h2>
+<ul>
+<li>在已打开的主应用首页，用户可看到全国 <code>0–100</code> 搬家时机、状态、最多三条原因、三个宏观分项和家庭收入中位数；每项携带单位、真实观测日期、来源和可用性。</li>
+<li>用户可以用按钮或下拉触发同一刷新语义；成功刷新后有 60 秒进程内冷却，失败保留已可用结果并如实标示缓存或过期状态。</li>
+<li>用户可选择“探索地图”；Shell 只切换地图 Tab，不产生默认地点、坐标或分析目标。</li>
+<li>包含 <code>HOME-01</code>、<code>HOME-02</code>、<code>HOME-03</code>；不拥有地点分析、个人化地点适配度、地图状态、语言偏好、认证门控或政府数据写入。</li>
+</ul>
+<p>产品事实唯一来源：<a href="../../knowledge_base/locatemy_product/features/home.md">首页</a>、<a href="../../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a>；系统追踪为 <code>HOME-001</code>、<code>D04</code>、<code>FLOW-08</code> 与 <code>AT-HOME-01</code>–<code>AT-HOME-03</code>。</p>
+<h2>2. 责任与依赖</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>负责</th>
+<th>不负责</th>
+<th>依赖次序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Home &amp; Relocation Outlook（A）</td>
+<td><code>HOME-001</code>、全国宏观读取、指数与原因、公共缓存、<code>STATE-HOME-REFRESH</code></td>
+<td>Shell 门控/导航、地图地点、语言、账户资料、镜像表写入</td>
+<td>Shell 先冻结 <code>SHELL-001</code>；A 先交付 Home seam/fake；Shell 再接入真实 Adapter。</td>
+</tr>
+<tr>
+<td>Application Shell（A）</td>
+<td>已打开账户范围的首页槽位、日期本地化、地图 Tab 切换及导航结果</td>
+<td>宏观数据解释、公式、Home 缓存/冷却、资料可用性判定</td>
+<td>只消费 <code>HOME-001</code> 的公开类型；仅在同账户 scope 为 <code>opened</code> 时呈现或触发读取。</td>
+</tr>
+<tr>
+<td>Supabase 公共读取对象</td>
+<td>五个已导入资料集的只读输入</td>
+<td>指数、缓存、Shell 呈现、Flutter 直读镜像表</td>
+<td>仅 A 的 Home Adapter 调用 <code>read_home_metrics</code>。</td>
+</tr>
+</tbody></table>
+<p>Home 的受控实现边界是 <code>lib/features/home_relocation_outlook/</code>。消费者只使用下列公开入口；不导入该目录的 <code>src/</code> 或任何 Adapter 文件。</p>
+<h2>3. 需要调用 Interface</h2>
+<h3><code>SHELL-001</code>：提交探索地图意图</h3>
+<p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Home；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。下列是 <a href="../modules/application-shell.md#shell-001--application-coordination">Application Shell 的 canonical <code>SHELL-001</code> 声明</a>；Home 只调用其中的 <code>submit</code>，不调用 <code>publish</code>，也不重述、缩窄或另定义任何 Shell 类型。</p>
+<pre><code class="language-dart">abstract interface class ApplicationShell {
+  Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
+  Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
+}
+
+abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
+
+sealed class ShellIntentOutcome {}
+final class ShellIntentAccepted extends ShellIntentOutcome {}
+final class ShellAuthenticationRequired extends ShellIntentOutcome {}
+final class ShellIntentRejected extends ShellIntentOutcome {
+  const ShellIntentRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome {
+  const ShellContributionRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+
+enum ShellRejectionReason {
+  missingInput,
+  staleInput,
+  inapplicableDestination,
+  scopeUnavailable,
+}
+</code></pre>
+<p><code>ApplicationShell</code>、两组 outcome、两种 marker 与 <code>ShellRejectionReason</code> 均归 Shell 所有；完整声明以链接的 Shell owning contract 为唯一规范。Home 从自己的唯一公开入口导出下列无地点 intent marker：</p>
+<pre><code class="language-dart">final class ExploreMapIntent implements ShellIntent {
+  const ExploreMapIntent();
+}
+</code></pre>
+<p>Home 只在用户明确选择“探索地图”、且当前 Home 呈现仍处于 Shell opened scope 时调用：</p>
+<pre><code class="language-dart">final ShellIntentOutcome outcome = await applicationShell.submit(
+  const ExploreMapIntent(),
+);
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>输入约束</th>
+<th>输出 / typed failures</th>
+<th>状态与副作用</th>
+<th>顺序、权限与最小处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>恒为无字段的 <code>const ExploreMapIntent()</code>；不得携带或生成城市、坐标、地点引用或分析目标。</td>
+<td><code>ShellIntentAccepted</code> 表示 Shell 已切换地图 Tab；<code>ShellIntentRejected(reason)</code> 或 <code>ShellAuthenticationRequired</code> 是导航结果，不是 Home 数据失败。</td>
+<td>Shell 只更新其导航状态；Home 不改变结果、缓存、冷却或地点状态。</td>
+<td>仅 opened 主应用可请求。被拒绝或需认证时留在首页并呈现原因；不得重试成隐式导航。</td>
+</tr>
+</tbody></table>
+<p><strong>Fake 场景：</strong> Home 使用 fake Shell 分别返回 accepted、rejected 和 authentication-required；断言 accepted 只发出上述无地点意图，另外两种结果保持首页原状且可读出原因。测试不需要地图或真实 Shell。</p>
+<h2>4. 必须提供 Interface</h2>
+<h3><code>HOME-001</code>：全国搬家时机与宏观首页</h3>
+<p><strong>提供者：</strong> Home &amp; Relocation Outlook（A）；<strong>消费者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/features/home_relocation_outlook/home_relocation_outlook.dart</code>。</p>
+<p>消费者只能 import 此入口。A 应先合入下列声明与最小 fake；这些是协作形状，不是可提交实现体。</p>
+<pre><code class="language-dart">abstract interface class HomeRelocationOutlook {
+  Future&lt;HomeLoadOutcome&gt; load(HomeLoadRequest request);
+}
+
+enum HomeLoadRequest { cacheAllowed, refresh }
+
+sealed class HomeLoadOutcome {}
+final class HomeLoaded extends HomeLoadOutcome {
+  final HomeOutlookSnapshot snapshot;
+}
+final class HomeRefreshCoolingDown extends HomeLoadOutcome {
+  final HomeOutlookSnapshot snapshot;
+  final int remainingSeconds;
+}
+final class HomeUnavailable extends HomeLoadOutcome {
+  final HomeUnavailableReason reason;
+}
+
+final class HomeOutlookSnapshot {
+  final HomeDataFreshness freshness;
+  final HomeCompleteness completeness;
+  final RelocationTimingCard relocationTiming;
+  final MacroMetricCard costPressure;
+  final MacroMetricCard employmentStability;
+  final MacroMetricCard economicMomentum;
+  final HouseholdIncomeCard householdMedianIncome;
+  final DateTime fetchedAt;
+}
+
+enum HomeDataFreshness { fresh, cached, stale }
+enum HomeCompleteness { complete, partial }
+enum MetricAvailability { available, unavailable }
+enum HomeUnavailableReason {
+  retryableUnavailable, noCachedResult, sourceSchemaChanged, sourceDataUnverifiable,
+}
+enum MetricUnavailableReason {
+  sourceMissing, sourceSchemaChanged, insufficientHistory,
+  sourceDataUnverifiable, retryableUnavailable,
+}
+
+final class RelocationTimingCard {
+  final MetricAvailability availability;
+  final int? score;
+  final String? scoreUnit;
+  final String? status;
+  final List&lt;RelocationReason&gt; reasons;
+  final List&lt;MetricSource&gt; sources;
+  final MetricUnavailableReason? unavailableReason;
+}
+final class RelocationReason {
+  final String text;
+  final MetricSource source;
+}
+final class MacroMetricCard {
+  final MetricAvailability availability;
+  final int? score;
+  final String? scoreUnit;
+  final String? directionExplanation;
+  final MetricSource source;
+  final MetricUnavailableReason? unavailableReason;
+}
+final class HouseholdIncomeCard {
+  final MetricAvailability availability;
+  final num? medianIncome;
+  final String? currencyUnit;
+  final int? surveyYear;
+  final String? priceBasisExplanation;
+  final MetricSource source;
+  final MetricUnavailableReason? unavailableReason;
+}
+final class MetricSource {
+  final String datasetId;
+  final DateTime observedAt;
+}
+</code></pre>
+<p><code>HomeOutlookSnapshot</code> 的五个字段始终存在；<code>MetricAvailability.unavailable</code> 时该卡数值字段为 null，并提供分类原因。<code>HomeCompleteness.partial</code> 表示至少一张卡不可用，并与 <code>fresh</code>、<code>cached</code> 或 <code>stale</code> 的资料新旧事实独立；卡来源日期仍由 <code>MetricSource</code> 表示。</p>
+<h4>输入与调用次序</h4>
+<table>
+<thead>
+<tr>
+<th>调用</th>
+<th>输入约束</th>
+<th>调用者责任</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>load(HomeLoadRequest.cacheAllowed)</code></td>
+<td>仅在 Shell 已确认当前账户 scope 为 <code>opened</code> 后调用；无账户 ID、地点或语言输入。</td>
+<td>可先呈现 <code>HomeLoaded</code> 中可用卡；按 Shell 当前语言格式化日期与文案，不篡改来源、单位或可用性。</td>
+</tr>
+<tr>
+<td><code>load(HomeLoadRequest.refresh)</code></td>
+<td>仅由按钮或下拉的明确用户动作触发；两个入口等价。刷新进行中不得并发重复触发。</td>
+<td>接受 <code>HomeRefreshCoolingDown</code> 的剩余秒数，不再次强刷；失败不清空既有快照。</td>
+</tr>
+</tbody></table>
+<h4>输出、失败、状态与副作用</h4>
+<table>
+<thead>
+<tr>
+<th>结果</th>
+<th>可观察含义</th>
+<th>Shell 必须处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>HomeLoaded(fresh)</code></td>
+<td>可验证的在线结果；各卡保留各自观测日期。</td>
+<td>显示真实资料日期、来源、单位和趋势/方向文字；不将异频资料伪装为同一日期。</td>
+</tr>
+<tr>
+<td><code>HomeLoaded(cached)</code> / <code>HomeLoaded(stale)</code></td>
+<td>可用公共缓存；stale 已过期。</td>
+<td>明确标示 cached/stale、观测日期及 <code>fetchedAt</code>；不称为 fresh 或实时统计。</td>
+</tr>
+<tr>
+<td><code>HomeLoaded(snapshot.completeness == partial)</code></td>
+<td>其他卡可用，至少一张卡有分类 unavailable。</td>
+<td>保留每张可用卡；不以零补未知。三项主分项任一 unavailable 时综合卡也 unavailable；收入卡缺失不阻断主分项。</td>
+</tr>
+<tr>
+<td><code>HomeRefreshCoolingDown</code></td>
+<td>上次成功 refresh 后 60 秒内的同一快照与剩余整秒。</td>
+<td>显示剩余秒数并阻止重复强刷；可继续显示快照。</td>
+</tr>
+<tr>
+<td><code>HomeUnavailable</code></td>
+<td>无可安全呈现的结果。</td>
+<td>显示分类原因与重试入口；不得展示样例、固定数值或伪造 fresh。</td>
+</tr>
+</tbody></table>
+<ul>
+<li>A 只读 <code>read_home_metrics</code>，仅读写无账户字段的 <code>home_public_cache</code>，并在进程内拥有 <code>STATE-HOME-REFRESH</code>；退出可保留公共缓存，重启不恢复冷却倒计时。</li>
+<li>一次成功 <code>refresh</code> 才开始 60 秒冷却。网络失败、资料不可验证、字段变化或无结果均不报告刷新成功；在线结果只以资料日期更近者替换缓存。</li>
+<li>综合分仅在三项主分项均可用时提供；原因最多三条，按模型影响排序。家庭收入中位数为背景卡，绝不参与综合分。</li>
+<li>Home 不读取账户资料、不写政府镜像表、不执行导航、不生成地点，也不把缓存或一次性导入称为官方实时统计。</li>
+</ul>
+<h4>最小调用示例（Shell）</h4>
+<pre><code class="language-dart">final outcome = await homeRelocationOutlook.load(HomeLoadRequest.cacheAllowed);
+switch (outcome) {
+  case HomeLoaded(:final snapshot):
+    // 保留每张卡的 availability、source、observedAt 与 freshness。
+  case HomeRefreshCoolingDown(:final remainingSeconds):
+    // 呈现剩余秒数，不再次发起 refresh。
+  case HomeUnavailable(:final reason):
+    // 显示分类原因与可访问的重试入口。
+}
+</code></pre>
+<p><strong>Fake 场景：</strong> Shell 以 fake <code>HomeRelocationOutlook</code> 返回：（1）三主分项与收入均 available、异频日期的 fresh snapshot；（2）一个主分项 unavailable 的 partial snapshot；（3）stale snapshot；（4）<code>HomeUnavailable(noCachedResult)</code>；（5）<code>HomeRefreshCoolingDown(remainingSeconds: 42)</code>。断言分别保留日期/来源、使综合卡 unavailable 而保留其他卡、标示 stale、提供重试、显示 42 秒且不再调用 refresh；无需 Supabase 或 A 的生产计算。</p>
+<h2>5. 直接使用数据</h2>
+<table>
+<thead>
+<tr>
+<th>对象 / 事实源</th>
+<th>访问者与权限</th>
+<th>用途</th>
+<th>不可改变的语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="../data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1"><code>read_home_metrics</code></a></td>
+<td>仅 A 的 Home Adapter；authenticated、security-invoker、只读</td>
+<td>取得 CPI、劳动力、经济指标、实际 GDP 与家庭收入五个资料集。</td>
+<td>Flutter 不直读政府镜像；结果用每个资料集实际最大 <code>date</code>，不是 Supabase 刷新时间或目录年份。</td>
+</tr>
+<tr>
+<td><a href="../data/schema-catalog.md#%E6%9C%AC%E6%9C%BA%E5%AF%B9%E8%B1%A1"><code>home_public_cache</code></a></td>
+<td>仅 A；无账户字段，退出保留</td>
+<td>保存公共 result payload/version、各 source date、fetched at、expiry/completeness。</td>
+<td>不保存账户 ID、地点、自由文字或私有资料；在线只以较新资料替换。</td>
+</tr>
+<tr>
+<td><code>STATE-HOME-REFRESH</code></td>
+<td>仅 A；页面/进程内存</td>
+<td>加载、刷新与成功后的 60 秒冷却。</td>
+<td>重启不恢复；不跨账户传递 Home 呈现状态。</td>
+</tr>
+<tr>
+<td><a href="../../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a></td>
+<td>A 应用；Shell 仅呈现结果</td>
+<td>三主分项、综合、原因、趋势与家庭收入背景语义。</td>
+<td>严格遵循五年/最小历史、百分位、重归一化、60% 权重门槛、取整和综合条件；公式正文不复制到此处。</td>
+</tr>
+</tbody></table>
+<h2>6. 推荐实现顺序</h2>
+<ol>
+<li><strong>A：先合入公共 seam。</strong> 创建唯一入口、上述声明和最小 fake；Shell 不依赖 A 的内部文件。</li>
+<li><strong>Shell：用 fake 完成首页槽位。</strong> 处理 loaded、partial、stale、unavailable、冷却及探索地图的 accepted/rejected/authentication-required。</li>
+<li><strong>A：实现实际读取与模型。</strong> 只经 <code>read_home_metrics</code> 取得输入，按知识库应用模型；实现公共缓存、成功刷新冷却和来源元数据。</li>
+<li><strong>共同联调。</strong> 在 opened scope 下接入实际 seam，执行下节的 Interface 级场景；只为该联验保留跨 Owner 流程测试。</li>
+</ol>
+<h2>7. 联合验收</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>参与 Owner</th>
+<th>操作</th>
+<th>可观察结果</th>
+<th>追踪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整首页与异频资料</td>
+<td>A、Shell</td>
+<td>opened scope 后读取；三主分项和收入均可用，但月/季/年日期不同。</td>
+<td>全国 <code>0–100</code>、状态、最多三条原因和卡片均显示；每项显示真实日期、来源、单位/方向；不称为实时或同一观测期。</td>
+<td><code>HOME-01</code>、<code>HOME-02</code>；<code>AT-HOME-01</code>、<code>FLOW-08</code></td>
+</tr>
+<tr>
+<td>partial 与缺失边界</td>
+<td>A、Shell</td>
+<td>分别令主分项、收入、字段或历史资料不足。</td>
+<td>每一失败卡有分类 unavailable；任一主分项使综合 unavailable，其他卡保留；收入缺失不阻断主分项；未知不置零。</td>
+<td><code>HOME-01</code>、<code>HOME-02</code>；<code>AT-HOME-01</code></td>
+</tr>
+<tr>
+<td>缓存与无缓存失败</td>
+<td>A、Shell</td>
+<td>网络失败时分别存在 cached/stale 快照或没有快照。</td>
+<td>前两者明确资料日期与上次成功时间；无缓存时显示 retryable unavailable 和重试；均不伪造 fresh。</td>
+<td><code>HOME-01</code>、<code>HOME-02</code>；<code>AT-HOME-01</code>、<code>FLOW-08</code></td>
+</tr>
+<tr>
+<td>双入口刷新与冷却</td>
+<td>A、Shell</td>
+<td>依次使用按钮、下拉、进行中重复动作、60 秒内 refresh、刷新失败。</td>
+<td>两入口调用相同 request；成功后显示剩余秒数，重复强刷被阻止；失败保留既有结果并不报告成功。</td>
+<td><code>HOME-03</code>；<code>AT-HOME-02</code>、<code>FLOW-08</code></td>
+</tr>
+<tr>
+<td>门控、范围关闭与探索地图</td>
+<td>A、Shell</td>
+<td>在 opened、未认证、scope 关闭时进入首页；再选择探索地图并注入 Shell 拒绝。</td>
+<td>仅 opened 时读取/呈现；关闭后旧结果不进入后续账户；accepted 只切地图 Tab、不设地点；拒绝仍在首页且可读原因。</td>
+<td><code>HOME-01</code>–<code>HOME-03</code>；<code>AT-HOME-03</code>、<code>D04</code>、<code>FLOW-08</code></td>
+</tr>
+</tbody></table>
+<h2>8. 内部自由</h2>
+<p>A 可决定 Feature 内的文件拆分、Widget、状态管理、Adapter、缓存序列化、TTL、请求调度、取消、重试、去重、局部验证和测试组织。Shell 可决定其槽位布局、日期本地化和导航 UI。以下事项须先协商：唯一公开 import、公开声明/结果变体、60 秒成功冷却、三主分项/收入的可用性边界、来源元数据、探索地图的无地点约束、<code>read_home_metrics</code>/<code>home_public_cache</code> 的 schema 或权限。</p>
+<h2>9. 阻塞与权威参考</h2>
+<p><strong>当前阻塞项：无。</strong> <code>read_home_metrics</code> 与 <code>home_public_cache</code> 仍是 <code>proposed</code>：实现前须以 Schema Catalog 的 add–migrate–validate 证据确认官方 schema/键/行数、最大日期和完整/部分/空导入。运行时依赖、离线与可访问性证据由 <code>RISK-NFR-01</code> 在实现/集成验收关闭；它们不改变本契约。</p>
+<p>权威参考：<a href="../modules/application-shell.md#shell-001--application-coordination">Application Shell</a>、<a href="../system/interfaces.md">系统 Interface 注册表</a>、<a href="../system/flows.md#flow-08%E9%A6%96%E9%A1%B5%E5%88%B7%E6%96%B0%E4%B8%8E%E6%8E%A2%E7%B4%A2%E5%9C%B0%E5%9B%BE">FLOW-08</a>、<a href="../system/capability-traceability.md">Capability 追踪</a>、<a href="../system/data-ownership.md">数据所有权</a>、<a href="../data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../system/risks-and-decisions.md">风险与决定</a>、<a href="../../knowledge_base/locatemy_product/features/home.md">首页产品事实</a>、<a href="../../knowledge_base/locatemy_product/home_index_scoring.md">指数事实</a>。</p>
+<h3>Ready 检查</h3>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Owner、消费者、受控边界和 Wave 4 依赖次序明确。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>HOME-001</code> 与消费的 <code>SHELL-001</code> 均有唯一公开 import、声明或精确调用、输入约束、typed 结果/失败、状态/副作用、次序、权限、最小示例与 fake 场景。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>read_home_metrics</code>、<code>home_public_cache</code>、<code>STATE-HOME-REFRESH</code> 和模型的访问/权限/数据边界均链接唯一权威，且不复制字段、RLS、迁移或公式正文。</li>
+<li><input checked="" disabled="" type="checkbox"> 联合验收覆盖完整/partial、缓存/无缓存、双入口刷新与冷却、范围门控和无地点地图导航，双向追踪 <code>AT-HOME-01</code>–<code>AT-HOME-03</code>。</li>
+</ul>
+<h2>10. Change Log</h2>
+<table>
+<thead><tr><th>日期</th><th>状态</th><th>变更原因</th><th>受影响对象</th><th>批准者</th></tr></thead>
+<tbody>
+<tr><td>2026-09-14</td><td><code>Ready for Development</code></td><td>初始 Feature 协作设计冻结。</td><td><code>HOME-001</code>、<code>SHELL-001</code>、<code>FLOW-08</code></td><td>项目负责人</td></tr>
+<tr><td>2026-09-15</td><td><code>Ready for Development</code></td><td>Issue #23 单一 Development Contract 复审：移除旧 PDF/ADR 0014/handoff 发布治理表述，改为同名等价 HTML；消费卡改为引用并完整镜像已冻结的 canonical <code>SHELL-001</code> 声明，明确 Home 仅调用 <code>submit</code>。</td><td><code>HOME-001</code>、<code>SHELL-001</code>、Home HTML、<code>FLOW-08</code></td><td>设计 AI（项目负责人授权）</td></tr>
+</tbody></table>
+
+</main>
+</body>
+</html>

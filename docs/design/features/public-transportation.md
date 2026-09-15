@@ -1,131 +1,320 @@
-# Public Transportation
+# Public Transportation 开发协作契约
 
-> 状态：`Ready for Development`
-> Owner：`A`
-> 系统基线：`5d11769`
-> 依赖波次：`5`
-> 最后更新：`2026-09-14`
-> Prototype 视觉参考：`N/A`（产品事实源记录原型差异）
+> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+> Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 5
+> 唯一公开入口：`package:locatemy/features/public_transportation/public_transportation.dart`
+> 定义完成：消费者可只凭本契约，以不可变合法地点和明确分析日期取得、呈现或复用同一份交通连通性事实；不会把资料不完整、无服务或旧资料伪装为零分。
 
-本文件是公共交通 Feature 与消费者的高层协调设计。它冻结地点周围的 GTFS 覆盖读数、
-可用性和局部呈现契约；不规定 GTFS 解析/导入、Flutter/Supabase 内部结构、缓存、请求策略或测试组织。
+本文件是 Public Transportation 唯一的跨 Owner Development Contract；同名 HTML 是由本 Markdown 导出的等价人类阅读格式。它固定公开 Dart seam、GTFS 结果语义、局部地图协作和联合验收；`lib/features/public_transportation/` 内的 Widget、GTFS/Supabase Adapter、状态管理、缓存、并发/取消/重试、排序和测试组织由 A 决定。公式正文只在产品知识库，表/RLS/migration 只在 Schema Catalog。
 
-## 1. 用户成果与范围
+## 0. 固定阅读顺序与四项 Readiness
 
-- 用户成果：用户可查看一个合法地点周围 1.5 公里的站点实体、最近站距离、分析日期有效的
-  路线数和交通连通性分；站点列表与本页站点分布图可局部联动。地点 A/B 时，用户可并列
-  两端各自带来源、日期、范围和可用性的交通结果；Infrastructure 读取完全相同的连通性事实。
-- 包含的 Capability ID：`TRANSIT-01`、`TRANSIT-02`、`TRANSIT-03`。
-- 不包含及原因：不拥有 GTFS 手动取得/解析/导入、地点选择、主地图相机或全局 Marker、路线
-  导航、实际步行路径、班次/票价/通勤时间/服务质量评价、ICI 聚合或个人化地点适配度。站点
-  的粗略步行分钟仅为展示提示，不进入分数。
-- 产品事实源：[公共交通](../../knowledge_base/locatemy_product/features/transportation.md)、
-  [单个地点基础设施指数：公共交通](../../knowledge_base/locatemy_product/infrastructure_index_scoring.md#公共交通)、
-  [核心业务对象](../../knowledge_base/locatemy_product/domain_objects.md#transit-coverage-公共交通覆盖)、
-  [UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#公共交通)。
-- 原型差异：以标准化官方 GTFS 结果取代固定 72/80 分、固定站点/路线数及 fixture；“热力图”
-  固定称为本页的“站点分布图”，不成为主地图图层，也不提供导航或“在主地图上查看”。
+1. [领域词汇](../../../CONTEXT.md#公共交通覆盖)、[公共交通产品事实](../../knowledge_base/locatemy_product/features/transportation.md)与[ICI 公共交通规则](../../knowledge_base/locatemy_product/infrastructure_index_scoring.md#公共交通)；
+2. [Feature map（Transit）](../system/feature-map.md#fm-transit)、[Interface 注册表](../system/interfaces.md)、[FLOW-02](../system/flows.md#flow-02单点选址地点摘要与六类分析)与[FLOW-03](../system/flows.md#flow-03地点-ab-比较)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md#标准化-gtfs-对象)与[`RISK-TRANSIT-01`](../system/risks-and-decisions.md#风险与关闭条件)；
+4. 本契约及同名 HTML 导出。
 
-## 2. 依赖、责任与文件边界
-
-| 模块 / 文件边界 | Owner | 负责 | 不负责 | 与其他模块的沟通 |
-| --- | --- | --- | --- | --- |
-| `lib/features/public_transportation/` | Public Transportation | 标准化 GTFS 只读结果、站点/有效路线口径、`TRANSIT-001`、`STATE-TRANSIT-SELECTION`、本页站点分布图 | Feed 导入、可变地点、主地图、ICI/适配度聚合 | 消费 `SHELL-001`、`LOCATION-001`；向 Shell、Infrastructure、Suitability 提供 `TRANSIT-001` |
-| `lib/app/` | Application Shell | 将合法单点/A-B 快照导航至交通页，组合带元数据的摘要/比较结果及返回语境 | 交通计算、站点选择、资料完整性判断 | 经 `SHELL-001` 接受 Feature 导航与声明式结果；不改写可用性或站点选择 |
-| `lib/features/map_location/` | Map / Location | 发布不可变合法地点引用，并寄宿声明式站点分布图 | GTFS 读取、站点选择、交通可用性 | `LOCATION-001` 提供地点快照；`LOCATION-002` 只接收当前交通页的中心/圆/Marker/选中意图，不改写 single/A/B |
-| 标准化 GTFS 读取对象 | Public Transportation / 受控维护导入 | Feed 快照、站点、路线、服务日期、固定参照网格和交通聚合结果 | Flutter 直接下载 ZIP 或猜测资料缺口 | Flutter 只读取 `read_transit_analysis`；对象与访问规则由 [Schema Catalog](../data/schema-catalog.md#标准化-gtfs-对象)定义 |
-| `lib/features/infrastructure_coverage/` | Infrastructure Coverage | 以其 ICI 规则消费交通分项 | 重查站点、路线、百分位或生成第二个交通结果 | 只消费与地点、范围、分析日期和资料版本相同的 `TRANSIT-001` 连通性事实 |
-
-Owner 可在自己的目录内组织内部文件；上述受控边界不冻结 DTO、查询形状、GTFS parser、
-缓存、并发/取消、刷新、重试或测试策略。
-
-### 依赖与未决项
-
-| 依赖或问题 | 影响 | 验证方式 / 最迟解决点 |
+| Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
-| `D16` / `SHELL-001` 已 Ready | 交通页、A/B 与返回只在 opened 主应用中导航和组合 | 以 `FLOW-02`、`FLOW-03` 和 `AT-ANALYSIS-01`/`AT-COMPARE-03` 核对；无阻塞 |
-| `D17` / `LOCATION-001`、`LOCATION-002` 已 Ready | 读取结果绑定合法、不可变 single/A/B 地点快照；站点分布图通过既有声明式地图 seam 寄宿 | `absent`、`invalid coordinate`、`outside Malaysia` 或过期地点请求由 Shell/Map 拒绝，不能转为 no-service；中心/圆/稳定 Marker/选中意图仅以 `accepted`/`hidden`/`rejected(reason)` 呈现，且不改地点；无阻塞 |
-| 标准化 GTFS 对象和 `read_transit_analysis` | 真实结果、完整性、来源和固定参照组的唯一读取入口 | Transit 实现前验证官方 16 feed 的来源登记、快照/解析/服务日期、键、覆盖登记、参考网格及完整/失败导入；首次导入失败显示资料暂不可用，不用 fixture 代替 |
-| `RISK-TRANSIT-01` 已关闭 | per-feed、availability 与 service outcome 具有确定性可观察语义 | 每个预期 feed 独立为 usable/stale/missing/failed/out-of-service-range；全部 usable 或 stale 才为 availability available，部分为 incomplete、无 usable/stale 为 unavailable；仅 available 再有 served/no_stops/no_active_routes，stale 仅为 available warning。第 30 天、超 30 天、解析/范围边界与部分 feed 留实现/集成验收 |
+| 责任与依赖顺序 | `TRANSIT-01`–`03` 唯一归 A；`D16` 的 Shell 和 `D17` 的 Map 已先 Ready；`D28`/`D45` 的同一结果复用已指定消费者 | 已就绪 |
+| 跨 Owner Interface | 第 2、3 节完整列出 `SHELL-001`、`LOCATION-001`、`LOCATION-002`、`TRANSIT-001` 的公开入口、声明、typed outcome、次序、权限与 fake | 已就绪 |
+| 数据与权限 | A 是 `read_transit_analysis` 唯一直接消费者；GTFS 对象 authenticated read-only，Flutter 不直读表/ZIP；无账户私有资料或本地队列 | 已就绪 |
+| 联合验收与风险 | 第 5 节覆盖 `AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-RACE-01`；状态矩阵已由 `RISK-TRANSIT-01` 固定，运行时导入证据留实现/集成 | 已就绪 |
 
-## 3. 对外协调契约
+## 1. 成果、责任与冻结边界
 
-### 提供
+- 用户可查看合法地点 1,500 m 圆内的完整站点数、最近距离、分析日期有效路线数、连通性分、来源、采集/生成日期、可用性和资料限制；首屏按距离升序列 30 个站点，但统计和分数使用全部范围内站点。
+- 单点和 A/B 结果均绑定 Map 的不可变地点引用与请求的 `analysisDate`。只有半径、分析日期、GTFS snapshot/参照网格、完整性和 provenance 相同才可比较；不产生赢家或通勤建议。
+- 当前页面的局部站点分布图仅显示分析中心、固定圆和当前结果的 Marker；列表/Marker 互选只改变 `STATE-TRANSIT-SELECTION`，不移动全局选点、主地图中心或启动导航。
+- 不包含 GTFS ZIP 自动下载/导入、路线导航、票价、班次、真实步行路线、服务质量、ICI 汇总和适配度公式。粗略步行分钟只是展示提示，不进入分数。
 
-| ID | 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
+| Owner / 受控边界 | 负责 | 不负责 | 协作 |
+| --- | --- | --- | --- |
+| `lib/features/public_transportation/`（A） | 标准化 GTFS 读取、1.5 km 口径、可用性/服务结果、`TRANSIT-001`、局部选择/分布图 | ZIP 导入、全局地点、Shell 路由、ICI/适配度汇总 | 调用 `SHELL-001`、`LOCATION-001`、`LOCATION-002`；提供 `TRANSIT-001` |
+| Application Shell | opened 主应用的分析/比较导航、返回语境、渐进组合 | GTFS 查询、状态矩阵、可比性/分数判断 | 接收 Transit intent/contribution；消费 `TRANSIT-001` |
+| Map / Location | 合法 immutable single/A/B 引用、局部图层宿主 | GTFS、站点解释、选择状态、交通可用性 | 提供 `LOCATION-001`/`002` |
+| Infrastructure / Suitability | 复用交通 canonical result 作 ICI/交通维度输入 | 重查 GTFS、重算百分位或另造交通分数 | 消费 `TRANSIT-001` |
+
+## 2. 需要调用的 Interface
+
+### Interface 卡：`SHELL-001` — 导航、返回与摘要组合
+
+**提供者：** Application Shell；**消费者：** Public Transportation；**唯一公开 import：** `package:locatemy/app/application_shell.dart`。
+
+```dart
+abstract interface class ApplicationShell {
+  Future<ShellIntentOutcome> submit(ShellIntent intent);
+  Future<ShellContributionOutcome> publish(ShellContribution contribution);
+}
+abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
+sealed class ShellIntentOutcome {}
+final class ShellIntentAccepted extends ShellIntentOutcome {}
+final class ShellAuthenticationRequired extends ShellIntentOutcome {}
+final class ShellIntentRejected extends ShellIntentOutcome {
+  const ShellIntentRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome {
+  const ShellContributionRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+enum ShellRejectionReason {
+  missingInput,
+  staleInput,
+  inapplicableDestination,
+  scopeUnavailable,
+}
+```
+
+Transit 从自己的唯一公开入口导出供 Shell 接收的 marker payload：`ReturnToMapIntent`（当前 immutable location 与 `AnalysisReturnContext`）及 `PublicTransportationContribution`（第 3 节的 `TransitLoadOutcome`、地点角色和原返回语境）。intent/贡献不得携带可变地图状态、GTFS 原始行、账户资料或其他 Feature payload。
+
+| 输入约束 | 输出 / typed failures | 状态、副作用、次序与权限 |
+| --- | --- | --- |
+| `submit` 的 location 必为本次结果的 `ValidLocationReference`，并保留原返回语境；`publish` 只提交同一请求的 typed outcome 和完整元数据。 | accepted、authentication required、rejected(reason)；拒绝是导航/组合结果，不是交通 unavailable。 | 仅同账户 opened 主应用可调用。Shell 只更新导航/组合，不改地点、站点选择、GTFS 或分数。Transit 仅对当前地点/date/result publication；过期、换地点或关闭 scope 的结果不可发布。 |
+
+最小调用：`await shell.publish(PublicTransportationContribution(outcome, returnContext));`。非 accepted 时保留本页结果并呈现可读恢复路径。
+
+**Fake 场景：** fake Shell 依次返回 accepted、authentication required、stale input；Transit 验证只发布匹配请求的结果，后两者不把资料改为失败或把旧结果放入新槽位。无需 Shell 生产路由。
+
+### Interface 卡：`LOCATION-001` — 不可变合法地点
+
+**提供者：** Map / Location；**消费者：** Public Transportation；**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`。
+
+以下为 Map owning contract 的**完整 canonical 声明**；Transit 只使用本 Feature 所需成员，但不得截断、复制或改形。
+
+```dart
+abstract interface class LocationCoordinator {
+  Future<LocationSelectionOutcome> select(LocationSelectionRequest request);
+  LocationRoleSnapshot read(LocationRole role);
+  Future<LocationSelectionOutcome> swapComparisonLocations();
+  Future<SavedLocationOutcome> save(SaveLocationRequest request);
+  Future<SavedLocationOutcome> deleteSavedLocation(String savedLocationId);
+  Stream<SavedLocationsSnapshot> watchSavedLocations();
+  Future<SavedLocationsSnapshot> synchronizeSavedLocations();
+}
+enum LocationRole { single, locationA, locationB, property }
+final class GeographicPoint { final double latitude; final double longitude; }
+final class LocationSelectionRequest {
+  final LocationRole role; final GeographicPoint point; final String? displayName;
+}
+final class ValidLocationReference {
+  final String locationId; final GeographicPoint point; final String? displayName;
+}
+sealed class LocationRoleSnapshot {}
+final class LocationPresent extends LocationRoleSnapshot {
+  final LocationRole role; final ValidLocationReference location;
+}
+final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; }
+sealed class LocationSelectionOutcome {}
+final class LocationSelected extends LocationSelectionOutcome {
+  final LocationRole role; final ValidLocationReference location;
+}
+final class LocationSelectionRejected extends LocationSelectionOutcome {
+  final LocationSelectionFailure failure;
+}
+enum LocationSelectionFailure { invalidCoordinate, outsideMalaysia, sameComparisonPoint, scopeUnavailable }
+final class SaveLocationRequest { final ValidLocationReference location; final String name; }
+sealed class SavedLocationOutcome {}
+final class SavedLocationSaved extends SavedLocationOutcome { final SavedLocation savedLocation; }
+final class SavedLocationQueued extends SavedLocationOutcome { final SavedLocation savedLocation; }
+final class SavedLocationRejected extends SavedLocationOutcome { final SavedLocationFailure failure; }
+final class SavedLocation {
+  final String id; final String name; final ValidLocationReference location;
+  final DateTime createdAt; final SavedLocationSyncState syncState;
+}
+enum SavedLocationSyncState { synchronized, queued, retryableFailure }
+enum SavedLocationFailure {
+  invalidName, invalidLocation, offlineDeleteUnsupported, retryableUnavailable,
+  permissionDenied, conflict, scopeUnavailable, notFound,
+}
+sealed class SavedLocationsSnapshot {}
+final class SavedLocationsAvailable extends SavedLocationsSnapshot { final List<SavedLocation> locations; }
+final class SavedLocationsUnavailable extends SavedLocationsSnapshot { final SavedLocationFailure failure; }
+```
+
+Transit 只接受 Map owning contract 已产生的 `ValidLocationReference`（single 或明确的 A/B 角色）。它不自行构造坐标、不回读可变地图状态、不用默认城市、收藏名或旧地点替代。`LocationAbsent`、`invalidCoordinate`、`outsideMalaysia`、`sameComparisonPoint` 或 `scopeUnavailable` 时，不读 GTFS、不显示 no-service、不发布 contribution。调用本身无副作用；异步结果必须仍匹配原 location id、角色、analysis date 与结果 provenance。
+
+最小调用：`TransitRequest(location: selectedLocation, analysisDate: analysisDate, policy: TransitLoadPolicy.cacheAllowed)`，其中 `selectedLocation` 只能是 Map 成功返回的值。
+
+**Fake 场景：** fake Map 给 single、A/B、缺端及 scope unavailable；Transit 仅对成功 immutable reference 请求，拒绝时无读取/Marker/0 分。
+
+### Interface 卡：`LOCATION-002` — 局部站点分布图
+
+**提供者：** Map / Location；**消费者：** Public Transportation；**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`。
+
+以下为 Map owning contract 的**完整 canonical 声明**；Transit 只调用 `contribute`，但生产 Adapter、消费者和 fake 必须保留同一入口、成员与 result variant。
+
+```dart
+abstract interface class MapLayerHost {
+  Future<MapLayerContributionOutcome> contribute(MapLayerContribution contribution);
+  Future<MapLayerIntentOutcome> requestLongPress(GeographicPoint point);
+}
+final class MapLayerContribution {
+  final String providerId; final String layerId; final String viewportVersion;
+  final MapLayerVisibility visibility; final List<MapLayerItem> items;
+}
+enum MapLayerVisibility { visible, hidden }
+final class MapLayerItem {
+  final String stableItemId; final GeographicPoint point; final MapLayerIntent intent;
+}
+sealed class MapLayerIntent {}
+final class ProviderDefinedIntent extends MapLayerIntent {
+  final String providerId; final String action; final String stableItemId;
+}
+final class CreateHazardIntent extends MapLayerIntent { final ValidLocationReference location; }
+sealed class MapLayerContributionOutcome {}
+final class MapLayerAccepted extends MapLayerContributionOutcome {}
+final class MapLayerHidden extends MapLayerContributionOutcome {}
+final class MapLayerRejected extends MapLayerContributionOutcome { final MapLayerFailure failure; }
+sealed class MapLayerIntentOutcome {}
+final class MapLayerIntentAccepted extends MapLayerIntentOutcome { final MapLayerIntent intent; }
+final class MapLayerIntentRejected extends MapLayerIntentOutcome { final MapLayerFailure failure; }
+enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, scopeUnavailable, staleViewport, unauthenticated }
+```
+
+Transit 使用 Map contract 定义的 `MapLayerContribution`、`MapLayerItem`、`ProviderDefinedIntent`、`MapLayerAccepted`、`MapLayerHidden`、`MapLayerRejected(MapLayerFailure)`。贡献固定为 `providerId: 'public-transportation'`，stable marker id 为 `feedId + ':' + stopId`，并包含当前 request 的 `viewportVersion`、分析中心、1.5 km 圆、当前结果的全部 station Marker 与可选已选站点意图。`hidden` 是接受但不显示；`invalidContribution`、`invalidCoordinate`、`outsideMalaysia`、`scopeUnavailable`、`staleViewport`、`unauthenticated` 为可区分失败。
+
+图层只改 Map 覆盖物/相机，Map 点击只回传原 `feedId + stopId` 意图；Transit 负责将它解析为当前结果中的站点或拒绝过期选择。不得改 single/A/B/property、交通结果或启动导航。仅 opened scope 可见，关闭/换地点/date/snapshot 后清理选择并以 hidden/新 viewport 替换旧层。
+
+最小调用：`await mapLayerHost.contribute(currentStationLayer);`。**Fake 场景：** fake host 对新旧 viewport 返回 accepted/staleViewport，断言旧站点不会覆盖新地点；点击未知或旧 marker 时本地选择清除。无需地图 SDK。
+
+### Interface 卡：`TRANSIT-002` — 标准化 GTFS 读取（仅 A）
+
+**提供者/消费者：** Public Transportation（A）/ A；非跨 Owner 公开入口。A 只经 authenticated、security-invoker 的 `read_transit_analysis` 读取已准备 snapshot、站点/路线、固定参照网格和聚合；Flutter 不下载 ZIP、不直读 `gtfs_feed_snapshots`、`gtfs_stops`、`gtfs_routes`、`gtfs_stop_services`、`transit_analysis_results` 或 `transit_reference_grid`。字段、键、RLS 和迁移唯一见 Schema Catalog。网络/SDK/查询映射、刷新、缓存、取消及 retry 是 A 的内部实现。
+
+## 3. 必须提供的 Interface
+
+### Interface 卡：`TRANSIT-001` — 公共交通 canonical connectivity result
+
+**提供者：** Public Transportation（A）；**消费者：** Application Shell、Infrastructure Coverage、Personalized Location Suitability；**唯一公开 import：** `package:locatemy/features/public_transportation/public_transportation.dart`。
+
+消费者只能 import 此入口，不能 import `lib/features/public_transportation/src/` 或任何 GTFS/Adapter 文件。A 应先合入以下声明与最小 fake；这是协作形状，不是可提交实现体。
+
+```dart
+abstract interface class PublicTransportation {
+  Future<TransitLoadOutcome> load(TransitRequest request);
+  Future<TransitComparisonOutcome> compare(TransitComparisonRequest request);
+}
+final class TransitRequest {
+  final ValidLocationReference location;
+  final DateTime analysisDate;
+  final TransitLoadPolicy policy;
+  const TransitRequest({required this.location, required this.analysisDate, required this.policy});
+}
+enum TransitLoadPolicy { cacheAllowed, refresh }
+sealed class TransitLoadOutcome { const TransitLoadOutcome(); }
+final class TransitAvailable extends TransitLoadOutcome { final TransitSnapshot snapshot; const TransitAvailable(this.snapshot); }
+final class TransitIncomplete extends TransitLoadOutcome { final TransitPartialSnapshot snapshot; const TransitIncomplete(this.snapshot); }
+final class TransitUnavailable extends TransitLoadOutcome {
+  final TransitUnavailableReason reason; final List<FeedStatus> feeds;
+  const TransitUnavailable(this.reason, this.feeds);
+}
+enum TransitUnavailableReason { noUsableFeed, analysisDateOutsideServiceRange, retryableUnavailable, sourceUnverifiable }
+final class TransitSnapshot {
+  final ValidLocationReference location; final DateTime analysisDate; final int radiusMeters;
+  final List<TransitStation> stations; final int uniqueStopCount; final int? nearestDistanceMeters;
+  final int uniqueRouteCount; final TransitServiceOutcome serviceOutcome; final TransitScore? score;
+  final List<FeedStatus> feeds; final TransitProvenance provenance;
+  const TransitSnapshot({required this.location, required this.analysisDate, required this.radiusMeters, required this.stations, required this.uniqueStopCount, required this.nearestDistanceMeters, required this.uniqueRouteCount, required this.serviceOutcome, required this.score, required this.feeds, required this.provenance});
+}
+final class TransitPartialSnapshot {
+  final ValidLocationReference location; final DateTime analysisDate; final int radiusMeters;
+  final List<TransitStation> stations; final int uniqueStopCount; final int? nearestDistanceMeters;
+  final int uniqueRouteCount; final List<FeedStatus> feeds; final TransitProvenance provenance;
+  const TransitPartialSnapshot({required this.location, required this.analysisDate, required this.radiusMeters, required this.stations, required this.uniqueStopCount, required this.nearestDistanceMeters, required this.uniqueRouteCount, required this.feeds, required this.provenance});
+}
+final class TransitStation {
+  final String feedId; final String stopId; final String name; final GeographicPoint point;
+  final TransitStationType type; final int distanceMeters; final String? parentStation;
+  const TransitStation({required this.feedId, required this.stopId, required this.name, required this.point, required this.type, required this.distanceMeters, required this.parentStation});
+}
+enum TransitStationType { bus, rail, ferry, other }
+enum TransitServiceOutcome { served, noStops, noActiveRoutes }
+final class TransitScore { final int value; const TransitScore(this.value); }
+enum FeedAvailability { usable, stale, missing, failed, outOfServiceRange }
+final class FeedStatus {
+  final String feedId; final String sourceId; final Uri sourceUrl; final DateTime? capturedAt;
+  final FeedAvailability availability; final String? reason;
+  const FeedStatus({required this.feedId, required this.sourceId, required this.sourceUrl, required this.capturedAt, required this.availability, required this.reason});
+}
+final class TransitProvenance { final String snapshotId; final String referenceGridVersion; final DateTime generatedAt; const TransitProvenance({required this.snapshotId, required this.referenceGridVersion, required this.generatedAt}); }
+final class TransitComparisonRequest { final TransitRequest a; final TransitRequest b; const TransitComparisonRequest(this.a, this.b); }
+sealed class TransitComparisonOutcome { const TransitComparisonOutcome(); }
+final class TransitComparable extends TransitComparisonOutcome { final TransitSnapshot a; final TransitSnapshot b; const TransitComparable(this.a, this.b); }
+final class TransitIncomparable extends TransitComparisonOutcome { final TransitLoadOutcome a; final TransitLoadOutcome b; final TransitComparisonReason reason; const TransitIncomparable(this.a, this.b, this.reason); }
+enum TransitComparisonReason { sideUnavailable, sideIncomplete, analysisDateMismatch, radiusMismatch, provenanceMismatch, serviceOutcomeNotScored }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序与权限 |
+| --- | --- | --- | --- |
+| `location` 必为 `LOCATION-001` immutable reference；`analysisDate` 是明确本地日历日，不能以请求时刻、feed captured time 或生成时间替换；半径恒 1,500 m；refresh 只要求新读。 | `TransitAvailable` 只在全部预期 feed 为 usable/stale；`TransitIncomplete` 保留成功部分且无 score；`TransitUnavailable` 带 reason/feed 原因。A/B 只给 `TransitComparable` 或 `TransitIncomparable`。 | 只读公共 GTFS 稳定对象；不写地点、账户、ICI、Suitability、Shell 或 Map。站点选择是页面本地状态，不进入 result。 | 只在 opened 主应用旅程呈现。Map 先给 immutable reference；A 读取后以相同 location/date/provenance 发布。Infrastructure/Suitability 只能消费 `TransitAvailable` 的同一 `TransitSnapshot`，不得重读/重算。 |
+
+#### 必须保持的日期、GTFS 与结果语义
+
+- `analysisDate` 用于 `calendar.txt` / `calendar_dates.txt` 的有效服务判定；`feed.capturedAt` 只表示快照采集时间；`generatedAt` 只表示本次结果生成时刻，三者不可互代。恰 30 天不 stale；超过 30 天且仍可解析并覆盖 analysisDate 才是 `stale`。
+- 站点实体是 `location_type = 0`；同 feed 以 `stop_id`、跨 feed 以 `feedId + stopId` 去重；`parentStation` 只可展示分组。路线以 `feedId + routeId` 唯一，必须经 routes → trips → stop_times 并在 analysisDate 有效；同名/同坐标站点与跨 feed `route_short_name` 不自动合并。
+- `available` 不另设 enum：它由 `TransitAvailable` 表达。只有它带 service outcome：`served`（站点且至少一条有效路线）、`noStops`（有效零站）或 `noActiveRoutes`（有站/零路线）。后两者 `score == null`，不是 0 分。任何实际使用 stale feed 以 `FeedAvailability.stale` 让消费者展示“资料可能过期”。
+- 任一预期 feed missing/failed/outOfServiceRange、但仍有 usable/stale 为 `TransitIncomplete`；可保留成功部分，绝不算分。没有 usable/stale 是 `TransitUnavailable`；上游地点拒绝不转换为本 Interface 的 no-service。
+- 分数只有 `served` 的完整结果可用，0–100 整数；它复用事实源的距离、密度、路线百分位和固定 1 km 参照网格。列表最多 30 项不截断 `uniqueStopCount`、路线或分数。
+
+最小调用：
+
+```dart
+final outcome = await transit.load(
+  TransitRequest(location: location, analysisDate: analysisDate, policy: TransitLoadPolicy.cacheAllowed),
+);
+switch (outcome) {
+  case TransitAvailable(:final snapshot):
+    // 仅把此同一 snapshot 提供给 Shell/Infrastructure/Suitability。
+  case TransitIncomplete(:final snapshot):
+    // 展示成功部分与 feed 原因；不提供交通分。
+  case TransitUnavailable(:final reason):
+    // 显示恢复路径；不显示伪 0 或 no-stops。
+}
+```
+
+**Fake 场景：** Infrastructure 的 fake `PublicTransportation` 返回 served score、noStops、noActiveRoutes、incomplete 和 unavailable，验证只在 served score 时纳入 ICI；Suitability fake 将全部非 scored outcome 保留为维度不可用。Shell fake 对 A/B 的 analysis date、radius 或 provenance 不同返回 `TransitIncomparable`，不显示差异。消费者无需 GTFS、Supabase 或 Transit 生产实现。
+
+## 4. 直接使用的数据与推荐实施顺序
+
+| 目的 | 权威来源 / A 的访问边界 | 固定语义 |
+| --- | --- | --- |
+| GTFS 读取 | `read_transit_analysis`；Schema Catalog 的标准化 GTFS 对象 | authenticated read-only；只取本 Feature 所需 provenance、feed 状态、站点、路线/聚合、参照网格结果；预期 feed 失败不是空 feed。 |
+| 空间/服务/分数 | [公共交通事实](../../knowledge_base/locatemy_product/features/transportation.md)；[ICI 交通规则](../../knowledge_base/locatemy_product/infrastructure_index_scoring.md#公共交通) | 1,500 m 直线距离、站点和路线键、analysisDate 有效路线、固定 1 km grid 与完整资料才计算分数。 |
+| 运行时选择 | `STATE-TRANSIT-SELECTION`（Transit 内存） | 仅当前 result 的 `feedId + stopId`；换地点/date/snapshot、离页或 scope closing 时清除；不持久化、不进入队列。 |
+| 权限与生命周期 | Schema Catalog、data ownership | 公共结果无账户字段；不建 Transit 私有 cache/queue。authenticated read 不等于匿名公开；客户端无 service-role。 |
+
+1. **A 先合入 seam。** 创建唯一入口、`TRANSIT-001` 声明及最小 fake；Shell、Infrastructure、Suitability 不依赖 Transit `src/`。
+2. **A 完成真实读与页面结果。** 将 `read_transit_analysis` 映射为本契约 outcome，验证 16 feed、日期边界、单位、provenance、1.5 km、站点/路线键和无伪零。
+3. **并行消费 fake。** Shell 组合贡献；Infrastructure/Suitability 只消费同一 snapshot；Map host 接收声明式图层。
+4. **A 完成局部选择和可访问呈现。** 列表/Marker 同步，文字同时表达范围、状态、来源、日期、选中和限制；图不是唯一信息载体。
+5. **共同联调。** 接入真实 seam，仅保留第 5 节所需跨模块流测试。
+
+## 5. 联合验收、阻塞与变更
+
+| Capability / canonical AT | 情景与操作 | 可观察完成条件 |
+| --- | --- | --- |
+| `TRANSIT-01` / `AT-ANALYSIS-01` | 单点、完整 served、不同 analysisDate | 1.5 km、全部站点数、最近距离、有效路线、可用分数、feed source/capturedAt、generatedAt 和 grid/snapshot 均来自同一 result。 |
+| `TRANSIT-01` / `AT-ANALYSIS-01`、`AT-RACE-01` | 第 30 天/超 30 天；missing/failed/out-of-service-range；部分、无 usable；no stops/no active routes | 仅完整才 `TransitAvailable`；stale 是完整结果警告；partial/unavailable 与有效零站/零路线可区分，永无伪 0/Marker/默认地点。 |
+| `TRANSIT-01` / `AT-COMPARE-03` | A/B、单侧不可用/partial、date/radius/provenance 不同、交换、晚到 | 保留两端自身事实；只有同口径 scored result 才可比较；交换仅改呈现槽位，旧响应不覆盖新请求。 |
+| `TRANSIT-02`、`TRANSIT-03` / `AT-ANALYSIS-01`、`AT-RACE-01` | 列表/Marker 互选、no stops、换地点/date/snapshot、scope close | 同一稳定站点高亮且有文字；局部图显示中心/圆/当前 marker；失效选择释放，不改全局地点/导航。 |
+| `TRANSIT-001` / `AT-ANALYSIS-01`、`AT-COMPARE-03` | Shell、Infrastructure、Suitability 消费 served/not scored result | Shell 不置零；Infrastructure/Suitability 不重读/重算，只有 served score 可作为同一 canonical fact 消费。 |
+| 可访问性 / `AT-ANALYSIS-01` | 中文/English、动态字体、屏幕阅读器、无颜色 | 站点、范围、日期、来源、状态、限制、选择和分数含文字/可访问名；交通分只称覆盖读数，不称通勤或质量评价。 |
+
+当前设计阻塞：**无**。`RISK-TRANSIT-01` 的产品/契约决定已关闭；16 个官方 feed 的来源登记、快照/解析/服务日期、导入完整性、固定参照网格及第 30 天/部分 feed 运行时证据是实现/集成 Gate。资料结构无法符合 Schema Catalog 或状态矩阵时，停止发布受影响结果并重开风险；不得以 fixture 代替。
+
+公共 Interface 变更由 A 说明原因和受影响消费者，Shell、Infrastructure、Suitability 与 Map（如涉及图层）确认；同一 PR 更新公开声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release、Invalidated 状态机或独立 handoff 发布治理。
+
+- [x] 四项 Readiness 在第 0 节均有可核查证据。
+- [x] 每个跨 Owner Interface 具有唯一 import、声明/精确调用、输入约束、typed output/failure、状态/副作用、次序/权限、示例和 fake 场景。
+- [x] `analysisDate`、capturedAt、generatedAt、完整性、stale、service outcome、站点/路线键与 canonical result 语义对齐唯一产品事实源。
+- [x] Dart 只有声明和使用说明；无函数体、Widget、SDK 调用、SQL migration 或测试实现。
+- [x] Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
 | --- | --- | --- | --- | --- |
-| `TRANSIT-001` | Application Shell；Infrastructure Coverage；Personalized Location Suitability | 对一个不可变合法地点和明确分析日期，提供 1,500m 圆内的站点/路线聚合、最近距离、交通连通性及完整来源/可用性。 | 输入为 `LOCATION-001` single/A/B 快照及分析日期。结果带半径、地点、分析日期、生成时间、每个预期/实际使用 feed 的官方 source id/URL、snapshot id、`feed_captured_at`、解析状态、服务日期覆盖、固定参照组版本、站点/路线聚合事实、分数、availability、仅 availability 为 available 时的 service outcome，以及 stale warning。完整两层矩阵只以[公共交通事实源](../../knowledge_base/locatemy_product/features/transportation.md#数据处理边界)为准。 | 仅在 Shell 已为同账户 opened scope 接受的主应用旅程使用。接口只发布 canonical connectivity result，不携带页面选择或地图呈现；消费者不得把失败/部分当作零、重查原始 GTFS 或重算分数。 |
-
-`TRANSIT-001` 的**canonical connectivity result**是同一地点快照、1,500m、分析日期和同一
-GTFS 快照/参照组版本下的一份聚合结果。它是交通页、Shell 摘要、A/B 组合、Infrastructure
-交通分项和 Suitability 所能消费的唯一连通性事实；消费者不得以原始 stops/routes 重算、
-替换百分位或补造另一份分数。只有主状态为 `available` 的已计算分数可被消费；`stale` 仅是
-该完整结果的附加警告，不改变主状态。其余主状态的交通分不可用，明确观测到的站点/路线零值仍按自身语义保留。
-
-本页的站点选择和分布图是 Transit 的页面内部可观察行为。Transit 经 `LOCATION-002` 提交
-`analysis centre + 1.5km circle + 当前结果稳定 station markers + 可选高亮 station` 的声明式呈现，
-Map 只寄宿并返回选中意图；选择仍由 Transit 维护，不移动全局选点、不改变主地图中心，也不触发路线导航。
-
-### 消费
-
-| ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
-| --- | --- | --- | --- |
-| `SHELL-001` | Application Shell | 从单点/A-B 摘要进入交通页、回到来源任务，并组合每端交通贡献 | 合格的地点/分析目的地得到 `accepted`；输入缺失、过期、scope 未开启或目的地不适用时为 `rejected(reason)`/`authentication required`，不改写为交通资料失败。 |
-| `LOCATION-001` | Map / Location | 取得 single 或 A/B 的合法不可变地点引用 | 只接受 valid snapshot；`absent`、范围外、无效、同一点或 scope 关闭时不请求交通资料、不显示 no-service，也不使用默认城市或较旧可变选点。 |
-| `LOCATION-002` | Map / Location | 提交当前交通页的声明式中心、圆、稳定 Marker 与选中意图，并接收 Map 的呈现结果 | `accepted`、`hidden` 或 `rejected(reason)` 不改变交通数据或 global location；点击只回传 `feed_id + stop_id` 选中意图，Map 不解释站点内容。 |
-
-## 4. 用户可观察行为与跨模块流程
-
-| 入口或用户动作 | 成功结果 | 空、不可用或失败结果 | 必须保持的可访问性 / 安全语义 |
-| --- | --- | --- | --- |
-| 打开合法单点交通分析 | 显示距离排序的最近 30 个站点、范围内完整站点数、最近距离、有效路线数、连通性分、范围/分析日期和 feed provenance | 仅完整资料可判 no stops/无有效路线；部分 feed 为 incomplete、无可用 feed 为 unavailable，实际使用 stale feed 另有可能过期警告；均不以 0 分替代不可用 | 所有数值、状态、来源、日期与范围有文字；交通分是覆盖读数，不称通勤/票价/质量评价。 |
-| 打开 A/B 交通比较 | 并列两端各自 canonical result 与 provenance；只有分析日期、半径、资料完整性和参考快照/网格口径可比时才显示差异 | 任一端 invalid/unavailable/incomplete/no-service，或版本/日期/口径不可比时，保留可用端及原因，不生成差异或赢家 | A/B 交换只交换呈现槽位；结果绑定原地点快照，晚到结果不覆盖另一地点或新请求。 |
-| 选择列表站点或 Marker | 当前页列表和 Marker 高亮同一 station，并显示名称、归一化类型、距离和粗略步行提示 | 条目不在当前结果、结果已替换或 scope 关闭时清除/拒绝该选择；不保留跨地点选择 | 选中、未选中、类型、距离和步行提示具文字说明；不改全局地点、主地图中心或分析结果。 |
-| 查看站点分布图 | 显示分析中心、固定 1.5km 圆与当前结果全部站点 Marker | 不可读资料没有虚构 Marker；no stops 显示有效空图及零站点事实；部分结果明确范围/资料不完整 | 图不是唯一信息载体：列表/文字摘要同样提供站点、范围、来源、状态和选择信息。 |
-| 刷新/读取旧快照 | 新完整结果按自身 provenance/日期取代旧结果；仅完整 `available` 结果中实际使用 feed 超过 30 天、仍可解析且分析日期在服务范围内时附 stale 警告 | 刷新失败后仍按唯一矩阵判定：完整 available 可附警告；部分为 incomplete；无可用为 unavailable。分析日期超服务范围时有效路线/连通性 unavailable | 旧/晚到结果不能覆盖不同地点、日期或范围的当前请求；不伪造统一采集日期。 |
-
-跨 Owner 完成条件：
-
-1. 在 [FLOW-02](../system/flows.md#flow-02单点选址地点摘要与六类分析) 中，Shell 只把 Map 已发布的
-   single 快照交给 Transit。Transit 返回 canonical result，Shell 原样保留范围、分析日期、来源和状态。
-2. 在 [FLOW-03](../system/flows.md#flow-03地点-ab-比较) 中，Shell 为 A/B 分别请求并接收绑定原快照的
-   canonical result；Transit 自行判定是否可比较，Shell 不根据分数判定赢家。
-3. Infrastructure 在其 ICI 旅程中消费同一 canonical connectivity result，而非再次通过
-   `read_transit_analysis` 或原始 GTFS 对象计算交通分项；分数不可用时 ICI 按其唯一事实源处理缺失。
-
-## 5. 数据与确定性业务规则
-
-| 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
-| --- | --- | --- | --- |
-| GTFS provenance、完整性与稳定读取 | [`gtfs_feed_snapshots`、标准化 GTFS 对象及 `read_transit_analysis`](../data/schema-catalog.md#标准化-gtfs-对象)；[公共交通事实源](../../knowledge_base/locatemy_product/features/transportation.md#数据处理边界) | Flutter 通过只读稳定对象取得已准备结果；原始 ZIP 仅由受控维护操作使用 | 每个 feed 保留官方 source、采集时刻、解析状态、有效服务日期和失败原因；预期缺失/失败不会伪装为空 feed；每次结果显示使用的 feed provenance、年龄和生成时间，并按唯一事实源矩阵显示主状态及适用警告。 |
-| 固定范围、站点、路线和连通性 | [公共交通事实源](../../knowledge_base/locatemy_product/features/transportation.md#空间与站点口径)；[ICI 交通规则](../../knowledge_base/locatemy_product/infrastructure_index_scoring.md#公共交通) | 只对 `LOCATION-001` 快照按 1,500m 圆和指定分析日期读取/应用 | `location_type = 0` 站点实体；同 feed 按 `stop_id`、跨 feed 按 `feed_id + stop_id`；路线键为 `feed_id + route_id`；仅 routes→trips→stop_times 且 calendar/calendar_dates 当日有效的路线计数。完整公式正文只在知识库。 |
-| 参照组与分数 | `transit_reference_grid`、`transit_analysis_results` 和 ICI 交通规则 | Transit 产生并发布 canonical connectivity result；消费者仅复用 | 固定 1km 网格、可用 feed 服务范围内的参考点和同一 GTFS 评估快照决定密度/路线百分位；列表最多 30 项不截断统计。分数只能在完整站点和有效路线事实存在时生成。 |
-| 可用性与无服务 | [公共交通可用状态](../../knowledge_base/locatemy_product/features/transportation.md#交通可用状态) | Transit 保留所有原始事实、部分成功结果和原因 | availability 仅为 `available`、`incomplete`、`unavailable`；仅 availability available 时 service outcome 才为 `served`、`no_stops` 或 `no_active_routes`；`stale` 仅为 available 的附加警告。invalid location 是上游拒绝，不是交通状态；部分/失败/未知永不补零。 |
-| 局部选择与地图 | `STATE-TRANSIT-SELECTION`；[数据所有权](../system/data-ownership.md#运行时状态与派生结果) | 选择只绑定当前 canonical result；本页分布图只消费该结果 | 本地选择与 global location 分离；离开结果、换地点/日期/资料版本或关闭 scope 时释放，且不写数据库、队列或主地图。 |
-
-## 6. 验收与 Ready Gate
-
-| Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- | --- |
-| `TRANSIT-01` | 合法单点、边界内站点、完整可评分资料和不同 analysis date | 打开或刷新交通页 | 固定 1.5km、站点实体、有效路线、最近距离、完整站点数、分数、feed provenance/age/日期和等级一致；结果来自 canonical result。对应 `AT-ANALYSIS-01`。 |
-| `TRANSIT-01` | 每个预期 feed 的 usable/stale/missing/failed/out-of-service-range，及全部 usable/stale、部分 usable/stale、无 usable/stale、served/no stops/no active routes、captured_at 恰 30 天/超过 30 天、invalid location | 打开/刷新或尝试分析 | availability 仅为 available/incomplete/unavailable：全部预期 feed 为 usable 或 stale 才 available，部分为 incomplete、无 usable/stale 为 unavailable。仅 available 有 served/no_stops/no_active_routes；任何实际使用 stale feed 仅附 warning。上游地点拒绝独立于交通状态；没有状态用 0 分、虚构 Marker 或默认地点伪装。对应 `AT-ANALYSIS-01`、`AT-RACE-01`。 |
-| `TRANSIT-01` | A/B 完整可比、单侧不可用、资料版本/分析日期不一致及交换 | 进入比较、交换 A/B | 两端保留各自来源/日期/状态；仅可比时给差异，永不自动推荐；交换不混淆地点。对应 `AT-COMPARE-01`、`AT-COMPARE-03`。 |
-| `TRANSIT-02`、`TRANSIT-03` | 列表与 Marker 互选、no stops、部分资料、换地点/结果、关闭 scope | 选择站点、查看局部分布图、换点或退出 | 同一局部站点高亮且文字说明充分；图含中心/圆/站点，空/部分/失效可解释；选择不会改变全局地点/主地图，过期选择被丢弃。对应 `AT-ANALYSIS-01`、`AT-RACE-01`。 |
-| `TRANSIT-001` / Infrastructure | 同地点、同日期、同 snapshot/reference grid 的交通页与 ICI 输入；交通不可评分 | 先读交通结果再显示 ICI | Infrastructure 消费同一 connectivity fact，不重查/重算；不可评分交通按 ICI 缺失规则处理，不能变成低分或零。对应 `AT-ANALYSIS-01`、`AT-COMPARE-03`。 |
-| 全部 / `AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-RACE-01` | 中文/English、动态字体、屏幕阅读器及颜色不可见 | 阅读分数、来源、异常状态、选择与地图 | 状态、范围、来源、日期、选中和限制均有文本/可访问名称，图形与颜色不是唯一表达。 |
-
-- [x] `TRANSIT-01`–`03` 可追踪至唯一 Owner、`TRANSIT-001`、资料对象、产品事实和验收情景。
-- [x] `D16`、`D17`、`D28`、`D45` 分别由 Shell、Map 与 canonical connectivity result 的消费者关系覆盖；不复制 ICI 或 Suitability 契约。
-- [x] 固定范围、站点/路线/日期、provenance、no-service/失败/部分/过期、局部选择和局部地图均有可观察语义。
-- [x] 项目负责人已固定 `RISK-TRANSIT-01`：主状态矩阵与完整 available 的 stale 附加警告均以唯一事实源为准；运行时边界证据留实现/集成验收。
-- [x] 独立 Standards/Spec 双轴复审已核对全部资料、Interface、下游复用、状态分层和验收链；设计 AI 已依 ADR 0013 批准 Ready。
-
-## 7. Change Log
-
-| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
-| --- | --- | --- | --- | --- |
-| 2026-09-14 | `Draft` | Issue #16 建立 Wave 5 Public Transportation owning design，冻结固定半径 GTFS 覆盖、canonical connectivity result、局部选择/分布图及 Infrastructure 复用 | `TRANSIT-01`–`03`、`TRANSIT-001`、`STATE-TRANSIT-SELECTION`、GTFS 标准化对象、`read_transit_analysis`、`transit_reference_grid`、Infrastructure Coverage、Personalized Location Suitability、D16/D17/D28/D45 | 待独立审查 |
-| 2026-09-14 | `Draft` | 项目负责人 Q11 固定 GTFS 快照 >30 天 stale 与服务日期范围规则，消除资料新鲜度 Ready 阻塞 | `RISK-TRANSIT-01`、`TRANSIT-001`、`gtfs_feed_snapshots`、`transit_analysis_results`、Infrastructure Coverage | 项目负责人 |
-| 2026-09-14 | `Draft` | 项目负责人 Q12 固定 per-feed/整体 GTFS 状态矩阵；将页面选择/地图呈现移出 `TRANSIT-001`，经既有 `LOCATION-002` 声明式 seam 协调 | `TRANSIT-001`、`LOCATION-002`、`STATE-TRANSIT-SELECTION`、`read_transit_analysis`、Infrastructure Coverage、D17、`RISK-TRANSIT-01` | 项目负责人 |
-| 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `TRANSIT-01`–`03`、`TRANSIT-001`、`LOCATION-002`、D16/D17/D28/D45 | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | 全面设计审查补齐可访问性验收的 canonical `AT-*`；不改变交通状态矩阵或结果契约 | `TRANSIT-01`–`03`、`AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-RACE-01` | 项目负责人（本次审查） |
+| 2026-09-15 | `Ready for Development` | Issue #23：收束为单一 Development Contract 与同名 HTML；移除 PDF/ADR 0014/handoff 发布治理，并逐字对齐 Shell 与 Map 的完整 canonical 声明（Transit 仅调用所需子集），不改变 GTFS、1.5 km、有效路线、缓存/权限或验收语义 | `TRANSIT-01`–`03`、`TRANSIT-001`、`SHELL-001`、`LOCATION-001`/`002`、`read_transit_analysis`、`RISK-TRANSIT-01`、同名 HTML | 设计 AI（项目负责人授权） |

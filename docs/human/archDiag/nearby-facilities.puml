@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Nearby Facilities - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Facilities coverage\nand nearby-item views] as view
+}
+package "Application" <<application>> {
+  [Facilities ViewModel] as vm
+  [Query and classify nearby facilities] as uc
+  [FACILITY-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Five categories, 2 km filter,\ndeduplication and completeness rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Overpass Adapter\n(FACILITY-002)] as adapter
+  database "facility_public_cache" as cache
+}
+rectangle "LOCATION-001\nvalid immutable location" as location
+cloud "Overpass / OpenStreetMap" as source
+view --> vm
+vm --> uc
+uc --> domain
+location --> uc
+uc --> api
+uc --> adapter
+adapter --> source
+adapter --> cache
+note right of api : Supplies results to Shell, Map\nand Personalized Suitability
+@enduml

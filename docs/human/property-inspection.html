@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Property Inspection 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { max-width: 1100px; margin: 2rem auto; padding: 0 1rem 3rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    table { border-collapse: collapse; display: block; max-width: 100%; overflow-x: auto; }
+    th, td { border: 1px solid #8888; padding: .5rem .65rem; text-align: left; vertical-align: top; }
+    th { font-weight: 700; }
+    pre { overflow-x: auto; padding: 1rem; border: 1px solid #8888; border-radius: .3rem; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    a { overflow-wrap: anywhere; }
+    @media print { body { max-width: none; margin: 0; } }
+  </style>
+</head>
+<body>
+<main>
+<h1>Property Inspection 开发协作契约</h1>
+<blockquote>
+<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 6
+唯一公开入口：<code>package:locatemy/features/property_inspection/property_inspection.dart</code>
+完成定义：消费者仅凭本契约即可安全续填、创建、管理、比较、软删除和清空自己的实勘；风险快照只在同地点的完整 Safety 与 Hazard 输入同时可用时原子保存。</p>
+</blockquote>
+<p>本文件是 Property Inspection 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、精确数据边界及联合验收；<code>lib/features/property_inspection/</code> 内的 Widget、状态管理、Supabase/SQLite/Storage Adapter、压缩、队列、并发、取消、重试、文件拆分和测试组织由 B 决定。产品字段、公式、RLS、Storage policy、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。</p>
+<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<ol>
+<li><a href="../../CONTEXT.md#%E6%88%BF%E4%BA%A7%E9%A3%8E%E9%99%A9%E5%BF%AB%E7%85%A7">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/property_inspection.md">房产实勘产品事实</a>、<a href="../knowledge_base/locatemy_product/features/crime_security.md">治安</a>与<a href="../knowledge_base/locatemy_product/features/hazard_reporting.md">隐患</a>事实；</li>
+<li><a href="../design/system/feature-map.md#fm-property">Feature map（Property）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-06%E6%88%BF%E4%BA%A7%E5%AE%9E%E5%8B%98%E7%85%A7%E7%89%87%E9%A3%8E%E9%99%A9%E5%BF%AB%E7%85%A7%E4%B8%8E%E5%9B%9E%E6%94%B6%E7%AB%99">FLOW-06</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>；</li>
+<li>本契约；生成/使用人类 PDF 时最后读 <a href="../adr/0014-version-locked-pdf-development-documentation-packages.md">ADR 0014</a> 与 <a href="../design/handoff/README.md">handoff</a>。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Readiness</th>
+<th>可核查证据</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>责任与范围</td>
+<td><code>PROP-01</code>–<code>PROP-05</code> 唯一归属 Property；认证、scope、选点、官方安全与公共隐患各有 Owner</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>契约与消费者</td>
+<td>第 2 节含 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>PRIVACY-001</code>、<code>SAFETY-001</code>、<code>HAZARD-002</code> 完整调用卡；第 3 节有 <code>PROPERTY-001</code></td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>数据与安全</td>
+<td>精确使用 <code>property_inspections</code>、<code>property_inspection_photos</code>、<code>inspection-photos</code>、三项本机对象；owner 与父实勘双重授权</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>验收与风险</td>
+<td>第 5 节覆盖 <code>AT-PROP-01</code>–<code>06</code>；<code>RISK-PROP-01</code>、<code>RISK-STORAGE-01</code>、<code>RISK-PROPERTY-01</code> 留作实现/集成运行时证据</td>
+<td>已就绪</td>
+</tr>
+</tbody></table>
+</main>
+</body>
+</html>
+<h2>1. 成果、责任与冻结边界</h2>
+<ul>
+<li>opened scope 的用户可续填带草稿照片的本机实勘草稿；在线创建或编辑具有 Map 合法地点的实勘，管理每份至多 20 张私有静态照片，查看档案/详情，选择 2–3 份活动实勘作不保存的并排比较。</li>
+<li>删除先进入可见回收站并保留照片；恢复取消软删除。确认清空才永久删除当前账户回收站内的元数据和 Storage 文件；任一阶段 partial 均可重试且不称全成功。</li>
+<li>创建、坐标变更或显式刷新才并行取得同一地点的 <code>SAFETY-001</code> 和 <code>HAZARD-002</code>；两者均完整 available 时整体创建/替换风险组。普通未变坐标编辑保留既有组；失败/partial 保留旧组及时间，绝不补零、拼接或静默刷新。</li>
+<li>综合评分只由四项现场评分派生，不是独立字段、州级安全指数、地点指数、排名或推荐。照片是私有视觉证据，不读取/展示相册原件或 EXIF，也不提供分享/导出。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Owner / 受控边界</th>
+<th>负责</th>
+<th>不负责</th>
+<th>协作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>lib/features/property_inspection/</code>（B）</td>
+<td>草稿、实勘、照片、队列、比较、回收站、风险快照时机及 <code>PROPERTY-001</code></td>
+<td>Auth、scope、选点、州解析、安全/隐患计算、全局路由</td>
+<td>消费第 2 节五项 Interface；提供第 3 节</td>
+</tr>
+<tr>
+<td>Application Shell</td>
+<td>opened 门控、档案/表单/详情/比较/回收站导航、地图返回任务</td>
+<td>Property 资料、照片字节、风险/队列</td>
+<td><code>SHELL-001</code></td>
+</tr>
+<tr>
+<td>Map / Location</td>
+<td>合法 immutable property 地点及返回式选点</td>
+<td>草稿、收藏解释、风险、实勘写入</td>
+<td><code>LOCATION-001</code></td>
+</tr>
+<tr>
+<td>Account Privacy</td>
+<td>同账户 opened/closing 及关闭证明</td>
+<td>远端实勘或已上传照片删除</td>
+<td><code>PRIVACY-001</code></td>
+</tr>
+<tr>
+<td>Crime / Hazard</td>
+<td>同地点的安全快照输入；附近 pending 数</td>
+<td>房产写入、照片、比较、回收站</td>
+<td><code>SAFETY-001</code>、<code>HAZARD-002</code></td>
+</tr>
+</tbody></table>
+<h2>2. 必须调用的 Interface 卡</h2>
+<h3><code>SHELL-001</code> — 房产导航与组合</h3>
+<p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Property Inspection；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
+<pre><code class="language-dart">abstract interface class ApplicationShell {
+  Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
+  Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
+}
+abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
+sealed class ShellIntentOutcome {}
+final class ShellIntentAccepted extends ShellIntentOutcome {}
+final class ShellAuthenticationRequired extends ShellIntentOutcome {}
+final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; }
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; }
+enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+</code></pre>
+<p>Property 从其唯一入口导出 <code>OpenPropertyPortfolioIntent</code>、<code>OpenPropertyEditorIntent</code>、<code>OpenPropertyDetailIntent</code>、<code>OpenPropertyCompareIntent</code>、<code>OpenPropertyRecycleBinIntent</code>、<code>PickPropertyLocationIntent</code>（均为 <code>ShellIntent</code>）及 <code>PropertyShellContribution</code>（为 <code>ShellContribution</code>）。intent 只带稳定实勘/草稿 ID、当前 <code>PropertyReturnContext</code> 或 Map 返回任务；不携带照片字节、风险上游 payload、跨账户资料或可变地图对象。</p>
+<table>
+<thead>
+<tr>
+<th>输入约束</th>
+<th>输出 / typed failures</th>
+<th>状态与副作用</th>
+<th>顺序、权限与最小示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>intent/contribution 属当前 opened scope，稳定 ID/返回语境未过期。</td>
+<td>accepted、authenticationRequired、rejected(reason)；后二者是 Shell 结果而非保存失败。</td>
+<td>Shell 只改门控、导航栈与组合，不写 Property 数据或重算风险。</td>
+<td>accepted 才转场；Map 返回先经 <code>LOCATION-001</code>。 <code>await shell.submit(OpenPropertyDetailIntent(id, context));</code></td>
+</tr>
+</tbody></table>
+<p><strong>Fake 场景：</strong> fake Shell 回 accepted、authentication-required、stale-input rejected；后两者保留草稿/详情和文字恢复路径，不写入、上传或丢失返回任务。</p>
+<h3><code>LOCATION-001</code> — 合法不可变房产地点</h3>
+<p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Property Inspection；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
+<pre><code class="language-dart">abstract interface class LocationCoordinator {
+  Future&lt;LocationSelectionOutcome&gt; select(LocationSelectionRequest request);
+  LocationRoleSnapshot read(LocationRole role);
+}
+enum LocationRole { single, locationA, locationB, property }
+final class GeographicPoint { final double latitude; final double longitude; }
+final class LocationSelectionRequest { final LocationRole role; final GeographicPoint point; final String? displayName; }
+final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; }
+sealed class LocationSelectionOutcome {}
+final class LocationSelected extends LocationSelectionOutcome { final LocationRole role; final ValidLocationReference location; }
+final class LocationSelectionRejected extends LocationSelectionOutcome { final LocationSelectionFailure failure; }
+enum LocationSelectionFailure { invalidCoordinate, outsideMalaysia, sameComparisonPoint, scopeUnavailable }
+sealed class LocationRoleSnapshot {}
+final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; }
+final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>输入约束</th>
+<th>输出 / typed failures</th>
+<th>状态与副作用</th>
+<th>顺序、权限与最小示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>只接受 Map 已选出的 <code>property</code> 角色成功引用；有限 WGS84 数值且已通过马来西亚范围校验。</td>
+<td>selected/present，或 invalidCoordinate、outsideMalaysia、scopeUnavailable。</td>
+<td>Map 只改自己的角色；Property 不读可变 Map 状态、不造坐标、不把收藏名当地点。</td>
+<td>选点返回后才写草稿/请求风险；失败保留原草稿地点。 <code>LocationSelected(:final location) =&gt; draft.withLocation(location)</code>。</td>
+</tr>
+</tbody></table>
+<p><strong>Fake 场景：</strong> fake Map 给 property selected、absent、outsideMalaysia、scope unavailable；只有 selected 的 immutable 引用可创建、改坐标或刷新风险，其他结果绝不触发 Safety/Hazard。</p>
+<h3><code>PRIVACY-001</code> — 账户范围与 Property close 参与者</h3>
+<p><strong>提供者：</strong> Account Privacy；<strong>消费者：</strong> Property Inspection；<strong>唯一公开 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
+<pre><code class="language-dart">final class AccountScope { final String accountId; const AccountScope(this.accountId); }
+sealed class AccountScopeSnapshot {}
+final class AccountScopeOpened extends AccountScopeSnapshot { final AccountScope scope; }
+final class AccountScopeClosed extends AccountScopeSnapshot { final AccountScope scope; }
+final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; }
+enum AccountScopeFailure { identityMismatch, closing, incompleteOwners, retryableUnavailable }
+abstract interface class AccountPrivacy {
+  AccountScopeSnapshot readScope();
+  Future&lt;PropertyPrivateStateCleared&gt; clearPropertyPrivateState(AccountScope scope);
+}
+sealed class PropertyPrivateStateCleared {}
+final class PropertyPrivateStateClearedForAccount extends PropertyPrivateStateCleared { final String accountId; }
+final class PropertyPrivateStateClearIncomplete extends PropertyPrivateStateCleared { final String accountId; final PropertyPrivateStateFailure failure; }
+enum PropertyPrivateStateFailure { localStoreUnavailable, fileDeletionIncomplete, queueCleanupIncomplete, scopeUnavailable }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>输入约束</th>
+<th>输出 / typed failures</th>
+<th>状态与副作用</th>
+<th>顺序、权限与最小示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>所有私有读写仅同账户 opened；clear 只针对 Privacy 给出的不可变旧 scope。</td>
+<td>opened/closed/unavailable；清理为 cleared 或 incomplete，均携带账户与分类原因。</td>
+<td>closing 开始即阻断草稿、草稿照片、私有副本、比较、正式待传 queue 和应用目录文件；不删远端实勘、元数据或已上传 Storage。</td>
+<td>Shell 发起 close；Property 只报告自身结果。 <code>await privacy.clearPropertyPrivateState(oldScope);</code>；incomplete 时旧内容仍不可读且可重试。</td>
+</tr>
+</tbody></table>
+<p><strong>Fake 场景：</strong> A 有草稿/上传中照片后 close，fake Privacy 随后开 B；A 的表单、文件、比较和晚到成功均不可显示/提交/重放，B 只从自己的远端档案开始。</p>
+<h3><code>SAFETY-001</code> — 州级安全快照输入</h3>
+<p><strong>提供者：</strong> Crime &amp; Security；<strong>消费者：</strong> Property Inspection；<strong>唯一公开 import：</strong> <code>package:locatemy/features/crime_and_security/crime_and_security.dart</code>。</p>
+<pre><code class="language-dart">abstract interface class CrimeAndSecurity { Future&lt;SafetyLoadOutcome&gt; load(SafetyRequest request); }
+final class SafetyRequest { final ValidLocationReference location; final SafetyLoadPolicy policy; final SafetyTrendFilter filter; const SafetyRequest({required this.location, required this.policy, required this.filter}); }
+enum SafetyLoadPolicy { cacheAllowed, refresh }
+sealed class SafetyTrendFilter { const SafetyTrendFilter(); }
+final class AllCrimeTrend extends SafetyTrendFilter { const AllCrimeTrend(); }
+sealed class SafetyLoadOutcome { const SafetyLoadOutcome(); }
+final class SafetyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyAvailable(this.snapshot); }
+final class SafetyPartiallyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyPartiallyAvailable(this.snapshot); }
+final class SafetyUnavailable extends SafetyLoadOutcome { final SafetyUnavailableReason reason; const SafetyUnavailable(this.reason); }
+final class SafetySnapshot { final ValidLocationReference location; final ReportingState state; final SafetyScore score; final AnnualCrimeCount latestCompleteYearCount; final SafetyFreshness freshness; final SafetyCompleteness completeness; final SafetyProvenance provenance; const SafetySnapshot({required this.location, required this.state, required this.score, required this.latestCompleteYearCount, required this.freshness, required this.completeness, required this.provenance}); }
+enum SafetyFreshness { fresh, cached, stale }
+enum SafetyCompleteness { complete, partial }
+enum SafetyUnavailableReason { stateUnresolved, stateAmbiguous, sourceMissing, noValidCategory, incompleteYear, retryableUnavailable, sourceUnverifiable }
+final class SafetyScore { final int value; const SafetyScore(this.value); }
+final class AnnualCrimeCount { final int value; final int year; const AnnualCrimeCount(this.value, this.year); }
+final class ReportingState { final String stableId; final String name; const ReportingState(this.stableId, this.name); }
+final class SafetyProvenance { final String source; final String modelVersion; final String boundaryVersion; const SafetyProvenance(this.source, this.modelVersion, this.boundaryVersion); }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>输入约束</th>
+<th>输出 / typed failures</th>
+<th>精确数据边界与副作用</th>
+<th>顺序、权限与最小示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>location 必为同一 <code>LOCATION-001</code> property immutable reference；普通保存用 cacheAllowed，显式刷新用 refresh。</td>
+<td>仅 <code>SafetyAvailable</code> 且 completeness complete 可供 snapshot；partial/unavailable 均不可用。</td>
+<td>Crime 只读 <code>read_safety_inputs</code>（聚合 <code>crime_district</code>）并可读写无账户 <code>crime_public_cache</code>；不写 Property、Hazard、Map 或 Shell。</td>
+<td>与 Hazard 对同一引用并行；只读 score/state/year/provenance，绝不自行解析州。</td>
+</tr>
+</tbody></table>
+<p><strong>Fake 场景：</strong> fake 依次给 complete、cached complete、partial、unresolved、retryable；Property 仅采纳 complete 的同地点数据，partial/unavailable 保留既有风险组且不能显示为 0。</p>
+<h3><code>HAZARD-002</code> — 附近 pending 隐患数</h3>
+<p><strong>提供者：</strong> Hazard Reporting；<strong>消费者：</strong> Property Inspection；<strong>唯一公开 import：</strong> <code>package:locatemy/features/hazard_reporting/hazard_reporting.dart</code>。</p>
+<pre><code class="language-dart">abstract interface class HazardRiskCounter { Future&lt;HazardNearbyCountOutcome&gt; countPending(HazardNearbyCountRequest request); }
+final class HazardNearbyCountRequest { final ValidLocationReference propertyLocation; const HazardNearbyCountRequest(this.propertyLocation); }
+sealed class HazardNearbyCountOutcome { const HazardNearbyCountOutcome(); }
+final class HazardNearbyCountAvailable extends HazardNearbyCountOutcome { final int count; final int radiusMeters; final DateTime countedAt; const HazardNearbyCountAvailable(this.count, this.radiusMeters, this.countedAt); }
+final class HazardNearbyCountUnavailable extends HazardNearbyCountOutcome { final HazardNearbyCountFailure failure; const HazardNearbyCountUnavailable(this.failure); }
+enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partialResult, retryableUnavailable, scopeUnavailable }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>输入约束</th>
+<th>输出 / typed failures</th>
+<th>精确数据边界与副作用</th>
+<th>顺序、权限与最小示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>propertyLocation 是同一 Map immutable reference。</td>
+<td>available 带 count/radiusMeters/countedAt；unavailable 不得替换为 0。</td>
+<td>Hazard 只读 <code>crowdsourced_hazards</code>；Haversine <code>d &lt;= 2,000m</code>（含边界），仅 pending；不写 reports、votes、<code>hazard_vote_counts</code> RPC、图层或 Property。</td>
+<td>同地点 Safety 并行后才决定原子写。 <code>await counter.countPending(HazardNearbyCountRequest(location));</code></td>
+</tr>
+</tbody></table>
+<p><strong>Fake 场景：</strong> fake 给内/外/恰 2,000m、pending/resolved、partial；只计内/边界 pending，partial/failure 不生成 0 或新快照。</p>
+<h2>3. 必须提供的 Interface</h2>
+<h3><code>PROPERTY-001</code> — 私有实勘、照片、比较、回收站与风险快照</h3>
+<p><strong>提供者：</strong> Property Inspection（B）；<strong>消费者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/features/property_inspection/property_inspection.dart</code>。</p>
+<p>消费者只能 import 此入口。B 应先合入下列声明与最小 fake；这是协作形状，不是可提交实现体、SQL、Storage policy 或 SDK 映射。</p>
+<pre><code class="language-dart">abstract interface class PropertyInspection {
+  Future&lt;PropertyPortfolioOutcome&gt; loadPortfolio();
+  Future&lt;PropertyDraftOutcome&gt; loadDraft(PropertyDraftId id);
+  Future&lt;PropertyDraftOutcome&gt; saveDraft(PropertyDraft draft);
+  Future&lt;PropertyWriteOutcome&gt; create(PropertyWriteRequest request);
+  Future&lt;PropertyWriteOutcome&gt; update(PropertyInspectionId id, PropertyWriteRequest request);
+  Future&lt;PropertyDetailOutcome&gt; loadDetail(PropertyInspectionId id);
+  Future&lt;PropertyPhotoOutcome&gt; addPhoto(PropertyPhotoRequest request);
+  Future&lt;PropertyPhotoOutcome&gt; updatePhoto(PropertyPhotoUpdate request);
+  Future&lt;PropertyPhotoOutcome&gt; deletePhoto(PropertyPhotoId id);
+  Future&lt;PropertyComparisonOutcome&gt; compare(List&lt;PropertyInspectionId&gt; ids);
+  Future&lt;PropertyRecycleBinOutcome&gt; loadRecycleBin();
+  Future&lt;PropertyDeleteOutcome&gt; softDelete(PropertyInspectionId id);
+  Future&lt;PropertyRestoreOutcome&gt; restore(PropertyInspectionId id);
+  Future&lt;PropertyPurgeOutcome&gt; purgeRecycleBin(PropertyPurgeConfirmation confirmation);
+  Future&lt;PropertyRiskRefreshOutcome&gt; refreshRisk(PropertyInspectionId id);
+}
+final class PropertyInspectionId { final String value; const PropertyInspectionId(this.value); }
+final class PropertyDraftId { final String value; const PropertyDraftId(this.value); }
+final class PropertyPhotoId { final String value; const PropertyPhotoId(this.value); }
+final class PropertyWriteRequest { final String name; final String address; final ValidLocationReference location; final String? savedLocationId; final String price; final int drainage; final int waterproofing; final int humidity; final int lighting; final bool floodEvidence; final String? notes; const PropertyWriteRequest({required this.name, required this.address, required this.location, this.savedLocationId, required this.price, required this.drainage, required this.waterproofing, required this.humidity, required this.lighting, required this.floodEvidence, this.notes}); }
+final class PropertyDraft { final PropertyDraftId id; final PropertyWriteRequest values; final DateTime updatedAt; const PropertyDraft(this.id, this.values, this.updatedAt); }
+final class PropertyPhotoRequest { final PropertyInspectionId? inspectionId; final PropertyDraftId? draftId; final String localPhotoReference; final String? caption; const PropertyPhotoRequest({this.inspectionId, this.draftId, required this.localPhotoReference, this.caption}); }
+final class PropertyPhotoUpdate { final PropertyPhotoId id; final String? caption; final bool? cover; const PropertyPhotoUpdate(this.id, {this.caption, this.cover}); }
+final class PropertyPurgeConfirmation { final bool confirmed; const PropertyPurgeConfirmation(this.confirmed); }
+sealed class PropertyPortfolioOutcome { const PropertyPortfolioOutcome(); }
+final class PropertyPortfolioAvailable extends PropertyPortfolioOutcome { final List&lt;PropertySummary&gt; inspections; const PropertyPortfolioAvailable(this.inspections); }
+final class PropertyPortfolioUnavailable extends PropertyPortfolioOutcome { final PropertyReadFailure failure; const PropertyPortfolioUnavailable(this.failure); }
+sealed class PropertyDraftOutcome { const PropertyDraftOutcome(); }
+final class PropertyDraftAvailable extends PropertyDraftOutcome { final PropertyDraft draft; const PropertyDraftAvailable(this.draft); }
+final class PropertyDraftAbsent extends PropertyDraftOutcome { const PropertyDraftAbsent(); }
+final class PropertyDraftRejected extends PropertyDraftOutcome { final PropertyWriteFailure failure; const PropertyDraftRejected(this.failure); }
+sealed class PropertyWriteOutcome { const PropertyWriteOutcome(); }
+final class PropertyWritten extends PropertyWriteOutcome { final PropertyDetail inspection; final PropertyPhotoTransferState photoTransfer; const PropertyWritten(this.inspection, this.photoTransfer); }
+final class PropertyWriteRejected extends PropertyWriteOutcome { final PropertyWriteFailure failure; const PropertyWriteRejected(this.failure); }
+sealed class PropertyDetailOutcome { const PropertyDetailOutcome(); }
+final class PropertyDetailAvailable extends PropertyDetailOutcome { final PropertyDetail inspection; const PropertyDetailAvailable(this.inspection); }
+final class PropertyDetailUnavailable extends PropertyDetailOutcome { final PropertyReadFailure failure; const PropertyDetailUnavailable(this.failure); }
+sealed class PropertyPhotoOutcome { const PropertyPhotoOutcome(); }
+final class PropertyPhotoChanged extends PropertyPhotoOutcome { final PropertyPhoto photo; const PropertyPhotoChanged(this.photo); }
+final class PropertyPhotoRejected extends PropertyPhotoOutcome { final PropertyPhotoFailure failure; const PropertyPhotoRejected(this.failure); }
+sealed class PropertyComparisonOutcome { const PropertyComparisonOutcome(); }
+final class PropertyComparisonAvailable extends PropertyComparisonOutcome { final List&lt;PropertyDetail&gt; inspections; const PropertyComparisonAvailable(this.inspections); }
+final class PropertyComparisonRejected extends PropertyComparisonOutcome { final PropertyComparisonFailure failure; const PropertyComparisonRejected(this.failure); }
+sealed class PropertyRecycleBinOutcome { const PropertyRecycleBinOutcome(); }
+final class PropertyRecycleBinAvailable extends PropertyRecycleBinOutcome { final List&lt;PropertySummary&gt; inspections; const PropertyRecycleBinAvailable(this.inspections); }
+final class PropertyRecycleBinUnavailable extends PropertyRecycleBinOutcome { final PropertyReadFailure failure; const PropertyRecycleBinUnavailable(this.failure); }
+sealed class PropertyDeleteOutcome { const PropertyDeleteOutcome(); }
+final class PropertySoftDeleted extends PropertyDeleteOutcome { final PropertyInspectionId id; const PropertySoftDeleted(this.id); }
+final class PropertyDeleteRejected extends PropertyDeleteOutcome { final PropertyWriteFailure failure; const PropertyDeleteRejected(this.failure); }
+sealed class PropertyRestoreOutcome { const PropertyRestoreOutcome(); }
+final class PropertyRestored extends PropertyRestoreOutcome { final PropertyInspectionId id; const PropertyRestored(this.id); }
+final class PropertyRestoreRejected extends PropertyRestoreOutcome { final PropertyRestoreRejectedFailure failure; const PropertyRestoreRejected(this.failure); }
+sealed class PropertyPurgeOutcome { const PropertyPurgeOutcome(); }
+final class PropertyPurgeCancelled extends PropertyPurgeOutcome { const PropertyPurgeCancelled(); }
+final class PropertyPurgeCompleted extends PropertyPurgeOutcome { const PropertyPurgeCompleted(); }
+final class PropertyPurgePartial extends PropertyPurgeOutcome { final List&lt;PropertyInspectionId&gt; remaining; final PropertyPurgeFailure failure; const PropertyPurgePartial(this.remaining, this.failure); }
+sealed class PropertyRiskRefreshOutcome { const PropertyRiskRefreshOutcome(); }
+final class PropertyRiskRefreshed extends PropertyRiskRefreshOutcome { final PropertyRiskSnapshot snapshot; const PropertyRiskRefreshed(this.snapshot); }
+final class PropertyRiskRefreshUnavailable extends PropertyRiskRefreshOutcome { final PropertyRiskFailure failure; const PropertyRiskRefreshUnavailable(this.failure); }
+enum PropertyReadFailure { authenticationRequired, notFound, permissionDenied, retryableUnavailable, scopeUnavailable }
+enum PropertyWriteFailure { invalidName, invalidAddress, invalidLocation, invalidPrice, invalidScore, invalidNotes, onlineRequired, permissionDenied, conflict, notFound, retryableUnavailable, scopeUnavailable, riskUnavailable }
+enum PropertyPhotoFailure { limitReached, invalidPhotoSource, unsupportedFormat, devicePermissionDenied, compressionFailed, onlineDeleteRequired, permissionDenied, parentNotFound, retryableUnavailable, transferIncomplete, scopeUnavailable }
+enum PropertyComparisonFailure { fewerThanTwo, moreThanThree, deletedOrInvisible, retryableUnavailable, scopeUnavailable }
+enum PropertyRestoreRejectedFailure { permissionDenied, notFound, conflict, retryableUnavailable, scopeUnavailable }
+enum PropertyPurgeFailure { metadataDeletionIncomplete, storageDeletionIncomplete, retryableUnavailable, permissionDenied, scopeUnavailable }
+enum PropertyRiskFailure { safetyUnavailable, hazardUnavailable, partialInput, locationMismatch, retryableUnavailable, scopeUnavailable }
+enum PropertyPhotoTransferState { none, pendingUpload, transferIncomplete }
+final class PropertySummary { final PropertyInspectionId id; final String name; final String address; final int derivedOverallScore; final PropertyPhoto? cover; const PropertySummary(this.id, this.name, this.address, this.derivedOverallScore, this.cover); }
+final class PropertyPhoto { final PropertyPhotoId id; final String? caption; final bool isCover; final PropertyPhotoTransferState transfer; const PropertyPhoto(this.id, this.caption, this.isCover, this.transfer); }
+final class PropertyRiskSnapshot { final ReportingState reportingState; final int safetyIndex; final int safetySourceYear; final String safetySourceId; final String safetyModelBoundaryVersion; final int hazardPendingCount; final int hazardRadiusMeters; final DateTime hazardCountedAt; final DateTime capturedAt; const PropertyRiskSnapshot({required this.reportingState, required this.safetyIndex, required this.safetySourceYear, required this.safetySourceId, required this.safetyModelBoundaryVersion, required this.hazardPendingCount, required this.hazardRadiusMeters, required this.hazardCountedAt, required this.capturedAt}); }
+final class PropertyDetail { final PropertySummary summary; final List&lt;PropertyPhoto&gt; photos; final PropertyRiskSnapshot? riskSnapshot; const PropertyDetail(this.summary, this.photos, this.riskSnapshot); }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>调用</th>
+<th>输入约束</th>
+<th>typed output / failure</th>
+<th>状态、副作用、权限与顺序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>loadPortfolio/loadDetail/loadRecycleBin</td>
+<td>opened；稳定 ID 属当前账户。</td>
+<td>available、明确空列表、notFound/permission/retryable/scope；空不代表失败。</td>
+<td>精确读 <code>property_inspections</code>：活动 <code>deleted_at</code> 缺失，回收站 <code>deleted_at</code> 存在；owner-only。详情读其 <code>property_inspection_photos</code>。</td>
+</tr>
+<tr>
+<td>loadDraft/saveDraft</td>
+<td>opened；draft 属账户；草稿可保留完整表单及草稿照片引用。</td>
+<td>available/absent/rejected。</td>
+<td>精确读写 SQLite <code>property_drafts</code>、<code>property_draft_photos</code>；跨重启而非远端创建/发布；close 必清。</td>
+</tr>
+<tr>
+<td>create/update</td>
+<td>opened、在线；name trim 1–200、必需 WGS84 location、非负价格、四项 1–5、notes/收藏引用遵守 Catalog。</td>
+<td>written 或 validation、online-required、permission/conflict/not-found/retryable/risk failure。</td>
+<td>写 <code>property_inspections</code> owner-only。create/坐标变更只在两完整输入时原子写风险组；未变坐标 update 保留组。成功 create 后草稿照片整体转入 SQLite <code>property_photo_upload_queue</code>；所有转换成功前保留草稿对象。</td>
+</tr>
+<tr>
+<td>addPhoto/updatePhoto/deletePhoto</td>
+<td>opened；仅一项 inspectionId 或 draftId；常见静态格式、压缩后、≤20、caption ≤1000；单张删除在线。</td>
+<td>changed 或 limit/source/format/device/compression/online/parent/transfer failure。</td>
+<td>草稿照片写 <code>property_draft_photos</code>；正式 metadata 写 <code>property_inspection_photos</code>，文件写私有 bucket <code>inspection-photos</code> 路径 <code>accountId/inspectionId/photoId</code>。读写删均验证账户与父实勘 owner；上传/metadata 非原子时保留 queue/local copy；封面删除回退至最早剩余。</td>
+</tr>
+<tr>
+<td>compare</td>
+<td>opened；正好 2–3 个不同、活动、可见、同账户 ID。</td>
+<td>available 或 fewer/more/deleted-or-invisible/read/scope failure。</td>
+<td>只在内存 <code>STATE-PROPERTY-COMPARE</code>；不写任何表，不混 Map A/B，不产生赢家。</td>
+</tr>
+<tr>
+<td>softDelete/restore/purgeRecycleBin</td>
+<td>opened；删除/清空均经用户确认；purge confirmation 明确。</td>
+<td>deleted/restored；cancelled/completed/partial(remaining)。</td>
+<td>delete/restore 只改 <code>property_inspections.deleted_at</code>，不删照片；purge 只删除当前账户回收站中的 Storage 文件、metadata、记录，逐项 partial 可重试、已删幂等。</td>
+</tr>
+<tr>
+<td>refreshRisk</td>
+<td>opened、在线；详情的同一 immutable location。</td>
+<td>refreshed 或 safety/hazard/partial/mismatch/retryable/scope unavailable。</td>
+<td>并行 Safety/Hazard；仅完整且同 location 的结果整体替换 Catalog 的风险字段组。失败保留旧组与时间。</td>
+</tr>
+</tbody></table>
+<p><strong>最小调用：</strong></p>
+<pre><code class="language-dart">final written = await properties.create(request);
+switch (written) {
+  case PropertyWritten(:final inspection, :final photoTransfer):
+    // 只显示权威 inspection；pending/transferIncomplete 仍是可重试状态。
+  case PropertyWriteRejected(:final failure):
+    // 保留草稿及草稿照片，按 typed failure 给出修正或联网路径。
+}
+</code></pre>
+<p><strong>Fake 场景：</strong> Shell 使用 fake <code>PropertyInspection</code> 分别回空档案、草稿、written + pending upload、风险 unavailable、照片 transfer incomplete、比较不足/越界、purge partial；只有明确成功才改变呈现，失败不丢草稿、不把 pending 称发布、也不把 partial purge 称清空。</p>
+<h2>4. 数据、固定顺序与安全不变量</h2>
+<table>
+<thead>
+<tr>
+<th>目的</th>
+<th>权威对象 / 精确访问</th>
+<th>固定语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实勘和风险组</td>
+<td><code>property_inspections</code>（owner-only CRUD）</td>
+<td>必需地点、名称/价格/四评分/水灾/备注/收藏引用及原子风险字段组均以 Catalog 为准。<code>deleted_at</code> 分隔活动/回收站；软删除不删照片。</td>
+</tr>
+<tr>
+<td>正式照片</td>
+<td><code>property_inspection_photos</code>（owner + 父实勘授权）；Storage <code>inspection-photos</code>（<code>accountId/inspectionId/photoId</code>）</td>
+<td>元数据和文件独立。每实勘最多 20、唯一封面、caption ≤1000；路径校验不能替代父对象授权。</td>
+</tr>
+<tr>
+<td>草稿与队列</td>
+<td>SQLite <code>property_drafts</code>、<code>property_draft_photos</code>、<code>property_photo_upload_queue</code> 及应用目录</td>
+<td>全部带 account 分区；草稿/草稿照片跨重启而未发布；queue 只接收已成功创建的同账户远端实勘照片；退出/换号清除。</td>
+</tr>
+<tr>
+<td>Safety 输入</td>
+<td><code>SAFETY-001</code>；其受控读取为 <code>read_safety_inputs</code> / <code>crime_district</code> 与无账户 <code>crime_public_cache</code></td>
+<td>Property 只消费同地点 complete SafetyAvailable 的州、分数、年、来源、模型/边界版本；不读原始行、不解析州。</td>
+</tr>
+<tr>
+<td>Hazard 输入</td>
+<td><code>HAZARD-002</code>；其读取为 <code>crowdsourced_hazards</code></td>
+<td><code>d &lt;= 2,000m</code>、仅 public pending、带 count 时间/半径；不读/写 vote 或 <code>hazard_vote_counts</code> RPC。</td>
+</tr>
+</tbody></table>
+<p>固定顺序：1) Shell 只在 opened scope 启动 Property；2) Map 返回合法 immutable property location；3) Property 保存草稿；4) create、坐标变更或刷新同时请求 Safety/Hazard；5) 两项均 complete available 且 location 相同才在同一远端写操作整体写风险组；6) create 成功才把草稿照片整体转换为正式 queue，所有转换成功才移除草稿照片；7) 正式照片在 Storage 上传和 metadata 成功后才移除本机副本；8) close 先阻断、后清理本机私有状态，绝不重放至新账户。</p>
+<h2>5. 联合验收、自由度与完成核对</h2>
+<table>
+<thead>
+<tr>
+<th>Capability / canonical AT</th>
+<th>场景与操作</th>
+<th>可观察完成条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PROP-01</code> / <code>AT-PROP-01</code></td>
+<td>新增/编辑、草稿、草稿照片、重启、Map 往返、在线/离线</td>
+<td>当前账户草稿完整续填；地点/字段/online/risk/conflict 分开呈现；合法地点与完整风险输入才创建/变更坐标，失败保留修正/重试路径。</td>
+</tr>
+<tr>
+<td><code>PROP-02</code> / <code>AT-PROP-02</code></td>
+<td>相机/相册、20 张、封面、说明、草稿转正式、重启、部分上传</td>
+<td>草稿照片未发布；所有转换成功前保留草稿；正式 queue/本机副本重试正确，原件/EXIF 不泄露，离线单张删除不伪成功。</td>
+</tr>
+<tr>
+<td><code>PROP-03</code> / <code>AT-PROP-03</code></td>
+<td>创建、变坐标、未变坐标编辑、刷新、Safety/Hazard complete/partial/失败</td>
+<td>只在两完整同地点输入时整体保存/替换风险组；失败/partial 不改旧组或时间，显示本次不可用。</td>
+</tr>
+<tr>
+<td><code>PROP-01</code>–<code>03</code> / <code>AT-PROP-04</code></td>
+<td>A/B 账户、伪造 inspection ID/Storage path、close 中晚到结果</td>
+<td>仅 owner 且父对象授权可访问；无地点拒绝；旧范围资料、上传和结果不显示/提交/重放。</td>
+</tr>
+<tr>
+<td><code>PROP-04</code> / <code>AT-PROP-05</code></td>
+<td>2、3、少于 2、超过 3、已删除/他人项</td>
+<td>只有 2–3 个当前账户活动实勘并排；比较不保存、不混 Map A/B、没有赢家。</td>
+</tr>
+<tr>
+<td><code>PROP-05</code> / <code>AT-PROP-06</code></td>
+<td>软删除、取消、恢复、确认清空、Storage/metadata partial</td>
+<td>回收站可见且软删除保留照片；取消零副作用；清空仅当前账户，partial 列明 remaining 并可重试，不误报全成功。</td>
+</tr>
+<tr>
+<td>全部</td>
+<td>中文/English、200% 字体、读屏/非颜色状态</td>
+<td>字段错误、同步/删除、风险来源/时间/口径、空态、权限和恢复路径均有文字等价信息。</td>
+</tr>
+</tbody></table>
+<p>Owner 可选择内部架构、数据库/Storage SDK 映射、压缩、上传调度、缓存、重试、取消、并发、Widget 与测试组织。以下变更须取得跨 Owner agreement：唯一公开 import、任一公开声明/result variant、输入约束、风险原子性、账户/父对象授权、Storage 路径契约或 Schema/RLS。变更同时更新契约、受影响 fake/Adapter 测试和 PDF。</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 按固定顺序完成成果、责任、调用 Interface、提供 Interface、精确数据、实现顺序、联合验收、自由度/参考。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>PRIVACY-001</code>、<code>SAFETY-001</code>、<code>HAZARD-002</code> 和 <code>PROPERTY-001</code> 均有唯一 import、声明/精确调用、约束、typed outcome、权限/副作用、顺序、示例与 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> 草稿、照片队列、风险原子写、账户隔离、回收站和 Storage partial 均有可观察结果；字段、RLS、路径、RPC SQL、migration 和公式仍有唯一外部权威。</li>
+<li><input checked="" disabled="" type="checkbox"> Standards/Spec 双轴复审通过；无 Ready 阻塞。风险的 migration/RLS/Storage/故障注入证据留实现与集成验收。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>状态</th>
+<th>变更原因</th>
+<th>受影响对象</th>
+<th>批准者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-09-15</td>
+<td><code>Ready for Development</code></td>
+<td>Issue #23：升级为单一契约优先 Markdown/PDF；补齐固定顺序、Readiness、五项上游调用卡与 <code>PROPERTY-001</code> 声明，不改变产品、Schema 或上游语义</td>
+<td><code>PROP-01</code>–<code>05</code>、<code>PROPERTY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>PRIVACY-001</code>、<code>SAFETY-001</code>、<code>HAZARD-002</code>、Property 数据对象</td>
+<td>设计 AI（项目负责人授权）</td>
+</tr>
+</tbody></table>

@@ -1,109 +1,275 @@
-# Personalized Location Suitability
+# Personalized Location Suitability 开发协作契约
 
-> 状态：`Ready for Development`
-> Owner：`B`
-> 系统基线：`5d11769`
-> 依赖波次：`7`
-> 最后更新：`2026-09-14`
-> Prototype 视觉参考：`N/A`（既有原型/fixture 只可作页面结构参考，不是适配度资料或结果）
+> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+> Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 7
+> 唯一公开入口：`package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart`
 
-本文件协调个人化地点适配度与其输入、消费者的可观察语义。它冻结五维前置门槛、转换、加权、缺失重归一化、解释与 A/B 并列资格；不规定查询编排、缓存、状态机、Widget、公式实现或测试组织。
+本文件是 Personalized Location Suitability 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定五维输入、资格门控、转换、重归一化、解释和 A/B 并列语义；`lib/features/personalized_location_suitability/` 内 Widget、状态管理、并发/取消、缓存、计算组织与测试组织由 B 决定。公式正文只在产品知识库；数据库字段、RLS 和 migration 只在 Schema Catalog。
 
-## 1. 用户成果与范围
+## 0. 固定阅读顺序与四项 Readiness
 
-- 用户成果：在已开启账户范围中，用户可对一个合法地点查看可解释的 `0–100` 个人化地点适配度，或准确看到偏好、当前预案或具体维度为何不可用；在 A/B 中，仅两端均合格且可比时并列显示，绝不标示赢家或自动推荐。
-- 包含的 Capability ID：`MAP-07`。
-- 不包含及原因：不产生安全、成本、设施、交通或 ICI 的原始结果；不读取/保存偏好、预案或 ICI 权重；不控制地图选点、地点详情导航或六类分析；不提供客观宜居评级、推荐或排序。它们分别属于上游 Feature 或 Application Shell。
-- 产品事实源：[个人化地点适配度领域对象](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-个人化地点适配度)、[地图适配度规则](../../knowledge_base/locatemy_product/features/map_location.md#个人化地点适配度map-07)、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#地图和分析入口)、[生活成本规则](../../knowledge_base/locatemy_product/features/cost_of_living.md#预算压力)。
-- 原型差异：移除以 fixture、默认偏好、默认预算或其余四维拼出的读数；地点详情只显示实际可计算结果或精确原因，社会经济和用户隐患不加入输入。
+实施和审查必须按下面顺序读取；后项只能补充已经冻结的事实：
 
-## 2. 依赖、责任与文件边界
+1. [领域词汇](../../../CONTEXT.md#评估偏好)、[个人化地点适配度](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-个人化地点适配度)、[地图 MAP-07 规则](../../knowledge_base/locatemy_product/features/map_location.md#个人化地点适配度map-07)、[成本预算压力](../../knowledge_base/locatemy_product/features/cost_of_living.md)；
+2. [Feature map（Suitability）](../system/feature-map.md)、[Interface 注册表](../system/interfaces.md)、[FLOW-02](../system/flows.md#flow-02单点选址地点摘要与六类分析)、[FLOW-03](../system/flows.md#flow-03地点-ab-比较)、[FLOW-07](../system/flows.md#flow-07个人化地点适配度)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md#身份与账户业务对象)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)；
+4. 本契约；生成或使用人类 PDF 时最后读 [ADR 0014](../../adr/0014-version-locked-pdf-development-documentation-packages.md) 与 [handoff](../handoff/README.md)。
 
-| 模块 / 文件边界 | Owner | 负责 | 不负责 | 与其他模块的沟通 |
-| --- | --- | --- | --- | --- |
-| `lib/features/personalized_location_suitability/` | Personalized Location Suitability | `SUITABILITY-001`、五维输入门控、转换/加权/重归一化、解释和 A/B 资格 | 原始分析、账户输入持久化、ICI 内部权重、地图/导航、推荐 | 消费 `SHELL-001`、`LOCATION-001`、`ACCOUNT-001`、`COST-001`/`COST-002`、`SAFETY-001`、`FACILITY-001`、`TRANSIT-001`、`INFRA-001`；提供 `SUITABILITY-001` |
-| `lib/app/` | Application Shell | 在地点详情和 A/B 总览请求并组合结果，提供设置入口与返回语境 | 计算、输入回退、可比性或输入解释 | 消费 `SUITABILITY-001`，原样保留其覆盖、警告及不可用原因 |
-| 上游 Feature | 各自 Owner | 提供带地点、版本、来源/日期、完整性和可用性的 canonical 输入 | Suitability 转换、偏好加权或总分 | 只通过本节所列 Interface 传递结果；Suitability 不直读其表/缓存 |
-
-| 依赖或问题 | 影响 | 验证方式 / 最迟解决点 |
+| Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
-| `D39` / `SHELL-001` 已 Ready | 地点详情/A-B 槽位、设置入口和账户门控归 Shell | 以 `FLOW-02`、`FLOW-03`、`FLOW-07` 和 `AT-SUIT-01`–`06` 核对；无阻塞 |
-| `D40` / `LOCATION-001` 已 Ready | 每次单点或 A/B 计算只绑定合法不可变地点引用 | 缺地点、非法、范围外、同点 A/B 或过期引用不产生结果；无阻塞 |
-| `D41` / `ACCOUNT-001` 已 Ready | 只能使用同账户 complete preference snapshot | `configured_at` 缺失、页面预填或未保存草稿均为 prerequisite missing；无阻塞 |
-| `D42` / `COST-001`、`COST-002` 已 Ready | 当前预案和个人预算压力的输入/质量门槛由 Cost 唯一决定 | 无 current、未保存编辑、字段缺失、partial basket 和临时 CPI 输入都不能生成成本维度；无阻塞 |
-| `D43`–`D46` / Safety、Facilities、Transit、Infrastructure 已 Ready | 四项公共维度须复用 canonical 结果及其原因 | 以同地点、输入版本、范围/模型及状态核对；未知不补零，stale warning 不丢失；无阻塞 |
-| `RISK-PREF-01` 已关闭为设计决定 | 默认 `5` 不能冒充用户确认偏好 | 实现/集成仍须验证 `configured_at` migration、跨设备与换号；不以设计 Ready 冒充运行证据 |
+| 责任与范围 | `MAP-07` 唯一归 Suitability；原始安全/成本/设施/交通/ICI、偏好和预案持久化、选点和推荐均归其他 Owner | 已就绪 |
+| 契约与消费者 | 第 2 节逐卡冻结 `SHELL-001`、`LOCATION-001`、`ACCOUNT-001`、五个 canonical 输入；第 3 节给出唯一 `SUITABILITY-001` 与 fake | 已就绪 |
+| 数据与安全 | 只消费公开 Interface，不直读 `user_assessment_preferences`、`user_budget_scenarios`、政府镜像或上游 cache；总分只存在同账户页面内存 | 已就绪 |
+| 验收与风险 | 第 5 节覆盖 `AT-SUIT-01`–`06`、`AT-RACE-01`、`AT-SWITCH-01`；`RISK-PREF-01` 的 null/default 边界已冻结，运行证据留实现/集成 | 已就绪 |
 
-## 3. 对外协调契约
+## 1. 成果、责任与冻结边界
 
-### 提供：`SUITABILITY-001` 个人化地点适配度
+- 已 opened 账户可以对一个合法地点看到可解释的 `0–100` 个人化读数，或精确知道是偏好、current 预案还是哪一维资料阻止结果。它不是客观宜居评分、官方评级、赢家或推荐。
+- 五维固定顺序为：安全、成本、日常便利、公共交通可达性、基础设施。主读数固定为安全指数、个人预算压力转换分、2 km 五类确认设施覆盖转换分、交通连通性分和 **neutral `5/5/5` ICI**。
+- A/B 先各自计算，再只在共同语境相容时并列显示原始读数；绝不产生数值差、排序、赢家或自动搬迁建议。
 
-| 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
+| Owner / 受控边界 | 负责 | 不负责 | 协作 |
 | --- | --- | --- | --- |
-| Application Shell | 为一个合法 single 地点，或 A/B 的每一端，提供五维覆盖说明、各可用原始/转换读数、偏好权重语境、`0–100` 适配度或分类不可用原因；对 A/B 提供并列资格或不可比原因。 | 输入为 `LOCATION-001` 不可变引用、同账户 `ACCOUNT-001 complete snapshot`、`COST-002` current 语境，以及同一地点的 `SAFETY-001`、`COST-001` personal budget burden、`FACILITY-001`、`TRANSIT-001` 和 `INFRA-001 neutral ICI`。输出为 `available(score, explanation)`、`prerequisite missing`、`dimension unavailable`、全维不可用的固定状态，或 A/B `incomparable(reason)`；每项保留地点、输入版本、来源/日期、覆盖/完整性和 stale warning。 | 只在 opened 同账户范围内组合账户输入；不写地点、偏好、预案、ICI 权重、上游结果或推荐。账户/地点/输入版本变化或 scope close 后，旧结果不得发布；公共上游资料不携带其他账户输入。 |
+| `lib/features/personalized_location_suitability/`（B） | `SUITABILITY-001`、五维资格、转换/加权、低优先级缺失重归一化、解释、A/B 可比性 | 原始分析、偏好/预案/ICI 权重写入、地图、导航、推荐 | 消费 Shell、Location、Account、Cost、Safety、Facility、Transit、Infrastructure；提供 Shell |
+| Application Shell | opened 门控、地点详情/A-B 槽位、设置导航、按 `FLOW-07` 使旧请求失效 | 计算或补齐任一维、改写原因、决定可比性 | 消费 `SUITABILITY-001` |
+| 各上游 Owner | 产生并解释自己的 canonical 结果与资料状态 | Suitability 转换、偏好加权、总分 | 只经各自公开入口交付快照 |
 
-`available` 只表示本产品的个人化读数可以显示，不表示客观宜居、政府评级或推荐。A/B 两端均为 `available` 不产生赢家；仅在本节的 A/B 可比性条件同时满足时才作为可比结果并列，任何情形都不派生数值差值。
+## 2. B 需要调用的 Interface 卡
 
-### 消费
+消费者只能 import 卡中唯一入口，不能 import 对方 `src/`、Adapter、SDK、表或 cache。以下声明是协作形状，不含实现体。
 
-| ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
+### Interface 卡：`SHELL-001` — 详情/A-B 槽位、设置导航与结果发布
+
+**提供者：** Application Shell；**唯一公开 import：** `package:locatemy/app/application_shell.dart`。
+
+```dart
+abstract interface class ApplicationShell {
+  Future<ShellIntentOutcome> submit(ShellIntent intent);
+  Future<ShellContributionOutcome> publish(ShellContribution contribution);
+}
+abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
+sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
+final class ShellIntentAccepted extends ShellIntentOutcome { const ShellIntentAccepted(); }
+final class ShellAuthenticationRequired extends ShellIntentOutcome { const ShellAuthenticationRequired(); }
+final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; const ShellIntentRejected(this.reason); }
+sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
+final class ShellContributionAccepted extends ShellContributionOutcome { const ShellContributionAccepted(); }
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome { const ShellContributionAuthenticationRequired(); }
+final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; const ShellContributionRejected(this.reason); }
+enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+```
+
+B 从自己的公开入口导出 `OpenAssessmentPreferencesIntent`、`OpenCurrentBudgetScenarioIntent`（均带 `SuitabilityReturnContext`）及 `SuitabilityContribution implements ShellContribution`。贡献只含 `SuitabilitySingleOutcome` 或 `SuitabilityComparisonOutcome`、不可变地点、账户/输入版本和原始 warnings；不得携带账户草稿、收入、预案字段或上游内部对象。
+
+```dart
+final class SuitabilityReturnContext { final String source; const SuitabilityReturnContext(this.source); }
+final class OpenAssessmentPreferencesIntent implements ShellIntent { final SuitabilityReturnContext returnContext; const OpenAssessmentPreferencesIntent(this.returnContext); }
+final class OpenCurrentBudgetScenarioIntent implements ShellIntent { final SuitabilityReturnContext returnContext; const OpenCurrentBudgetScenarioIntent(this.returnContext); }
+final class SuitabilityContribution implements ShellContribution { final Object outcome; const SuitabilityContribution(this.outcome); }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
 | --- | --- | --- | --- |
-| `SHELL-001` | Application Shell | 进入地点详情/A-B 槽位、提交设置入口和组合结果 | 仅 opened scope 的合格地点/任务可被接受；rejected/authentication required 保留 Shell 原因，不改写为分析资料失败。 |
-| `LOCATION-001` | Map / Location | 取得 single 或 A/B 合法不可变地点引用 | 仅 valid reference 可计算；absent、outside Malaysia、invalid coordinate、same comparison point 或过期引用均不产出适配度。 |
-| `ACCOUNT-001` | Account Center | 取得同账户五项已配置偏好与版本 | 只接受五项完整 `1–10` 且有 `configured_at` 的 complete snapshot；不存在、null、草稿、保存失败或身份不符为 `prerequisite missing`。 |
-| `COST-001` | Cost of Living & Budget | 取得同地点完整 `PersonalBudgetBurden(%)`、地点/预案/资料质量元数据 | 仅 Cost 已发布且满足其完整篮子、住房、交通和月净收入条件的预算压力可形成成本维度；partial/unavailable、家庭月度总收入和临时 CPI 等效换算都不可替代。 |
-| `COST-002` | Cost of Living & Budget | 取得同账户 current 或无 current 的已保存预案事实及版本 | 无 current、未保存编辑、scope 不符或保存失败为 prerequisite missing；Suitability 不直接读取预案表，也不将家庭月度总收入作为成本输入。 |
-| `SAFETY-001` | Crime & Security | 复用同地点州级安全指数及可用性 | 只接受 Safety 已提供的可用指数和其州/年份/来源/完整性；unresolved、partial 或 unavailable 保留为安全维度原因，不以隐患数、犯罪原始数或 0 替代。 |
-| `FACILITY-001` | Nearby Facilities | 复用 2,000m 五类设施的确认覆盖事实 | 只有所有五类查询完整时，才以已确认覆盖类别数形成日常便利维度；任一类别 unknown/unavailable 则整个维度 unavailable，complete-empty 的明确零覆盖仍为 `0`。 |
-| `TRANSIT-001` | Public Transportation | 复用同地点 canonical connectivity score 与资料状态 | 只有 availability `available`、service outcome `served` 且连通性分可用时形成交通维度；`incomplete`、`unavailable`、`no_stops`、`no_active_routes` 及上游拒绝均为维度 unavailable。实际使用 stale feed 的 warning 随可用分保留，不改作零或 missing。 |
-| `INFRA-001` | Infrastructure Coverage | 复用同地点固定 `5/5/5` 的 neutral ICI | 只接受 neutral ICI；account-weighted ICI、已保存自定义权重和 `unsaved preview` 一律不可输入。neutral ICI unavailable 时保留 Infrastructure 原因。 |
+| 只向 opened 同账户 Shell submit/publish；贡献的 location、accountId、input versions 必须仍等于当前请求语境。 | `accepted` 才导航/进入槽位；`authenticationRequired`、`rejected(reason)` 是 Shell 结果，不能改写为资料失败。 | Shell 只导航/组合；Suitability 不改地图、上游、偏好、预案或 ICI 权重。 | `await shell.publish(contribution);` 仅 accepted 发布。fake 依次回 accepted/authenticationRequired/staleInput，断言拒绝保留 Suitability 结果与原因且不泄露私有输入。 |
 
-## 4. 用户可观察行为与跨模块流程
+### Interface 卡：`LOCATION-001` — 不可变合法地点
 
-| 入口或用户动作 | 成功结果 | 空、不可用或失败结果 | 必须保持的可访问性 / 安全语义 |
+**提供者：** Map / Location；**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`。
+
+```dart
+abstract interface class LocationCoordinator { LocationRoleSnapshot read(LocationRole role); }
+enum LocationRole { single, locationA, locationB, property }
+sealed class LocationRoleSnapshot { const LocationRoleSnapshot(); }
+final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; const LocationPresent(this.role, this.location); }
+final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; const LocationAbsent(this.role); }
+final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; const ValidLocationReference(this.locationId, this.point, this.displayName); }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
 | --- | --- | --- | --- |
-| 打开有合法地点的详情卡 | 已配置偏好、current 预案和所有中/高维度合格时，显示 `0–100` 读数、五维输入/权重/覆盖说明及来源警告 | 先显示 prerequisite missing，再显示各维度原因；中/高维度缺失不显示总分，不能用默认值或其余维度补齐 | 明确这是个人化读数而非推荐；分数、权重、覆盖、来源、日期和原因均有文字/可访问名称。 |
-| 某个低优先级维度不可用 | 在其余合格维度上显示按可用权重重归一化的读数，并指出该低优先级维度未纳入 | 若所有维度不可用或可用权重为零，显示固定“目前没有可用的评估维度”状态，不显示 `0` 或伪部分分 | 低/中/高及被排除原因不只靠颜色；不把 unknown 显示为明确零。 |
-| 调整偏好、切换/删除 current，或上游资料/地点刷新 | 上游成功发布的新版本后，Shell 使同账户/同地点旧请求失效并重算；结果绑定新的完整输入语境 | 保存失败、未保存偏好/预案编辑、无 current 或晚到旧结果不发布为新适配度 | 设置入口只交给其 Owner；Suitability 不保存草稿、不反写上游，换号后不见旧账户结果。 |
-| 查看 A/B 比较 | 两端各自合格，且纳入/排除的维度集合、上下文和定义完全相容时，独立并列显示两个原始读数、覆盖和输入说明；交换仅改变呈现顺序 | 任一端不合格时指出该端 prerequisite/dimension 原因；两端可算但纳入/排除集合、模型、版本或可比条件不一致时为 `incomparable`，保留各自原分和覆盖说明，不显示数值差值、赢家或推荐 | A/B 保留各自地点与上游元数据；不将适配度并入六类分析总分。 |
-| 请求关闭账户或快速换点/换预案 | scope 或输入版本仍匹配时才呈现结果 | 关闭开始即丢弃私有偏好/current 与旧请求；公共上游结果可按其 Owner 继续存在，但不可与旧账户输入重新组合 | 不泄露偏好、收入、预案名称或其他账户信息；恢复后从新账户 complete snapshot/current 重新开始。 |
+| 只接收 Map 已成功产生的 immutable single/A/B reference；不得造坐标、读可变地图状态、用默认城市或收藏名代替坐标。 | `LocationAbsent`、非法/范围外/same point（由 Map 拒绝）使计算为 `SuitabilityPrerequisiteMissing(location)`，不调上游。 | 读取无副作用；地点 id 改变时旧结果不可发布。 | Shell 先按 FLOW-02/03 取角色引用，再传 B。fake 给 single、A/B、absent、换点；断言 absent 不请求上游、A/B 不混端。 |
 
-跨 Owner 完成条件：Shell 按 `FLOW-02` 对同一 single 引用组合摘要，并按 `FLOW-03` 把 A/B 两端独立交给本 Feature；按 `FLOW-07`，偏好或 current 的成功版本变化使旧适配度失效。Suitability 只消费上游已冻结结果和版本事实，集中应用门槛与解释；Shell 不重新计算任一维度或掩盖其状态。
+### Interface 卡：`ACCOUNT-001` — complete 评估偏好快照
 
-## 5. 数据与确定性业务规则
+**提供者：** Account Center；**唯一公开 import：** `package:locatemy/features/account_center/account_center.dart`。
 
-| 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
+```dart
+abstract interface class AccountCenter { Future<AssessmentPreferencesOutcome> readAssessmentPreferences(); Stream<AssessmentPreferencesOutcome> watchAssessmentPreferences(); }
+sealed class AssessmentPreferencesOutcome { const AssessmentPreferencesOutcome(); }
+final class AssessmentPreferencesComplete extends AssessmentPreferencesOutcome { final CompleteAssessmentPreferencesSnapshot snapshot; const AssessmentPreferencesComplete(this.snapshot); }
+final class AssessmentPreferencesPrerequisiteMissing extends AssessmentPreferencesOutcome { const AssessmentPreferencesPrerequisiteMissing(); }
+final class AssessmentPreferencesUnavailable extends AssessmentPreferencesOutcome { final AssessmentPreferencesFailure failure; const AssessmentPreferencesUnavailable(this.failure); }
+final class CompleteAssessmentPreferencesSnapshot { final String accountId; final AssessmentPreferenceValues values; final int version; final DateTime configuredAt; const CompleteAssessmentPreferencesSnapshot(this.accountId, this.values, this.version, this.configuredAt); }
+final class AssessmentPreferenceValues { final int safety, cost, dailyConvenience, transitAccessibility, infrastructure; const AssessmentPreferenceValues(this.safety, this.cost, this.dailyConvenience, this.transitAccessibility, this.infrastructure); }
+enum AssessmentPreferencesFailure { invalidInput, permissionDenied, conflict, retryableUnavailable, scopeUnavailable }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
 | --- | --- | --- | --- |
-| 五维、转换与权重 | [个人化地点适配度领域对象](../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-个人化地点适配度) | 对上游 canonical 读数应用该唯一事实源规定的转换、偏好权重与重归一化 | 输入依序为安全指数、个人预算压力、五类设施确认覆盖、交通连通性和 neutral ICI；输出为可解释的 `0–100` 读数及其已纳入/排除维度。公式正文、边界值与权重计算不在本设计复制。 |
-| 偏好和 current 前置条件 | `ACCOUNT-001`、`COST-002`；[评估偏好](../../knowledge_base/locatemy_product/domain_objects.md#assessment-preferences-评估偏好) | 仅使用同账户远端已发布事实 | 五项 complete snapshot 和 current 预案都是计算必要前置条件；无 configured snapshot/current 时为 `prerequisite missing`，不使用默认 `5`、其他预案、草稿或临时输入。家庭月度总收入只属于 Socio 收入位置，永不代替月净收入或成本输入。 |
-| 维度可用性与重归一化 | [地图适配度规则](../../knowledge_base/locatemy_product/features/map_location.md#个人化地点适配度map-07) | 逐一保留每个输入 Owner 的 availability/coverage/reason | 缺少任一中/高优先级维度，总分 unavailable；缺少低优先级维度可排除后重归一化并披露；所有不可用或可用权重为零时使用固定不可用文案。明确零分仍是可用输入，未知、partial 或无服务不当作零。 |
-| 上游口径与 stale | `SAFETY-001`、`COST-001`、`FACILITY-001`、`TRANSIT-001`、`INFRA-001` | 不重查原始资料或复算上游指标 | 保留州级安全、2km 设施、1.5km 交通、neutral ICI、地点/资料/模型版本、来源、日期、完整性与 stale warning。stale 但上游仍明确可用的读数可参与计算并以警告呈现；partial/unavailable 则按维度规则处理。 |
-| A/B 并列资格 | `SUITABILITY-001`；[地点比较](../../knowledge_base/locatemy_product/domain_objects.md#location-comparison-地点对比) | 先独立计算每端，再核对可比较的共同输入语境 | 两端均 `available`、纳入/排除的维度集合完全一致，且来自同一账户的同一 complete preference snapshot、同一 current 预案版本、相同适配度规则版本，并且每个纳入维度的转换定义与上游模型/篮子/类别映射/参照组版本相容时，才是可比并列。不同地点本身的来源/日期/stale 警告必须并列披露，且只呈现两端原始读数与覆盖说明、不派生数值差值；集合或任一条件不相容即为 `incomparable`，仍保留各自原分和覆盖说明。仅一侧不可算是该侧不可用，不伪装成两侧可比。 |
-| 状态与私有边界 | `RESULT-*`、[数据所有权](../system/data-ownership.md#运行时状态与派生结果)、`PRIVACY-001` | 当前结果只在页面/ViewModel 内存中，绑定地点和输入版本 | 不建立 Suitability 远端权威对象、离线写队列或跨账户缓存；结果在 scope close 时释放。上游公共缓存不可包含偏好、月净收入、预案或总分。 |
+| 必须同账户，五项均为 `1–10`，`configuredAt` 非 null 的完整 immutable snapshot。 | `PrerequisiteMissing`（无行/`configured_at` null）与 `Unavailable(failure)` 分开；页面预填 5、草稿、部分保存均不是输入。 | 只读；账户或 snapshot version 改变使旧适配度失效。 | 先取得/监听 complete，再取五维。fake：missing、A/v4、save conflict、A→B、A/v5；仅同账户 complete 进入计算。 |
 
-## 6. 验收与 Ready Gate
+### Interface 卡：`COST-001` 与 `COST-002` — 个人预算压力和 current 预案
 
-| Capability | 验收情景 | 用户操作 | 可观察结果 |
+**提供者：** Cost of Living & Budget；**唯一公开 import：** `package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart`。
+
+```dart
+abstract interface class CostOfLivingBudget { Future<CostAnalysisOutcome> analyse(CostAnalysisRequest request); }
+abstract interface class BudgetScenarioStore { Future<BudgetScenariosOutcome> read(); Stream<BudgetScenariosOutcome> watch(); }
+sealed class CostAnalysisOutcome { const CostAnalysisOutcome(); }
+final class CostAnalysisAvailable extends CostAnalysisOutcome { final CostAnalysis analysis; const CostAnalysisAvailable(this.analysis); }
+final class CostAnalysisPartial extends CostAnalysisOutcome { final CostAnalysis analysis; final List<CostAvailabilityGap> gaps; const CostAnalysisPartial(this.analysis, this.gaps); }
+final class CostAnalysisUnavailable extends CostAnalysisOutcome { final CostAnalysisFailure failure; const CostAnalysisUnavailable(this.failure); }
+sealed class BudgetScenariosOutcome { const BudgetScenariosOutcome(); }
+final class BudgetScenariosAvailable extends BudgetScenariosOutcome { final CurrentBudgetScenarioSnapshot current; const BudgetScenariosAvailable(this.current); }
+final class BudgetScenariosUnavailable extends BudgetScenariosOutcome { final BudgetScenarioFailure failure; const BudgetScenariosUnavailable(this.failure); }
+sealed class CurrentBudgetScenarioSnapshot { const CurrentBudgetScenarioSnapshot(); }
+final class CurrentBudgetScenarioAvailable extends CurrentBudgetScenarioSnapshot { final BudgetScenario scenario; final int version; const CurrentBudgetScenarioAvailable(this.scenario, this.version); }
+final class NoCurrentBudgetScenario extends CurrentBudgetScenarioSnapshot { final int version; const NoCurrentBudgetScenario(this.version); }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
 | --- | --- | --- | --- |
-| `MAP-07` / `AT-SUIT-01` | 同账户 complete 五项偏好、current 预案、五个合格 canonical 维度，含明确 `0` 分和 Transit stale warning | 打开地点详情 | 唯一事实源规则生成 `0–100`；五维、转换、权重、口径/日期/来源和 stale warning 可解释；明确零保留，stale 不静默消失。 |
-| `MAP-07` / `AT-SUIT-02` | 偏好不存在/`configured_at` null、无 current、未保存偏好或预案编辑、current 保存失败 | 打开详情或完成设置动作 | 分别显示 `prerequisite missing`，有对应设置/恢复入口；默认 `5`、其他预案、临时 CPI 和家庭月度总收入都不代替输入。 |
-| `MAP-07` / `AT-SUIT-03` | 安全、成本、设施、交通、ICI 各自 unavailable/partial/unknown/no route；缺失维度优先级分别为低、中、高；所有维度不可用 | 打开或刷新详情 | 低优先级缺失排除并重归一化且披露；中/高缺失无总分；所有无可用维度使用固定不可用文案。设施 unknown、不完整交通和 neutral ICI missing 不作为 `0`。 |
-| `MAP-07` / `AT-SUIT-04` | current 切换、删除 current、补齐/清空住房/交通/月净收入、完整/partial basket，以及地点或上游版本变化 | 管理预案后返回或刷新地点 | 仅已保存 current 的完整个人预算压力可供成本维度；成功版本变化即时使旧结果失效并重算；失败/旧结果不覆盖新语境。 |
-| `MAP-07` / `AT-SUIT-05` | A/B 两端均可算且纳入/排除集合完全一致、共同输入相容；单侧 prerequisite/dimension 缺失；两端可算但纳入/排除集合、偏好/current/模型或规则版本不相容；交换 | 进入/交换 A/B | 合格时只并列两个原始读数和覆盖说明；不可用与 incomparable 原因区分。incomparable 时仍保留各自原分和覆盖说明；任何情况不显示数值差值、赢家或自动推荐，交换不重算或混淆地点。 |
-| `MAP-07` / `AT-SUIT-06` | 账户 A/B 不同偏好/current，保存中换号、scope close、晚到请求 | 切换账户、退出或快速换点 | A 的偏好、预案、总分和晚到结果不进入 B；关闭期间无个人化总分；公共结果不泄露私有输入。 |
-| `MAP-07` / `AT-SUIT-01`–`AT-SUIT-06` | 中文/English、读屏/键盘、200% 字体、长原因/日期/金额、颜色不可见 | 阅读可用、部分和不可用状态 | 分数不是唯一表达；五维、权重、覆盖、限制、状态和设置入口均有可访问文字和合理顺序。 |
+| `analyse` 用同一 immutable location 和 `CurrentBudgetScenarioAvailable`；仅 Cost 已发布的完整 `PersonalBudgetBurden(%)` 可转分。住房/交通 RM 0 有效；缺住房、交通、月净收入、少于 6 个月或平均覆盖低于 80% 不合格。 | no-current 为 prerequisite missing；partial/unavailable、预案读取 failure 均为成本维度 unavailable，不可用临时 CPI、地点成本指数、家庭月度总收入或其他预案替换。 | Suitability 只读，绝不读表或写 current；current version/地点/成本版本变更使旧分失效。 | 先 `COST-002` current，再 `COST-001`。fake：no-current、完整 burden 42、partial basket、住房 RM0、缺 monthly net income、CPI temporary；只有完整 42 转换。 |
 
-- [x] `MAP-07` 可追踪至唯一 Owner、`SUITABILITY-001`、D39–D46、产品事实、运行时状态与验收情景。
-- [x] 原始分析、偏好/预案持久化、ICI 内部权重、地图导航和推荐仍分别归既有 Owner。
-- [x] 五维转换、偏好门槛、低优先级重归一化、明确零/未知、stale、A/B 和 no-winner 语义均链接唯一事实源。
-- [x] 覆盖 prerequisite missing、单维 unavailable、全维不可用固定状态、partial、stale、A/B incomparable、地点/账户/版本变化和可访问性。
-- [x] 独立 Standards/Spec 双轴审查及修订复审已关闭全部发现。
-- [x] 所有上游阻塞设计均为 Ready；设计 AI 已依 ADR 0013 批准 `Ready for Development`，实现与集成验收仍保留为后续 Gate。
+### Interface 卡：`SAFETY-001` — 州级安全指数
 
-## 7. Change Log
+**提供者：** Crime & Security；**唯一公开 import：** `package:locatemy/features/crime_and_security/crime_and_security.dart`。
 
-| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
+```dart
+abstract interface class CrimeAndSecurity { Future<SafetyLoadOutcome> load(SafetyRequest request); }
+sealed class SafetyLoadOutcome { const SafetyLoadOutcome(); }
+final class SafetyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyAvailable(this.snapshot); }
+final class SafetyPartiallyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyPartiallyAvailable(this.snapshot); }
+final class SafetyUnavailable extends SafetyLoadOutcome { final SafetyUnavailableReason reason; const SafetyUnavailable(this.reason); }
+final class SafetySnapshot { final ValidLocationReference location; final SafetyScore score; final SafetyFreshness freshness; final SafetyCompleteness completeness; final SafetyProvenance provenance; const SafetySnapshot(this.location, this.score, this.freshness, this.completeness, this.provenance); }
+final class SafetyScore { final int value; const SafetyScore(this.value); }
+enum SafetyFreshness { fresh, cached, stale }
+enum SafetyCompleteness { complete, partial }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
+| --- | --- | --- | --- |
+| 同地点请求；仅 `SafetyAvailable` 且 complete score 纳入。 | unresolved/ambiguous、partial、unavailable 保持安全维度原因；不得用犯罪原始数、Hazard 或 0 替代。 | 只读上游；stale 但 available 可纳入且 warning 原样保留。 | Map 后请求 Safety。fake：complete 0/stale、partial、unresolved、ambiguous；明确 0 有效，其他均缺失。 |
+
+### Interface 卡：`FACILITY-001` — 2 km 五类确认覆盖
+
+**提供者：** Nearby Facilities；**唯一公开 import：** `package:locatemy/features/nearby_facilities/nearby_facilities.dart`。
+
+```dart
+abstract interface class NearbyFacilities { Future<FacilityAnalysisOutcome> analyse(FacilityAnalysisRequest request); }
+sealed class FacilityAnalysisOutcome { const FacilityAnalysisOutcome(); }
+final class FacilityAnalysisAvailable extends FacilityAnalysisOutcome { final FacilityAnalysis analysis; const FacilityAnalysisAvailable(this.analysis); }
+final class FacilityAnalysisUnavailable extends FacilityAnalysisOutcome { final FacilityFailure failure; const FacilityAnalysisUnavailable(this.failure); }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
+| --- | --- | --- | --- |
+| 只消费同地点、半径 `2,000m`、五类完整的 canonical result。 | 任一类别 unknown/unavailable 或整体 failure 即日常便利 unavailable；complete-empty 的确认类别数为 0 有效。 | 只读；保留 OSM 来源、查询/缓存时间、mapping version 与 warning。 | 先地点后 Facilities。fake：5/5、0/5 complete、1 类 unknown、refresh failure；仅两个 complete 结果可转 `100 × count / 5`。 |
+
+### Interface 卡：`TRANSIT-001` — canonical connectivity score
+
+**提供者：** Public Transportation；**唯一公开 import：** `package:locatemy/features/public_transportation/public_transportation.dart`。
+
+```dart
+abstract interface class PublicTransportation { Future<TransitLoadOutcome> load(TransitRequest request); }
+sealed class TransitLoadOutcome { const TransitLoadOutcome(); }
+final class TransitAvailable extends TransitLoadOutcome { final TransitSnapshot snapshot; const TransitAvailable(this.snapshot); }
+final class TransitIncomplete extends TransitLoadOutcome { final TransitPartialSnapshot snapshot; const TransitIncomplete(this.snapshot); }
+final class TransitUnavailable extends TransitLoadOutcome { final TransitUnavailableReason reason; const TransitUnavailable(this.reason); }
+final class TransitSnapshot { final ValidLocationReference location; final int radiusMeters; final TransitServiceOutcome serviceOutcome; final TransitScore? score; final TransitProvenance provenance; const TransitSnapshot(this.location, this.radiusMeters, this.serviceOutcome, this.score, this.provenance); }
+enum TransitServiceOutcome { served, noStops, noActiveRoutes }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
+| --- | --- | --- | --- |
+| 必须为同地点 `1,500m`、`TransitAvailable`、`served` 且非空 score。 | incomplete/unavailable/noStops/noActiveRoutes 都是交通维度 unavailable；不能把无服务或 partial 显示为零分。 | 只读；可用 stale feed 的 warning、feed snapshot/reference-grid/model 随结果保留。 | fake：served 73 stale、served 0、noStops、noActiveRoutes、incomplete；前两者纳入，其余缺失。 |
+
+### Interface 卡：`INFRA-001` — neutral ICI
+
+**提供者：** Infrastructure Coverage；**唯一公开 import：** `package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart`。
+
+```dart
+abstract interface class InfrastructureCoverage { Future<InfrastructureNeutralOutcome> neutralForSuitability(InfrastructureNeutralRequest request); }
+sealed class InfrastructureNeutralOutcome { const InfrastructureNeutralOutcome(); }
+final class InfrastructureNeutralAvailable extends InfrastructureNeutralOutcome { final InfrastructureNeutralResult result; const InfrastructureNeutralAvailable(this.result); }
+final class InfrastructureNeutralUnavailable extends InfrastructureNeutralOutcome { final InfrastructureNeutralFailure failure; final InfrastructureResultFacts facts; const InfrastructureNeutralUnavailable(this.failure, this.facts); }
+final class InfrastructureNeutralResult { final InfrastructureResultFacts facts; final InfrastructureIci ici; const InfrastructureNeutralResult(this.facts, this.ici); }
+final class InfrastructureIci { final int value; final InfrastructureIciGrade grade; const InfrastructureIci(this.value, this.grade); }
+enum InfrastructureWeightMode { lastSavedAccount, unsavedPreview, neutral }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与 fake |
+| --- | --- | --- | --- |
+| 只请求 `neutralForSuitability`；固定 `5/5/5`，同地点、分析日和版本。 | neutral unavailable 保留 failure/facts 为基础设施维度原因；account-weighted、last saved、unsaved preview 一律不接受。 | 只读，不读/缓存账户 ICI 权重；保留分项、行政区/交通基础、来源日期与 model/reference version。 | fake：neutral 66、account preview 99、少于 3 项、provenance 变；仅 neutral 66 可纳入。 |
+
+## 3. B 必须提供的 Interface 卡：`SUITABILITY-001`
+
+**提供者：** Personalized Location Suitability（B）；**消费者：** Application Shell；**唯一公开 import：** `package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart`。
+
+```dart
+abstract interface class PersonalizedLocationSuitability { Future<SuitabilitySingleOutcome> assess(SuitabilityRequest request); Future<SuitabilityComparisonOutcome> compare(SuitabilityComparisonRequest request); }
+final class SuitabilityRequest { final ValidLocationReference location; final SuitabilityRequestContext context; const SuitabilityRequest(this.location, this.context); }
+final class SuitabilityRequestContext { final String accountId; final int preferenceVersion, currentScenarioVersion; const SuitabilityRequestContext(this.accountId, this.preferenceVersion, this.currentScenarioVersion); }
+final class SuitabilityComparisonRequest { final SuitabilityRequest a, b; const SuitabilityComparisonRequest(this.a, this.b); }
+sealed class SuitabilitySingleOutcome { const SuitabilitySingleOutcome(); }
+final class SuitabilityAvailable extends SuitabilitySingleOutcome { final SuitabilityResult result; const SuitabilityAvailable(this.result); }
+final class SuitabilityPrerequisiteMissing extends SuitabilitySingleOutcome { final SuitabilityPrerequisite reason; const SuitabilityPrerequisiteMissing(this.reason); }
+final class SuitabilityDimensionUnavailable extends SuitabilitySingleOutcome { final SuitabilityCoverage coverage; const SuitabilityDimensionUnavailable(this.coverage); }
+final class SuitabilityNoAvailableDimensions extends SuitabilitySingleOutcome { final SuitabilityCoverage coverage; const SuitabilityNoAvailableDimensions(this.coverage); }
+enum SuitabilityPrerequisite { location, accountScope, assessmentPreferences, currentBudgetScenario, staleRequest }
+sealed class SuitabilityComparisonOutcome { const SuitabilityComparisonOutcome(); }
+final class SuitabilityComparable extends SuitabilityComparisonOutcome { final SuitabilityResult a, b; const SuitabilityComparable(this.a, this.b); }
+final class SuitabilityIncomparable extends SuitabilityComparisonOutcome { final SuitabilitySingleOutcome a, b; final SuitabilityComparisonReason reason; const SuitabilityIncomparable(this.a, this.b, this.reason); }
+enum SuitabilityComparisonReason { sideUnavailable, includedDimensionsMismatch, accountOrPreferenceMismatch, currentScenarioMismatch, ruleVersionMismatch, dimensionProvenanceMismatch }
+final class SuitabilityResult { final ValidLocationReference location; final int score; final SuitabilityCoverage coverage; final SuitabilityProvenance provenance; const SuitabilityResult(this.location, this.score, this.coverage, this.provenance); }
+final class SuitabilityCoverage { final List<SuitabilityDimensionCoverage> dimensions; const SuitabilityCoverage(this.dimensions); }
+final class SuitabilityDimensionCoverage { final SuitabilityDimension dimension; final SuitabilityPriority priority; final SuitabilityInclusion inclusion; final int? sourceScore, convertedScore; final SuitabilityDimensionFailure? unavailableReason; final List<String> warnings; const SuitabilityDimensionCoverage({required this.dimension, required this.priority, required this.inclusion, required this.sourceScore, required this.convertedScore, required this.unavailableReason, required this.warnings}); }
+enum SuitabilityDimension { safety, cost, dailyConvenience, transitAccessibility, infrastructure }
+enum SuitabilityPriority { low, medium, high }
+enum SuitabilityInclusion { included, excludedLowPriority, unavailable }
+enum SuitabilityDimensionFailure { safetyUnavailable, costBudgetIncomplete, facilityCoverageUnknown, transitNotScored, infrastructureNeutralUnavailable, upstreamUnavailable }
+final class SuitabilityProvenance { final int preferenceVersion, currentScenarioVersion; final String ruleVersion; final Map<SuitabilityDimension, String> inputVersions; const SuitabilityProvenance(this.preferenceVersion, this.currentScenarioVersion, this.ruleVersion, this.inputVersions); }
+```
+
+| 调用 | 输入约束 | 输出 / typed failures | 状态、副作用、顺序与 fake |
+| --- | --- | --- | --- |
+| `assess` | immutable valid location；opened 同账户 complete preferences、current scenario 与版本仍匹配。 | `Available`；缺前置为 `PrerequisiteMissing`；中/高维缺失为 `DimensionUnavailable`；全不可用/可用权重零为 `NoAvailableDimensions`。 | 依序确认 Location → Account complete → COST-002 current → 五个 canonical inputs → 门控/计算 → publish；只存页面内存。fake 组合完整、low missing、medium/high missing、all missing、scope close/late response。 |
+| `compare` | A/B 不同 immutable location；同一账户/complete preference/current 语境。 | 两端 compatible 才 `Comparable`；其余 `Incomparable(reason)` 并保留两端可用原分/coverage。 | 先独立 assess A/B，再核对；交换只改呈现槽位。fake 验证不同集合、版本、模型、单侧缺失均不产生 winner/delta。 |
+
+`SuitabilityCoverage` 必须逐维保留 priority、included/excluded、原始/转换读数或 typed reason、来源/日期/完整性/stale warning。`SuitabilityProvenance` 必须保留 preference/current/rule version 及每个纳入维的上游 model、mapping/basket/reference/boundary 版本。公开结果不可含月净收入、预案名称/字段、账户草稿或账户 ICI 权重。
+
+## 4. 固定业务语义、状态与顺序
+
+| 主题 | 不可变协作语义 |
+| --- | --- |
+| 前置 | 无合法地点、非 opened scope、非同账户 complete preferences 或无 current 均先返回 prerequisite missing；不请求或拼接默认值、草稿、其他账户/预案。 |
+| 五维转换 | 安全直接用安全指数；成本为 `100 − clamp(PersonalBudgetBurden(%), 0, 100)`；日常便利为 `100 × 已确认覆盖类别数 ÷ 5`；交通直接用 connectivity score；基础设施直接用 neutral ICI。所有范围为 0–100，具体公式唯一见知识库。 |
+| 门控 | 偏好 `1–3` 为低、`4–6` 中、`7–10` 高。中/高任一不可用时不显示总分；低不可用可排除并说明。明确零是可用，unknown/partial/unavailable/no route 不是零。 |
+| 重归一化 | 每个可用维权重乘数=`preference ÷ 5`；只对可用维按权重加权平均。所有维不可用或可用权重为零，固定文案为“个人化地点适配度暂不可用：目前没有可用的评估维度”。 |
+| stale | 上游明确 available 的 stale 读数可参与且 warning 必须保留；partial 或 unavailable 不因缓存存在变 available。 |
+| A/B | 仅两端 available、included/excluded 集合一致、同账户同偏好/current/rule version，且每个纳入维的上游模型、篮子/类别映射、边界/参照组与完整性相容时 Comparable。来源日期/stale 可不同但需并列披露；任何不相容均 incomparable。 |
+| 生命周期 | preference/current/地点/上游 input version 或 scope 变化立即使旧请求失效；关闭开始释放私有总分/coverage。公共上游结果可由其 Owner 存续，但不可与旧账户输入重新组合。 |
+
+实施顺序：B 先合入唯一入口、`SUITABILITY-001` 声明和最小 fake；各上游/ Shell 可并行以 fake 对接；B 再接入公开 Interface；最后按 FLOW-02、03、07 联调。不得以运行时 cache、SDK、并发策略或内部测试形状改变以上可观察结果。
+
+## 5. 联合验收、Ready Gate 与变更
+
+| Capability / canonical AT | 情景与操作 | 可观察完成条件 |
+| --- | --- | --- |
+| `MAP-07` / `AT-SUIT-01` | complete 五项、current、五个合格输入；安全/设施/交通有明确 0，交通 stale | `0–100`、转换、权重、覆盖、来源/日期/warning 均可读；0 与 stale 不丢失。 |
+| `MAP-07` / `AT-SUIT-02` | no preferences/`configured_at` null、no current、草稿/保存失败、账户不同 | 分类 prerequisite missing 并提供 Shell 设置入口；默认 5、其他预案、temporary CPI、家庭收入均不替代。 |
+| `MAP-07` / `AT-SUIT-03` | 每一维 unavailable/partial/unknown/no route；低/中/高缺失；全缺失 | 低缺失重归一化且披露；中/高无总分；全缺失固定文案；未知绝不成 0。 |
+| `MAP-07` / `AT-SUIT-04`、`AT-RACE-01` | current/偏好成功变更、地点/上游版本刷新、快速换点 | 旧请求不发布，新完整语境重算；失败保存或晚到响应不覆盖有效结果。 |
+| `MAP-07` / `AT-SUIT-05` | A/B 共同语境、单侧缺失、集合/偏好/current/rule/provenance 不同、交换 | 合格仅并列原分；不可用和 incomparable 有不同原因；永无差值、赢家、推荐；交换只改呈现。 |
+| `MAP-07` / `AT-SUIT-06`、`AT-SWITCH-01` | A/B 账户不同偏好/current、scope close、晚到回调 | A 的总分、coverage、预案/偏好事实不进入 B；关闭期间无私有结果。 |
+| 可访问性 | 中文/English、读屏/键盘、200% 字体、长日期/原因 | 分数不作唯一表达；五维、优先级、纳入/排除、来源、限制、设置入口有文字与正确阅读顺序。 |
+
+- [x] 所有跨 Owner Interface 均有唯一 import、声明、约束、typed outcome、状态/副作用、顺序、最小调用与 fake。
+- [x] 五维门控、明确零/未知、低优先级重归一化、stale、A/B 无赢家与账户隔离均有唯一事实源。
+- [x] 不含实现体、SQL、SDK 映射、缓存/并发策略或内部测试组织。
+- [x] Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。公共 Interface 变更须由项目负责人批准，并同步受影响消费者、契约、fake 与 PDF。
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
 | --- | --- | --- | --- | --- |
-| 2026-09-14 | `Draft` | Issue #21 建立 Wave 7 Personalized Location Suitability owning design，冻结五维门槛、转换/重归一化、解释及 A/B 无赢家边界 | `MAP-07`、`SUITABILITY-001`、`RESULT-*`、D39–D46、Account、Cost、Crime、Facilities、Transit、Infrastructure、Application Shell、Map | 待独立审查 |
-| 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴审查关闭公式重复、未定义状态与 A/B 可比性歧义；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `MAP-07`、`SUITABILITY-001`、`RESULT-*`、D39–D46、`AT-SUIT-01`–`06` | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | 全面设计审查修复表格、UI 锚点并补齐全域可访问性验收追踪；不改变适配度规则 | `MAP-07`、`SUITABILITY-001`、`AT-SUIT-01`–`06` | 项目负责人（本次审查） |
+| 2026-09-15 | `Ready for Development` | Issue #23：升级为单一契约优先 Markdown/PDF；补齐 nine interface cards、typed declarations、Shell submit/publish、状态/权限/顺序/fake；不改变产品公式或数据模型 | `MAP-07`、`SUITABILITY-001`、`SHELL-001`、`LOCATION-001`、`ACCOUNT-001`、`COST-001/002`、`SAFETY-001`、`FACILITY-001`、`TRANSIT-001`、`INFRA-001` | 设计 AI（项目负责人授权） |

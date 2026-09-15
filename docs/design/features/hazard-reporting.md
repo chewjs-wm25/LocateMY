@@ -1,127 +1,301 @@
-# Hazard Reporting
+# Hazard Reporting 开发协作契约
 
-> 状态：`Ready for Development`
-> Owner：`A`
-> 系统基线：`5d11769`
-> 依赖波次：5
-> 最后更新：2026-09-14
-> Prototype 视觉参考：N/A
+> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）  
+> Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 5  
+> 唯一公开入口：`package:locatemy/features/hazard_reporting/hazard_reporting.dart`  
+> 完成定义：消费者仅凭本契约即可创建、读取、呈现及管理公共隐患、提交声明式图层，并取得可保存的附近隐患数；不会读取 Feature 内部状态、绕过 RLS，或把隐患混为官方治安结果。
 
-本文件是 Hazard Reporting 与其消费者的高层协调设计。它固定公共报告、作者管理、投票、
-地图贡献和风险计数的可观察语义；Feature 内部状态、查询、分页实现、RPC 调用、并发处理
-和测试组织归实现 Owner。
+本文件是 Hazard Reporting 对 Issue #23 的唯一 Development Contract；本 Markdown 是权威来源，[同名 HTML](../../human/hazard-reporting.html) 是语义等价的人类阅读导出，不是第二份规格或发布包。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、数据访问及联合验收；`lib/features/hazard_reporting/` 内的 Widget、状态管理、Supabase/空间 Adapter、分页、缓存、并发、取消、重试、文件拆分与测试组织由 A 决定。公式、字段、RLS、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。
 
-## 1. 用户成果与范围
+## 0. 固定阅读顺序与四项 Readiness
 
-- 用户成果：已开启账户范围的用户可创建五类真实远端隐患报告，读取公共图层与详情，赞成、
-  反对或撤回自己的票，并在“我的隐患报告”中标记自身处理状态、定位及确认删除自己的报告。
-  房产实勘可取得明确口径的附近公共隐患数作为风险快照输入。
-- 包含的 Capability ID：`HAZ-01`、`HAZ-02`、`HAZ-03`、`HAZ-04`。
-- 不包含及原因：不产生官方犯罪统计或安全指数，不解释地图手势/底图，不审核、隐藏或代删
-  报告，不让处理状态暗示平台核验，也不拥有房产风险快照。
-- 产品事实源：[隐患上报与管理](../../knowledge_base/locatemy_product/features/hazard_reporting.md)、
-  [大学提交承诺](../../knowledge_base/locatemy_product/submission_commitments.md#隐患报告)、
-  [核心业务对象](../../knowledge_base/locatemy_product/domain_objects.md#hazard-report-隐患报告)。
-- 原型差异：固定示例、内存投票与假删除替换为远端报告、持久化 vote 和作者权限；类型没有
-  默认选择；公共图层、详情、分页、刷新、定位和投票均为真实结果，离线写不伪装为已排队。
+1. [领域词汇](../../../CONTEXT.md#项目自有表)、[隐患产品事实](../../knowledge_base/locatemy_product/features/hazard_reporting.md)；
+2. [Feature map（Hazard）](../system/feature-map.md#fm-hazard)、[Interface 注册表](../system/interfaces.md)、[FLOW-05](../system/flows.md#flow-05公共隐患投票与本人管理)、[FLOW-06](../system/flows.md#flow-06房产实勘照片风险快照与回收站)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)；
+4. 本契约与同名 HTML；HTML 只是本 Markdown 的人类可读、语义等价导出，不另行引入发布治理。
 
-## 2. 依赖、责任与文件边界
-
-| 模块 / 文件边界 | Owner | 负责 | 不负责 | 与其他模块的沟通 |
-| --- | --- | --- | --- | --- |
-| `lib/features/hazard_reporting/` | Hazard Reporting | 报告、本人状态/投票私有视图、远端读写、计数、范围分页、详情和图层贡献 | 地图、导航、账户 scope、官方安全和房产快照 | 消费 `SHELL-001`、`LOCATION-002`、`PRIVACY-001`；提供 `HAZARD-001`、`HAZARD-002` |
-| `lib/app/` 组合槽位 | Application Shell | 新建、详情、本人列表、状态标记、删除确认与返回语境 | 报告字段、权限、投票或图层内容 | 通过 `SHELL-001` 接受类型化业务意图与可观察结果 |
-| Map / Location | Map / Location | 长按或明确地图入口的合法创建意图、图层宿主和点击回传 | 报告内容、范围查询、写入、详情或计数 | `LOCATION-002` 只传创建/点击意图或声明式贡献；Map 不改全局分析地点 |
-| Account Privacy | Account Privacy | opened scope 与关闭时 privacy barrier | 远端报告删除或公共读缓存 | 通过 `PRIVACY-001` 清除旧账户的本人/投票私有状态和未完成请求 |
-| Supabase 受控数据对象 | Hazard Reporting | 本表及 RPC 的权威远端读取/写入 | 客户端高权限或绕过 RLS | 字段、RLS、migration 只由 [Schema Catalog](../data/schema-catalog.md) 定义 |
-
-共享文件边界只包括 `lib/app/` 的组合入口，以及由项目负责人维护顺序、学生按 Schema
-Catalog 落地的 `supabase/migrations/`。Feature Owner 可在 `lib/features/hazard_reporting/` 内
-自行组织实现文件；不得以此改变 Shell、Map、privacy 或 schema 的公开契约。
-
-### 依赖与未决项
-
-| 依赖或问题 | 影响 | 验证方式 / 最迟解决点 |
+| Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
-| `D18` / `SHELL-001` 已 Ready | 只有 opened 主应用接受新建、详情、本人列表、状态标记和返回意图 | 集成验证导航拒绝不伪装为读写失败，且返回原任务语境 |
-| `D19` / `LOCATION-002` 已 Ready | 创建坐标与图层/点击意图必须通过 Map seam，不读写全局选点 | 验证长按、明确入口、非法坐标、viewport 更新和点击均不改变分析地点 |
-| `D20` / `PRIVACY-001` 已 Ready | 本人/投票私有状态不会跨账户展示、提交或重放 | 验证退出、换号和晚到请求只保留完全去身份公共读缓存 |
-| `RISK-HAZARD-01` | 全局计数依赖安全 RPC 而非读取他人 vote | 实现/集成以两账户、匿名、无效调用者和安全 `search_path` 验证；不阻塞本设计审查 |
-| `RISK-HAZARD-02` | 现有 report update policy 须收紧为发布后仅作者状态更新 | 实现/集成验证作者状态成功，已发布内容、非作者及维护者更新均被拒绝；不阻塞本设计审查 |
-| `HAZARD-002` 的下游采用 | 2,000m pending-only 计数将由 Property 随风险快照保存 | Property Ready 前验证边界、状态与 failure/partial 语义 |
+| 责任与范围 | `HAZ-01`–`HAZ-04` 唯一归属 Hazard；地图、Shell、账户 scope、官方安全与 Property snapshot 属于其他 Owner | 已就绪 |
+| 契约与消费者 | `HAZARD-001`、`HAZARD-002` 的唯一入口、声明、次序和 fake 在第 3 节；上游仅 `SHELL-001`、`LOCATION-002`、`PRIVACY-001` | 已就绪 |
+| 数据与安全 | 仅使用 `crowdsourced_hazards`、`crowdsourced_hazard_votes`、`hazard_vote_counts`；Schema Catalog 定义 status-only、RLS 与安全 RPC | 已就绪 |
+| 验收与风险 | 第 5 节覆盖 canonical `AT-HAZARD-*`、`AT-PROP-03`；`RISK-HAZARD-01/02` 留作实现/集成运行时证据 | 已就绪 |
 
-## 3. 对外协调契约
+## 1. 成果、责任与冻结边界
 
-### 提供
+- 已开启账户范围的用户可在线创建五类公共报告、按 viewport 分页读取图层与详情、对每份报告投赞成/反对/撤回，并只管理自己的 `pending/resolved` 状态或删除自己的报告。
+- 发布后报告的 type、trim 后 title、description、location、report time 与 author 均不可编辑。`pending/resolved` 是作者处理标记，不是平台验证、审核、隐藏或删除决定；没有维护者例外。
+- 房产只经 `HAZARD-002` 请求同一合法房产坐标周围的完整 pending 数，Hazard 不写房产风险快照。隐患绝不进入 `SAFETY-001`、地点摘要或适配度。
 
-| ID | 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
+| Owner / 受控边界 | 负责 | 不负责 | 协作 |
+| --- | --- | --- | --- |
+| `lib/features/hazard_reporting/`（A） | 报告、详情、图层读取/分页、作者状态/删除、本人投票、`HAZARD-001/002` | 地图手势/底图、导航、账户 scope、官方犯罪、房产写入 | 消费 Shell、Map、Privacy；提供 Hazard Interface |
+| Application Shell | opened 门控、新建/详情/本人列表/返回导航和组合 | 报告字段、RLS、投票、计数、图层数据 | `SHELL-001` |
+| Map / Location | 长按产生合法创建意图、寄宿声明式图层并回传点击 | 报告读取/写入、内容/权限、详情语义 | `LOCATION-002` |
+| Account Privacy | 同账户 opened/closing 和旧账户私有状态清理证明 | 远端报告/投票删除或公共缓存 | `PRIVACY-001` |
+| Property Inspection | 何时将完整附近数写入原子风险快照 | 报告、计数口径、公共图层 | 消费 `HAZARD-002` |
+
+## 2. 需要调用的 Interface
+
+### `SHELL-001` — Hazard 导航与组合
+
+**提供者：** Application Shell；**消费者：** Hazard Reporting；**唯一公开 import：** `package:locatemy/app/application_shell.dart`。
+
+```dart
+abstract interface class ApplicationShell {
+  Future<ShellIntentOutcome> submit(ShellIntent intent);
+  Future<ShellContributionOutcome> publish(ShellContribution contribution);
+}
+abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
+sealed class ShellIntentOutcome {}
+final class ShellIntentAccepted extends ShellIntentOutcome {}
+final class ShellAuthenticationRequired extends ShellIntentOutcome {}
+final class ShellIntentRejected extends ShellIntentOutcome {
+  const ShellIntentRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome {
+  const ShellContributionRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+```
+
+上方是 Application Shell owning contract 的**完整 canonical 声明**；Hazard 与 fake 不得截断、复制或改形。Hazard 实际只调用 `submit`（开新建、详情、我的报告、返回）与 `publish`（已创建报告或可用图层/详情贡献）。Hazard 从自己的唯一入口导出 `OpenHazardComposerIntent`、`OpenHazardDetailIntent`、`OpenMyHazardsIntent`、`ReturnToHazardMapIntent`（均为 `ShellIntent`）和 `HazardShellContribution`（为 `ShellContribution`）；详情/返回 intent 只带稳定 `HazardReportId` 或原返回语境，不得携带可变地图对象、另一账户作者/投票状态或未验证计数。
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
+| --- | --- | --- | --- |
+| intent/contribution 是当前 opened scope 的未过期事实；贡献保留来源、时间、完整性。 | `accepted`、`authenticationRequired`、`rejected(reason)`；后两者是 Shell 结果，不是 Hazard 资料失败。 | Shell 只改门控、栈和组合；Hazard 不改报告、投票、地点或房产。 | 先收到 Map 合法 intent/stable id，再 submit；仅 accepted 进入目标。`await shell.submit(OpenHazardDetailIntent(id, context));` |
+
+**Fake 场景：** fake Shell 回 accepted、authentication-required、stale-input rejected；rejected 时保留表单/已读页及原因，不创建/更新报告，不把导航拒绝显示为网络错误。
+
+### `LOCATION-002` — 长按、图层宿主与点击意图
+
+**提供者：** Map / Location；**消费者：** Hazard Reporting；**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`。
+
+下列是 Map / Location owning contract 的**完整 canonical 声明**；Hazard 实际调用的子集只有 `MapLayerHost.contribute` 与 `MapLayerHost.requestLongPress`，但生产 Adapter、Hazard 和 fake 必须使用整套相同类型、成员、输入及 result variant，不得复制、截断或改形。长按先由 Map 空间校验，成功才返回带 `ValidLocationReference` 的 `CreateHazardIntent`；Hazard 不把裸坐标变为可提交写入。items 必有稳定 report id、合法坐标、viewport version 和 provider-defined detail intent。
+
+```dart
+abstract interface class MapLayerHost {
+  Future<MapLayerContributionOutcome> contribute(MapLayerContribution contribution);
+  Future<MapLayerIntentOutcome> requestLongPress(GeographicPoint point);
+}
+final class MapLayerContribution {
+  final String providerId; final String layerId; final String viewportVersion;
+  final MapLayerVisibility visibility; final List<MapLayerItem> items;
+}
+enum MapLayerVisibility { visible, hidden }
+final class MapLayerItem {
+  final String stableItemId; final GeographicPoint point; final MapLayerIntent intent;
+}
+sealed class MapLayerIntent {}
+final class ProviderDefinedIntent extends MapLayerIntent {
+  final String providerId; final String action; final String stableItemId;
+}
+final class CreateHazardIntent extends MapLayerIntent { final ValidLocationReference location; }
+sealed class MapLayerContributionOutcome {}
+final class MapLayerAccepted extends MapLayerContributionOutcome {}
+final class MapLayerHidden extends MapLayerContributionOutcome {}
+final class MapLayerRejected extends MapLayerContributionOutcome { final MapLayerFailure failure; }
+sealed class MapLayerIntentOutcome {}
+final class MapLayerIntentAccepted extends MapLayerIntentOutcome { final MapLayerIntent intent; }
+final class MapLayerIntentRejected extends MapLayerIntentOutcome { final MapLayerFailure failure; }
+enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, scopeUnavailable, staleViewport, unauthenticated }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
+| --- | --- | --- | --- |
+| 创建只接受 Map immutable location；图层 items 为当前 viewport 成功页，id 不复用。 | accepted、hidden、rejected(`invalidContribution/invalidCoordinate/outsideMalaysia/scopeUnavailable/staleViewport/unauthenticated`)；长按结果同 Map 契约。 | Map 只更新覆盖物/回传意图；点击、长按、贡献均不改 single/A/B/property，Hazard 不写 Map。 | 先读页再 contribute；旧 viewport 不发布/覆盖新图层。`await host.contribute(hazardLayer);` |
+
+**Fake 场景：** fake Map 给合法/范围外长按、visible/hidden/rejected、两个 viewport version；Hazard 仅对合法 intent 开表单，旧页不能覆盖新图层，partial 页不称范围为空。
+
+### `PRIVACY-001` — 账户范围
+
+**提供者：** Account Privacy；**消费者：** Hazard Reporting；**唯一公开 import：** `package:locatemy/features/account_privacy/account_privacy.dart`。
+
+下列是 Account Privacy owning contract 的**完整 canonical 声明**；Hazard 不调用 `open` 或 `close`，只消费 `readScope()` 及作为基线八名 participant 之一实现 `clearPrivateState(scope)`，但不得因此创造缩窄的 scope 或 close 变体。
+
+```dart
+abstract interface class AccountPrivacy {
+  AccountScopeSnapshot readScope();
+  Future<OpenAccountScopeOutcome> open(AuthenticatedAccount account);
+  Future<CloseAccountScopeOutcome> close(
+    AccountScope scope, AccountScopeCloseReason reason,
+  );
+}
+final class AccountScope { final String accountId; const AccountScope(this.accountId); }
+sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
+final class AccountScopeOpened extends AccountScopeSnapshot { final AccountScope scope; const AccountScopeOpened(this.scope); }
+final class AccountScopeClosing extends AccountScopeSnapshot { final AccountScope scope; const AccountScopeClosing(this.scope); }
+final class AccountScopeClosed extends AccountScopeSnapshot { final AccountScope scope; const AccountScopeClosed(this.scope); }
+final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; const AccountScopeUnavailable(this.failure); }
+enum AccountScopeFailure { identityMismatch, scopeNotOpen, scopeClosing, retryableUnavailable }
+enum AccountScopeCloseReason { signOut, sessionInvalidated, accountSwitch }
+sealed class OpenAccountScopeOutcome { const OpenAccountScopeOutcome(); }
+final class AccountScopeOpenedForAccount extends OpenAccountScopeOutcome { final AccountScope scope; const AccountScopeOpenedForAccount(this.scope); }
+final class AccountScopeOpenRejected extends OpenAccountScopeOutcome { final AccountScopeFailure failure; const AccountScopeOpenRejected(this.failure); }
+sealed class CloseAccountScopeOutcome { const CloseAccountScopeOutcome(); }
+final class AccountScopeClosedForAccount extends CloseAccountScopeOutcome { final AccountScope scope; const AccountScopeClosedForAccount(this.scope); }
+final class AccountScopeCloseIncomplete extends CloseAccountScopeOutcome { final AccountScope scope; final List<PrivateStateClearIncomplete> incomplete; const AccountScopeCloseIncomplete(this.scope, this.incomplete); }
+final class AccountScopeCloseRejected extends CloseAccountScopeOutcome { final AccountScope scope; final AccountScopeFailure failure; const AccountScopeCloseRejected(this.scope, this.failure); }
+
+abstract interface class AccountPrivacyParticipant {
+  AccountPrivacyParticipantId get participantId;
+  Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope);
+}
+enum AccountPrivacyParticipantId { authenticationSession, applicationShell, mapLocation, costLivingBudget, infrastructureCoverage, hazardReporting, propertyInspection, accountCenter }
+sealed class PrivateStateClearOutcome { const PrivateStateClearOutcome(); }
+final class PrivateStateCleared extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; const PrivateStateCleared(this.participantId, this.scope); }
+final class PrivateStateClearIncomplete extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; final PrivateStateClearFailure failure; const PrivateStateClearIncomplete(this.participantId, this.scope, this.failure); }
+enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, queuedWorkCleanupIncomplete, scopeUnavailable, retryableUnavailable }
+```
+
+`AuthenticatedAccount` 是 `AUTH-001` 的公开类型。Hazard 的 participant id 固定为 `hazardReporting`，只清理“本人报告/投票私有视图状态与未完成请求”；不能读或代表其他 participant。closing 开始即阻断旧账户作者/投票读取、提交、重放和晚到响应；完全去身份公共读缓存可留，远端报告/投票不因退出删除。
+
+**Fake 场景：** A 创建/投票中 close，fake Privacy 令 B opened；A 输入、本人列表、投票选择和晚到成功均不可呈现/提交，B 只见 B 私有状态，公共去身份页可重新读取。
+
+## 3. 必须提供的 Interface
+
+### `HAZARD-001` — 公共报告、作者管理、投票与图层
+
+**提供者：** Hazard Reporting（A）；**消费者：** Application Shell、Map / Location；**唯一公开 import：** `package:locatemy/features/hazard_reporting/hazard_reporting.dart`。
+
+消费者只能 import 此入口。A 应先合入以下声明与最小 fake；它们是协作形状，不是可提交实现体、SQL 或 SDK 映射。
+
+```dart
+final class OpenHazardComposerIntent extends ShellIntent {
+  final ValidLocationReference location; final String returnContextId;
+  const OpenHazardComposerIntent({required this.location, required this.returnContextId});
+}
+final class OpenHazardDetailIntent extends ShellIntent {
+  final HazardReportId id; final String returnContextId;
+  const OpenHazardDetailIntent({required this.id, required this.returnContextId});
+}
+final class OpenMyHazardsIntent extends ShellIntent {
+  final String returnContextId; const OpenMyHazardsIntent(this.returnContextId);
+}
+final class ReturnToHazardMapIntent extends ShellIntent {
+  final String returnContextId; const ReturnToHazardMapIntent(this.returnContextId);
+}
+final class HazardShellContribution extends ShellContribution {
+  final String contributionId; final String source; final DateTime observedAt;
+  final String availability; const HazardShellContribution({required this.contributionId, required this.source, required this.observedAt, required this.availability});
+}
+
+abstract interface class HazardReporting {
+  Future<HazardCreateOutcome> create(HazardCreateRequest request);
+  Future<HazardPageOutcome> loadPublic(HazardPageRequest request);
+  Future<HazardDetailOutcome> loadDetail(HazardReportId id);
+  Future<MyHazardsOutcome> loadMine(HazardPageRequest request);
+  Future<HazardStatusOutcome> changeMyStatus(HazardStatusRequest request);
+  Future<HazardDeleteOutcome> deleteMine(HazardReportId id);
+  Future<HazardVoteOutcome> vote(HazardVoteRequest request);
+}
+enum HazardType { flood, crime, traffic, infrastructure, other }
+enum HazardAuthorStatus { pending, resolved }
+enum HazardVote { up, down, none }
+final class HazardReportId { final String value; const HazardReportId(this.value); }
+final class HazardCreateRequest { final ValidLocationReference location; final HazardType type; final String title; final String? description; const HazardCreateRequest({required this.location, required this.type, required this.title, this.description}); }
+final class HazardPageRequest { final String viewportVersion; final HazardViewport viewport; final String? cursor; const HazardPageRequest({required this.viewportVersion, required this.viewport, this.cursor}); }
+final class HazardViewport { final GeographicPoint southWest; final GeographicPoint northEast; const HazardViewport(this.southWest, this.northEast); }
+final class HazardStatusRequest { final HazardReportId id; final HazardAuthorStatus status; const HazardStatusRequest(this.id, this.status); }
+final class HazardVoteRequest { final HazardReportId id; final HazardVote vote; const HazardVoteRequest(this.id, this.vote); }
+final class HazardReport { final HazardReportId id; final HazardType type; final String title; final String? description; final GeographicPoint location; final HazardAuthorStatus status; final DateTime reportedAt; final HazardAuthorView author; final HazardVoteState vote; const HazardReport({required this.id, required this.type, required this.title, this.description, required this.location, required this.status, required this.reportedAt, required this.author, required this.vote}); }
+enum HazardAuthorView { mine, other }
+final class HazardVoteState { final HazardVote mine; final int upvotes; final int downvotes; const HazardVoteState(this.mine, this.upvotes, this.downvotes); }
+sealed class HazardCreateOutcome { const HazardCreateOutcome(); }
+final class HazardCreated extends HazardCreateOutcome { final HazardReport report; const HazardCreated(this.report); }
+final class HazardCreateRejected extends HazardCreateOutcome { final HazardWriteFailure failure; const HazardCreateRejected(this.failure); }
+sealed class HazardPageOutcome { const HazardPageOutcome(); }
+final class HazardPageAvailable extends HazardPageOutcome { final HazardPage page; const HazardPageAvailable(this.page); }
+final class HazardPagePartial extends HazardPageOutcome { final HazardPage page; final HazardReadFailure failure; const HazardPagePartial(this.page, this.failure); }
+final class HazardPageUnavailable extends HazardPageOutcome { final HazardReadFailure failure; const HazardPageUnavailable(this.failure); }
+final class HazardPage { final List<HazardReport> reports; final String? nextCursor; final String viewportVersion; const HazardPage(this.reports, this.nextCursor, this.viewportVersion); }
+sealed class HazardDetailOutcome { const HazardDetailOutcome(); }
+final class HazardDetailAvailable extends HazardDetailOutcome { final HazardReport report; const HazardDetailAvailable(this.report); }
+final class HazardDetailUnavailable extends HazardDetailOutcome { final HazardReadFailure failure; const HazardDetailUnavailable(this.failure); }
+sealed class MyHazardsOutcome { const MyHazardsOutcome(); }
+final class MyHazardsAvailable extends MyHazardsOutcome { final HazardPage page; const MyHazardsAvailable(this.page); }
+final class MyHazardsUnavailable extends MyHazardsOutcome { final HazardReadFailure failure; const MyHazardsUnavailable(this.failure); }
+sealed class HazardStatusOutcome { const HazardStatusOutcome(); }
+final class HazardStatusChanged extends HazardStatusOutcome { final HazardReport report; const HazardStatusChanged(this.report); }
+final class HazardStatusRejected extends HazardStatusOutcome { final HazardWriteFailure failure; const HazardStatusRejected(this.failure); }
+sealed class HazardDeleteOutcome { const HazardDeleteOutcome(); }
+final class HazardDeleted extends HazardDeleteOutcome { final HazardReportId id; const HazardDeleted(this.id); }
+final class HazardDeleteRejected extends HazardDeleteOutcome { final HazardWriteFailure failure; const HazardDeleteRejected(this.failure); }
+sealed class HazardVoteOutcome { const HazardVoteOutcome(); }
+final class HazardVoteChanged extends HazardVoteOutcome { final HazardReportId id; final HazardVoteState state; const HazardVoteChanged(this.id, this.state); }
+final class HazardVoteRejected extends HazardVoteOutcome { final HazardWriteFailure failure; const HazardVoteRejected(this.failure); }
+enum HazardReadFailure { authenticationRequired, invalidViewport, notFound, retryableUnavailable, incompletePage, scopeUnavailable }
+enum HazardWriteFailure { invalidType, emptyTitle, titleTooLong, descriptionTooLong, invalidLocation, authenticationRequired, permissionDenied, conflict, notFound, retryableUnavailable, scopeUnavailable, immutableContent }
+```
+
+| 调用 | 输入约束 | typed output / failure | 状态、副作用、权限与顺序 |
+| --- | --- | --- | --- |
+| `create` | opened；type 必选；title trim 后 1–120；description 可空且 ≤2000；location 是 Map immutable reference；在线。 | `HazardCreated` 或字段/权限/服务分类的 `HazardCreateRejected`。 | author-only insert；成功后权威 `reportedAt/author/status` 不由客户端改写。失败留输入；无离线队列/伪 created。 |
+| `loadPublic` / `loadDetail` | authenticated；有效 viewport/cursor 或稳定 id；旧 viewport 不采用。 | available、partial（成功页加 failure）、unavailable；空 reports 仅成功页为空。 | authenticated 公读；先完成当前页再贡献图层，不能把失败/partial 置 0 或范围无报告。 |
+| `loadMine` | opened；请求只代表当前账户。 | available 或 unavailable；不以空列表表示权限/网络失败。 | 仅当前 author；close 后丢弃响应。 |
+| `changeMyStatus` | opened；稳定 id；仅 `pending/resolved`。 | changed（权威 report）或 rejected。 | 仅 author update status；type/title/description/location/reportedAt/author 无编辑路径，写入为 immutableContent/permission failure。成功后详情、mine、图层一致刷新。 |
+| `deleteMine` | opened；稳定 id；用户已确认。 | deleted 或 rejected。 | 仅 author delete；取消无副作用；级联本人 votes；并发 delete 为 notFound/conflict，不假称成功。 |
+| `vote` | opened；稳定 id；`up/down/none`；一账户一报告。 | changed（本人选择与 aggregate counts）或 rejected。 | 只写本人 vote；none 撤回。counts 只经 `hazard_vote_counts` RPC 读，客户端不写 count、不读他人 vote/身份。 |
+
+**最小调用：** `await hazards.create(HazardCreateRequest(location: intent.location, type: HazardType.flood, title: title, description: description));`。只有 `HazardCreated` 才 publish 图层/详情贡献；其他 outcome 原样进入字段或恢复路径。
+
+**Fake 场景：** Shell fake 消费 created、empty successful page、partial、authentication-required、permission、conflict、retryable；仅 successful empty 显示“暂无”。Map fake 验证 item 只有 id/location/provider-defined intent，旧 viewport 不发布。双账户 fake 改票/撤回并验证同一 counts、无匿名/他人 vote 枚举。author fake 验证仅本人 status/delete，A close 后成功不可落入 B。
+
+### `HAZARD-002` — 房产风险附近 pending 数
+
+**提供者：** Hazard Reporting（A）；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/features/hazard_reporting/hazard_reporting.dart`。
+
+```dart
+abstract interface class HazardRiskCounter { Future<HazardNearbyCountOutcome> countPending(HazardNearbyCountRequest request); }
+final class HazardNearbyCountRequest { final ValidLocationReference propertyLocation; const HazardNearbyCountRequest(this.propertyLocation); }
+sealed class HazardNearbyCountOutcome { const HazardNearbyCountOutcome(); }
+final class HazardNearbyCountAvailable extends HazardNearbyCountOutcome { final int count; final int radiusMeters; final DateTime countedAt; const HazardNearbyCountAvailable(this.count, this.radiusMeters, this.countedAt); }
+final class HazardNearbyCountUnavailable extends HazardNearbyCountOutcome { final HazardNearbyCountFailure failure; const HazardNearbyCountUnavailable(this.failure); }
+enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partialResult, retryableUnavailable, scopeUnavailable }
+```
+
+| 输入约束 | output / failure | 状态与副作用 | 顺序、权限与最小示例 |
+| --- | --- | --- | --- |
+| propertyLocation 是 `LOCATION-001` 合法 immutable property reference。 | available 带 count/radiusMeters/countedAt；unavailable 区分 invalid、partial、scope、retryable。 | 只读公开 reports；不写报告、票、图层、官方安全或 Property snapshot。 | Haversine `d <= 2,000m` 含边界；仅 pending。Property 仅在同坐标完整 `SAFETY-001` 也 available 时整体写 snapshot。`await counter.countPending(HazardNearbyCountRequest(location));` |
+
+**Fake 场景：** Property fake 提供内/外/恰 2,000m、pending/resolved；仅内/边界 pending 计入。partial/failure 不返回 0，Property 保留旧原子快照并显示不可用。
+
+## 4. 数据与固定流程
+
+| 目的 | 权威对象 / 精确访问 | 固定语义 |
+| --- | --- | --- |
+| 报告 | `crowdsourced_hazards`；authenticated 读，author-only insert/delete/status update | 五类、WGS84、pending/resolved、report time；发布后内容/位置/时间/author 不可变；无审核/verified/rejected/维护者例外。 |
+| 投票 | `crowdsourced_hazard_votes`；本人行读写、撤回删除 | `(hazard_id,user_id)` 唯一；`-1/+1`；一账户一票。 |
+| 计数 | `hazard_vote_counts`；authenticated 执行的受控 `SECURITY DEFINER` RPC | 仅 hazard_id/upvotes/downvotes；安全/空 search_path、调用者验证、撤销 anon/default execute；不返回投票者身份。 |
+| 私有本机状态 | `PRIVACY-001` 与 [data ownership](../system/data-ownership.md#privacy-barrier-参与者清单) | mine/vote view 与未完成请求按账户隔离并 close 清理；完全去身份公共缓存可留；业务写全在线。 |
+
+固定顺序：① Shell 确认 opened；② 入口或 Map 合法长按经 `SHELL-001.submit` 开 composer；③ create 写远端，成功才 publish 图层/详情；④ public page 成功后 `LOCATION-002.contribute`，点击稳定 id 经 Shell 开详情；⑤ status/delete/vote 先收权威 outcome 再刷新；⑥ close 即阻断私有操作与晚到响应；⑦ Property 仅消费 HAZARD-002 complete available，和同坐标 SAFETY-001 一起自行保存。对应 `FLOW-05/06`。
+
+## 5. 联合验收、Ready Gate 与变更
+
+| Capability / canonical AT | 情景与操作 | 可观察完成条件 |
+| --- | --- | --- |
+| `HAZ-01` / `AT-HAZARD-01`、`AT-HAZARD-05` | 入口和合法长按创建；未选 type、trim 空/超长、非法点、离线 | 五类不预选；字段错误明确；online 成功才 created；失败留输入/重试，无离线伪队列。 |
+| `HAZ-01`、`HAZ-04` / `AT-HAZARD-01`、`AT-HAZARD-03` | A status/delete；B/维护者尝试更新/改已发布字段 | 仅 A pending/resolved 与确认删除成功；内容/位置/时间/author 不可变；状态非审核，取消无副作用。 |
+| `HAZ-02` / `AT-HAZARD-01`、`AT-HAZARD-02` | viewport、多页、点击、后页失败 | 图层/详情远端；empty/partial/failure 分开，成功页保留；点击/长按不改分析地点。 |
+| `HAZ-03` / `AT-HAZARD-03`、`AT-HAZARD-04` | 两账户投票、改票/撤回；匿名/无效 caller、并发 | 一账户一票、counts 一致；枚举他票和无身份被拒；冲突/删除不虚构 count。 |
+| `HAZ-04` / `AT-HAZARD-01`、`AT-HAZARD-03` | mine、定位、A close→B open、晚到请求 | 仅当前 author 管理；返回语境保留；A 私有状态不呈现/提交/重放到 B。 |
+| `HAZARD-002` / `AT-PROP-03` | 内/外/恰 2km、pending/resolved、partial/failure | 只计含边界 pending；带半径/时间/available；partial/failure 非 0，不写部分 snapshot。 |
+
+- [x] `HAZ-01`–`04`、`HAZARD-001/002`、D18–D20、Schema、`FLOW-05/06`、canonical `AT-*` 可双向追踪。
+- [x] 唯一 import、声明、输入、typed outputs/failures、不可变、作者 status/delete、投票/RLS、账户隔离、顺序、示例/fake 均冻结；无函数体、SQL 或 SDK 实现。
+- [x] `RISK-HAZARD-01` 两账户/匿名/search-path 与 `RISK-HAZARD-02` status-only migration/跨视图证据为实现/集成 Gate，不阻塞 Ready。
+- [x] 独立 Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。
+
+公共 Interface 变更由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不引入独立发布、版本锁定或同步治理流程。
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
 | --- | --- | --- | --- | --- |
-| `HAZARD-001` | Application Shell；Map / Location | 创建、读取公共报告/详情、本人列表、本人状态标记/删除和本人投票；提供声明式公共图层及类型化详情/创建意图。报告类型固定为 flood、crime、traffic、infrastructure、other；状态只为作者自己的 `pending/resolved`。 | 输入为 opened scope、由 `LOCATION-002` 给出的合法创建意图、创建字段、本人状态动作、viewport/分页、稳定报告 ID 或 vote 动作。创建前可更正 type、标题、描述和位置；成功发布后 type、trim 后标题、描述、位置、report time 与 author 不可编辑。状态成功返回权威更新记录；公共读取返回页及其完整性；本人列表只返回该账户作者记录；投票返回当前账户选择与全局计数。标题 trim 后为空、超长字段、无效类型/坐标、缺失 ID、空页、权限拒绝、冲突或可重试不可用均明确分类；空页不等于图层完整为空。 | authenticated 才可读公共报告；仅作者创建、更新自身状态或删除自己的报告；每账户每报告至多一行 vote，赞成/反对更新本人行，撤回删除本人行。计数只通过 `hazard_vote_counts` 读取，不直接由客户端写入，也不暴露投票者身份；无审核/维护者例外。隐患写必须在线。 |
-| `HAZARD-002` | Property Inspection | 为一个合法房产地点返回附近公共隐患计数，供创建、坐标改变或显式风险刷新时随快照保存。 | 输入为合法房产地点。输出为 count、2,000m 半径、统计时间和 available，或带原因的 unavailable/partial；只计 Haversine `d <= 2,000m` 的 `pending` 公开报告，`resolved` 不计。失败或 partial 不返回 0。 | 只读公共报告，不写实勘、报告或快照；调用不改变图层、报告状态或官方安全结果。Property 决定何时将完整结果写入其私有风险快照。 |
-
-### 消费
-
-| ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
-| --- | --- | --- | --- |
-| `SHELL-001` | Application Shell | 在 opened scope 中导航并组合新建、详情、本人列表、作者状态标记/删除确认和返回语境 | `accepted` 才进入业务任务；authentication required、过期或不适用目的地保留可理解原因，不能改成报告或网络失败 |
-| `LOCATION-002` | Map / Location | 接受长按或明确地图入口的创建意图、提交声明式图层、接收点击详情意图 | accepted/hidden/rejected 与类型化点击按 Map 契约处理；非法或范围外坐标不能打开可提交写入；旧 viewport 结果不得覆盖新 viewport，图层不静默改全局地点 |
-| `PRIVACY-001` | Account Privacy | 门控账户私有本人/投票状态，并在关闭时清理 | 仅同账户 opened scope 显示、提交或保留作者/投票状态；关闭失败时旧私有内容仍不可读，公共去身份缓存可保留 |
-
-## 4. 用户可观察行为与跨模块流程
-
-| 入口或用户动作 | 成功结果 | 空、不可用或失败结果 | 必须保持的可访问性 / 安全语义 |
-| --- | --- | --- | --- |
-| 明确“上报隐患”入口或地图合法长按 | 表单有五种本地化类型、必填去空白标题、可空描述和地点；在线提交显示进行中，成功后可进入本人列表/详情并刷新图层 | 类型未选、标题为空/越限或地点无效给字段错误；网络/服务失败保留输入并给重试；离线说明需联网，不显示 queued/created | 类型不预选；错误紧贴字段且焦点移到首个无效字段；提交防重复；Map 长按/提交不改变分析地点 |
-| 创建前更正与发布后状态标记 | 提交前可更正类型、标题、描述和位置；发布后作者仅可将自身报告标为 pending/resolved，成功后详情、本人列表和受影响地图条目显示权威状态 | 创建字段按表单校验；已发布内容/位置/时间/author 无编辑入口且任何写入被拒绝。非作者状态更新为 permission denied；报告已删除或并发状态更新为 conflict/not found；可重试失败不伪称已保存。重新读取后，晚到状态保存不得覆盖较新的状态或删除 | 只有作者看到并可执行状态标记；状态不代表审核。状态写在线执行，文字说明保存中、失败或冲突，不以颜色为唯一反馈 |
-| 读取公共图层、viewport 分页及点击详情 | authenticated 用户看到已成功页的报告和可打开详情；图层点击只产生 Hazard 定义的稳定报告 ID/详情意图 | 首页完整空才说明范围内暂无报告；后页失败保留成功页并标示不完整，不能称无内容；未认证为 authentication required | 文字说明加载、空和不完整；Map 仅呈现贡献/回传意图，不泄露其内部对象；报告不进入安全指数或地点适配度 |
-| 详情投票或撤回 | 当前账户选择赞成/反对/无票与全局 up/down 计数保持一致；并发写后的权威结果不产生一账户多票 | 权限、报告已删除、冲突或网络失败显示结果未确认并允许重新读取/重试，不把本地猜测当权威计数 | 只能读取自己的投票状态；计数不含投票者身份；颜色不是赞反或失败的唯一表达 |
-| 我的报告、定位、状态及删除 | 只显示当前账户的报告；定位通过 Shell/Map 返回式任务；作者可将 pending/resolved 切换，删除经确认后从本人列表和公共图层移除 | 本人无报告显示明确空态；非作者状态/删除被拒绝；确认取消无副作用；失败保留现有记录与重试入口 | 不显示已发布内容编辑或其他账户作者管理入口；状态、删除都是远端业务写且需在线；状态不称审核结果 |
-| 账户切换、退出或关闭中请求完成 | 旧账户的本人列表、投票选择和未完成请求清除/丢弃；新账户只有其自身私有状态，去身份公共缓存可保留 | close 未完成时保持无私有内容并提供重试，不重放旧账户写入 | 遵守 `PRIVACY-001` 的先阻断再清理；远端记录不因退出被删除 |
-
-跨 Owner 完成条件：Shell 只在 opened scope 接受入口/返回意图；Map 通过 `LOCATION-002`
-交付创建、点击和图层意图；Hazard 读写其权威对象并回传领域结果；Shell 组合页面。
-Property 另以 `HAZARD-002` 取得 complete count 与时间，连同其自身安全结果组成风险快照；任一
-必需输入不可用时不制造部分新快照。
-
-## 5. 数据与确定性业务规则
-
-| 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
-| --- | --- | --- | --- |
-| 报告、状态与作者权限 | [隐患事实源](../../knowledge_base/locatemy_product/features/hazard_reporting.md)；`crowdsourced_hazards`（完整定义见 [Schema Catalog](../data/schema-catalog.md)） | authenticated 读公共远端记录；author-only insert/delete 与自身状态更新；按范围和分页读图层 | 仅五类；创建提交前按 trim title 1–120、可空 description ≤2000 与 WGS84 location 校验。发布后 type/title/description/location/report time/author 不可变，作者仅能更新 pending/resolved。永无 verified/rejected、审核/隐藏/维护者删除；公开不等于匿名 |
-| 一人一票与全局计数 | `crowdsourced_hazard_votes`、`hazard_vote_counts` | 底层 votes 只由本人读写；客户端以受控 RPC 得全局 counts | 每账户每报告至多一票 `-1/+1`，撤回删除本人行；RPC 只对 authenticated 生效，只返回 hazard ID/up/down count，不泄露投票者身份；固定安全 search path、调用者验证及 execute 授权以 Schema Catalog 为准 |
-| 图层范围与分页 | `crowdsourced_hazards` 与 `LOCATION-002` | 以 Map viewport/分页请求读公共报告，并为每项提供稳定领域 ID 和详情意图 | 成功页可逐页累积；无页/失败/partial/过期请求互不混同。Map 不拥有筛选、内容或读取权限；较旧 viewport 不能覆盖较新 viewport |
-| 房产风险附近数 | [隐患事实源的 HAZARD-002 规则](../../knowledge_base/locatemy_product/features/hazard_reporting.md#房产风险快照的附近隐患数) | 对合法房产坐标最终按 Haversine 圆形距离计算；矩形仅可预筛选 | 固定 2,000m，含 `d <= 2,000m` 边界，只计 `pending` 公共报告；回带半径/统计时间/available。resolved、失败或 partial 永不当 0 |
-| 私有状态与离线边界 | [数据所有权](../system/data-ownership.md)；`PRIVACY-001` | 仅本人/投票视图状态和未完成请求是账户私有；写入全为在线 | 清理旧账户私有状态；完全去身份公共读缓存可保留。报告、状态、投票和删除不进入离线队列 |
-
-## 6. 验收与 Ready Gate
-
-| Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- | --- |
-| `HAZ-01` / `AT-HAZARD-01`、`AT-HAZARD-05` | 五类创建与验证 | 从明确入口和合法长按各创建一份报告 | 类型、trim 标题、描述/地点校验、加载、成功、失败重试和真实远端创建均可观察；无默认类型或离线伪排队 |
-| `HAZ-01`、`HAZ-04` / `AT-HAZARD-01`、`AT-HAZARD-03` | 创建前更正、作者状态与删除 | 创建提交前更正类型/标题/描述/位置；发布后作者切换 pending/resolved，确认删除；另一账户尝试状态/删除或任何人尝试改已发布内容 | 创建字段校验、permission、contract failure、conflict/not found 和 retryable failure 各自可见；成功状态后详情、本人列表和地图受影响条目刷新，晚到状态保存不覆盖更新/删除；已发布内容不可变，状态不表示审核，删除取消无副作用 |
-| `HAZ-02` / `AT-HAZARD-01`、`AT-HAZARD-02` | 图层、详情、范围分页 | authenticated 用户移动 viewport、加载多页、点击报告 | 图层/详情来自远端，点击回传类型化意图；完整空、后页失败和 partial 清楚区分，已成功页保留；Map 不改分析地点 |
-| `HAZ-03` / `AT-HAZARD-03`、`AT-HAZARD-04` | 单票、撤回与安全计数 | 两账户对同一报告投相反票、改票或撤回；匿名读取 | 每账户最多一票；两账户看到同一 up/down count；任一账户无法枚举他人 vote，匿名与无效调用者不能取得 counts |
-| `HAZ-03` / `AT-HAZARD-04` | 并发与失败 | 同账户并发 vote，或在写后发生网络/删除冲突 | 权威读取后不出现双票或虚构计数；失败显示未确认并可重试/刷新 |
-| `HAZ-04` / `AT-HAZARD-01`、`AT-HAZARD-03` | 本人列表、定位与账户切换 | 查看本人列表、定位、退出并以另一账户进入 | 仅本人记录可管理；定位保留返回任务；旧账户作者/投票状态和未完成请求不出现、不提交或重放 |
-| `HAZARD-002` / `AT-PROP-03` | 风险计数口径 | 对内/外、恰 2,000m、pending/resolved 报告请求计数 | 仅边界内及恰边界的 pending 被计数；结果带半径、统计时间与 available；failure/partial 不为 0，且不写快照 |
-| 全部 / `AT-HAZARD-01`–`AT-HAZARD-05` | 可访问性与范围隔离 | 阅读加载、空、错误、投票、状态和安全说明 | 每种状态有文字、非颜色唯一表达；隐患不进入安全指数、地点摘要或适配度，且无审核功能 |
-
-- [x] `HAZ-01`–`04` 追踪至唯一 Owner、`HAZARD-001`、数据对象、产品事实与验收情景；
-  `HAZARD-002` 的下游口径、失败语义和 Property 消费者明确。
-- [x] `D18`–`D20` 与上游 Ready designs 一致：Feature 不拥有 Shell、Map 或账户 scope。
-- [x] RLS/权限、输入无效、空页、分页/离线不可用、并发 vote、账号切换、作者隔离及图层点击均有可观察语义。
-- [x] 项目负责人已为 `RISK-HAZARD-01` 选定安全 RPC 契约，并为 `HAZARD-002` 固定 2,000m
-  pending-only Haversine 口径；运行时 migration/RLS 证据留实现/集成验收。
-- [x] 项目负责人 Q8 已固定发布后报告不可变；`RISK-HAZARD-02` 的 status-only migration 与
-  权限/跨视图运行时证据留实现/集成验收。
-- [x] 独立 Standards/Spec 双轴复审均通过；设计 AI 已依 ADR 0013 完成 Ready 批准。
-
-## 7. Change Log
-
-| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
-| --- | --- | --- | --- | --- |
-| 2026-09-14 | `Draft` | Issue #14 建立 Wave 5 owning design；项目负责人固定安全 vote-count RPC 及 HAZARD-002 的 2,000m pending-only 口径 | `HAZ-01`–`04`、`HAZARD-001`、`HAZARD-002`、`crowdsourced_hazards`、`crowdsourced_hazard_votes`、`hazard_vote_counts`、Property Inspection | 项目负责人（Q6、Q7） |
-| 2026-09-14 | `Draft` | 项目负责人 Q8 覆盖先前内容编辑假设：发布后内容、位置和上报时间不可变，作者只可标记自身 pending/resolved 或删除 | `HAZ-01`、`HAZ-04`、`HAZARD-001`、`crowdsourced_hazards`、Application Shell、Map / Location、Account Center | 项目负责人（Q8） |
-| 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `HAZ-01`–`04`、`HAZARD-001`、`HAZARD-002`、D18–D20 | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | Account Center 双轴审查移除其作为 `HAZARD-001` 消费者的错误登记；账户入口只提交 Shell 导航意图，不读取隐患数据 | `HAZARD-001`、`SHELL-001`、Account Center | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | 全面设计审查修复验收表并补齐 canonical `AT-HAZARD-*` / `AT-PROP-03` 追踪；不改变可观察契约 | `HAZ-01`–`04`、`HAZARD-002`、`FLOW-05`、`FLOW-06` | 项目负责人（本次审查） |
+| 2026-09-14 | `Ready for Development` | Issue #14：冻结五类公共报告、发布后不可变、作者 status/delete、单票和 2,000m pending-only count | `HAZ-01`–`04`、`HAZARD-001/002`、Hazard 数据对象、Property | 设计 AI（项目负责人授权） |
+| 2026-09-15 | `Ready for Development` | Issue #23 返工：收束为单一 Development Contract 与等价 HTML；改为引用 Shell、Map / Location 与 Account Privacy 的完整 canonical 声明并说明调用子集；移除 PDF、ADR 0014、handoff 与发布治理，产品/Schema 语义不变 | `HAZ-01`–`04`、`HAZARD-001/002`、`SHELL-001`、`LOCATION-002`、`PRIVACY-001`、同名 HTML | 设计 AI（项目负责人授权） |

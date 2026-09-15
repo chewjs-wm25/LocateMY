@@ -1,0 +1,34 @@
+@startuml
+!include theme.puml
+title Infrastructure Coverage - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [ICI, component coverage and\naccount-weight preview views] as view
+}
+package "Application" <<application>> {
+  [Infrastructure ViewModel] as vm
+  [Analyse coverage / save ICI weights] as uc
+  [INFRA-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Water, electricity, health, education,\ntransit inputs; ICI and missing-data rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Infrastructure data Adapter] as inputs
+  [ICI preference Adapter] as preferences
+  database "Public infrastructure cache\n(optional)" as cache
+}
+rectangle "LOCATION-001 + GEO-001\nTRANSIT-001 + PRIVACY-001" as shared
+database "Supabase read_infrastructure_inputs\n+ user_ici_preferences" as source
+view --> vm
+vm --> uc
+uc --> domain
+shared --> uc
+uc --> api
+uc --> inputs
+inputs --> source
+uc --> preferences
+preferences --> source
+inputs --> cache
+note right of api : Exposes neutral ICI to Suitability;\naccount weights stay Feature-local
+@enduml

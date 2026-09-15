@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Account Center - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Account profile, preference\nand current-scenario views] as view
+}
+package "Application" <<application>> {
+  [Account ViewModel] as vm
+  [Read/save assessment preferences\nand submit account intents] as uc
+  [ACCOUNT-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Five complete 1-10 preferences,\nversioned snapshot and scope rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Assessment preference Adapter] as adapter
+  database "Account-scoped state\n(optional)" as local
+}
+rectangle "AUTH-001 + COST-002\nPRIVACY-001 + SHELL-001" as shared
+database "Supabase user_assessment_preferences" as db
+view --> vm
+vm --> uc
+uc --> domain
+shared --> uc
+uc --> api
+uc --> adapter
+adapter --> db
+adapter --> local
+note right of api : Suitability consumes only a completed,\nversioned preference snapshot
+@enduml

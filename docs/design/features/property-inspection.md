@@ -1,116 +1,315 @@
-# Property Inspection
+# Property Inspection 开发协作契约
 
-> 状态：`Ready for Development`
-> Owner：`B`
-> 系统基线：`5d11769`
-> 依赖波次：`6`
-> 最后更新：`2026-09-14`
-> Prototype 视觉参考：`N/A`（原型的内存示例、mock 照片与单向地图跳转不构成正式行为）
+> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+> Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 6
+> 唯一公开入口：`package:locatemy/features/property_inspection/property_inspection.dart`
+> 完成定义：消费者仅凭本契约即可安全续填、创建、管理、比较、软删除和清空自己的实勘；风险快照只在同地点的完整 Safety 与 Hazard 输入同时可用时原子保存。
 
-本文件协调房产实勘、私有视觉证据、风险快照与回收站。它冻结跨 Owner 的成果、账户安全、生命周期和失败结果；Feature 内部文件、数据库/Storage Adapter 调用、传输策略、并发策略和测试组织归实现 Owner。
+本文件是 Property Inspection 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、精确数据边界及联合验收；`lib/features/property_inspection/` 内的 Widget、状态管理、Supabase/SQLite/Storage Adapter、压缩、队列、并发、取消、重试、文件拆分和测试组织由 B 决定。产品字段、公式、RLS、Storage policy、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。
 
-## 1. 用户成果与范围
+## 0. 固定阅读顺序与四项 Readiness
 
-- 用户成果：已开启账户范围的用户可建立和续填实勘草稿及其本机照片，在线创建或编辑带合法地点的实勘，管理至多 20 张私有照片，查看档案/详情，选择 2–3 份活动实勘并排比较；删除的实勘可恢复，或确认后连同照片永久清空。详情保留创建、坐标变更或用户显式刷新时获得的风险快照及其采集时间。
-- 包含的 Capability ID：`PROP-01`–`PROP-05`。
-- 不包含及原因：不拥有地图选点、地点 A/B 比较、相册原件、州级安全模型、公共隐患查询/状态、公共报告编辑、自动推荐或已保存的比较结果。房产对比只比较 2–3 个账户自己的实勘记录，不能与地点 A/B 比较混同。
-- 产品事实源：[房产实勘](../../knowledge_base/locatemy_product/features/property_inspection.md)、[大学提交承诺](../../knowledge_base/locatemy_product/submission_commitments.md#房产实勘)、[核心业务对象](../../knowledge_base/locatemy_product/domain_objects.md#property-inspection-房产实勘)。跨 Owner 顺序以 [FLOW-06](../system/flows.md#flow-06房产实勘照片风险快照与回收站) 为准。
-- 原型差异：启动示例、内存跨重启数据、mock 照片、固定风险字段和离开表单后无法完整返回选点均须替换为本设计的账户隔离远端记录、私有 Storage 照片、草稿与返回式选点。原型未有回收站，正式行为必须提供。
+1. [领域词汇](../../../CONTEXT.md#房产风险快照)、[房产实勘产品事实](../../knowledge_base/locatemy_product/features/property_inspection.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md)与[隐患](../../knowledge_base/locatemy_product/features/hazard_reporting.md)事实；
+2. [Feature map（Property）](../system/feature-map.md#fm-property)、[Interface 注册表](../system/interfaces.md)、[FLOW-06](../system/flows.md#flow-06房产实勘照片风险快照与回收站)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)；
+4. 本契约；生成/使用人类 PDF 时最后读 [ADR 0014](../../adr/0014-version-locked-pdf-development-documentation-packages.md) 与 [handoff](../handoff/README.md)。
 
-## 2. 依赖、责任与文件边界
-
-| 模块 / 文件边界 | Owner | 负责 | 不负责 | 与其他模块的沟通 |
-| --- | --- | --- | --- | --- |
-| `lib/features/property_inspection/` | Property Inspection | 实勘/草稿/草稿照片/正式照片/回收站生命周期、比较选择、四项评分派生、风险快照何时保存或保留 | 认证、scope、地图选择、安全或隐患计算、相册原件 | 提供 `PROPERTY-001`；消费 `SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002` |
-| `lib/app/` | Application Shell | 档案、表单、详情、比较、回收站、地图返回式选点和风险刷新导航语境 | 实勘资料、照片、风险结果或队列 | 按 `SHELL-001` 接收类型化目的地、返回语境和 Property 的可观察结果 |
-| `lib/features/map_location/` | Map / Location | 合法、不可变房产地点引用及返回表单任务 | 表单、草稿、收藏解释、风险或房产写入 | `LOCATION-001` 只提供地点事实；Map 不读取或写入实勘 |
-| `lib/modules/account_privacy/` | Account Privacy | opened scope 与关闭时私有本机资料的 barrier | 远端实勘/照片删除 | `PRIVACY-001` 触发 Property 清理旧账户草稿、私有副本、比较、队列和待传文件 |
-| Crime & Security；Hazard Reporting | 各自 Owner | 州级安全结果；附近 public pending 隐患计数 | Property 风险快照写入、实勘生命周期 | Property 消费 `SAFETY-001`、`HAZARD-002`，不直读其资料或改变其结果 |
-| Supabase 表、Storage 与本机对象 | Property Inspection | 对已登记对象实施自己的业务生命周期 | 自行扩展字段/RLS/migration 契约 | 字段、RLS、路径和迁移只以 [Schema Catalog](../data/schema-catalog.md) 为准 |
-
-共享边界只包括 `lib/app/`、已登记的 `supabase/migrations/` 顺序及 Schema Catalog 对象。Property Owner 可在其 Feature 目录自行组织实现，但不改变任一上游 Interface 或数据对象定义。
-
-### 依赖与未决项
-
-| 依赖或问题 | 影响 | 验证方式 / 最迟解决点 |
+| Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
-| `D30`–`D34` 已 Ready | 表单/档案导航、合法地点、账户隔离和两项风险输入已有单一上游语义 | Ready 审查核对五项 Interface 与 `FLOW-06`，不在本 Feature 复制或改写上游契约 |
-| `RISK-PROP-01` | 快照必须携带可解释的附近隐患空间口径与采集时间 | 实现/集成以边界内/外、恰 2,000m、pending/resolved、failure/partial 和显式刷新验证 |
-| `RISK-STORAGE-01` | 照片文件与元数据、以及永久清空均可能部分完成 | 实现/集成注入每阶段失败与重启，确认可重试、无跨账户访问且不误报完成 |
-| `RISK-PROPERTY-01` | 现有实勘地点与父对象 owner 约束不足以证明本契约 | migration/集成验证必需地点、跨账户父实勘 ID 和读写删照片/回收站清空；不以旧对象作为完成证据 |
+| 责任与范围 | `PROP-01`–`PROP-05` 唯一归属 Property；认证、scope、选点、官方安全与公共隐患各有 Owner | 已就绪 |
+| 契约与消费者 | 第 2 节含 `SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002` 完整调用卡；第 3 节有 `PROPERTY-001` | 已就绪 |
+| 数据与安全 | 精确使用 `property_inspections`、`property_inspection_photos`、`inspection-photos`、三项本机对象；owner 与父实勘双重授权 | 已就绪 |
+| 验收与风险 | 第 5 节覆盖 `AT-PROP-01`–`06`；`RISK-PROP-01`、`RISK-STORAGE-01`、`RISK-PROPERTY-01` 留作实现/集成运行时证据 | 已就绪 |
 
-## 3. 对外协调契约
+## 1. 成果、责任与冻结边界
 
-### 提供：`PROPERTY-001` 私有实勘、照片、比较、回收站与风险快照
+- opened scope 的用户可续填带草稿照片的本机实勘草稿；在线创建或编辑具有 Map 合法地点的实勘，管理每份至多 20 张私有静态照片，查看档案/详情，选择 2–3 份活动实勘作不保存的并排比较。
+- 删除先进入可见回收站并保留照片；恢复取消软删除。确认清空才永久删除当前账户回收站内的元数据和 Storage 文件；任一阶段 partial 均可重试且不称全成功。
+- 创建、坐标变更或显式刷新才并行取得同一地点的 `SAFETY-001` 和 `HAZARD-002`；两者均完整 available 时整体创建/替换风险组。普通未变坐标编辑保留既有组；失败/partial 保留旧组及时间，绝不补零、拼接或静默刷新。
+- 综合评分只由四项现场评分派生，不是独立字段、州级安全指数、地点指数、排名或推荐。照片是私有视觉证据，不读取/展示相册原件或 EXIF，也不提供分享/导出。
 
-| 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
+| Owner / 受控边界 | 负责 | 不负责 | 协作 |
 | --- | --- | --- | --- |
-| Application Shell | 在 opened scope 中读取活动档案/详情与回收站；续填/创建/编辑实勘；管理草稿或正式照片；选择 2–3 份活动实勘比较；恢复或确认永久清空；请求风险刷新。 | 输入为当前账户 scope、实勘 ID/草稿、`LOCATION-001` 合法地点、表单字段、照片副本或动作、稳定选择集及刷新/删除确认。返回为权威的成功结果，或可区分 validation、online-required、permission、not-found/conflict、retryable failure、风险 unavailable/partial、草稿照片/正式照片的 pending upload/failed/inconsistent 和清空 partial。活动档案为空、回收站为空及比较选择不足各自明确，不用示例或零值替代。 | 只允许同账户 opened scope 读取或作用于自己的活动/已删除实勘、草稿、草稿照片、照片元数据、Storage 文件、比较选择和队列。Shell 不取得照片字节、风险输入或跨账户资料。远端实勘创建、编辑、删除与恢复均为 online-required；本机草稿、草稿照片和照片待传不是远端实勘或照片已发布。 |
+| `lib/features/property_inspection/`（B） | 草稿、实勘、照片、队列、比较、回收站、风险快照时机及 `PROPERTY-001` | Auth、scope、选点、州解析、安全/隐患计算、全局路由 | 消费第 2 节五项 Interface；提供第 3 节 |
+| Application Shell | opened 门控、档案/表单/详情/比较/回收站导航、地图返回任务 | Property 资料、照片字节、风险/队列 | `SHELL-001` |
+| Map / Location | 合法 immutable property 地点及返回式选点 | 草稿、收藏解释、风险、实勘写入 | `LOCATION-001` |
+| Account Privacy | 同账户 opened/closing 及关闭证明 | 远端实勘或已上传照片删除 | `PRIVACY-001` |
+| Crime / Hazard | 同地点的安全快照输入；附近 pending 数 | 房产写入、照片、比较、回收站 | `SAFETY-001`、`HAZARD-002` |
 
-综合评分由四项现场评分派生、没有独立输入，也不是州级安全指数、地点指数或推荐；其公式正文仅见[房产实勘产品事实](../../knowledge_base/locatemy_product/features/property_inspection.md#新增与编辑字段)。新增、编辑、详情和比较始终对同一四项权威值应用该规则。
+## 2. 必须调用的 Interface 卡
 
-风险快照字段组仅由 [Schema Catalog](../data/schema-catalog.md#身份与账户业务对象) 定义。新建、实勘坐标改变或显式刷新时，Property 对同一合法房产地点并行消费 `SAFETY-001` 与 `HAZARD-002`；两项均完整 `available` 时才随实勘整体创建或替换该组。任一项 unavailable/partial/过期请求时不写任何新组；已有组与其采集时间保持可见，本次失败只作为操作结果，草稿/编辑输入保持可恢复。`HAZARD-002` 的空间口径、状态筛选、计数时间与可用性只由其 owning design 定义；Property 不重算、置零或改写它。
+### `SHELL-001` — 房产导航与组合
 
-### 消费
+**提供者：** Application Shell；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/app/application_shell.dart`。
 
-| ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
+```dart
+abstract interface class ApplicationShell {
+  Future<ShellIntentOutcome> submit(ShellIntent intent);
+  Future<ShellContributionOutcome> publish(ShellContribution contribution);
+}
+abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
+sealed class ShellIntentOutcome {}
+final class ShellIntentAccepted extends ShellIntentOutcome {}
+final class ShellAuthenticationRequired extends ShellIntentOutcome {}
+final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; }
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; }
+enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+```
+
+Property 从其唯一入口导出 `OpenPropertyPortfolioIntent`、`OpenPropertyEditorIntent`、`OpenPropertyDetailIntent`、`OpenPropertyCompareIntent`、`OpenPropertyRecycleBinIntent`、`PickPropertyLocationIntent`（均为 `ShellIntent`）及 `PropertyShellContribution`（为 `ShellContribution`）。intent 只带稳定实勘/草稿 ID、当前 `PropertyReturnContext` 或 Map 返回任务；不携带照片字节、风险上游 payload、跨账户资料或可变地图对象。
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| `SHELL-001` | Application Shell | 进入档案/表单/详情/比较/回收站，往返地图选点，保留来源任务并在风险刷新后回到当前详情 | 只有同账户 opened scope 的合格目的地被接受；认证要求、过期/不完整任务或拒绝导航与 Property 数据/风险失败保持不同。范围关闭后旧草稿、表单、选择、队列结果或晚到响应不得进入新账户。 |
-| `LOCATION-001` | Map / Location | 取得新建或编辑表单的合法不可变房产地点 | 无地点、无效/范围外地点或过期返回不能创建、变更坐标或采集风险；返回式选点保留同一草稿/表单及原返回语境，Map 不读取或改写实勘。 |
-| `PRIVACY-001` | Account Privacy | 对所有私有本机内容门控并在关闭时完成清理 | 仅同账户 opened scope 可见/提交。关闭开始即清除草稿、草稿照片、私有副本、比较选择、待传队列与应用目录本机副本；远端已成功记录/照片不因退出删除，关闭不完整时不恢复旧内容或开启新账户。 |
-| `SAFETY-001` | Crime & Security | 取得快照所需统计州和州级安全指数 | 仅消费绑定同一地点的完整结果及其来源/年份/完整性/可用性；不解析州、不从缓存或相邻地点猜测、不写 Crime 资料。 |
-| `HAZARD-002` | Hazard Reporting | 取得快照所需附近公共隐患数 | 仅消费同一房产地点的 count、半径、统计时间与 availability；`unavailable/partial` 不成为 0，不写/改报告或图层。 |
+| intent/contribution 属当前 opened scope，稳定 ID/返回语境未过期。 | accepted、authenticationRequired、rejected(reason)；后二者是 Shell 结果而非保存失败。 | Shell 只改门控、导航栈与组合，不写 Property 数据或重算风险。 | accepted 才转场；Map 返回先经 `LOCATION-001`。 `await shell.submit(OpenPropertyDetailIntent(id, context));` |
 
-## 4. 用户可观察行为与跨模块流程
+**Fake 场景：** fake Shell 回 accepted、authentication-required、stale-input rejected；后两者保留草稿/详情和文字恢复路径，不写入、上传或丢失返回任务。
 
-| 入口或用户动作 | 成功结果 | 空、不可用或失败结果 | 必须保持的可访问性 / 安全语义 |
+### `LOCATION-001` — 合法不可变房产地点
+
+**提供者：** Map / Location；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`。
+
+```dart
+abstract interface class LocationCoordinator {
+  Future<LocationSelectionOutcome> select(LocationSelectionRequest request);
+  LocationRoleSnapshot read(LocationRole role);
+}
+enum LocationRole { single, locationA, locationB, property }
+final class GeographicPoint { final double latitude; final double longitude; }
+final class LocationSelectionRequest { final LocationRole role; final GeographicPoint point; final String? displayName; }
+final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; }
+sealed class LocationSelectionOutcome {}
+final class LocationSelected extends LocationSelectionOutcome { final LocationRole role; final ValidLocationReference location; }
+final class LocationSelectionRejected extends LocationSelectionOutcome { final LocationSelectionFailure failure; }
+enum LocationSelectionFailure { invalidCoordinate, outsideMalaysia, sameComparisonPoint, scopeUnavailable }
+sealed class LocationRoleSnapshot {}
+final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; }
+final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| 进入档案或新建；离开/重启后续填 | 档案只显示当前账户活动实勘；表单草稿及其本机草稿照片按账户保存并完整续填，新增/编辑可经地图返回式选点 | 无活动实勘或无草稿有明确空态；地点/字段无效、未认证、离线远端写或写失败保留草稿、草稿照片和修正/在线重试路径 | 不显示固定演示数据或其他账户记录；草稿照片明确未发布。地址/地点、表单错误与保存状态有文字说明，表单地图往返不丢失任务语境。 |
-| 在线创建，或编辑后不改变/改变坐标 | 合法表单和完整风险输入时写入同账户远端实勘；未改坐标的编辑保留已有快照，改变坐标则以新地点完整风险快照随更新写入 | 新建/变更坐标的任一风险输入不可用或 partial 时不写不完整快照，保留草稿/编辑和重试；冲突/not found 不伪称保存 | 价格、四项评分和风险/保存状态均有非颜色反馈；风险快照明确是当时上下文，不是实时建议或官方评价。 |
-| 从相机或相册添加、管理或删除照片 | 已有实勘的每次添加保存该实勘自己的压缩副本；新建草稿的照片先按账户/草稿本机保存，远端实勘成功后才整体转为正式待传照片。每份实勘最多 20 张，可编辑说明、指定封面；封面删除时最早剩余照片成为封面。详情展示完整相册，档案/比较只展示封面 | 达上限、不支持静态格式、压缩/设备授权失败不改变已有照片；草稿照片跨重启明确未发布。创建成功后的转换、上传或元数据任一阶段失败均保留本机资料和重试；单张离线删除不可执行，在线失败保留原照片 | 不读取、展示或改变相册原件及 EXIF；照片/说明/同步状态有文字说明。读取、写入和删除均验证账户与父实勘（若已创建）归属，任何跨账户 ID/路径失败不泄露内容。 |
-| 打开详情或显式刷新风险上下文 | 详情显示已保存风险快照及采集时间；刷新在两项输入完整时整体替换 | 安全或隐患任一失败/partial 时保留旧快照和时间，或对尚无快照明确不可用原因；不清空、拼接或静默重算历史 | 显示风险来源、资料时间、州级/2km pending-only 口径和可用性，不能只依颜色或把未获得的附近数显示为 0。 |
-| 选择比较 | 仅当前账户的活动实勘可选；选 2 或 3 份后并排显示价格、风险快照、水灾线索、四项评分与同一平均评分，结果不保存 | 少于 2、超过 3、已删除/不可见项或读取失败分别说明，不能将回收站项或跨账户项加入 | 比较是房产记录对比而非地点 A/B、排名或自动推荐；每个风险值保持其自己的采集时间。 |
-| 删除、查看回收站、恢复或确认清空 | 删除将实勘和照片保留于可见回收站；恢复回到活动档案。确认清空只永久删除当前账户回收站中的实勘、元数据和 Storage 文件 | 回收站为空明确显示；取消确认无副作用；单项/照片文件/元数据部分清空失败时保留未完成项并列明，可重试，已删项可幂等处理 | 软删除不立即删照片；永久清空与单张照片删除的效果不同。账户/父实勘不匹配拒绝且不泄露，不能声称全清空成功。 |
-| 退出、账户切换或关闭中请求完成 | 旧账户本机草稿、私有副本、比较选择、队列和待传文件被清理；新账户只从自己的远端档案开始 | close 失败时保持无私有内容及可重试，不重放旧账户表单、上传或晚到风险/照片结果 | 远端成功记录与照片不因退出被删除；私有本机内容从关闭开始不可读取、上传或提交。 |
+| 只接受 Map 已选出的 `property` 角色成功引用；有限 WGS84 数值且已通过马来西亚范围校验。 | selected/present，或 invalidCoordinate、outsideMalaysia、scopeUnavailable。 | Map 只改自己的角色；Property 不读可变 Map 状态、不造坐标、不把收藏名当地点。 | 选点返回后才写草稿/请求风险；失败保留原草稿地点。 `LocationSelected(:final location) => draft.withLocation(location)`。 |
 
-跨 Owner 完成条件：Shell 将表单的返回式地图任务交给 Map 并只接受 `LOCATION-001` 的当前合法地点；Property 在创建、坐标变更或显式刷新时以该地点并行请求 Safety 与 Hazard，且只在完整结果时写入风险整体。草稿照片跨重启按账户/草稿保留；仅同账户远端实勘创建成功后才获得正式标识并整体转换为待传项，全部转换成功才删除草稿照片记录；任一转换失败保留原草稿照片重试。正式待传照片上传成功且元数据成功后才移除本机副本。Shell 只协调导航和范围语境，不拥有上述资料。
+**Fake 场景：** fake Map 给 property selected、absent、outsideMalaysia、scope unavailable；只有 selected 的 immutable 引用可创建、改坐标或刷新风险，其他结果绝不触发 Safety/Hazard。
 
-## 5. 数据与确定性业务规则
+### `PRIVACY-001` — 账户范围与 Property close 参与者
 
-| 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
+**提供者：** Account Privacy；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/features/account_privacy/account_privacy.dart`。
+
+```dart
+final class AccountScope { final String accountId; const AccountScope(this.accountId); }
+sealed class AccountScopeSnapshot {}
+final class AccountScopeOpened extends AccountScopeSnapshot { final AccountScope scope; }
+final class AccountScopeClosed extends AccountScopeSnapshot { final AccountScope scope; }
+final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; }
+enum AccountScopeFailure { identityMismatch, closing, incompleteOwners, retryableUnavailable }
+abstract interface class AccountPrivacy {
+  AccountScopeSnapshot readScope();
+  Future<PropertyPrivateStateCleared> clearPropertyPrivateState(AccountScope scope);
+}
+sealed class PropertyPrivateStateCleared {}
+final class PropertyPrivateStateClearedForAccount extends PropertyPrivateStateCleared { final String accountId; }
+final class PropertyPrivateStateClearIncomplete extends PropertyPrivateStateCleared { final String accountId; final PropertyPrivateStateFailure failure; }
+enum PropertyPrivateStateFailure { localStoreUnavailable, fileDeletionIncomplete, queueCleanupIncomplete, scopeUnavailable }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| 实勘、草稿、草稿照片、删除与恢复 | `property_inspections`、`property_drafts`、`property_draft_photos`；完整字段/RLS 见 [Schema Catalog](../data/schema-catalog.md#本机对象) | 远端实勘为权威且 owner-only；草稿及草稿照片为同账户私有本机续填资料 | 地点必需且为 WGS84；名称、价格、四项评分、水灾线索、备注和可空收藏引用遵守 Catalog。草稿/草稿照片不等于远端成功或照片发布；仅创建成功后整体转换草稿照片。`deleted_at` 区分活动与回收站，恢复只撤销软删除。 |
-| 照片与本机待传副本 | `property_inspection_photos`、`inspection-photos`、`property_photo_upload_queue` 和应用数据目录 | 表中元数据与 Storage 文件分开；路径契约只见 Schema Catalog。上传前压缩，待传副本只服务已有远端实勘的正式照片 | 每实勘最多 20；说明、唯一封面和添加顺序遵守产品事实。文件/元数据非原子时保留队列与可重试状态；只清理可证明属于当前账户且无有效元数据的孤儿。 |
-| 风险快照 | `property_inspections` 的原子字段组（唯一字段定义见 Schema Catalog）；`SAFETY-001`、`HAZARD-002` | 只在创建、坐标变更或显式刷新时消费两上游并整体写入 | 未变坐标的普通编辑不刷新。两项完整 `available` 才整体创建/替换；不完整不写新组、不覆盖旧组，本次失败只作为操作结果。 |
-| 私有访问与账户关闭 | `PRIVACY-001`、[数据所有权](../system/data-ownership.md#privacy-barrier-参与者清单) | 所有本机对象带不可变账户分区且读取还须 scope opened；远端/Storage 同时以 account 与父实勘 owner 限制 | 换号清理旧草稿、草稿照片、私有副本、比较、queue 和文件；不清除旧账户远端记录。Storage 路径校验不是父对象授权的替代。 |
-| 对比与综合评分 | `STATE-PROPERTY-COMPARE`、当前账户活动 `property_inspections`、[房产实勘产品事实](../../knowledge_base/locatemy_product/features/property_inspection.md#新增与编辑字段) | 选择只在内存，结果不另存；综合评分按唯一事实源对四项权威值派生 | 正好 2–3 个活动、可见、同账户记录；比较不产出赢家、自动推荐或地点分析差异。 |
+| 所有私有读写仅同账户 opened；clear 只针对 Privacy 给出的不可变旧 scope。 | opened/closed/unavailable；清理为 cleared 或 incomplete，均携带账户与分类原因。 | closing 开始即阻断草稿、草稿照片、私有副本、比较、正式待传 queue 和应用目录文件；不删远端实勘、元数据或已上传 Storage。 | Shell 发起 close；Property 只报告自身结果。 `await privacy.clearPropertyPrivateState(oldScope);`；incomplete 时旧内容仍不可读且可重试。 |
 
-## 6. 验收与 Ready Gate
+**Fake 场景：** A 有草稿/上传中照片后 close，fake Privacy 随后开 B；A 的表单、文件、比较和晚到成功均不可显示/提交/重放，B 只从自己的远端档案开始。
 
-| Capability | 验收情景 | 用户操作 | 可观察结果 |
+### `SAFETY-001` — 州级安全快照输入
+
+**提供者：** Crime & Security；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/features/crime_and_security/crime_and_security.dart`。
+
+```dart
+abstract interface class CrimeAndSecurity { Future<SafetyLoadOutcome> load(SafetyRequest request); }
+final class SafetyRequest { final ValidLocationReference location; final SafetyLoadPolicy policy; final SafetyTrendFilter filter; const SafetyRequest({required this.location, required this.policy, required this.filter}); }
+enum SafetyLoadPolicy { cacheAllowed, refresh }
+sealed class SafetyTrendFilter { const SafetyTrendFilter(); }
+final class AllCrimeTrend extends SafetyTrendFilter { const AllCrimeTrend(); }
+sealed class SafetyLoadOutcome { const SafetyLoadOutcome(); }
+final class SafetyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyAvailable(this.snapshot); }
+final class SafetyPartiallyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyPartiallyAvailable(this.snapshot); }
+final class SafetyUnavailable extends SafetyLoadOutcome { final SafetyUnavailableReason reason; const SafetyUnavailable(this.reason); }
+final class SafetySnapshot { final ValidLocationReference location; final ReportingState state; final SafetyScore score; final AnnualCrimeCount latestCompleteYearCount; final SafetyFreshness freshness; final SafetyCompleteness completeness; final SafetyProvenance provenance; const SafetySnapshot({required this.location, required this.state, required this.score, required this.latestCompleteYearCount, required this.freshness, required this.completeness, required this.provenance}); }
+enum SafetyFreshness { fresh, cached, stale }
+enum SafetyCompleteness { complete, partial }
+enum SafetyUnavailableReason { stateUnresolved, stateAmbiguous, sourceMissing, noValidCategory, incompleteYear, retryableUnavailable, sourceUnverifiable }
+final class SafetyScore { final int value; const SafetyScore(this.value); }
+final class AnnualCrimeCount { final int value; final int year; const AnnualCrimeCount(this.value, this.year); }
+final class ReportingState { final String stableId; final String name; const ReportingState(this.stableId, this.name); }
+final class SafetyProvenance { final String source; final String modelVersion; final String boundaryVersion; const SafetyProvenance(this.source, this.modelVersion, this.boundaryVersion); }
+```
+
+| 输入约束 | 输出 / typed failures | 精确数据边界与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| `PROP-01` | 新增、编辑、草稿、草稿照片、重启和地图往返 | 填写表单/添加草稿照片、离开/重启、返回选点、在线创建或编辑 | 当前账户的草稿及草稿照片完整续填且明确未发布；合法地点和完整风险输入才建立/更新远端实勘；创建成功后才整体转换草稿照片，失败保留重试；字段/地点/online-required/风险/冲突失败可区分且不丢资料。对应 `AT-PROP-01`。 |
-| `PROP-02` | 相机/相册、20 张、说明、封面、草稿照片跨重启、正式待传与部分失败 | 新增/编辑实勘添加、删除、改说明/封面，断网、重启和恢复网络 | 草稿照片按账户/草稿恢复；创建后全部转换成功前不删草稿照片，失败可重试；正式照片的私有副本、同步状态、重试和封面回退正确；原件/EXIF 不外泄；单张离线删除不伪装成功。对应 `AT-PROP-02`。 |
-| `PROP-03` | 创建、坐标变更、未变坐标编辑、显式刷新和两输入失败 | 建立/编辑/刷新后查看详情 | 每次仅在两项输入均完整 `available` 时整体保存 Schema Catalog 定义的风险快照组；失败/partial 不写新组、保留旧组和采集时间，本次失败单独呈现。覆盖 `RISK-PROP-01` 与 `AT-PROP-03`。 |
-| `PROP-03` | 两账户、伪造 inspection ID/Storage path、必需地点与关闭中晚到结果 | 切换账户并尝试读写/上传/删除 | 仅 owner 可访问父实勘及照片；无地点记录被拒绝；旧范围内容不显示、不提交或重放。覆盖 `RISK-PROPERTY-01`、`AT-PROP-04`。 |
-| `PROP-04` | 2、3、少于 2、超过 3、已删除/他人项 | 从档案选择对比 | 只有 2–3 个当前账户活动实勘可并排；比较不保存、不混同地点 A/B，也不把不可见项带入。对应 `AT-PROP-05`。 |
-| `PROP-05` | 软删除、恢复、确认取消、清空与照片部分失败 | 删除实勘、进入回收站、恢复或确认清空 | 删除先保留记录和照片；取消无副作用；清空只影响当前账户且永久删除文件/元数据/记录，partial 明确、可重试且不误报完成。覆盖 `RISK-STORAGE-01`、`AT-PROP-06`。 |
-| 全部 / `AT-PROP-01`–`AT-PROP-06` | 中文/English、动态字体、读屏/非颜色状态 | 阅读表单、风险、上传、比较和回收站 | 字段错误、上传/删除、风险可用性、来源/时间、空态和权限错误均有文字等价信息；主要操作和数值在 200% 字体下可用。 |
+| location 必为同一 `LOCATION-001` property immutable reference；普通保存用 cacheAllowed，显式刷新用 refresh。 | 仅 `SafetyAvailable` 且 completeness complete 可供 snapshot；partial/unavailable 均不可用。 | Crime 只读 `read_safety_inputs`（聚合 `crime_district`）并可读写无账户 `crime_public_cache`；不写 Property、Hazard、Map 或 Shell。 | 与 Hazard 对同一引用并行；只读 score/state/year/provenance，绝不自行解析州。 |
 
-- [x] `PROP-01`–`05` 各自追踪至唯一 Owner、`PROPERTY-001`、数据对象、产品事实源和验收情景。
-- [x] `D30`–`D34` 只消费已 Ready 的 Shell、Location、Privacy、Safety 和 Hazard 契约；未复制或改变其权威语义。
-- [x] 账户隔离、父实勘/Storage 双重授权、草稿/待传清理、照片部分失败、坐标变更、风险完整性、回收站和比较边界均有可观察结果。
-- [x] 字段/RLS/Storage 路径/migration 仍只在 Schema Catalog；公式或 Haversine 实现正文仍只在上游事实源；没有可提交代码或测试。
-- [x] 独立 Standards/Spec 双轴审查发现均已关闭。
-- [x] `RISK-PROP-01`、`RISK-STORAGE-01`、`RISK-PROPERTY-01` 的 Ready 设计证据已复核；运行时 migration/RLS/Storage 证据保留实现与集成验收。
-- [x] 设计 AI 已依 ADR 0013 批准 `Ready for Development`。
+**Fake 场景：** fake 依次给 complete、cached complete、partial、unresolved、retryable；Property 仅采纳 complete 的同地点数据，partial/unavailable 保留既有风险组且不能显示为 0。
 
-## 7. Change Log
+### `HAZARD-002` — 附近 pending 隐患数
 
-| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
+**提供者：** Hazard Reporting；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/features/hazard_reporting/hazard_reporting.dart`。
+
+```dart
+abstract interface class HazardRiskCounter { Future<HazardNearbyCountOutcome> countPending(HazardNearbyCountRequest request); }
+final class HazardNearbyCountRequest { final ValidLocationReference propertyLocation; const HazardNearbyCountRequest(this.propertyLocation); }
+sealed class HazardNearbyCountOutcome { const HazardNearbyCountOutcome(); }
+final class HazardNearbyCountAvailable extends HazardNearbyCountOutcome { final int count; final int radiusMeters; final DateTime countedAt; const HazardNearbyCountAvailable(this.count, this.radiusMeters, this.countedAt); }
+final class HazardNearbyCountUnavailable extends HazardNearbyCountOutcome { final HazardNearbyCountFailure failure; const HazardNearbyCountUnavailable(this.failure); }
+enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partialResult, retryableUnavailable, scopeUnavailable }
+```
+
+| 输入约束 | 输出 / typed failures | 精确数据边界与副作用 | 顺序、权限与最小示例 |
+| --- | --- | --- | --- |
+| propertyLocation 是同一 Map immutable reference。 | available 带 count/radiusMeters/countedAt；unavailable 不得替换为 0。 | Hazard 只读 `crowdsourced_hazards`；Haversine `d <= 2,000m`（含边界），仅 pending；不写 reports、votes、`hazard_vote_counts` RPC、图层或 Property。 | 同地点 Safety 并行后才决定原子写。 `await counter.countPending(HazardNearbyCountRequest(location));` |
+
+**Fake 场景：** fake 给内/外/恰 2,000m、pending/resolved、partial；只计内/边界 pending，partial/failure 不生成 0 或新快照。
+
+## 3. 必须提供的 Interface
+
+### `PROPERTY-001` — 私有实勘、照片、比较、回收站与风险快照
+
+**提供者：** Property Inspection（B）；**消费者：** Application Shell；**唯一公开 import：** `package:locatemy/features/property_inspection/property_inspection.dart`。
+
+消费者只能 import 此入口。B 应先合入下列声明与最小 fake；这是协作形状，不是可提交实现体、SQL、Storage policy 或 SDK 映射。
+
+```dart
+abstract interface class PropertyInspection {
+  Future<PropertyPortfolioOutcome> loadPortfolio();
+  Future<PropertyDraftOutcome> loadDraft(PropertyDraftId id);
+  Future<PropertyDraftOutcome> saveDraft(PropertyDraft draft);
+  Future<PropertyWriteOutcome> create(PropertyWriteRequest request);
+  Future<PropertyWriteOutcome> update(PropertyInspectionId id, PropertyWriteRequest request);
+  Future<PropertyDetailOutcome> loadDetail(PropertyInspectionId id);
+  Future<PropertyPhotoOutcome> addPhoto(PropertyPhotoRequest request);
+  Future<PropertyPhotoOutcome> updatePhoto(PropertyPhotoUpdate request);
+  Future<PropertyPhotoOutcome> deletePhoto(PropertyPhotoId id);
+  Future<PropertyComparisonOutcome> compare(List<PropertyInspectionId> ids);
+  Future<PropertyRecycleBinOutcome> loadRecycleBin();
+  Future<PropertyDeleteOutcome> softDelete(PropertyInspectionId id);
+  Future<PropertyRestoreOutcome> restore(PropertyInspectionId id);
+  Future<PropertyPurgeOutcome> purgeRecycleBin(PropertyPurgeConfirmation confirmation);
+  Future<PropertyRiskRefreshOutcome> refreshRisk(PropertyInspectionId id);
+}
+final class PropertyInspectionId { final String value; const PropertyInspectionId(this.value); }
+final class PropertyDraftId { final String value; const PropertyDraftId(this.value); }
+final class PropertyPhotoId { final String value; const PropertyPhotoId(this.value); }
+final class PropertyWriteRequest { final String name; final String address; final ValidLocationReference location; final String? savedLocationId; final String price; final int drainage; final int waterproofing; final int humidity; final int lighting; final bool floodEvidence; final String? notes; const PropertyWriteRequest({required this.name, required this.address, required this.location, this.savedLocationId, required this.price, required this.drainage, required this.waterproofing, required this.humidity, required this.lighting, required this.floodEvidence, this.notes}); }
+final class PropertyDraft { final PropertyDraftId id; final PropertyWriteRequest values; final DateTime updatedAt; const PropertyDraft(this.id, this.values, this.updatedAt); }
+final class PropertyPhotoRequest { final PropertyInspectionId? inspectionId; final PropertyDraftId? draftId; final String localPhotoReference; final String? caption; const PropertyPhotoRequest({this.inspectionId, this.draftId, required this.localPhotoReference, this.caption}); }
+final class PropertyPhotoUpdate { final PropertyPhotoId id; final String? caption; final bool? cover; const PropertyPhotoUpdate(this.id, {this.caption, this.cover}); }
+final class PropertyPurgeConfirmation { final bool confirmed; const PropertyPurgeConfirmation(this.confirmed); }
+sealed class PropertyPortfolioOutcome { const PropertyPortfolioOutcome(); }
+final class PropertyPortfolioAvailable extends PropertyPortfolioOutcome { final List<PropertySummary> inspections; const PropertyPortfolioAvailable(this.inspections); }
+final class PropertyPortfolioUnavailable extends PropertyPortfolioOutcome { final PropertyReadFailure failure; const PropertyPortfolioUnavailable(this.failure); }
+sealed class PropertyDraftOutcome { const PropertyDraftOutcome(); }
+final class PropertyDraftAvailable extends PropertyDraftOutcome { final PropertyDraft draft; const PropertyDraftAvailable(this.draft); }
+final class PropertyDraftAbsent extends PropertyDraftOutcome { const PropertyDraftAbsent(); }
+final class PropertyDraftRejected extends PropertyDraftOutcome { final PropertyWriteFailure failure; const PropertyDraftRejected(this.failure); }
+sealed class PropertyWriteOutcome { const PropertyWriteOutcome(); }
+final class PropertyWritten extends PropertyWriteOutcome { final PropertyDetail inspection; final PropertyPhotoTransferState photoTransfer; const PropertyWritten(this.inspection, this.photoTransfer); }
+final class PropertyWriteRejected extends PropertyWriteOutcome { final PropertyWriteFailure failure; const PropertyWriteRejected(this.failure); }
+sealed class PropertyDetailOutcome { const PropertyDetailOutcome(); }
+final class PropertyDetailAvailable extends PropertyDetailOutcome { final PropertyDetail inspection; const PropertyDetailAvailable(this.inspection); }
+final class PropertyDetailUnavailable extends PropertyDetailOutcome { final PropertyReadFailure failure; const PropertyDetailUnavailable(this.failure); }
+sealed class PropertyPhotoOutcome { const PropertyPhotoOutcome(); }
+final class PropertyPhotoChanged extends PropertyPhotoOutcome { final PropertyPhoto photo; const PropertyPhotoChanged(this.photo); }
+final class PropertyPhotoRejected extends PropertyPhotoOutcome { final PropertyPhotoFailure failure; const PropertyPhotoRejected(this.failure); }
+sealed class PropertyComparisonOutcome { const PropertyComparisonOutcome(); }
+final class PropertyComparisonAvailable extends PropertyComparisonOutcome { final List<PropertyDetail> inspections; const PropertyComparisonAvailable(this.inspections); }
+final class PropertyComparisonRejected extends PropertyComparisonOutcome { final PropertyComparisonFailure failure; const PropertyComparisonRejected(this.failure); }
+sealed class PropertyRecycleBinOutcome { const PropertyRecycleBinOutcome(); }
+final class PropertyRecycleBinAvailable extends PropertyRecycleBinOutcome { final List<PropertySummary> inspections; const PropertyRecycleBinAvailable(this.inspections); }
+final class PropertyRecycleBinUnavailable extends PropertyRecycleBinOutcome { final PropertyReadFailure failure; const PropertyRecycleBinUnavailable(this.failure); }
+sealed class PropertyDeleteOutcome { const PropertyDeleteOutcome(); }
+final class PropertySoftDeleted extends PropertyDeleteOutcome { final PropertyInspectionId id; const PropertySoftDeleted(this.id); }
+final class PropertyDeleteRejected extends PropertyDeleteOutcome { final PropertyWriteFailure failure; const PropertyDeleteRejected(this.failure); }
+sealed class PropertyRestoreOutcome { const PropertyRestoreOutcome(); }
+final class PropertyRestored extends PropertyRestoreOutcome { final PropertyInspectionId id; const PropertyRestored(this.id); }
+final class PropertyRestoreRejected extends PropertyRestoreOutcome { final PropertyRestoreRejectedFailure failure; const PropertyRestoreRejected(this.failure); }
+sealed class PropertyPurgeOutcome { const PropertyPurgeOutcome(); }
+final class PropertyPurgeCancelled extends PropertyPurgeOutcome { const PropertyPurgeCancelled(); }
+final class PropertyPurgeCompleted extends PropertyPurgeOutcome { const PropertyPurgeCompleted(); }
+final class PropertyPurgePartial extends PropertyPurgeOutcome { final List<PropertyInspectionId> remaining; final PropertyPurgeFailure failure; const PropertyPurgePartial(this.remaining, this.failure); }
+sealed class PropertyRiskRefreshOutcome { const PropertyRiskRefreshOutcome(); }
+final class PropertyRiskRefreshed extends PropertyRiskRefreshOutcome { final PropertyRiskSnapshot snapshot; const PropertyRiskRefreshed(this.snapshot); }
+final class PropertyRiskRefreshUnavailable extends PropertyRiskRefreshOutcome { final PropertyRiskFailure failure; const PropertyRiskRefreshUnavailable(this.failure); }
+enum PropertyReadFailure { authenticationRequired, notFound, permissionDenied, retryableUnavailable, scopeUnavailable }
+enum PropertyWriteFailure { invalidName, invalidAddress, invalidLocation, invalidPrice, invalidScore, invalidNotes, onlineRequired, permissionDenied, conflict, notFound, retryableUnavailable, scopeUnavailable, riskUnavailable }
+enum PropertyPhotoFailure { limitReached, invalidPhotoSource, unsupportedFormat, devicePermissionDenied, compressionFailed, onlineDeleteRequired, permissionDenied, parentNotFound, retryableUnavailable, transferIncomplete, scopeUnavailable }
+enum PropertyComparisonFailure { fewerThanTwo, moreThanThree, deletedOrInvisible, retryableUnavailable, scopeUnavailable }
+enum PropertyRestoreRejectedFailure { permissionDenied, notFound, conflict, retryableUnavailable, scopeUnavailable }
+enum PropertyPurgeFailure { metadataDeletionIncomplete, storageDeletionIncomplete, retryableUnavailable, permissionDenied, scopeUnavailable }
+enum PropertyRiskFailure { safetyUnavailable, hazardUnavailable, partialInput, locationMismatch, retryableUnavailable, scopeUnavailable }
+enum PropertyPhotoTransferState { none, pendingUpload, transferIncomplete }
+final class PropertySummary { final PropertyInspectionId id; final String name; final String address; final int derivedOverallScore; final PropertyPhoto? cover; const PropertySummary(this.id, this.name, this.address, this.derivedOverallScore, this.cover); }
+final class PropertyPhoto { final PropertyPhotoId id; final String? caption; final bool isCover; final PropertyPhotoTransferState transfer; const PropertyPhoto(this.id, this.caption, this.isCover, this.transfer); }
+final class PropertyRiskSnapshot { final ReportingState reportingState; final int safetyIndex; final int safetySourceYear; final String safetySourceId; final String safetyModelBoundaryVersion; final int hazardPendingCount; final int hazardRadiusMeters; final DateTime hazardCountedAt; final DateTime capturedAt; const PropertyRiskSnapshot({required this.reportingState, required this.safetyIndex, required this.safetySourceYear, required this.safetySourceId, required this.safetyModelBoundaryVersion, required this.hazardPendingCount, required this.hazardRadiusMeters, required this.hazardCountedAt, required this.capturedAt}); }
+final class PropertyDetail { final PropertySummary summary; final List<PropertyPhoto> photos; final PropertyRiskSnapshot? riskSnapshot; const PropertyDetail(this.summary, this.photos, this.riskSnapshot); }
+```
+
+| 调用 | 输入约束 | typed output / failure | 状态、副作用、权限与顺序 |
+| --- | --- | --- | --- |
+| loadPortfolio/loadDetail/loadRecycleBin | opened；稳定 ID 属当前账户。 | available、明确空列表、notFound/permission/retryable/scope；空不代表失败。 | 精确读 `property_inspections`：活动 `deleted_at` 缺失，回收站 `deleted_at` 存在；owner-only。详情读其 `property_inspection_photos`。 |
+| loadDraft/saveDraft | opened；draft 属账户；草稿可保留完整表单及草稿照片引用。 | available/absent/rejected。 | 精确读写 SQLite `property_drafts`、`property_draft_photos`；跨重启而非远端创建/发布；close 必清。 |
+| create/update | opened、在线；name trim 1–200、必需 WGS84 location、非负价格、四项 1–5、notes/收藏引用遵守 Catalog。 | written 或 validation、online-required、permission/conflict/not-found/retryable/risk failure。 | 写 `property_inspections` owner-only。create/坐标变更只在两完整输入时原子写风险组；未变坐标 update 保留组。成功 create 后草稿照片整体转入 SQLite `property_photo_upload_queue`；所有转换成功前保留草稿对象。 |
+| addPhoto/updatePhoto/deletePhoto | opened；仅一项 inspectionId 或 draftId；常见静态格式、压缩后、≤20、caption ≤1000；单张删除在线。 | changed 或 limit/source/format/device/compression/online/parent/transfer failure。 | 草稿照片写 `property_draft_photos`；正式 metadata 写 `property_inspection_photos`，文件写私有 bucket `inspection-photos` 路径 `accountId/inspectionId/photoId`。读写删均验证账户与父实勘 owner；上传/metadata 非原子时保留 queue/local copy；封面删除回退至最早剩余。 |
+| compare | opened；正好 2–3 个不同、活动、可见、同账户 ID。 | available 或 fewer/more/deleted-or-invisible/read/scope failure。 | 只在内存 `STATE-PROPERTY-COMPARE`；不写任何表，不混 Map A/B，不产生赢家。 |
+| softDelete/restore/purgeRecycleBin | opened；删除/清空均经用户确认；purge confirmation 明确。 | deleted/restored；cancelled/completed/partial(remaining)。 | delete/restore 只改 `property_inspections.deleted_at`，不删照片；purge 只删除当前账户回收站中的 Storage 文件、metadata、记录，逐项 partial 可重试、已删幂等。 |
+| refreshRisk | opened、在线；详情的同一 immutable location。 | refreshed 或 safety/hazard/partial/mismatch/retryable/scope unavailable。 | 并行 Safety/Hazard；仅完整且同 location 的结果整体替换 Catalog 的风险字段组。失败保留旧组与时间。 |
+
+**最小调用：**
+
+```dart
+final written = await properties.create(request);
+switch (written) {
+  case PropertyWritten(:final inspection, :final photoTransfer):
+    // 只显示权威 inspection；pending/transferIncomplete 仍是可重试状态。
+  case PropertyWriteRejected(:final failure):
+    // 保留草稿及草稿照片，按 typed failure 给出修正或联网路径。
+}
+```
+
+**Fake 场景：** Shell 使用 fake `PropertyInspection` 分别回空档案、草稿、written + pending upload、风险 unavailable、照片 transfer incomplete、比较不足/越界、purge partial；只有明确成功才改变呈现，失败不丢草稿、不把 pending 称发布、也不把 partial purge 称清空。
+
+## 4. 数据、固定顺序与安全不变量
+
+| 目的 | 权威对象 / 精确访问 | 固定语义 |
+| --- | --- | --- |
+| 实勘和风险组 | `property_inspections`（owner-only CRUD） | 必需地点、名称/价格/四评分/水灾/备注/收藏引用及原子风险字段组均以 Catalog 为准。`deleted_at` 分隔活动/回收站；软删除不删照片。 |
+| 正式照片 | `property_inspection_photos`（owner + 父实勘授权）；Storage `inspection-photos`（`accountId/inspectionId/photoId`） | 元数据和文件独立。每实勘最多 20、唯一封面、caption ≤1000；路径校验不能替代父对象授权。 |
+| 草稿与队列 | SQLite `property_drafts`、`property_draft_photos`、`property_photo_upload_queue` 及应用目录 | 全部带 account 分区；草稿/草稿照片跨重启而未发布；queue 只接收已成功创建的同账户远端实勘照片；退出/换号清除。 |
+| Safety 输入 | `SAFETY-001`；其受控读取为 `read_safety_inputs` / `crime_district` 与无账户 `crime_public_cache` | Property 只消费同地点 complete SafetyAvailable 的州、分数、年、来源、模型/边界版本；不读原始行、不解析州。 |
+| Hazard 输入 | `HAZARD-002`；其读取为 `crowdsourced_hazards` | `d <= 2,000m`、仅 public pending、带 count 时间/半径；不读/写 vote 或 `hazard_vote_counts` RPC。 |
+
+固定顺序：1) Shell 只在 opened scope 启动 Property；2) Map 返回合法 immutable property location；3) Property 保存草稿；4) create、坐标变更或刷新同时请求 Safety/Hazard；5) 两项均 complete available 且 location 相同才在同一远端写操作整体写风险组；6) create 成功才把草稿照片整体转换为正式 queue，所有转换成功才移除草稿照片；7) 正式照片在 Storage 上传和 metadata 成功后才移除本机副本；8) close 先阻断、后清理本机私有状态，绝不重放至新账户。
+
+## 5. 联合验收、自由度与完成核对
+
+| Capability / canonical AT | 场景与操作 | 可观察完成条件 |
+| --- | --- | --- |
+| `PROP-01` / `AT-PROP-01` | 新增/编辑、草稿、草稿照片、重启、Map 往返、在线/离线 | 当前账户草稿完整续填；地点/字段/online/risk/conflict 分开呈现；合法地点与完整风险输入才创建/变更坐标，失败保留修正/重试路径。 |
+| `PROP-02` / `AT-PROP-02` | 相机/相册、20 张、封面、说明、草稿转正式、重启、部分上传 | 草稿照片未发布；所有转换成功前保留草稿；正式 queue/本机副本重试正确，原件/EXIF 不泄露，离线单张删除不伪成功。 |
+| `PROP-03` / `AT-PROP-03` | 创建、变坐标、未变坐标编辑、刷新、Safety/Hazard complete/partial/失败 | 只在两完整同地点输入时整体保存/替换风险组；失败/partial 不改旧组或时间，显示本次不可用。 |
+| `PROP-01`–`03` / `AT-PROP-04` | A/B 账户、伪造 inspection ID/Storage path、close 中晚到结果 | 仅 owner 且父对象授权可访问；无地点拒绝；旧范围资料、上传和结果不显示/提交/重放。 |
+| `PROP-04` / `AT-PROP-05` | 2、3、少于 2、超过 3、已删除/他人项 | 只有 2–3 个当前账户活动实勘并排；比较不保存、不混 Map A/B、没有赢家。 |
+| `PROP-05` / `AT-PROP-06` | 软删除、取消、恢复、确认清空、Storage/metadata partial | 回收站可见且软删除保留照片；取消零副作用；清空仅当前账户，partial 列明 remaining 并可重试，不误报全成功。 |
+| 全部 | 中文/English、200% 字体、读屏/非颜色状态 | 字段错误、同步/删除、风险来源/时间/口径、空态、权限和恢复路径均有文字等价信息。 |
+
+Owner 可选择内部架构、数据库/Storage SDK 映射、压缩、上传调度、缓存、重试、取消、并发、Widget 与测试组织。以下变更须取得跨 Owner agreement：唯一公开 import、任一公开声明/result variant、输入约束、风险原子性、账户/父对象授权、Storage 路径契约或 Schema/RLS。变更同时更新契约、受影响 fake/Adapter 测试和 PDF。
+
+- [x] 按固定顺序完成成果、责任、调用 Interface、提供 Interface、精确数据、实现顺序、联合验收、自由度/参考。
+- [x] `SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002` 和 `PROPERTY-001` 均有唯一 import、声明/精确调用、约束、typed outcome、权限/副作用、顺序、示例与 fake。
+- [x] 草稿、照片队列、风险原子写、账户隔离、回收站和 Storage partial 均有可观察结果；字段、RLS、路径、RPC SQL、migration 和公式仍有唯一外部权威。
+- [x] Standards/Spec 双轴复审通过；无 Ready 阻塞。风险的 migration/RLS/Storage/故障注入证据留实现与集成验收。
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
 | --- | --- | --- | --- | --- |
-| 2026-09-14 | `Draft` | Issue #18 建立 Wave 6 Property Inspection owning design，收敛已 Ready 的 Shell、Map、Privacy、Safety 与 Hazard 契约及 FLOW-06 | `PROP-01`–`05`、`PROPERTY-001`、D30–D34、实勘/照片/草稿/队列/Storage、Crime & Hazard | 待独立审查与设计 AI 依 ADR 0013 批准 |
-| 2026-09-14 | `Draft` | 项目负责人 Q14 冻结风险快照原子写入/替换与失败保留；字段组唯一归 Schema Catalog，平均公式与 Storage 路径形状改为权威指针 | `property_inspections`、`PROPERTY-001`、`PROP-01`、`PROP-03`、`RISK-PROP-01`、`RISK-PROPERTY-01` | 项目负责人（Q14） |
-| 2026-09-14 | `Draft` | 项目负责人 Q15 新增可跨重启的 account/draft 草稿照片、创建后整体转换为正式待传照片及退出清理；统一 online-required 术语 | `property_draft_photos`、`property_photo_upload_queue`、`PROPERTY-001`、`PROP-01`、`PROP-02`、`RISK-STORAGE-01` | 项目负责人（Q15） |
-| 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `PROP-01`–`05`、`PROPERTY-001`、D30–D34 | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | 全面设计审查补齐全域可访问性验收的 canonical `AT-PROP-*`；不改变可观察契约 | `PROP-01`–`05`、`AT-PROP-01`–`06` | 项目负责人（本次审查） |
+| 2026-09-15 | `Ready for Development` | Issue #23：升级为单一契约优先 Markdown/PDF；补齐固定顺序、Readiness、五项上游调用卡与 `PROPERTY-001` 声明，不改变产品、Schema 或上游语义 | `PROP-01`–`05`、`PROPERTY-001`、`SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002`、Property 数据对象 | 设计 AI（项目负责人授权） |

@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Account Privacy - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Scope recovery /\nprivacy failure state] as view
+}
+package "Application" <<application>> {
+  [Privacy coordinator] as vm
+  [Open / close account scope] as uc
+  [PRIVACY-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Opened / closing / closed scope\nand close-completion rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Close-participant registry] as registry
+  [Account-scoped cleanup adapters] as adapters
+}
+rectangle "AUTH-001\naccount reference" as auth
+rectangle "Private-state owners\nShell, Map, Cost, Infrastructure,\nHazard, Property, Account" as owners
+view --> vm
+vm --> uc
+uc --> domain
+uc --> api
+auth --> uc
+uc --> registry
+registry --> adapters
+adapters --> owners : requests proof of cleanup
+note right of api : Shell is the only open/close initiator
+@enduml

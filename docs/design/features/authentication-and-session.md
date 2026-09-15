@@ -1,10 +1,27 @@
 # Authentication & Session 开发协作契约
 
-> Owner：`A`<br>
-> 依赖顺序：Wave 1；A 先合入公开入口和声明，Application Shell、Account Privacy、Account Center 随后并行消费。<br>
+> 状态：`Ready for Development`（2026-09-14；设计 AI〔项目负责人授权〕，ADR 0013）<br>
+> Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 1<br>
+> 唯一公开入口：`package:locatemy/features/authentication_session/authentication_session.dart`<br>
 > 定义完成：消费者可仅凭本文件的公开 seam 区分真实会话、确认状态和失败，并安全完成登录、退出和换号协作。
 
-本文件是 Authentication & Session 唯一的跨 Owner 开发协作契约，也是人类阅读 PDF 的 Markdown 源。它固定公开 Dart 声明、结果语义、数据边界和联合验收；`lib/features/authentication_session/` 内的 Widget、状态管理、Supabase SDK 映射、重试、私有文件和测试组织由 Owner 决定。
+本文件是 Authentication & Session 唯一的跨 Owner 开发协作契约，也是人类阅读 HTML 的 Markdown 源。它固定公开 Dart 声明、结果语义、数据边界和联合验收；`lib/features/authentication_session/` 内的 Widget、状态管理、Supabase SDK 映射、重试、私有文件和测试组织由 Owner 决定。
+
+## 0. 固定阅读顺序与四项 Readiness
+
+实施者和审查者按以下顺序读取；后项只补充前项已固定的事实，不能改写其权威语义：
+
+1. [产品认证事实](../../knowledge_base/locatemy_product/features/authentication.md)与[账户事实](../../knowledge_base/locatemy_product/features/account.md)；
+2. [Feature map](../system/feature-map.md#authentication--session)、[Interface 注册表](../system/interfaces.md)、[FLOW-01](../system/flows.md#flow-01启动注册登录退出与账户切换)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md#身份与账户业务对象)和[风险登记](../system/risks-and-decisions.md#risk-session-01-关闭证据)；
+4. 本契约及其同名 HTML 导出；它们是同一内容的两种阅读形式。
+
+| Readiness | 本 Feature 的可核查证据 | 结论 |
+| --- | --- | --- |
+| 责任与范围 | `AUTH-01`、`AUTH-02`、`AUTH-03`、`ACCOUNT-07` 唯一归属 A；门控、隐私清理和账户页分别仍归其 Owner | 已就绪 |
+| 契约与消费者 | `AUTH-001` 的一个公开入口、声明、失败语义、调用顺序和 fake 场景均在第 3 节；消费者为 Shell、Privacy、Account Center | 已就绪 |
+| 数据与安全 | `auth.users` 和 `profiles` 的访问及权限只引用 Schema Catalog；无 token、密码或 profile 字段泄漏至公开 seam | 已就绪 |
+| 验收与风险 | 第 5 节覆盖 canonical `AT-*`；`RISK-SESSION-01` 已关闭，依赖版本改变时重新打开 | 已就绪 |
 
 ## 1. 任务成果、责任与依赖
 
@@ -24,9 +41,15 @@
 
 ## 2. 需要调用的 Interface
 
-### Supabase Auth seam（`AUTH-002`，仅 A）
+### Interface 卡：Supabase Auth seam（`AUTH-002`，仅 A）
 
-A 是唯一直接调用 Supabase Auth 的 Owner。SDK 方法、token 刷新、取消、重试与错误映射均为内部实现；其他 Owner 不可依赖。只有**明确有效或成功恢复**的会话可成为认证事实。过期缓存、刷新中、刷新失败、离线无法确认和远端拒绝都不得打开私有 scope。
+| 卡项 | 固定内容 |
+| --- | --- |
+| 提供者 / 消费者 | Authentication & Session（A）/ Authentication & Session（A）；这是外部来源 seam，不向其他 Owner 暴露 SDK。 |
+| 目的 | 将 Supabase Auth 的当前设备会话、真实邮箱和邮箱确认事实收敛为 `AUTH-001`。 |
+| 输入 / 成功 | 邮箱密码动作或当前设备恢复；只有明确有效或成功恢复的会话才成为认证事实。 |
+| 失败 / 恢复 | 过期缓存、刷新中、刷新失败、离线无法确认和远端拒绝均不打开私有 scope；映射为 `AUTH-001` 的类型化失败，用户按其恢复路径操作。 |
+| 权限 / 副作用 | A 是唯一直接调用 Auth 与直接写 `profiles` 的 Owner；SDK 方法、token、刷新、取消、重试和错误映射都是 A 的内部实现。 |
 
 | 直接访问对象 | 用途与不可变规则 |
 | --- | --- |
@@ -37,11 +60,20 @@ A 是唯一直接调用 Supabase Auth 的 Owner。SDK 方法、token 刷新、�
 
 ## 3. 必须提供的 Interface
 
-### 当前设备会话（`AUTH-001`）
+### Interface 卡：当前设备会话（`AUTH-001`）
 
 **提供者：** Authentication & Session（A）<br>
 **消费者：** Application Shell、Account Privacy、Account Center<br>
 **唯一公开 import：** `package:locatemy/features/authentication_session/authentication_session.dart`
+
+| 卡项 | 固定内容 |
+| --- | --- |
+| 目的 | 为消费者提供当前设备会话、不可伪造的 account id、真实邮箱及确认状态，并承载登录、注册和当前设备退出的类型化结果。 |
+| 输入 | `restoreSession`、`watchSession`、邮箱密码登录、注册字段、退出意图；各调用的字段约束见“输入”表。 |
+| 成功结果 | 明确 authenticated 的账户、明确无会话、注册后的 authenticated 或 verification-required，以及成功结束当前设备会话。 |
+| 失败与恢复 | 失败由第 3 节 enums 区分修正、重试、升级或停在门控；消费者不解析字符串，也不从旧 snapshot、profile 或缓存推断授权。 |
+| 权限与副作用 | 本 Interface 不导航、不打开/关闭 privacy scope、不清理其他 Owner 数据；`signOut` 只结束本设备会话，不删远端业务记录或其他设备会话。 |
+| 次序与账户隔离 | Shell 以同一 account id 调用 `PRIVACY-001.open`，仅 `opened` 后可显示私有内容；退出/换号的屏蔽、Auth、close 顺序固定于“副作用、权限与调用次序”。 |
 
 消费者只能 import 此入口，不得 import `lib/features/authentication_session/src/`。A 应先提交下列**声明**及最小公共类型；函数体由 A 亲自编写。
 
@@ -61,54 +93,86 @@ abstract interface class AuthenticationSession {
   Future<SignOutOutcome> signOut();
 }
 
-sealed class SessionSnapshot {}
+sealed class SessionSnapshot {
+  const SessionSnapshot();
+}
 final class AuthenticatedSession extends SessionSnapshot {
   final AuthenticatedAccount account;
+  const AuthenticatedSession(this.account);
 }
-final class UnauthenticatedSession extends SessionSnapshot {}
+final class UnauthenticatedSession extends SessionSnapshot {
+  const UnauthenticatedSession();
+}
 final class SessionUnavailable extends SessionSnapshot {
   final SessionFailure failure;
+  const SessionUnavailable(this.failure);
 }
 
 final class AuthenticatedAccount {
   final String accountId;
   final String email;
   final EmailConfirmation confirmation;
+  const AuthenticatedAccount({
+    required this.accountId,
+    required this.email,
+    required this.confirmation,
+  });
 }
 enum EmailConfirmation { confirmed, verificationRequired, unavailable }
 
-sealed class SignInOutcome {}
+sealed class SignInOutcome {
+  const SignInOutcome();
+}
 final class SignInSucceeded extends SignInOutcome {
   final AuthenticatedAccount account;
+  const SignInSucceeded(this.account);
 }
 final class SignInRejected extends SignInOutcome {
   final SignInFailure failure;
+  const SignInRejected(this.failure);
 }
 
-sealed class RegistrationOutcome {}
+sealed class RegistrationOutcome {
+  const RegistrationOutcome();
+}
 final class RegistrationAuthenticated extends RegistrationOutcome {
   final AuthenticatedAccount account;
   final ProfileRegistrationOutcome profile;
+  const RegistrationAuthenticated(this.account, this.profile);
 }
 final class RegistrationVerificationRequired extends RegistrationOutcome {
   final String email;
   final ProfileRegistrationOutcome profile;
+  const RegistrationVerificationRequired(this.email, this.profile);
 }
 final class RegistrationRejected extends RegistrationOutcome {
   final RegistrationFailure failure;
+  const RegistrationRejected(this.failure);
 }
 
-sealed class ProfileRegistrationOutcome {}
-final class ProfileRegistered extends ProfileRegistrationOutcome {}
-final class ProfileRegistrationSkipped extends ProfileRegistrationOutcome {}
+sealed class ProfileRegistrationOutcome {
+  const ProfileRegistrationOutcome();
+}
+final class ProfileRegistered extends ProfileRegistrationOutcome {
+  const ProfileRegistered();
+}
+final class ProfileRegistrationSkipped extends ProfileRegistrationOutcome {
+  const ProfileRegistrationSkipped();
+}
 final class ProfileRegistrationFailed extends ProfileRegistrationOutcome {
   final ProfileFailure failure;
+  const ProfileRegistrationFailed(this.failure);
 }
 
-sealed class SignOutOutcome {}
-final class SignOutSucceeded extends SignOutOutcome {}
+sealed class SignOutOutcome {
+  const SignOutOutcome();
+}
+final class SignOutSucceeded extends SignOutOutcome {
+  const SignOutSucceeded();
+}
 final class SignOutRejected extends SignOutOutcome {
   final SignOutFailure failure;
+  const SignOutRejected(this.failure);
 }
 
 enum SessionFailure { retryableUnavailable, unsupportedClient, remoteRejected }
@@ -171,10 +235,10 @@ switch (snapshot) {
 
 Shell 用 fake `AuthenticationSession` 分别返回 `AuthenticatedSession(account A)`、`UnauthenticatedSession`、`SessionUnavailable(retryableUnavailable)`，验证仅在 A 的 `PRIVACY-001.open` 返回 opened 后建立私有 UI。Account Center 用同一 fake 的三种 `EmailConfirmation`，验证 unavailable 不会被呈现为 verified。二者无需 Supabase 或 A 的生产实现。
 
-## 4. 推荐实现顺序
+## 4. 协作交付顺序
 
 1. **A：先合入公开 seam。** 创建唯一入口、上述声明及最小 fake；合入前消费者不依赖 A 内部文件。
-2. **A：实现真实 Adapter 与表单。** 映射 Supabase Auth/`profiles` 到这些结果，并由 A 编写真实 Adapter 契约测试。
+2. **A：完成真实 Adapter 与表单。** 映射 Supabase Auth/`profiles` 到这些结果，并由 A 亲自编写真实 Adapter 契约测试。
 3. **消费者：并行使用 fake。** Shell 完成门控和 FLOW-01；Account Privacy 只接收 account id；Account Center 只用 `AuthenticatedAccount`。
 4. **共同联调。** 接入生产 seam，仅为第 5 节保留必要跨模块流测试。
 
@@ -196,9 +260,9 @@ Owner 可决定 `src/` 内的拆分、Widget、状态管理、SDK Adapter、刷�
 
 ## 7. 契约变更与完成检查
 
-公共 Interface 变更须由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、受影响 fake/Adapter 测试和 PDF。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate 或 Development Release。
+公共 Interface 变更须由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、同名 HTML 导出和受影响 fake/Adapter 测试。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate 或 Development Release。
 
-- [x] Owner、消费者、依赖顺序和唯一公开入口明确。
-- [x] `AUTH-001` 的声明、输入、结果、失败、副作用、权限、次序、示例和 fake 场景完整。
-- [x] 直接数据对象及其权限有唯一来源；消费者不接触 persistence schema。
-- [x] 联合验收覆盖恢复/门控、注册/验证、退出/清理和 A→B 换号。
+- [x] 四项 Readiness 在第 0 节均有可核查证据。
+- [x] `AUTH-001` 和 `AUTH-002` 均有完整 Interface 卡；`AUTH-001` 只有一个公开 entry point。
+- [x] Dart 仅表达跨 Owner 的公开声明；不含方法实现、SDK 调用、SQL、测试实现或 Widget 结构。
+- [x] fake 场景和联合验收覆盖恢复/门控、注册/验证、退出/清理和 A→B 换号。

@@ -1,0 +1,21 @@
+' Shared visual convention for all LocateMY architecture diagrams.
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName "SansSerif"
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam ArrowColor #52616B
+skinparam PackageBorderColor #8395A7
+skinparam PackageFontColor #1F2D3D
+skinparam ComponentBorderColor #52616B
+skinparam ComponentFontColor #1F2D3D
+skinparam BackgroundColor #FFFFFF
+
+skinparam package {
+  BackgroundColor<<presentation>> #E8F1FB
+  BackgroundColor<<application>> #EAF7F1
+  BackgroundColor<<domain>> #FFF5E6
+  BackgroundColor<<data>> #F3ECFA
+  BackgroundColor<<external>> #F7F7F7
+}

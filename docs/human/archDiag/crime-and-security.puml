@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Crime & Security - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Safety result, trend and\ncategory-filter views] as view
+}
+package "Application" <<application>> {
+  [Safety ViewModel] as vm
+  [Analyse state safety] as uc
+  [SAFETY-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [State-level safety model, trend,\nprovenance and A/B comparability] as domain
+}
+package "Data / Integration" <<data>> {
+  [Safety data Adapter] as adapter
+  database "crime_public_cache" as cache
+}
+rectangle "LOCATION-001 + GEO-001\nvalid location and reporting state" as location
+database "Supabase read_safety_inputs" as source
+view --> vm
+vm --> uc
+uc --> domain
+location --> uc
+uc --> api
+uc --> adapter
+adapter --> source
+adapter --> cache
+note right of api : Reused by Property Inspection\nand Personalized Suitability
+@enduml

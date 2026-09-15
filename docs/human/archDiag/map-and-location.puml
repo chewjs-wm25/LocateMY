@@ -1,0 +1,37 @@
+@startuml
+!include theme.puml
+title Map / Location - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Map, search, A/B selection,\nsaved-location and layer views] as view
+}
+package "Application" <<application>> {
+  [Location ViewModel] as vm
+  [Select, validate and sync locations] as uc
+  [LOCATION-001 / LOCATION-002\npublic Interfaces] as api
+}
+package "Domain" <<domain>> {
+  [Malaysia validation, immutable references,\nA/B roles, saved-location lifecycle] as domain
+}
+package "Data / Integration" <<data>> {
+  [Geoapify Adapter] as geoapify
+  [Map / tile Adapter] as tiles
+  [Saved-location Adapter] as saved
+  database "Private cache + create queue" as queue
+}
+cloud "Geoapify" as geosource
+cloud "OpenStreetMap tiles" as osmsource
+database "Supabase user_saved_locations" as db
+view --> vm
+vm --> uc
+uc --> domain
+uc --> api
+uc --> geoapify
+geoapify --> geosource
+uc --> tiles
+tiles --> osmsource
+uc --> saved
+saved --> db
+saved --> queue
+note right of api : Supplies valid immutable locations\nand hosts declarative map layers
+@enduml

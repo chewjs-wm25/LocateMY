@@ -1,0 +1,77 @@
+@startuml
+!include theme.puml
+title LocateMY - Simplified Project Architecture
+top to bottom direction
+
+actor "Mobile user" as user
+
+package "Flutter Android application" <<presentation>> {
+  [Feature Views] as views
+  [Application Shell\nNavigation, gate, composition] as shell
+}
+
+package "Feature modules" <<application>> {
+  [Authentication & Session] as auth
+  [Account Privacy] as privacy
+  [Map / Location] as location
+  [Location Analysis Features\nCost, Safety, Facilities, Transit,\nSocio, Infrastructure, Suitability] as analysis
+  [User Features\nHazards, Property Inspection,\nAccount Center] as userfeatures
+  [Home & Relocation Outlook] as home
+  [Geographic Context] as geo
+}
+
+package "Domain and local state" <<domain>> {
+  [Feature rules and typed outcomes] as domain
+  database "SQLite / files / preferences\npublic caches + account-scoped queues" as local
+}
+
+package "Remote and external systems" <<external>> {
+  cloud "Supabase Auth" as supaauth
+  database "Supabase Postgres\nViews / RPC / business records" as supadb
+  folder "Supabase Storage\ninspection photos" as storage
+  cloud "Geoapify" as geoapify
+  cloud "OSM tiles / Overpass" as osm
+  folder "Prepared government data\nand GTFS results" as official
+}
+
+user --> views
+views --> shell
+shell --> auth
+shell --> privacy
+shell --> home
+shell --> location
+shell --> analysis
+shell --> userfeatures
+
+auth --> privacy : authenticated account
+location --> geo : valid immutable location
+location --> analysis : LOCATION-001
+geo --> analysis : GEO-001
+analysis --> userfeatures : safety / hazard inputs
+auth --> userfeatures : session facts
+privacy --> location
+privacy --> analysis
+privacy --> userfeatures
+
+home --> domain
+location --> domain
+analysis --> domain
+userfeatures --> domain
+domain --> local
+
+auth --> supaauth
+auth --> supadb
+location --> geoapify
+location --> osm
+analysis --> osm
+analysis --> supadb
+analysis --> official
+geo --> supadb
+userfeatures --> supadb
+userfeatures --> storage
+
+note bottom of shell
+Cross-feature calls use only public Interfaces.
+The composition root wires modules; it does not own domain rules.
+end note
+@enduml

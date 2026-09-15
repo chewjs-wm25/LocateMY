@@ -1,107 +1,252 @@
-# Socio-economic
+# Socio-economic 开发协作契约
 
-> 状态：`Ready for Development`
-> Owner：`B`
-> 系统基线：`5d11769`
-> 依赖波次：`6`
-> 最后更新：`2026-09-14`
-> Prototype 视觉参考：`N/A`（既有示例读数只可作页面结构 fixture）
+> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+> Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 6
+> 唯一公开入口：`package:locatemy/features/socio_economic/socio_economic.dart`
 
-本文件协调社会经济资料、层级回退、推导和比较的可观察语义。它冻结收入、结构、基尼、收入分布和账户家庭收入位置在跨 Owner 边界的结果；不规定资料查询、缓存、图表、插值实现或测试组织。
+本文件是 Socio-economic 唯一的跨 Owner Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它固定公开 Dart seam、受控资料读取、结果语义、权限、次序和联验；`lib/features/socio_economic/` 内的 Widget、状态管理、查询、缓存、插值、图表、并发、取消、重试与测试组织均由 B 决定。公式正文只在产品知识库，字段、RLS 与 migration 只在 Schema Catalog。
 
-## 1. 用户成果与范围
+## 0. 任务成果与完成定义
 
-- 用户成果：用户可在合法单点看到收入中位数、收入结构、基尼和州级收入分布，各读数均带实际统计层级、年份、单位与 DOSM 来源；有同账户 current 预案的家庭月度总收入时，可看到州级参考的家庭收入位置。A/B 保留双方原值，只在该读数的口径相容时显示差异。
-- 包含的 Capability ID：`SOCIO-01`、`SOCIO-02`、`SOCIO-03`。
-- 不包含及原因：不生成综合社会经济指数或推荐；不作 CPI/实际购买力换算；不保存、修改或选择预算预案；不解析坐标或行政边界。它们分别归产品事实、Cost of Living & Budget 或 Geographic Context Owner。
-- 产品事实源：[社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md)、[Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)（Capability 语义）、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#社会经济)。
-- 原型差异：移除硬编码收入、基尼和 A/B 示例值；不再沿用“不插值”旧文案。官方读数与州级百分位推导/估算持续分组并以文字区分。
+**完成定义（DoD）。** B 已在唯一公开入口提供本节第 3 节完整的 `SOCIO-001` 声明；Shell 可只靠该入口的 fake 完成单点与 A/B 组合；真实 Adapter 经第 6 节情景证明：(a) 合法单点逐项显示收入中位数、收入结构、基尼、州级分布与可用的收入位置及其层级、年份、单位、来源和性质，(b) 缺失、行政区不可用、资料/权限失败与收入位置不可用均有可读恢复语义且不补零，(c) A/B 只为可比读数显示差异且没有赢家或推荐，(d) closing、换号、地点/资料/预案版本变化不发布旧结果。完成不包括 Widget、SDK、SQL 或测试实现。
 
-## 2. 依赖、责任与文件边界
+## 1. 任务成果、责任与依赖顺序
 
-| 模块 / 文件边界 | Owner | 负责 | 不负责 | 与其他模块的沟通 |
-| --- | --- | --- | --- | --- |
-| `lib/features/socio_economic/` | Socio-economic | `SOCIO-001`、社会经济只读资料、层级/年份/完整性判断、结构/位置推导、A/B 可比性 | 地点、地理解析、预案写入、综合评分、实际购买力 | 消费 `SHELL-001`、`LOCATION-001`、`GEO-001`、`COST-002`；提供 `SOCIO-001` |
-| `lib/app/` | Application Shell | 单点/A-B 分析导航、返回和结果组合 | 社会经济资料/回退/可比性判断 | 接收带地点、来源、年份、层级、单位和可用性的贡献 |
-| `lib/features/map_location/` | Map / Location | single/A/B 合法不可变地点引用 | 行政语境和社会经济结果 | `LOCATION-001` 只提供地点角色快照 |
-| `lib/modules/geographic_context/` | Geographic Context | 州和行政区的 resolved/unresolved/ambiguous 事实及版本 | 社会经济资料层级回退 | `GEO-001` 不替 Socio 选择回退或读数 |
-| `lib/features/cost_of_living_budget/` | Cost of Living & Budget | 同账户 current 或无 current 的已保存快照及版本 | 用户收入位置计算、社会经济资料 | `COST-002` 只提供 current 的家庭月度总收入和缺失事实 |
-| `read_socio_inputs` | Socio 数据读取对象 | 受控暴露收入、基尼及百分位资料和导入完整性 | 地点解析、页面推导 | Flutter 不直接读取镜像表；字段、权限和迁移只在 Schema Catalog 定义 |
+用户在合法单点可看到收入中位数、收入结构、基尼、州级收入分布及可用时的家庭收入位置；每项都呈现实际层级、DOSM 年份、单位、来源及 official/reference/derived 性质。A/B 保留两端原值，只有同一口径且完整可用的单项显示差异。不会生成综合社会经济指数、推荐、CPI/购买力换算、预算预案写入或行政边界解析。
 
-| 依赖或问题 | 影响 | 验证方式 / 最迟解决点 |
+| Owner | 负责 | 不负责 | 协作 |
+| --- | --- | --- | --- |
+| Socio-economic（B） | `SOCIO-001`、收入/结构/基尼/分布、收入位置、层级回退、完整性、逐项可比性 | 地点合法性、Geo 解析、预案 CRUD、导航、综合评分 | 调用 Shell、Location、Geo、Cost；提供 `SOCIO-001` |
+| Application Shell | opened 范围内导航、返回语境与结果组合 | Socio 资料选择、回退、完整性、可比性 | 调用 `SOCIO-001` |
+| Map / Location | 合法 immutable single/A/B 引用 | 社会经济资料与解释 | 提供 `LOCATION-001` |
+| Geographic Context | state/district 的 resolved/unresolved/ambiguous 事实与版本 | Socio 回退或资料读取 | 提供 `GEO-001` |
+| Cost of Living & Budget | 同账户 current/no-current 的保存事实与版本 | 社会经济位置计算 | 提供 `COST-002` |
+
+**协作顺序。** (1) 提供者已合入 Shell、Location、Geo、Cost 的声明级公共入口；(2) B 以它们的 fake 完成 Socio 并先合入本节的 `SOCIO-001` 声明；(3) Shell 以 Socio fake 组合页面；(4) 两位 Owner 用真实 Adapter 完成第 6 节的少量 joint flows。公开 seam 变化由提供者说明影响、消费者确认，并在同一 PR 更新声明、契约与受影响测试。
+
+### 权威阅读顺序与四项 Readiness
+
+实施和审查先确认上述结果，再按以下权威来源补充事实；后项不能改写前项：
+
+1. [社会经济](../../knowledge_base/locatemy_product/features/socio_economic.md)、[账户](../../knowledge_base/locatemy_product/features/account.md)、[生活成本与预算](../../knowledge_base/locatemy_product/features/cost_of_living.md)；
+2. [Feature map](../system/feature-map.md)、[Interface 注册表](../system/interfaces.md)、[FLOW-02](../system/flows.md#flow-02单点选址地点摘要与六类分析)、[FLOW-03](../system/flows.md#flow-03地点-ab-比较)、[FLOW-07](../system/flows.md#flow-07个人化地点适配度)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md#公共政府镜像与边界对象)、[`RISK-COST-01`](../system/risks-and-decisions.md#risk-cost-01)；
+4. 本契约与其同名 HTML 导出。
+
+| Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
-| `D21` / `SHELL-001` 已 Ready | 结果只能在 opened 主应用中导航与组合 | 导航拒绝保留其原因，不能改写为资料失败；无阻塞 |
-| `D22` / `LOCATION-001` 已 Ready | 单点/A-B 必须以合法不可变地点读取 | 缺失、无效、同一 A/B 地点不读社会经济结果；无阻塞 |
-| `D23` / `GEO-001` 已 Ready | 行政区优先和州级回退必须基于明确地理事实 | unresolved/ambiguous 不能猜选地区；无阻塞 |
-| `D24` / `COST-002` | 家庭收入位置只可使用同账户、已保存 current 的家庭月度总收入 | 无 current、家庭月度总收入未填或保存失败都不是 RM 0，月净收入不能替代；Q18 影响复审已通过 |
-| `read_socio_inputs` 和 canonical 镜像 | 真实结果、完整性和可比性不能由 fixture 替代 | Socio 实现前验证五个 DOSM 数据集的键、单位、统计日期、各层级和百分位覆盖；见 [Schema 迁移计划](../system/baseline-review.md#schema-迁移计划) |
+| 责任与依赖顺序 | B 唯一拥有 `SOCIO-01`–`03`；先有 Shell、Location、Geo、Cost 的公开声明，再由 B 合入 `SOCIO-001` 声明，Shell 随后接入 | 已就绪 |
+| 跨 Owner 契约 | 第 2、3 节为 `SHELL-001`、`LOCATION-001`、`GEO-001`、`COST-002` 和 `SOCIO-001` 给出唯一入口、声明、失败、顺序和 fake 场景 | 已就绪 |
+| 数据与权限 | B 仅经 security-invoker `read_socio_inputs` 读取五个 DOSM 数据集；家庭收入仅从 `COST-002` 的同账户 current 快照取得 | 已就绪 |
+| 联验与风险 | 第 6 节覆盖 `AT-ANALYSIS-01`、`AT-COMPARE-01/03`、`AT-SUIT-04`；`RISK-COST-01` 的两种收入分离不变 | 已就绪 |
 
-## 3. 对外协调契约
+## 2. B 需要调用的 Interface
 
-### 提供
+消费者只能 import 下列唯一入口，不能 import 对方 `src/`、私有 Widget、Repository 或 SDK。
 
-| ID | 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
+### 应用导航与组合（`SHELL-001`）
+
+**提供者：** Application Shell；**消费者：** B
+**唯一公开 import：** `package:locatemy/app/application_shell.dart`
+
+`SHELL-001` 的**完整 canonical 声明**、所有输入约束、结果、权限、顺序与 fake 规则只在 [Application Shell 开发协作契约](../modules/application-shell.md#3-shell-必须提供的-interface) 定义；B 直接 import 该入口，绝不复制、缩窄或另造 Shell 类型。实际调用子集是同一 `ApplicationShell` 的 `submit(ShellIntent)` 与 `publish(ShellContribution)`，以及以下 canonical outcome：`ShellIntentAccepted`、`ShellAuthenticationRequired`、`ShellIntentRejected(ShellRejectionReason)`；`ShellContributionAccepted`、`ShellContributionAuthenticationRequired`、`ShellContributionRejected(ShellRejectionReason)`。`ShellRejectionReason` 仍为 `missingInput`、`staleInput`、`inapplicableDestination`、`scopeUnavailable`。
+
+B 在自己的唯一入口完整声明 `OpenSocioEconomicIntent`、`OpenSocioEconomicComparisonIntent` 与 `SocioEconomicContribution`（见第 3 节）：前两者带 `LOCATION-001` 的 immutable single 或原序 A/B 引用及返回语境，贡献带 Socio 产出的地点、层级、年份、单位、来源、状态和可比性。仅当前同账户 `opened` 可 `submit` 或 `publish`；上述 respective accepted 才导航/组合；任一 authentication-required 保持原页或保留结果不发布；rejected 只表示导航/组合被拒绝，不能改写成资料 unavailable。Shell 仅更新导航/组合呈现，不改变地点、Geo、预案或 Socio 结论；scope 关闭即丢弃待提交意图和晚到贡献。
+
+```dart
+final outcome = await applicationShell.submit(
+  OpenSocioEconomicIntent(location: location, returnContext: returnContext),
+);
+// 只有 ShellIntentAccepted 才开始呈现该地点的 Socio 页面。
+```
+
+**fake 场景：** fake Shell 分别返回 accepted、authenticationRequired、staleInput；验证 B 保留原地点与返回语境，拒绝不会显示为“暂无社会经济资料”，过期贡献不会覆盖新地点。
+
+### 合法地点与行政地理（`LOCATION-001`、`GEO-001`）
+
+**提供者：** Map / Location、Geographic Context；**消费者：** B
+**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`；`package:locatemy/modules/geographic_context/geographic_context.dart`
+
+`LOCATION-001` 的完整 canonical 声明只在 [Map / Location](map-and-location.md#location-001合法地点与收藏)，`GEO-001` 的完整 canonical 声明只在 [Geographic Context](../modules/geographic-context.md#interface-卡行政统计地理语境geo-001)。B 不复制或重塑任一类型；实际调用子集为 `LocationCoordinator.read(LocationRole)`、`GeographicContext.resolve(GeographicContextRequest)`，并使用 frozen `LocationRole`（`single`、`locationA`、`locationB`）、`LocationPresent` / `LocationAbsent`、`ValidLocationReference`、`GeographicLevel`（`district`、`reportingState`）及 Geo 的 `GeographicContextAvailable`、`GeographicContextUnavailable`、`GeographicLevelResolved`、`GeographicLevelUnresolved`、`GeographicLevelAmbiguous` 与其 canonical failure/provenance/candidates。
+
+输入只接受 `LocationPresent`：单点用 `single`，比较用不同的 `locationA`、`locationB` 原序引用。absent、非法、范围外或同点不会触发 Socio 读取，也不会写缓存。B 对每端以原引用一次请求 `district` 与 `reportingState`；`GeographicContextAvailable` 的每层独立处理：只有 `GeographicLevelResolved` 可进入所需层级资料读取；`GeographicLevelUnresolved` 或 `GeographicLevelAmbiguous` 保留 canonical reason、provenance 或完整 candidates。州 resolved 不代表行政区 resolved：每个指标仅在所需层级 resolved 时读资料，绝不按名称、附近或默认地区猜测。调用只读且不改变 Map/Geo 状态；地点或边界版本变化使晚到结果失效。
+
+```dart
+if (locations.read(LocationRole.single) case LocationPresent(:final location)) {
+  final geo = await geographicContext.resolve(GeographicContextRequest(
+    location: location, levels: {GeographicLevel.district, GeographicLevel.reportingState},
+  ));
+  // 仅 GeographicLevelResolved 可用于对应层级的资料读取。
+}
+```
+
+**fake 场景：** Location 给 absent、single、A/B 与同点；Geo 给 resolved、仅 state resolved、district unresolved、ambiguous。验证 absent 无读取；state 可成为授权的州级参考，行政区却不会伪装 resolved；交换 A/B 仅交换显示槽位。
+
+### 当前预算预案的家庭收入（`COST-002`）
+
+**提供者：** Cost of Living & Budget；**消费者：** B
+**唯一公开 import：** `package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart`
+
+`COST-002` 的完整 canonical 声明只在 [Cost of Living & Budget](cost-of-living-and-budget.md#cost-002预算预案与-current-变化)。B 不复制或缩窄该 entry point；实际调用子集为同一 `BudgetScenarioStore` 的 `read()`、`watch()`，以及 `BudgetScenariosAvailable`、`BudgetScenariosUnavailable`、`CurrentBudgetScenarioAvailable`、`NoCurrentBudgetScenario` 和 canonical `BudgetScenarioFailure`。不调用其 CRUD 成员。
+
+B 只读 `CurrentBudgetScenarioAvailable.scenario.householdMonthlyIncomeRm`（`double?`，名义 RM/月）及 `version`；它是 current、已保存、同账户快照。`NoCurrentBudgetScenario`、字段为 null、`BudgetScenariosUnavailable`、未保存编辑、不同账户或旧版本，都使**收入位置**单独 unavailable，绝不将月净收入、临时输入或 RM 0 替代；公共收入/基尼/结构/分布继续独立呈现。`watch` 中仅远端保存成功的新版本可触发 B 失效/重算位置；关闭开始即丢弃旧账户快照、位置与晚到响应。B 不读写 `user_budget_scenarios`，也不公开家庭收入至公共缓存/贡献。
+
+```dart
+final scenarios = await budgetScenarioStore.read();
+// 仅 CurrentBudgetScenarioAvailable 且 householdMonthlyIncomeRm != null 才可请求位置。
+```
+
+**fake 场景：** fake 依次给有家庭收入、仅月净收入、no-current、retryable、A→closing→B。验证只有已保存的同账户家庭收入参与位置；公共结果不混入该金额，旧账户位置不会进入 B。
+
+## 3. B 必须提供的 Interface
+
+### 社会经济分析与比较（`SOCIO-001`）
+
+**提供者：** B；**消费者：** Application Shell
+**唯一公开 import：** `package:locatemy/features/socio_economic/socio_economic.dart`
+
+消费者只能 import 该入口，不能 import `src/`。下列是声明，不是实现、SQL、SDK 调用或公式正文。
+
+```dart
+final class SocioReturnContext { final String destination; final String? stableItemId; }
+final class OpenSocioEconomicIntent extends ShellIntent {
+  final ValidLocationReference location; final SocioReturnContext returnContext;
+}
+final class OpenSocioEconomicComparisonIntent extends ShellIntent {
+  final ValidLocationReference locationA; final ValidLocationReference locationB;
+  final SocioReturnContext returnContext;
+}
+final class SocioEconomicContribution extends ShellContribution {
+  final SocioContributionTarget target; final SocioReturnContext returnContext;
+  final SocioEconomicAnalysisOutcome? analysis;
+  final SocioEconomicComparisonOutcome? comparison;
+}
+enum SocioContributionTarget { analysis, comparison }
+abstract interface class SocioEconomic {
+  Future<SocioEconomicAnalysisOutcome> analyse(SocioEconomicAnalysisRequest request);
+  Future<SocioEconomicComparisonOutcome> compare(SocioEconomicComparisonRequest request);
+}
+final class SocioEconomicAnalysisRequest {
+  final ValidLocationReference location; final SocioRefreshPolicy refreshPolicy;
+}
+final class SocioEconomicComparisonRequest {
+  final ValidLocationReference locationA; final ValidLocationReference locationB;
+  final SocioRefreshPolicy refreshPolicy;
+}
+enum SocioRefreshPolicy { cacheAllowed, refresh }
+sealed class SocioEconomicAnalysisOutcome {}
+final class SocioEconomicAnalysisAvailable extends SocioEconomicAnalysisOutcome { final SocioEconomicAnalysis analysis; }
+final class SocioEconomicAnalysisPartial extends SocioEconomicAnalysisOutcome {
+  final SocioEconomicAnalysis analysis; final List<SocioAvailabilityGap> gaps;
+}
+final class SocioEconomicAnalysisUnavailable extends SocioEconomicAnalysisOutcome { final SocioEconomicFailure failure; }
+sealed class SocioEconomicComparisonOutcome {}
+final class SocioEconomicComparisonAvailable extends SocioEconomicComparisonOutcome { final SocioEconomicComparison comparison; }
+final class SocioEconomicComparisonPartial extends SocioEconomicComparisonOutcome {
+  final SocioEconomicComparison comparison; final List<SocioAvailabilityGap> gaps;
+}
+final class SocioEconomicComparisonUnavailable extends SocioEconomicComparisonOutcome { final SocioEconomicFailure failure; }
+enum SocioEconomicFailure {
+  invalidLocation, sameComparisonPoint, geographicContextUnavailable, sourceUnavailable,
+  permissionDenied, retryableUnavailable, scopeUnavailable, incompatibleMetadata,
+}
+final class SocioEconomicAnalysis { final ValidLocationReference location; final List<SocioReading> readings; }
+final class SocioEconomicComparison {
+  final ValidLocationReference locationA; final ValidLocationReference locationB;
+  final List<SocioComparisonReading> readings;
+}
+final class SocioReading {
+  final SocioReadingKind kind; final SocioAvailability availability;
+  final SocioAvailabilityReason? availabilityReason; final SocioStatisticalLevel? statisticalLevel;
+  final DateTime? sourceDate; final String? unit; final String? sourceDataset;
+  final SocioProvenance? provenance; final SocioReadingValue? value;
+  final int? scenarioVersion;
+}
+final class SocioComparisonReading {
+  final SocioReadingKind kind; final SocioReading locationA; final SocioReading locationB;
+  final SocioReadingValue? difference; final SocioAvailabilityReason? comparabilityReason;
+}
+enum SocioReadingKind { medianHouseholdIncome, incomeStructure, gini, incomeDistribution, incomePosition }
+enum SocioAvailability { available, partial, unavailable }
+enum SocioAvailabilityReason {
+  missingYear, missingLevel, missingData, unresolvedGeography, absentScenarioIncome, incomparable,
+}
+enum SocioStatisticalLevel { district, reportingState }
+final class SocioReadingValue { final String displayValue; }
+final class SocioProvenance { final Uri sourceUri; final String sourceVersion; }
+final class SocioAvailabilityGap { final SocioReadingKind kind; final SocioAvailabilityReason reason; }
+```
+
+| 调用 | 输入约束 | 成功/部分输出 | typed failure 与调用方处理 |
+| --- | --- | --- | --- |
+| `analyse` | 合法 immutable single；refresh 为 cacheAllowed 或显式 refresh | 每项独立的收入中位数、基尼/可用时同比、州级结构、州级 median 分布和可选收入位置；每项带地点、state/district 实际层级、DOSM `date`、单位、dataset/source、official/reference/derived、完整性与原因 | Shell 原样显示分类原因；不得把 unavailable/partial 变为 0、空或整个页面失败 |
+| `compare` | 合法且不同的 A/B；Map 的原始顺序 | 两端逐项原值与元数据；仅两端均 available 且层级、年份、单位、资料集/来源、定义及完整性一致的读数含 difference | `sameComparisonPoint`、地理/资料/scope failure 分开处理；incomparable 不是 winner，保留双方值与具体属性差异 |
+
+以上是 `SOCIO-001` 的完整公开声明：空字段只允许对应 unavailable/partial 的缺失事实，`sourceDate` 是 DOSM 原始统计日期，金额的 `unit` 为名义 RM/月，`SocioReadingValue.displayValue` 必须是可访问的原值/边界状态/文字摘要，不能以 0 代替缺失。每项读数保留 `availability`、`availabilityReason`、`statisticalLevel`、`sourceDate`、`unit`、`sourceDataset` 和 `provenance`；比较差异只属于对应读数，且只在两端均 available、层级、年份、单位、资料集/来源、定义及完整性相同才非 null。收入位置另保留 `scenarioVersion`，且从不作为地点间赢家或总体差异。
+
+**状态、权限与次序。** B 先将 request 绑定 immutable 地点、Geo 版本与当前预案版本，再读取每端 Geo、公共资料和可选 current 快照；任一绑定值或 scope 在完成前变化，旧响应不可发布。读取只读：不写地点、边界、预案、偏好或适配度。公共缓存如建立，只含公共读数、地点/Geo 版本、资料日期和完整性；不含账户、家庭收入或 current 版本。收入/基尼行政区优先，仅该指标无行政区匹配才使用已 resolved state 的州级读数；结构、分布和位置始终是州级参考。完整性、年份、回退和可比性规则见第 4 节。
+
+```dart
+final result = await socioEconomic.analyse(SocioEconomicAnalysisRequest(
+  location: location, refreshPolicy: SocioRefreshPolicy.cacheAllowed,
+));
+// Shell 仅组合 Socio 返回的元数据与 availability；不自行决定州级回退或比较差异。
+```
+
+**fake 场景：** fake Socio 依次返回 district available、state reference、partial percentile、absentScenarioIncome、A/B incomparable、scopeUnavailable。Shell 验证每项元数据和恢复路径可见，部分/不可比不会被渲染为总分、赢家或全页空白。
+
+## 4. B 直接使用的数据与确定性规则
+
+### `read_socio_inputs`：稳定公共读取对象（仅 B）
+
+**精确对象：** Schema Catalog 的 security-invoker View/RPC `read_socio_inputs`（`proposed`）。Flutter 不直接读取五个镜像表，也不读取 `hies_district`、`hies_state`、全国 percentile 或其他退役对象。
+
+| 读取对象 / 精确字段 | 访问与权限 | B 的使用边界 |
+| --- | --- | --- |
+| `hh_income_district(state, district, date, income_mean, income_median)`；`hh_income_state(state, date, income_mean, income_median)` | `read_socio_inputs` 以调用者权限只读；仅 authenticated opened 主应用可读 | `income_median` 为名义 RM/月；逐指标 district 优先，缺匹配才 state reference |
+| `hh_inequality_district(state, district, date, gini)`；`hh_inequality_state(state, date, gini)` | 同上 | `gini` 原样 0–1；同比只比较同一实际层级、资料集且紧邻的 DOSM 年份 |
+| `hies_state_percentile(date, state, percentile, variable, income)` | 同上 | 仅同 state/date 的 P1–P100；`mean` + `maximum(P40/P80)` 生成 B40/M40/T20，`median` 生成曲线和收入位置 |
+
+`read_socio_inputs` 的成功或部分读取必须向本 Feature 回带上述字段、资料集、原始 `date`、资料完整性和导入批次；partial 绝不等于零或完整。B 不写数据库；客户端无 service-role。公共读取 permission/source/version failure 通过 `SOCIO-001` 的 typed outcome 返回，不能伪装为无记录。
+
+**确定性应用规则。** 每项优先采用当前单点可共享的最新完整 DOSM 日期；无共同日期时每项取自己层级/资料集/必需字段完整的最新日期，并呈现年份不同。`missingYear` 是允许层级没有日期，`missingLevel` 是 Geo 已解析而允许层级都无记录，`missingData` 是目标层级/日期存在但必需字段空或不可读，`unresolvedGeography` 是所需层级 unresolved/ambiguous。结构要求同州同 date 全部 `mean(P1…P100)` 和 `maximum(P40/P80)`；曲线/位置要求全部 `median(P1…P100)`。缺任一所需点就是 partial，不推导受影响结构、曲线或位置。相邻真实 `median` 点之间的线性插值仅适用于收入位置；低于 P1、高于 P100 分别呈现边界状态。金额一直标注“名义 RM/月、未按通胀调整”；官方统计与州级参考/推导估算分组显示。
+
+## 5. 推荐实施顺序
+
+1. B 先在唯一入口提交 declaration-only `SocioEconomic`、公开请求/结果/failure/readings 模型；让 Shell 以 fake 编译与测试其组合行为。
+2. 对 `LOCATION-001`/`GEO-001`/`COST-002` 建立 fake：覆盖 single/A-B、resolved/ambiguous、current/no-current/换号；先证明输入与失效边界，再接真实 provider。
+3. 接 `read_socio_inputs`，验证五个 canonical 数据集的键、字段、单位、统计日期、P1–P100 完整性、security-invoker 权限与导入证据；资料或权限未就绪时保留 typed unavailable，而非 fixture。
+4. 实现每项独立的层级回退、年份、partial 和 provenance；最后才组成单点/A-B 呈现贡献与收入位置。
+5. 以真实 Adapter 证明其满足 `SOCIO-001`；Shell 保持 fake consumer 行为测试，双方仅增加第 6 节必要的跨模块测试。
+
+## 6. 联调与验收情景
+
+| 人类可读场景 | 参与 Owner | 操作 | 可观察完成条件 |
+| --- | --- | --- | --- |
+| 行政区优先与诚实州级回退（`AT-ANALYSIS-01`） | Map、Geo、B、Shell | 打开有 district 数据的地点；再打开只有 state 数据的地点 | 每个指标独立采用实际层级，显示年份/单位/来源；州级永远标 reference，不以邻近 district 补齐 |
+| 百分位完整性与收入位置（`AT-ANALYSIS-01`、`AT-SUIT-04`） | Geo、Cost、B、Shell | 完整 median P1–P100 与 current 家庭收入，随后移除一点、移除 current、仅保留月净收入 | 完整时显示命中/插值/边界位置；其余只让位置 unavailable，公共读数保留，绝不以月净收入或 0 替代 |
+| A/B 的逐项可比性与交换（`AT-COMPARE-01`、`AT-COMPARE-03`） | Map、Geo、B、Shell | 比较同口径两点，再制造层级/年份/来源/定义/完整性不同并交换 A/B | 只有兼容且 available 的同项有差异；其他保留两端原值和原因；交换不重写地点或预案，也没有赢家/推荐 |
+| 关闭范围与晚到响应（`AT-ANALYSIS-01`） | Shell、Cost、B | A 的位置请求未完成时 closing，再打开 B 或变更 Geo/current 版本 | closing 起丢弃 A 的收入和晚到结果；公共读取不含私有收入，新版本才可发布 |
+| 可访问的完整、部分、不可用页 | B、Shell | 在中文/English、长金额/日期、图表、估算和错误状态阅读 | 层级、年份、单位、来源、官方/估算和错误均有文字/可访问名称；图表有文字摘要，状态不只靠颜色 |
+
+## 7. Owner 的内部实现自由
+
+B 可在 `lib/features/socio_economic/` 内自行决定文件拆分、Widget、状态管理、查询/缓存键、Supabase SDK 映射、图表库、取消、并发、重试、Adapter 与测试组织。不得以这些内部选择改变本契约的唯一公开入口、typed outcomes、公共/私有边界、层级/年份/完整性或 A/B 可比性。Shell、Map、Geo、Cost 的内部文件与数据库 schema 均不属于 B 的实现边界。
+
+## 8. 阻塞项与权威参考
+
+**当前阻塞：无。** 实现开始前必须取得 `read_socio_inputs` 及 `hh_income_state`、`hh_inequality_state`、`hies_state_percentile` 的 canonical 导入、字段/键、P1–P100 覆盖和 security-invoker 权限证据；这是实现/集成验证条件，不能由设计批准或 fixture 代替。若该资料 seam、任一公开 Interface 或家庭收入语义改变，停止受影响工作并由相关 Owner 在同一 PR 更新契约、声明、HTML 与测试。
+
+权威参考：[社会经济产品事实](../../knowledge_base/locatemy_product/features/socio_economic.md)、[账户事实](../../knowledge_base/locatemy_product/features/account.md)、[Cost 公开契约](cost-of-living-and-budget.md)、[Schema Catalog](../data/schema-catalog.md)、[流程](../system/flows.md)、[Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[风险与决定](../system/risks-and-decisions.md)、[ADR 0011](../../adr/0011-human-coded-ai-designed-delivery-process.md)、[ADR 0012](../../adr/0012-high-level-design-coordination-boundaries.md)、[ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md)。
+
+## 9. Change Log 与完成核对
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
 | --- | --- | --- | --- | --- |
-| `SOCIO-001` | Application Shell | 对合法单点或 A/B 的每端提供互不合成的家庭收入中位数、收入结构、基尼及其可用时的同比变化、州级收入分布与可用时的家庭收入位置；每项带地点、统计层级、统计年份、单位、来源/资料集、推导或官方性质及 `available`、`partial`、`unavailable` 状态。 | 输入为 `LOCATION-001` 引用、`GEO-001` 分层语境、公共资料和可选同账户 `COST-002` current 快照。单点返回每项读数或精确原因；A/B 逐项判断可比性，只在两端实际层级、统计年份、单位、来源资料集、读数/推导定义和完整性相同且均为 available 时产生差异。收入位置使用最新完整州级 `median` 分布与 current 家庭月度总收入；无合格输入时独立 unavailable，不影响公共读数。 | 只在 opened 主应用读取；不写地点、地理资料、预案、偏好或适配度。公共资料缓存若建立不得含账户或 current 收入；范围关闭后丢弃 current 快照、私有结果和晚到响应。 |
+| 2026-09-14 | `Ready for Development` | 固定 Socio 范围、产品口径、资料边界与联验 | `SOCIO-01`–`SOCIO-03`、`SOCIO-001` | 项目负责人 |
+| 2026-09-15 | `Ready for Development` | Issue #23 返工为单一 Development Contract：首屏可观察 DoD；改为引用 Application Shell、Map / Location、Geographic Context、Cost 的完整 canonical 声明并只说明 Socio 实际调用子集；消除旧 publish outcome 变体，移除 PDF、ADR 0014 与 handoff 发布治理 | `SOCIO-001`、`SHELL-001`、`LOCATION-001`、`GEO-001`、`COST-002`、同名 HTML | 设计 AI〔项目负责人授权〕，ADR 0013 |
 
-完整公式只在[社会经济产品事实](../../knowledge_base/locatemy_product/features/socio_economic.md)定义；字段、RLS、迁移与稳定读取对象只在[Schema Catalog](../data/schema-catalog.md#稳定公共读取对象)定义。
-
-### 消费
-
-| ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
-| --- | --- | --- | --- |
-| `SHELL-001` | Application Shell | 进入单点/A-B 社会经济页、提交结果贡献和返回原任务 | 只有 opened scope 的合格目的地会被接受；导航拒绝保留原因，Socio 不把它伪装为无资料。 |
-| `LOCATION-001` | Map / Location | 读取 single 或 A/B 的合法不可变地点 | 只有 valid reference 可查询；absent、outside Malaysia、invalid coordinate 或 same comparison point 不产生社会经济读取或结果。 |
-| `GEO-001` | Geographic Context | 获取行政区优先读取和明确州级回退所需的地理事实 | 每层独立 resolved/unresolved/ambiguous 并保留版本；Socio 只在相关层级 resolved 时读该层级资料，不选邻近、默认或候选地区。 |
-| `COST-002` | Cost of Living & Budget | 取得同账户已保存 current 的家庭月度总收入及其缺失/版本事实 | 无 current、家庭月度总收入缺失、非同账户或未保存编辑使收入位置 unavailable；月净收入与临时 CPI 输入都不能替代。 |
-
-## 4. 用户可观察行为与跨模块流程
-
-| 入口或用户动作 | 成功结果 | 空、不可用或失败结果 | 必须保持的可访问性 / 安全语义 |
-| --- | --- | --- | --- |
-| 打开合法单点的社会经济页 | 收入中位数和基尼优先显示行政区官方读数；行政区未有相应读数时显示明确州级参考。结构与分布显示州级参考估算；每项显示实际年份、名义 RM/月或 0–1、资料来源和统计层级。 | 行政区/州未解析、目标年份/层级/记录缺失或资料不可读时，仅受影响项 unavailable，并说明是哪一种原因；其他独立读数继续显示。 | 官方统计与推导估算分组；金额注明“名义 RM/月、未按通胀调整”，基尼不转 0–100；状态、层级和来源不只以颜色表达。 |
-| 阅读 B40/M40/T20 或分布 | 在同一州、同一完整统计年份，按已确认的百分位规则显示 B40/M40/T20 门槛、组内均值/份额和 P1–P100 的 median 曲线；P50 标示州级中位数参考。 | 缺结构所需的任一 `mean(P1…P100)`、`maximum(P40/P80)`，或缺曲线/位置所需的任一 `median(P1…P100)` 时为 partial distribution：保留可审计的已有观测和缺失范围，但不计算受影响的结构推导、完整曲线或收入位置；完全无合格记录则 unavailable。 | 标题和说明持续写明“州级参考/由百分位数据推导”；图表有同等文字表格或摘要，P1/P100 的无关 minimum/maximum 空值不补零。 |
-| current 预案已有家庭月度总收入时查看收入位置 | 用该州最新完整 `median` P1–P100 记录计算州级参考百分位位置；命中观测点、两点间、低于 P1 和高于 P100 分别如实呈现。 | 无 current、家庭月度总收入未填写、州 unresolved、没有完整 median 分布或资料读取失败时显示独立 unavailable 原因；partial distribution 不执行插值；月净收入不能替代。 | 输入是家庭月度总收入、不是个人工资、不是月净收入或官方阶层判定；只在同账户 opened scope 中呈现，退出/换号不保留。 |
-| 打开 A/B 社会经济比较或交换 A/B 显示 | 各端保留自己的收入、基尼、结构及分布元数据；某项满足可比性时显示该项差异，交换仅改显示槽位。 | 任一端 missing year、missing level、missing data、unresolved geography、partial distribution 或口径不相容时，该项不显示差异/赢家，保留双方可用原值与具体不可比原因。 | 不压缩为总分、不自动推荐；图表和差异有文字说明，A/B 不改变原地点或账户预案。 |
-| 资料刷新、失败、账户关闭或晚到响应 | 成功刷新更新公共资料事实；只在地点、Geo 版本和 current 预案版本仍相同的请求语境中呈现结果。 | 读取失败不将旧 fixture 或缺失填成零；关闭开始即丢弃旧账户 income position 和晚到结果。 | 公共读数不泄露账户收入；错误和恢复入口可读，公共资料与用户收入状态不混合。 |
-
-跨 Owner 完成条件：在 `FLOW-02`/`FLOW-03`，Shell 传入 `LOCATION-001` 的原始 single/A/B 快照；Socio 请求 `GEO-001` 的两个地理层级，再逐项应用其唯一产品事实。`COST-002` 的远端保存成功版本变化只会使同账户的收入位置失效/重算；不会改变公共收入、基尼、结构或分布。Shell 仅组合 Socio 提供的元数据，绝不为其判定回退、完整性或可比性。
-
-## 5. 数据与确定性业务规则
-
-| 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
-| --- | --- | --- | --- |
-| 收入和基尼的层级读取 | [`read_socio_inputs`](../data/schema-catalog.md#稳定公共读取对象)；[社会经济：收入/基尼](../../knowledge_base/locatemy_product/features/socio_economic.md#家庭收入中位数)；`GEO-001` | 对每个指标独立先读 resolved `(state, district)` 的 `hh_income_district` 或 `hh_inequality_district`；仅该指标在行政区层级没有匹配读数时，读 resolved state 的对应州级表。 | 收入取 `income_median`，单位 RM/月；基尼原样为 0–1。行政区和州级都不是互相替代的成功标签：结果必须披露实际层级、DOSM date、资料集和 official/reference 性质。 |
-| 基尼同比变化 | [社会经济：基尼系数](../../knowledge_base/locatemy_product/features/socio_economic.md#基尼系数) | 仅在当前基尼与其紧邻上一 DOSM 统计年份都属于同一实际层级、同一资料集且均可用时，应用唯一的同比绝对差公式。 | 显示该公式结果规定的上升或下降及绝对变化；上一年缺失、层级回退改变、资料集改变或任一读数不可用时，同比变化 unavailable，保留当前基尼及原因，不以不同层级/年份补造趋势。 |
-| 年份选择与缺失分类 | [社会经济：年份、缺失与文案](../../knowledge_base/locatemy_product/features/socio_economic.md#年份缺失与文案) | 对当前单点同时可得的公共读数，优先采用它们共同完整的最新 DOSM 原始统计 `date`；没有共同年份时，每项取自身层级、资料集和所需字段完整的最新 `date`，并显示年份不同。结构/分布/位置的百分位按同一 state/date/variable 成组验证。 | `missing year` 表示该层级/资料集无可用统计日期；`missing level` 表示 Geo 已解析但该指标在允许层级均无匹配读数；`missing data` 表示已有目标日期/层级但必需字段为空或资料不可读；`unresolved geography` 表示必需州或行政区为 unresolved/ambiguous。缺失不为 0，也不用附近地点、插值或不同日期替代。 |
-| B40/M40/T20 与收入分布 | [社会经济：地区收入结构与分布](../../knowledge_base/locatemy_product/features/socio_economic.md#地区收入结构) | 结构以同州、同 date、完整 `mean(P1…P100)` 与 `maximum(P40/P80)` 应用唯一推导；曲线以同州、同 date、完整 `median(P1…P100)` 连接真实观测点。 | B40/M40/T20 始终为州级参考估算；分布始终为州级收入分布参考。不得将其说成行政区官方读数，不做曲线插值/平滑，也不使用全国百分位或州汇总表。 |
-| 当前预案收入位置 | `COST-002`；[社会经济：用户收入位置](../../knowledge_base/locatemy_product/features/socio_economic.md#用户收入位置socio-02) | 只用 current 评估预案的已保存家庭月度总收入和该地点 resolved state 的最新完整 `median` P1–P100 资料。 | 月净收入不得替代家庭月度总收入；相邻真实点之间的线性插值、命中点与 P1/P100 边界的输出均按唯一事实源；其结果是州级参考估算，不反写预案或参与官方统计。 |
-| A/B 可比性 | [FLOW-03](../system/flows.md#flow-03地点-ab-比较)；`SOCIO-001` | 每个读数独立比较两端的结果元数据；收入位置另要求同账户同一 current 预案版本，且仍不作为地点间社会经济差异。 | 仅两端均 `available` 且层级、DOSM date、单位、资料集/来源、official/reference 或推导定义和完整性相同时显示差异。其他情况为 `incomparable`，列出差异属性或一侧状态；不从不同年、层级或部分分布生成差异。 |
-| 数据对象与公共/私有边界 | [Schema Catalog](../data/schema-catalog.md#公共政府镜像与边界对象)；[数据所有权](../system/data-ownership.md#公共资料镜像与缓存) | 只经 `read_socio_inputs` 使用五个 canonical DOSM 镜像；账户收入只经 `COST-002` 取得。 | `hh_income_state`、`hh_inequality_state`、`hies_state_percentile` 和读取对象在实现前仍为 proposed；现有全国或错误粒度对象不得替代。可选公共缓存仅含公共结果/版本/日期/完整性。 |
-
-## 6. 验收与 Ready Gate
-
-| Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- | --- |
-| `SOCIO-01` / `AT-ANALYSIS-01` | resolved 行政区有当前和连续上一年基尼；另一地点仅有州级基尼或上一年缺失 | 打开单点页 | 每项优先行政区并独立回退州级；收入为名义 RM/月、基尼为 0–1，均带实际层级、年份、来源；只有同层级连续年份才显示产品事实定义的基尼升降/绝对变化，其他情况明确同比 unavailable。 |
-| `SOCIO-01` / `AT-ANALYSIS-01` | 结构/分布州资料完整；分别缺一个百分位、variable、年份或资料读取失败 | 阅读结构和图表 | 完整集合才显示全量推导/曲线；partial 与 unavailable 保持不同，缺失不补零，仍明确州级参考估算。 |
-| `SOCIO-01` / `AT-ANALYSIS-01` | 行政区或州 unresolved/ambiguous、行政区无匹配、州无匹配、字段空值 | 打开或刷新 | `unresolved geography`、`missing level`、`missing year`、`missing data` 分别可见；其他独立读数不被清空。 |
-| `SOCIO-02` / `AT-ANALYSIS-01`、`AT-SUIT-04` | 同账户 current 有家庭月度总收入，州 median 分布完整，输入恰中点/两点间/低于 P1/高于 P100 | 打开收入位置 | 显示正确州级参考位置或边界状态；不称官方阶层判定。 |
-| `SOCIO-02` / `AT-ANALYSIS-01`、`AT-SUIT-04` | 无 current、current 缺家庭月度总收入、只有月净收入、未保存编辑、换号、州不可解析或 partial median 分布 | 打开收入位置或切换账户 | 仅收入位置 unavailable，说明输入/资料原因；公共读数保留，旧账户收入不进入新账户。 |
-| `SOCIO-03` / `AT-COMPARE-01`、`AT-COMPARE-03` | 两端同层级/年/单位/来源/定义且完整；或其中一项层级、年、单位、来源、定义、完整性或状态不同；交换 A/B | 比较和交换 | 仅合格指标显示差异；其余并列原值与 specific incomparable 原因，无总分、赢家或自动推荐。 |
-| `SOCIO-01`–`03` / 上述 `AT-*` | 中文/English、长金额/日期、图表、估算和错误状态 | 阅读完整、部分或不可用页 | 单位、层级、年份、官方/估算、来源及错误有文本和可访问名称；非颜色传达，图表有文字摘要。 |
-
-- [x] `SOCIO-01`–`03` 可追踪至 Socio Owner、`SOCIO-001`、`D21`–`D24`、唯一事实源、数据对象和验收情景。
-- [x] 复合评分、购买力换算、预案持久化和地理解析仍分别归既有 Owner；本设计未改变其契约或数据模型。
-- [x] 固定每项的层级、原始统计年份、单位、DOSM 来源、层级回退、完整性与 A/B 可比性语义；missing year/level/data、unresolved geography、absent scenario income、partial distribution 与 incomparable 不互换。
-- [x] 独立 Standards/Spec 双轴审查及 Q18 跨 Cost/Account 影响复审已关闭全部发现。
-- [x] 设计 AI 已依 ADR 0013 批准 `Ready for Development`；`read_socio_inputs` migration 与 canonical 资料导入证据仍是实现开始前 Gate，不以设计批准冒充运行证据。
-
-## 7. Change Log
-
-| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
-| --- | --- | --- | --- | --- |
-| 2026-09-14 | `Draft` | Issue #20 建立 Wave 6 Socio-economic owning design，冻结层级/年份/回退、百分位推导、current 预案收入位置及逐项 A/B 可比性 | `SOCIO-01`–`03`、`SOCIO-001`、`read_socio_inputs`、五个社会经济 DOSM 镜像、D21–D24 | 待独立审查与设计 AI 依 ADR 0013 批准 |
-| 2026-09-14 | `Draft` | 项目负责人 Q18 批准收入位置使用 current 的家庭月度总收入、月净收入不可替代；并补齐产品既定的同层级连续年份基尼同比展示 | `SOCIO-01`–`03`、`SOCIO-001`、`COST-002`、`user_budget_scenarios`、Cost、Account Center | 项目负责人 |
-| 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴审查关闭全部发现；Q18 对 Cost/Account 的字段与用途分离影响复审通过；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready，资料导入与 migration 证据保留为实现 Gate | `SOCIO-01`–`03`、`SOCIO-001`、`COST-002`、`ACCOUNT-001`、`read_socio_inputs`、D21–D24 | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | 全面设计审查修复收入位置锚点并补齐 canonical 验收追踪；不改变统计口径或推导规则 | `SOCIO-01`–`03`、`AT-ANALYSIS-01`、`AT-COMPARE-*`、`AT-SUIT-04` | 项目负责人（本次审查） |
+- [x] 首屏给出任务成果、Owner、依赖和可观察 DoD。
+- [x] 每个跨 Owner seam 都有 frozen 的唯一公开入口；上游完整声明仍由其 Owner 唯一拥有，本 Feature 仅列实际调用子集。
+- [x] `SOCIO-001` 声明、数据/权限边界、地区统计、家庭收入位置和 A/B 可比性均可追溯到事实源与验收情景。
+- [x] 同名 HTML 与本 Markdown 语义等价，且没有 PDF、ADR 0014 或 handoff 发布治理。

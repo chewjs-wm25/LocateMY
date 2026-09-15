@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Hazard Reporting - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Report creation, public list,\ndetail, voting and own-report views] as view
+}
+package "Application" <<application>> {
+  [Hazard ViewModel] as vm
+  [Create, query, vote and manage reports] as uc
+  [HAZARD-001 / HAZARD-002\npublic Interfaces] as api
+}
+package "Domain" <<domain>> {
+  [Five hazard categories, immutable publication,\nauthor state/delete and one-vote rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Hazard repository Adapter] as adapter
+  database "De-identified public cache\n(optional)" as cache
+}
+rectangle "SHELL-001 + LOCATION-001/002\nPRIVACY-001" as shared
+database "Supabase hazards, votes\nand vote-count View" as db
+view --> vm
+vm --> uc
+uc --> domain
+shared --> uc
+uc --> api
+uc --> adapter
+adapter --> db
+adapter --> cache
+note right of api : Map consumes layer intents;\nProperty consumes nearby-hazard counts
+@enduml

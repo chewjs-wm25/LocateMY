@@ -1,108 +1,168 @@
-# Crime & Security
+# Crime & Security 开发协作契约
 
-> 状态：`Ready for Development`
-> Owner：`B`
-> 系统基线：`5d11769`（含 2026-09-14 已批准的州级范围变更）
-> 依赖波次：`5`
-> 最后更新：`2026-09-14`
-> Prototype 视觉参考：`N/A`（现有原型示例不代表地点的官方治安结果）
+> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）  
+> Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 5  
+> 唯一公开入口：`package:locatemy/features/crime_and_security/crime_and_security.dart`  
+> 定义完成：消费者可只凭本契约请求、呈现和保存同一不可变地点的州级安全结果；不会把警区、未知资料、隐患或导航结果混入治安结论。
 
-本文件是 Crime & Security 与其消费者的高层协调设计。它固定官方州级治安读数、趋势、筛选、比较、缓存和跨 Owner 结果；内部读取、缓存、呈现及测试策略归实现 Owner。
+本文件是 Crime & Security 对 #23 的唯一 Development Contract；Markdown 是权威来源，[同名 HTML](../../human/crime-and-security.html) 是语义等价、供人阅读的导出，不是第二份规格或发布包。它固定公开 Dart 声明、跨模块顺序、结果语义、数据边界和联合验收；`lib/features/crime_and_security/` 内的 Widget、状态管理、Adapter、缓存、并发/取消/重试及测试组织由 B 决定。公式正文只在产品知识库，字段、RLS、迁移和缓存物理结构只在 Schema Catalog。
 
-## 1. 用户成果与范围
+## 0. 固定阅读顺序与四项 Readiness
 
-- 用户成果：用户可查看合法地点所属**统计州**的 0–100 安全指数、最新完整年度案件数和最近五年趋势；类别筛选只改变趋势。地点 A/B 在本域资料可比时并列相同口径读数。用户可从治安页进入房产档案或新增房产表单。
-- 包含的 Capability ID：`SAFE-01`、`SAFE-03`。
-- 不包含及原因：`SAFE-02` 已排除。Crime 不解析警区边界、不产生警区结果或安全专题地图/图层；`crime_district.district` 只用于州级汇总。公共 Hazard 报告、其图层、投票、处理状态和附近计数完全属于 Hazard Reporting，不进入本 Feature 的指数、趋势、缓存或适配度输入。Crime 也不推断个人受害概率、拥有行政区统计、房产记录或可变选点。
-- 产品事实源：[治安与犯罪](../../knowledge_base/locatemy_product/features/crime_security.md)、[Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md)、[UI 规则](../../knowledge_base/locatemy_product/ui_design_spec.md#治安与犯罪)。
-- 原型差异：固定州名、示例趋势及固定“暂不可用”安全卡必须替换为绑定不可变地点和官方资料的结果；页面不承载安全专题地图。主地图入口只返回当前分析地点，绝不创建或改写全局选点。
+1. [地点/统计州领域词汇](../../../CONTEXT.md#行政区与统计州) 与[治安产品事实及公式](../../knowledge_base/locatemy_product/features/crime_security.md)；
+2. [Feature map（Crime）](../system/feature-map.md#fm-safety)、[Interface 注册表](../system/interfaces.md)、[FLOW-02](../system/flows.md#flow-02单点地点分析与摘要组合)、[FLOW-03](../system/flows.md#flow-03a-b-地点比较)、[FLOW-06](../system/flows.md#flow-06房产风险快照)；
+3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)；
+4. 本契约与[同名 HTML 导出](../../human/crime-and-security.html)。Git/PR 保存变更历史；不使用 PDF、Manifest、checksum、Locked Source Set、Generation Gate、Development Release 或 Invalidated 生命周期。
 
-## 2. 依赖、责任与文件边界
-
-| 模块 / 文件边界 | Owner | 负责 | 不负责 | 与其他模块的沟通 |
-| --- | --- | --- | --- | --- |
-| `lib/features/crime_and_security/` | Crime & Security | 官方资料读取、州级安全模型、案件/趋势/类别语义、3 天公共缓存、比较判断与 `SAFETY-001` | 地点选择、行政空间匹配、导航、用户隐患、房产持久化、适配度聚合 | 消费 `SHELL-001`、`LOCATION-001`、`GEO-001`；提供 `SAFETY-001` |
-| `lib/app/` | Application Shell | 以地点快照打开单点或 A/B 分析、返回语境、治安摘要及房产档案/新增表单导航 | 治安计算、资料解释、可比性判断、房产数据读取或缓存 | 消费 `SAFETY-001`；按既有 `SHELL-001` 转交纯导航意图 |
-| `lib/features/map_location/` | Map / Location | 合法、不可变地点引用及主地图呈现 | 统计州、治安结果或治安图层 | 提供 `LOCATION-001`；接收 Shell 的返回导航 |
-| `lib/modules/geographic_context/` | Geographic Context | 版本化坐标到统计州的解析与 unresolved/ambiguous 事实 | 警区边界、犯罪聚合或安全评分 | 提供 `GEO-001` 的州结果 |
-| Crime 受控读取对象及 SQLite 公共缓存 | Crime & Security | `read_safety_inputs`、`crime_public_cache` 的 Owner 语义 | 用户账户资料、直接镜像表读取或跨 Feature 缓存 | 对象字段/RLS/migration 仅由 [Schema Catalog](../data/schema-catalog.md) 定义 |
-
-### 依赖与未决项
-
-| 依赖或问题 | 影响 | 验证方式 / 最迟解决点 |
+| Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
-| `SHELL-001`、`LOCATION-001`、`GEO-001` 已 Ready | 仅以同一不可变地点发起分析，且只在 resolved reporting state 时读取官方资料 | Crime Ready 审查核对 `FLOW-02`、`FLOW-03` 和三项上游完整契约 |
-| `crime_district`、`read_safety_inputs`、`crime_public_cache` 仍为 `proposed` | 官方资料、稳定读取和缓存尚须学生 migration/实现 | `RISK-SCHEMA-01` 的 Crime 部分：核验官方 schema/键、导入资料、最新完整年度、五年趋势及州级聚合；Crime 实现/集成验收前关闭 |
-| 已批准的州级范围 | 已退役 `police_districts_boundary` 及 `SAFE-02` 不可再作为输入或功能 | 审查所有 Crime 读写/呈现只使用 `GEO-001` 的 reporting state 和 `crime_district.state`；无警区或安全地图贡献 |
+| 责任与范围 | `SAFE-01`、`SAFE-03` 唯一归属 Crime；警区边界/安全图层、Hazard、房产和可变选点归其他 Owner | 已就绪 |
+| 契约与消费者 | `SAFETY-001` 唯一入口、声明、顺序和 fake 在第 3 节；上游仅 `SHELL-001`、`LOCATION-001`、`GEO-001` | 已就绪 |
+| 数据与安全 | 只由 `read_safety_inputs` 读取 `crime_district`；`crime_public_cache` 无账户字段；对象契约只在 Catalog | 已就绪 |
+| 验收与风险 | 第 5 节覆盖 canonical `AT-*`；`RISK-SCHEMA-01` 留作实现/集成证据 | 已就绪 |
 
-## 3. 对外协调契约
+## 1. 成果、责任与冻结边界
 
-### 提供：`SAFETY-001` 州级安全结果与趋势
+- 用户可看到分析地点所属**统计州**的 0–100 安全指数、最新完整年度案件数、五年趋势、类别可用性、来源、年份、完整性和缓存状态；分数高仅表示同年同类别州级已定罪案件规模相对较低。
+- 单点与 A/B 都绑定 Map 的不可变地点引用。A/B 仅在年份、口径、完整性、模型及边界版本一致时显示差异；不产生赢家或搬迁建议。
+- `all`、`assault`、`property` 和可用具体 `type` 仅筛选趋势，绝不改变指数、最新完整年度或总体案件数。
+- 不包含 `SAFE-02`：不解析/呈现警区边界或安全地图图层；`crime_district.district` 只为州级聚合原始字段。Hazard 报告、投票、状态、图层和计数不进入本 Feature 结果、缓存或适配度输入。
 
-| 消费者 | 动作与可观察事实 | 输入、结果与失败语义 | 权限与副作用边界 |
+| Owner / 受控边界 | 负责 | 不负责 | 协作 |
 | --- | --- | --- | --- |
-| Application Shell；Property Inspection；Personalized Location Suitability | 对给定不可变合法地点取得该地点统计州的安全指数、最新完整年度案件数、类别可用性和五年趋势；A/B 时对每端独立返回同一结果族及本域可比性。 | 输入是 `LOCATION-001` 地点快照和由 `GEO-001` 返回的统计州结果；结果为带地点、统计州、资料年份、来源、完整性、缓存状态及模型/边界版本的 `available`、`partial`、`unavailable(reason)` 或 A/B `comparable`/`incomparable(reason)`。`unresolved`、`ambiguous`、资料缺失、无有效类别、非完整年度、不可用类别及 stale/cached 必须保持可区分，绝不以 0、默认州或邻近地区替代。 | 只读官方公共资料和无账户字段的公共缓存；不写地点、房产、账户资料或 Hazard 对象，不发布地图图层。结果仅绑定请求地点/版本；过期地点、范围关闭或晚到结果不得进入当前槽位。 |
+| `lib/features/crime_and_security/`（B） | 官方资料、州级模型、趋势/筛选、3 天公共缓存、可比性、`SAFETY-001` | 地点选择、行政空间匹配、Shell、Hazard、房产/风险快照、适配度 | 消费 `SHELL-001`、`LOCATION-001`、`GEO-001`；提供 `SAFETY-001` |
+| Application Shell | 门控、分析/比较/返回/房产目的地导航、摘要组合 | 公式、资料解释、比较、缓存、房产资料 | 接收 Crime intent；消费 `SAFETY-001` |
+| Map / Location | 合法 immutable single/A/B 地点和主地图 | 统计州、治安资料/图层 | `LOCATION-001` |
+| Geographic Context | 坐标到 reporting state 的版本化 resolved/unresolved/ambiguous | 警区、聚合、指数 | `GEO-001` |
+| Crime 受控对象 | `read_safety_inputs`、`crime_public_cache` | 用户资料、镜像表直读、跨 Feature cache | Schema Catalog 唯一权威 |
 
-筛选是 `SAFETY-001` 返回的趋势视图请求，而非另一种安全指数：`all` 固定存在，`assault`、`property` 及可用的具体 `type` 只重取/重呈趋势；指数、最新完整年度和总体案件数不随筛选改变。
+## 2. 需要调用的 Interface
 
-### 消费
+### Interface 卡：`SHELL-001` — 分析返回与房产业务导航
 
-| ID | Owner | 使用目的 | 调用方依赖的结果与失败语义 |
+**提供者：** Application Shell；**消费者：** Crime & Security；**唯一公开 import：** `package:locatemy/app/application_shell.dart`；**完整 canonical 声明和权威入口：** [Application Shell 的 `SHELL-001`](../modules/application-shell.md#3-shell-必须提供的-interface)。
+
+Crime 只能对 provider 原样声明的 `ApplicationShell.submit(ShellIntent)` 调用，且只处理原样的 `ShellIntentAccepted`、`ShellAuthenticationRequired`、`ShellIntentRejected(ShellRejectionReason)`；不得在本 Feature 截断、复制、改名或另造 submit-only declaration / outcome。Crime 从自己的唯一入口导出具体 `ShellIntent` marker：返回地图时含当前 immutable `ValidLocationReference` 与原返回语境；打开房产档案或新增房产时只含原返回语境，不能携带房产、草稿、照片、治安结果或可变地图对象。其字段形状与返回语境的完整声明由 Crime 入口在与 Shell 联调前先合入；Shell 不拥有或重述这些领域字段。
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| `SHELL-001` | Application Shell | 单点/A-B 分析、主地图返回、治安摘要及进入房产档案/新增表单的类型化导航 | 只有合格且处于当前语境的目的地被接受；拒绝导航与治安资料不可用保持不同。返回携带原地点/任务，Crime 不改写 Map 选点，也不读取、传输或缓存房产资料。 |
-| `LOCATION-001` | Map / Location | 获得单点或 A/B 的合法不可变地点引用 | 无地点、范围外、坐标无效或相同 A/B 时不请求 Crime；读取地点快照无副作用。 |
-| `GEO-001` | Geographic Context | 将地点坐标解析为治安所用 reporting state | 只消费 resolved state；unresolved/ambiguous 直接成为 Safety unavailable 原因。不得要求或推测警区、行政区、最近州或名称匹配。 |
+| marker 目的地唯一、地点/返回语境完整、仍属当前 opened scope 且未过期。 | 只接受 provider 的三种 canonical outcome；后两者是导航结果，不是资料失败。 | Shell 只改门控、导航/返回栈或组合；Crime 不改 Map、结果、cache 或房产。 | 仅 opened 主应用；`await shell.submit(returnToMapIntent);`。拒绝或需认证时留页并保留安全结果与恢复原因。 |
 
-## 4. 用户可观察行为与跨模块流程
+**Fake 场景：** fake 必须实现 provider 的完整 `ApplicationShell`，分别返回 canonical accepted、authentication-required、`ShellIntentRejected(staleInput)`；断言 payload 不变，后两种不清除安全结果。无需真实 Shell、Map 或 Property。
 
-| 入口或用户动作 | 成功结果 | 空、不可用或失败结果 | 必须保持的可访问性 / 安全语义 |
+### Interface 卡：`LOCATION-001` — 不可变合法地点（输入前提）
+
+**提供者：** Map / Location；**消费者：** Crime & Security；**唯一公开 import：** `package:locatemy/features/map_location/map_location.dart`；**完整 canonical 声明和权威入口：** [Map / Location 的 `LOCATION-001`](map-and-location.md#location-001合法地点与收藏)。
+
+Crime 不调用或包装 `LocationCoordinator` 来选点；它只接受 provider 的完整 canonical `ValidLocationReference` 作为 `SafetyRequest.location`。该引用必须来自 `LocationSelected`，角色为 single 或保留顺序的 A/B。`LocationAbsent`、`LocationSelectionRejected(invalidCoordinate/outsideMalaysia/sameComparisonPoint/scopeUnavailable)` 及任何自行构造、过期或可变地图状态都不得触发 Geo、资料读取、cache 或 Shell contribution。`displayName` 可为 null，且不作地区解析或 cache key。
+
+**最小使用：** `SafetyRequest(location: selectedLocation, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend())`，其中 `selectedLocation` 是 canonical `LocationSelected.location`。**Fake 场景：** fake `LocationCoordinator` 只交付 canonical single/A/B 成功引用或上述 canonical rejection；Crime 仅转交成功引用。
+
+### Interface 卡：`GEO-001` — reporting state 语境
+
+**提供者：** Geographic Context；**消费者：** Crime & Security；**唯一公开 import：** `package:locatemy/modules/geographic_context/geographic_context.dart`；**完整 canonical 声明和权威入口：** [Geographic Context 的 `GEO-001`](../modules/geographic-context.md#interface-卡行政统计地理语境geo-001)。
+
+Crime 只能调用 provider 原样声明的 `GeographicContext.resolve(GeographicContextRequest)`，请求必须是 `location: selectedLocation`、`levels: {GeographicLevel.reportingState}`。只在 `GeographicContextAvailable.results[GeographicLevel.reportingState]` 是 `GeographicLevelResolved` 时，使用该 `AdministrativeArea.reportingStateId` / `reportingStateName` 和同批 `BoundaryProvenance` 进入官方读取。`GeographicContextUnavailable`、`GeographicLevelUnresolved` 与 `GeographicLevelAmbiguous` 都映射为 Safety 的 typed unavailable；保留原因和已知 provenance，不选候选、不猜名称、不回退行政区、最近州或警区。
+
+请求是公共只读，不能改地点、边界、账户或既有结果。边界 provenance 的 dataset/version/hash 是 cache key、`SafetyProvenance.boundaryVersion` 与 A/B 可比性的输入；版本不同不能称可比，旧地点/旧版本晚到结果不能覆盖当前端。
+
+**最小调用：** `await geographicContext.resolve(GeographicContextRequest(location: selectedLocation, levels: {GeographicLevel.reportingState}));`。**Fake 场景：** fake 实现完整 canonical `GeographicContext`，覆盖 resolved、`GeographicLevelUnresolved(noCoverage)`、完整候选的 ambiguous、`GeographicContextUnavailable(scopeUnavailable)` 与不同 `sourceVersion`；仅 resolved 进入 `SAFETY-002`。
+
+## 3. 必须提供的 Interface
+
+### Interface 卡：`SAFETY-001` — 州级安全结果与趋势
+
+**提供者：** Crime & Security（B）；**消费者：** Application Shell、Property Inspection、Personalized Location Suitability；**唯一公开 import：** `package:locatemy/features/crime_and_security/crime_and_security.dart`。
+
+消费者只能 import 此入口。B 应先合入下列声明与最小 fake；这是协作形状，不是可提交实现体。
+
+```dart
+abstract interface class CrimeAndSecurity {
+  Future<SafetyLoadOutcome> load(SafetyRequest request);
+  Future<SafetyComparisonOutcome> compare(SafetyComparisonRequest request);
+}
+final class SafetyRequest {
+  final ValidLocationReference location;
+  final SafetyLoadPolicy policy;
+  final SafetyTrendFilter filter;
+  const SafetyRequest({required this.location, required this.policy, required this.filter});
+}
+enum SafetyLoadPolicy { cacheAllowed, refresh }
+sealed class SafetyTrendFilter { const SafetyTrendFilter(); }
+final class AllCrimeTrend extends SafetyTrendFilter { const AllCrimeTrend(); }
+final class CategoryTrend extends SafetyTrendFilter { final CrimeCategory category; const CategoryTrend(this.category); }
+final class TypeTrend extends SafetyTrendFilter { final String type; const TypeTrend(this.type); }
+enum CrimeCategory { assault, property }
+sealed class SafetyLoadOutcome { const SafetyLoadOutcome(); }
+final class SafetyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyAvailable(this.snapshot); }
+final class SafetyPartiallyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyPartiallyAvailable(this.snapshot); }
+final class SafetyUnavailable extends SafetyLoadOutcome { final SafetyUnavailableReason reason; const SafetyUnavailable(this.reason); }
+final class SafetySnapshot {
+  final ValidLocationReference location; final ReportingState state;
+  final SafetyScore score; final AnnualCrimeCount latestCompleteYearCount;
+  final SafetyTrend trend; final List<SafetyTrendFilter> availableFilters;
+  final SafetyFreshness freshness; final SafetyCompleteness completeness;
+  final SafetyProvenance provenance;
+  const SafetySnapshot({required this.location, required this.state, required this.score, required this.latestCompleteYearCount, required this.trend, required this.availableFilters, required this.freshness, required this.completeness, required this.provenance});
+}
+enum SafetyFreshness { fresh, cached, stale }
+enum SafetyCompleteness { complete, partial }
+enum SafetyUnavailableReason { stateUnresolved, stateAmbiguous, sourceMissing, noValidCategory, incompleteYear, retryableUnavailable, sourceUnverifiable }
+final class SafetyScore { final int value; const SafetyScore(this.value); }
+final class AnnualCrimeCount { final int value; final int year; const AnnualCrimeCount(this.value, this.year); }
+final class SafetyTrend { final SafetyTrendFilter filter; final List<AnnualCrimePoint> points; const SafetyTrend(this.filter, this.points); }
+final class AnnualCrimePoint { final int year; final int convictedCases; const AnnualCrimePoint(this.year, this.convictedCases); }
+final class ReportingState { final String stableId; final String name; const ReportingState(this.stableId, this.name); }
+final class SafetyProvenance { final String source; final String modelVersion; final String boundaryVersion; const SafetyProvenance(this.source, this.modelVersion, this.boundaryVersion); }
+final class SafetyComparisonRequest { final SafetyRequest a; final SafetyRequest b; const SafetyComparisonRequest(this.a, this.b); }
+sealed class SafetyComparisonOutcome { const SafetyComparisonOutcome(); }
+final class SafetyComparable extends SafetyComparisonOutcome { final SafetySnapshot a; final SafetySnapshot b; const SafetyComparable(this.a, this.b); }
+final class SafetyIncomparable extends SafetyComparisonOutcome { final SafetyLoadOutcome a; final SafetyLoadOutcome b; final SafetyComparisonReason reason; const SafetyIncomparable(this.a, this.b, this.reason); }
+enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatch, provenanceMismatch }
+```
+
+| 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| 打开单点治安页或地点摘要 | 显示当前地点、统计州、指数、最新完整年度案件数及五年趋势，连同来源、年份、州级口径、完整性和缓存状态 | 地点/州未解析或歧义、资料缺失、两类均无有效数据时显示“暂不可用”及原因，不显示 0 或示例统计 | 读数、趋势、风险含义和资料状态有文字摘要，不仅靠颜色；明确这不是官方评级、警区结果或个人受害概率。 |
-| 选择“全部”、类别或具体 type | 可用筛选项更换同一统计州的趋势 | 无该类别或 type 的资料时保留该筛选不可用原因，不伪造零趋势 | 控件旁明确“筛选只影响趋势图”；总体指数和案件数保持不变。 |
-| 刷新或读取缓存 | 最新成功资料显示为 fresh；在契约允许时显示 3 天 cached/stale 结果及原始资料年份 | 缓存不存在、过期且刷新失败、或读取失败时明确 retryable/non-retryable unavailable；不把失败写成完整空 | 缓存不含账户 ID；日期、来源、资料完整性、缓存/过期状态始终可见。 |
-| 发起 A/B 比较 | 两端各保留地点、州、年份、来源、口径、完整性和指数/案件/趋势；相同完整年度、口径和可用性满足本域可比条件时才显示差异 | 任一侧未解析/不可用，或年份、口径、完整性、模型/边界版本不一致时保留可用原值与 `incomparable(reason)`，不生成差异 | A/B 仅表示显示顺序；不标示赢家、不作搬迁建议。 |
-| “查看主地图” | Shell 返回发起分析时的当前地点及返回语境 | 导航拒绝保留其原因，不伪装为治安失败 | 不贡献警区边界或安全图层；不改变全局地点。 |
-| 打开房产档案或新增房产 | Shell 接受 Crime 页面发起的类型化 Property 目的地，保留治安页作为返回语境；目标 Feature 呈现自身档案或新增表单 | 目的地不可用、范围关闭或导航被拒绝时保留可理解原因；Crime 的治安读数不被伪装为房产资料 | Crime 只发起导航意图，不拥有、缓存、读取或写入房产记录、草稿、照片、风险快照或选择状态；不呈现最近房产或任何 fixture。 |
+| location 必为 `LOCATION-001` immutable single/A/B；all 恒可请求，类别/type 仅可请求 snapshot 宣告可用项；refresh 绕过 cache。 | available、partial、unavailable(reason) 区分州、资料、完整年度与可重试失败；A/B 为 comparable 或 incomparable(reason)，不伪造差异。 | 只读 `read_safety_inputs`，可读写无账户 `crime_public_cache`；不写地点、房产、账户、Hazard、图层/Shell。filter 只改 trend。 | 先 `GEO-001` resolved，再读取/计算，再以原引用发布；仅 opened 过程呈现。`await safety.load(SafetyRequest(location: location, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend()));` |
 
-跨 Owner 完成条件：在 `FLOW-02`，Map 先发布 `LOCATION-001` 快照，Crime 经 `GEO-001` 取得州结果后独立贡献 `SAFETY-001`，Shell 不把不可用改写为零。在 `FLOW-03`，Shell 将 A/B 快照分别交给 Crime；Crime 独立判定本域可比性，Shell 只并列展示。房产入口复用 `SHELL-001` 已冻结的“业务导航意图、返回语境与拒绝原因”协调契约：Crime 只声明房产档案或新增表单目的地；不消费 `PROPERTY-001`、不等待 Property，也不组合最近房产资料。在 `FLOW-06`，Property 消费已带采集时间、统计州与可用性语义的 `SAFETY-001` 结果制作自身风险快照；Crime 不写房产快照。Hazard 的 `HAZARD-002` 是完全独立的另一个输入。
+**Fake 场景：** Shell fake 消费 fresh complete、cached partial、unresolved、ambiguous、无有效类别、retryable，均不可显示为 0；Property fake 只接受同地点 complete available 且有来源/年份的 snapshot；Suitability fake 将 partial/unavailable 保持为安全维度缺失；A/B fake 证明年份/完整性/版本任一不同即不可比，交换仅改显示顺序。
 
-## 5. 数据与确定性业务规则
+### Interface 卡：`SAFETY-002` — 官方资料读取 seam（仅 B）
 
-| 目的 | 权威对象或事实源 | 访问 / 应用边界 | 必须保持的语义 |
-| --- | --- | --- | --- |
-| 州级安全指数、案件数和趋势 | [治安产品事实及公式](../../knowledge_base/locatemy_product/features/crime_security.md#安全指数)；`crime_district` | 仅通过 `read_safety_inputs` 取得官方镜像资料；先使用 `GEO-001` resolved reporting state，再按 `crime_district.state` 聚合警区原始行 | 使用最新完整年度、同年度同类别实际统计州基准与产品事实中的对数/百分位/60:40 规则；排除 Malaysia 行并应用事实源定义的联邦直辖区归并。指数高仅表示该完整年度相对案件规模较低。 |
-| 类别、趋势和部分资料 | [治安产品事实：犯罪类别与趋势](../../knowledge_base/locatemy_product/features/crime_security.md#犯罪类别) | `all` 为两类总和；类别筛选只作用于 `Y-4` 至 `Y` 的可用完整年度趋势 | `assault`、`property` 与具体 type 的资料可用性分别呈现；仅一个主类别有效时按既定权重重归一化并标示 partial，两个皆无才 unavailable。 |
-| 地理、来源和比较 | `GEO-001`、`crime_district`、[CONTEXT.md](../../../CONTEXT.md#行政区与统计州) | 保留 state、边界来源/版本、官方年份、资料来源和完整性，不把 police district 当地点地理语境 | 不解析或呈现警区边界；`district` 从不替代 reporting state。A/B 只有两端同一可解释口径和可比资料时才计算差异。 |
-| 公共缓存 | `crime_public_cache`；[Schema Catalog](../data/schema-catalog.md#本机对象) | 以 reporting state、模型/边界版本和资料事实区分缓存；3 天 TTL | 无账户字段，退出/换号保留；cached/stale 不冒充 fresh，原始官方年份仍显示。 |
-| 公共隐患隔离 | [Hazard 产品事实](../../knowledge_base/locatemy_product/features/hazard_reporting.md)、`HAZARD-001`/`HAZARD-002` | 不读写 Hazard 报告、投票或计数；不消费其图层或状态作为 Crime 输入 | 隐患不进入安全指数、趋势、比较、缓存或适配度安全维度。 |
+**提供者/消费者：** Crime & Security（B）/ Crime & Security（B）；非跨 Owner 入口。B 经 Catalog 的 `read_safety_inputs` 读取 `crime_district`，得到州、完整年、类别/type、已定罪案件或分类失败。仅可验证最新完整年度与有效类别可形成结果；网络、SDK、取消、超时、重试、cache 替换和错误映射由 B 封装。应用消费者不能 import Adapter、镜像表或原始行。
 
-## 6. 验收与 Ready Gate
+## 4. 固定业务语义、数据与流程
 
-| Capability | 验收情景 | 用户操作 | 可观察结果 |
-| --- | --- | --- | --- |
-| `SAFE-01` | resolved state，有两类完整资料；最新年、五年窗口、州归并及来源资料齐全 | 打开单点分析 | 显示州级 0–100 指数、最新完整年度案件数和趋势；每项带地点、州、年份、来源、完整性和口径。对应 `AT-ANALYSIS-01`。 |
-| `SAFE-01` | 仅一主类别有效、两类均无、空/缺年、资料不完整、刷新失败及 cached/stale | 打开或刷新 | partial、unavailable、完整空、retryable/non-retryable 及 cached/stale 不互换；不显示伪 0。对应 `AT-ANALYSIS-01`。 |
-| `SAFE-01` | 州 resolved、unresolved、ambiguous、边界版本变化及州外/相邻地区诱因 | 选择地点后分析 | 只使用 resolved reporting state；其余显示可解释 unavailable；无警区、行政区或邻近地区回退。对应 `AT-LOC-01`、`AT-LOC-02`。 |
-| `SAFE-03` | all、assault、property、可用/不可用具体 type | 切换筛选 | 只有趋势变化；指数、最新年和总体案件数不变，筛选范围有文字说明。对应 `AT-ANALYSIS-01`。 |
-| `SAFE-01` | 有效 A/B、单侧不可用、年份/口径/完整性/版本不同及混合缓存 | 比较或交换 A/B | 并列原值；仅可比时显示差异，其他显示原因；交换仅改变呈现顺序。对应 `AT-COMPARE-01`、`AT-COMPARE-03`。 |
-| `SAFETY-001` / Property、Suitability、Shell；`AT-PROP-03`、`AT-SUIT-01`、`AT-ANALYSIS-01` | 风险快照请求、地点摘要、主地图返回及 Hazard 数据存在 | 从消费者请求或返回 | 结果含保存所需州/年份/来源/可用性；Crime 不写 Property，不产出安全图层，也不混入 Hazard。 |
-| 可访问性与披露 / `AT-ANALYSIS-01`、`AT-COMPARE-03` | 中文/English、动态字体、图表/颜色、来源与模型限制 | 阅读单点或比较页 | 文字等价信息覆盖读数、趋势、筛选作用域、状态和限制；州级而非警区/个人风险的口径清楚可见。 |
+| 目的 | 权威来源 / 访问边界 | 必须保持的语义 |
+| --- | --- | --- |
+| 安全指数/案件数 | [治安事实及公式](../../knowledge_base/locatemy_product/features/crime_security.md#安全指数)；`read_safety_inputs` | resolved reporting state 后聚合 `crime_district.state` 的警区原始行；最新完整年、同年同类别实际州基准、对数/百分位/60:40。排除 Malaysia，按事实源归并联邦直辖区；district 绝不作地理解析。 |
+| 趋势/筛选 | [犯罪类别与趋势](../../knowledge_base/locatemy_product/features/crime_security.md#犯罪类别) | all 为两类总和；趋势 `Y-4…Y` 可用完整年。仅一主类按既定权重重归一化并 partial；两类无效则 unavailable。 |
+| 地理/比较 | `GEO-001`、[CONTEXT](../../../CONTEXT.md#行政区与统计州) | 保留 state、边界来源/版本、官方年、来源、完整性/模型版。未解析/歧义无回退；同一可解释口径才可比。 |
+| 公共缓存 | `crime_public_cache`（Catalog） | key 含 reporting state、模型/边界版、资料事实；TTL 3 天；无账户字段，退出保留；cached/stale 不冒充 fresh，始终示原始官方年。 |
+| Hazard 隔离 | Hazard 产品事实、`HAZARD-001`/`HAZARD-002` | 不读写报告、投票、计数、图层/状态；隐患不进指数、趋势、比较、cache、Suitability 安全维度。 |
 
-- [x] `SAFE-01`、`SAFE-03` 追踪到 Crime Owner、`SAFETY-001`、资料对象、唯一事实源与验收情景。
-- [x] `SAFETY-001` 与 `SHELL-001`、`LOCATION-001`、`GEO-001`、Property/Suitability 消费边的职责和副作用无冲突。
-- [x] 公式正文、字段、RLS、migration 和内部缓存策略分别仍只在产品事实源或 Schema Catalog；本文件没有可提交实现。
-- [x] 州级聚合、无警区/安全地图、Hazard 隔离、缺失/部分/过期、A/B、可访问性与来源披露均已独立审查。
-- [x] 仅房产档案和新增房产入口通过 `SHELL-001` 的既有类型化导航/返回语境到达 Property；Crime 不消费 `PROPERTY-001` 或任何房产资料，并且不展示最近房产、逐行详情、`and N more`、空/unavailable 房产状态或 fixture。
-- [x] `RISK-SCHEMA-01` 的 Crime 资料与读取对象证据已保留为实现/集成验收项；不以现有 `crime_stats` 或示例资料宣称完成。
-- [x] 独立 Standards/Spec 双轴复审均通过；设计 AI已依 ADR 0013 批准 `Ready for Development`。
+顺序：Map 在 `FLOW-02`/`FLOW-03` 先给每角色 immutable location；Crime 调 `GEO-001`，只对 resolved state 经 `SAFETY-002` 形成 `SAFETY-001`；Shell 组合但不重算/置零。`FLOW-06` 的 Property 只消费同地点完整结果并自行写风险快照；Crime 不读写 Property。返回地图/Portfolio/Add Property 均经本契约 Shell card。
 
-## 7. Change Log
+## 5. 验收、Ready Gate 与变更
 
-| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
+| Capability / canonical AT | 情景与操作 | 可观察完成条件 |
+| --- | --- | --- |
+| `SAFE-01` / `AT-ANALYSIS-01` | resolved 州、两类完整资料，打开单点 | 州级 0–100、最新完整年案件、五年趋势及地点/州/年/来源/完整性/cache/口径；无警区或个人风险。 |
+| `SAFE-01` / `AT-ANALYSIS-01` | 单类、两类无、空/缺年、刷新失败、cached/stale | partial、unavailable、complete-empty、retryable/non-retryable、cached/stale 可区分，永无伪 0。 |
+| `SAFE-01` / `AT-LOC-01`、`AT-LOC-02` | resolved/unresolved/ambiguous、边界版改变 | 仅 resolved 读；无默认/邻近/行政区/警区回退。 |
+| `SAFE-03` / `AT-ANALYSIS-01` | all、类别、type 切换 | 仅趋势变化；指数/年/总案件不变，有文字说明。 |
+| `SAFE-01` / `AT-COMPARE-03` | A/B、单侧不可用、年/完整性/provenance 不同、交换 | 并列原值；仅可比时显示差异；交换不改计算。 |
+| `SAFETY-001` / `AT-PROP-03`、`AT-SUIT-01` | Property/Suitability/Shell 消费，存在 Hazard | 带保存所需州/年/来源/可用性；Crime 不写房产、不出图层、不混 Hazard。 |
+| 披露 / `AT-ANALYSIS-01`、`AT-COMPARE-03` | 中文/English、动态字体、图表/颜色 | 文字等价覆盖读数、趋势、筛选、状态、来源/cache/限制；说明州级而非警区/评级/个人概率。 |
+
+- [x] `SAFE-01`、`SAFE-03` 追踪到 Owner、`SAFETY-001`、`crime_district`、`read_safety_inputs`、`crime_public_cache`、事实源和 AT。
+- [x] 每个跨 Owner Interface 含唯一 import、声明/精确调用、约束、typed outcome、状态副作用、顺序/权限、最小示例和 fake。
+- [x] 无实现体、SQL、SDK 映射、缓存策略或内部测试组织。
+- [x] `RISK-SCHEMA-01` 的官方 schema/键、导入行数、最大完整年、五年趋势和州聚合证据留实现/集成验收；不得用 `crime_stats` 或示例宣称完成。
+- [x] Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。
+
+公共 Interface 变更须由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新声明、本契约、同名 HTML 导出及受影响 fake/Adapter 测试。Git/PR 保存历史；不使用 PDF、文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release 或 Invalidated 生命周期。
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
 | --- | --- | --- | --- | --- |
-| 2026-09-14 | `Draft` | Issue #15 建立 Wave 5 Crime & Security owning design；按项目负责人已批准范围以统计州聚合原始警区记录 | `SAFE-01`、`SAFE-03`、`SAFETY-001`、`crime_district`、`read_safety_inputs`、`crime_public_cache`、D11/D12/D13/D33/D43 | 待独立审查与设计 AI 依 ADR 0013 批准 |
-| 2026-09-14 | `Draft` | 记录警区边界/安全图层已撤销及 Hazard 完全隔离，替代 #15 旧描述中的过时范围 | `SAFE-02`（excluded）、`police_districts_boundary`（retiring）、Hazard Reporting | 项目负责人既有范围决定 |
-| 2026-09-14 | `Draft` | 独立审查补齐房产入口与最近房产 Shell 组合槽；不引入 Crime→Property 的数据依赖或 Ready blocker | `SHELL-001`、`PROPERTY-001`、Property Inspection、Crime 页组合槽 | 待独立审查与设计 AI 依 ADR 0013 批准 |
-| 2026-09-14 | `Draft` | 项目负责人 Q10 移除 Crime 页最近房产预览及组合槽，仅保留档案/新增的纯导航 | `SHELL-001`、Crime 房产入口、`PROPERTY-001` 消费者摘要、产品/UI 事实源 | 项目负责人 |
-| 2026-09-14 | `Ready for Development` | 独立 Standards/Spec 双轴复审关闭全部发现；依 [ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md) 批准 Ready | `SAFE-01`、`SAFE-03`、`SAFETY-001`、D11–D13、D33、D43 | 设计 AI（项目负责人授权） |
-| 2026-09-14 | `Ready for Development` | 全面设计审查补齐消费者与可访问性验收的 canonical `AT-*`；不改变州级安全契约 | `SAFETY-001`、`AT-ANALYSIS-01`、`AT-COMPARE-03`、`AT-PROP-03`、`AT-SUIT-01` | 项目负责人（本次审查） |
+| 2026-09-15 | `Ready for Development` | Issue #23：改为单一 Development Contract 和同名 HTML 导出；移除旧 PDF/ADR 0014/handoff 发布流程引用，并令 `SHELL-001`、`LOCATION-001`、`GEO-001` 消费卡只指向冻结 provider 的完整 canonical declaration；不改变公式、数据模型、权限、失败或验收语义 | `SAFE-01`、`SAFE-03`、`SAFETY-001`、`SHELL-001`、`LOCATION-001`、`GEO-001`、`crime_public_cache`、同名 HTML | 设计 AI（项目负责人授权） |
