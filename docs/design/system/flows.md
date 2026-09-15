@@ -1,6 +1,6 @@
 # 系统关键流程
 
-> 状态：`Draft — Issue #4 complete cross-Feature flows`
+> 状态：`Baselined — 5d11769`
 > 最后更新：2026-09-13
 
 本文件是跨 Feature 工作流顺序、失败/降级与恢复语义的唯一真相。步骤只引用

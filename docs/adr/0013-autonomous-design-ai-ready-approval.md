@@ -11,7 +11,7 @@ finding, and then record its own approval before closing the Issue.
 
 The delegation applies only to the rolling owning-design Ready gate. The project owner remains the
 sole authority for product and architecture decisions, system `Baselined`, human implementer
-assignment, design changes that alter an approved contract or data model, human work packages, and
+assignment, design changes that alter an approved contract or data model, and
 `Integrated` acceptance. When an Issue exposes one of those decisions, the AI stops that Issue and
 asks the project owner rather than inventing an answer.
 

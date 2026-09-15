@@ -1,32 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<title>Cost of Living & Budget 开发协作契约</title>
-<meta name="generator" content="md2html">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
-  body { max-width: 72rem; margin: 2rem auto; padding: 0 1.25rem 3rem; }
-  h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
-  h1 { margin-top: 0; }
-  a { color: #0969da; }
-  code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-  code { overflow-wrap: anywhere; }
-  pre { overflow-x: auto; padding: 1rem; background: #f6f8fa; border-radius: .375rem; line-height: 1.45; }
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { border: 1px solid #d0d7de; padding: .55rem .7rem; text-align: left; vertical-align: top; }
-  th { background: #f6f8fa; }
-  blockquote { margin-left: 0; padding-left: 1rem; border-left: .25rem solid #d0d7de; }
-  @media (prefers-color-scheme: dark) {
-    a { color: #58a6ff; }
-    pre, th { background: #161b22; }
-    th, td { border-color: #30363d; }
-    blockquote { border-color: #30363d; }
-  }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cost of Living &amp; Budget 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
 <body>
+<main>
 <h1>Cost of Living &amp; Budget 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
@@ -51,8 +49,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>结论</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>责任与范围</td>
 <td>B 唯一拥有 <code>COST-01</code>–<code>03</code>、<code>ACCOUNT-09</code>；<code>COST-04</code> excluded；地点、Geo、scope、适配度和 Socio 仍归原 Owner</td>
 <td>已就绪</td>
@@ -72,8 +69,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>第 5 节覆盖 <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01/03</code>、<code>AT-SUIT-02/04/06</code>；<code>RISK-COST-01</code> 的口径锁定</td>
 <td>已就绪</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>1. 成果、责任与边界</h2>
 <ul>
 <li>合法单点显示真实单位的本地价格、<code>ObservedSpend12</code>、覆盖率和合格时地点成本指数；同账户完整 current 预案时另显示 <code>ScenarioSpend12</code>、地点基线及个人预算压力。</li>
@@ -89,8 +85,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>协作</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Cost of Living &amp; Budget（B）</td>
 <td><code>COST-001</code>/<code>002</code>、成本模型应用、3 天公共缓存、<code>STATE-COST-TEMP</code>、预案 CRUD/current</td>
 <td>地点、行政区匹配、Shell、scope、Schema/RLS/migration、适配度和偏好</td>
@@ -114,8 +109,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>Cost payload 或远端预案</td>
 <td><code>PRIVACY-001</code></td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>2. B 消费的 Interface / 读取对象</h2>
 <p>完整语义仍属 owning document；B 只能 import 指定入口，不能 import 对方 <code>src/</code> 或 SDK。</p>
 <h3><code>SHELL-001</code>：导航与组合</h3>
@@ -252,7 +246,7 @@ final class BoundaryProvenance {
 }
 enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiable, scopeUnavailable }
 </code></pre>
-<p>以上分别是 <a href="map-and-location.html#location-001合法地点与收藏">Location</a> 和 <a href="../design/modules/geographic-context.md#interface-卡行政统计地理语境geo-001">Geo</a> 的完整 canonical 声明。输入仅 <code>single</code> 或不相同 A/B 的 <code>LocationPresent</code>；absent、非法、范围外或同点不发 Cost 请求、不写缓存。B 用原引用请求 district 与 reporting state；<code>GeographicContextAvailable.results</code> 的键恰为请求层级，B 仅使用其中 <code>GeographicLevelResolved</code> 的 district 读成本资料。unresolved/ambiguous 与整次 unavailable 都保留其原因、候选（适用时）和 provenance；行政区不得以附近、州或名称猜测，州 resolved 也不使 district resolved。调用只读、不改变 Map/Geo；地点或边界版本变化后的晚到结果不可发布。</p>
+<p>以上分别是 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Location</a> 和 <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geo</a> 的完整 canonical 声明。输入仅 <code>single</code> 或不相同 A/B 的 <code>LocationPresent</code>；absent、非法、范围外或同点不发 Cost 请求、不写缓存。B 用原引用请求 district 与 reporting state；<code>GeographicContextAvailable.results</code> 的键恰为请求层级，B 仅使用其中 <code>GeographicLevelResolved</code> 的 district 读成本资料。unresolved/ambiguous 与整次 unavailable 都保留其原因、候选（适用时）和 provenance；行政区不得以附近、州或名称猜测，州 resolved 也不使 district resolved。调用只读、不改变 Map/Geo；地点或边界版本变化后的晚到结果不可发布。</p>
 <pre><code class="language-dart">if (locations.read(LocationRole.single) case LocationPresent(:final location)) {
   final geo = await geographicContext.resolve(GeographicContextRequest(
     location: location, levels: {GeographicLevel.district, GeographicLevel.reportingState},
@@ -295,7 +289,7 @@ final class PrivateStateCleared extends PrivateStateClearOutcome { final Account
 final class PrivateStateClearIncomplete extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; final PrivateStateClearFailure failure; const PrivateStateClearIncomplete(this.participantId, this.scope, this.failure); }
 enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, queuedWorkCleanupIncomplete, scopeUnavailable, retryableUnavailable }
 </code></pre>
-<p>以上为 <a href="../design/modules/account-privacy.md#privacy-001--账户范围与关闭参与者">Account Privacy</a> 的完整 canonical 声明。Shell 是 lifecycle 唯一发起者。B 只在当前同账户 <code>AccountScopeOpened</code> 读写预案；closing 开始即清除 current 内存选择/私有副本并拒绝旧读写和晚到响应。B 以 <code>AccountPrivacyParticipantId.costLivingBudget</code> 对固定旧 scope 提供 close 证明；不删远端预案、公共缓存或语言。<code>identityMismatch</code>、<code>scopeNotOpen</code>、<code>scopeClosing</code>、<code>retryableUnavailable</code> 是 typed failure，绝不以空预案冒充。</p>
+<p>以上为 <a href="../design/modules/account-privacy.md#privacy-001--%E8%B4%A6%E6%88%B7%E8%8C%83%E5%9B%B4%E4%B8%8E%E5%85%B3%E9%97%AD%E5%8F%82%E4%B8%8E%E8%80%85">Account Privacy</a> 的完整 canonical 声明。Shell 是 lifecycle 唯一发起者。B 只在当前同账户 <code>AccountScopeOpened</code> 读写预案；closing 开始即清除 current 内存选择/私有副本并拒绝旧读写和晚到响应。B 以 <code>AccountPrivacyParticipantId.costLivingBudget</code> 对固定旧 scope 提供 close 证明；不删远端预案、公共缓存或语言。<code>identityMismatch</code>、<code>scopeNotOpen</code>、<code>scopeClosing</code>、<code>retryableUnavailable</code> 是 typed failure，绝不以空预案冒充。</p>
 <pre><code class="language-dart">if (privacy.readScope() case AccountScopeOpened(:final scope)) {
   // 仅操作 scope.accountId 的预算预案。
 }
@@ -323,7 +317,7 @@ enum CostInputFailure { invalidGeographicContext, sourceUnavailable, permissionD
 <pre><code class="language-dart">final inputs = await costInputsReader.read(CostInputsRequest(
   location: location, district: districtArea, reportingState: reportingStateArea,
   districtProvenance: districtProvenance, reportingStateProvenance: reportingStateProvenance,
-  basketVersion: 'cost-basket-v1', refreshPolicy: CostRefreshPolicy.cacheAllowed,
+  basketVersion: &#39;cost-basket-v1&#39;, refreshPolicy: CostRefreshPolicy.cacheAllowed,
 ));
 </code></pre>
 <p>fake：完整 12 月、5 月、低覆盖、CPI 无共同月、retryable；验证只有事实源门槛满足时发布指数/压力，缓存无私有字段。</p>
@@ -364,8 +358,7 @@ enum CpiEquivalentFailure { invalidInput, geographicContextUnavailable, cpiUnava
 <th>typed failure / 调用方处理</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>analyse</code></td>
 <td>合法 immutable single；refresh 二选一</td>
 <td>地点、行政区/州口径、篮子/模型版、来源、资料日期、单位、覆盖率和 fresh/cached/stale/partial/unavailable；可含价格、Observed、指数、Scenario、压力</td>
@@ -389,8 +382,7 @@ enum CpiEquivalentFailure { invalidInput, geographicContextUnavailable, cpiUnava
 <td>离页后临时输入不存在</td>
 <td>无远端写入；不改预案/压力/Suitability</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><strong>状态、权限、副作用、次序。</strong> 按<a href="../knowledge_base/locatemy_product/features/cost_of_living.md#%E5%B7%B2%E7%A1%AE%E8%AE%A4%E7%9A%84%E5%8D%95%E7%82%B9%E7%94%9F%E6%B4%BB%E6%88%90%E6%9C%AC%E6%A8%A1%E5%9E%8B">模型</a>应用逐商户中位数、逐月平均、删项、12 月窗口、至少 6 月/平均覆盖率 80% 门槛。<code>CostIndex</code> 仅同版 <code>ObservedSpend12</code>/<code>BaseSpend12</code>，不含住房/交通/额外生活开销，不是官方 CPI/评级。只有完整核心市场、住房/交通已填或明确 RM 0、已保存 current 的月净收入才发布 <code>ScenarioSpend12</code>/个人压力；家庭月度总收入不可替月净收入。临时输入不访问预案，离页清除。每次先绑定 location、Geo/资料/篮子/current 版本，任何版本或 scope 变化均使旧响应无效。</p>
 <pre><code class="language-dart">final result = await costOfLivingBudget.analyse(
   CostAnalysisRequest(location: location, refreshPolicy: CostRefreshPolicy.cacheAllowed),
@@ -434,8 +426,7 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <th>typed failure / 调用方处理</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>read</code> / <code>watch</code></td>
 <td>当前同账户 opened</td>
 <td>全部该账户预案与 current/no-current、保存版本</td>
@@ -459,8 +450,7 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <td>Deleted；删 current 返回 NoCurrent</td>
 <td>不自动选择；不离线排队</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><code>BudgetScenario</code> 是只读保存快照，含 id/name、五个金额及其缺失状态、isCurrent、时间和版本。Account 固定显示名称、额外生活开销、住房、交通、月净收入、家庭月度总收入及缺失状态；Socio 只读 current 家庭月度总收入；Suitability 只读同账户同版本 current。B 是 <code>user_budget_scenarios</code> 唯一读写 Owner；每次远端保存成功才发布 version，消费者可去重并使依赖读数失效/重算。</p>
 <pre><code class="language-dart">final outcome = await budgetScenarioStore.selectCurrent(scenarioId);
 // Saved 才用 current.version 更新摘要；Rejected 保留最后已保存摘要并显示恢复路径。
@@ -483,8 +473,7 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <th>追踪</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>单点完整/缺失</td>
 <td>B、Map、Geo、Shell</td>
 <td>完整时价格/Observed/覆盖率/指数/压力；&lt;6 月、低覆盖、Geo unresolved/ambiguous 时保留读数和精确原因</td>
@@ -520,17 +509,16 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <td>A current/副本不可读，B 不继承，公共无身份缓存可留；失败为无私有内容恢复态</td>
 <td><code>COST-03</code>；<code>AT-SUIT-06</code></td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>6. 实现自由、Gate 与检查</h2>
 <p>B 可决定内部文件、Widget、状态机、SDK/SQLite、缓存、取消、重试、冲突、公式代码和测试组织。以下变更须暂停协商：唯一公开 import、公共声明/result variant、输入约束、版本语义、权限/副作用/顺序、<code>read_cost_inputs</code>/<code>user_budget_scenarios</code> Schema/RLS，或事实源锁定的篮子/门槛/两种收入边界。</p>
 <p>实现 Gate：<code>read_cost_inputs</code> 与 <code>user_budget_scenarios</code> 仍 proposed；实现前必须验证官方 schema/键/单位、导入完整性和最大日期、CPI 最新共同月、完整/部分/空导入、可空非负字段和旧预案缺失保留。不得用 fixture 宣称完成；此 Gate 不改变本 Feature 的 Ready 设计状态。</p>
 <ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>四项 Readiness 均可核查。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked><code>COST-001</code>/<code>002</code> 均有唯一入口、声明、输入、typed outputs/failures、状态/权限/副作用/顺序、示例和 fake。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>Shell/Location/Geo/Privacy 与精确 View/RPC 都有唯一入口/对象、声明级协作形状、约束和 fake。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>无函数体、SDK、SQL、migration、测试实现或 Widget 结构。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>联验覆盖单点、A/B、current、临时换算、两收入、失败与 A→B 隔离。</li>
+<li><input checked="" disabled="" type="checkbox"> 四项 Readiness 均可核查。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>COST-001</code>/<code>002</code> 均有唯一入口、声明、输入、typed outputs/failures、状态/权限/副作用/顺序、示例和 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> Shell/Location/Geo/Privacy 与精确 View/RPC 都有唯一入口/对象、声明级协作形状、约束和 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> 无函数体、SDK、SQL、migration、测试实现或 Widget 结构。</li>
+<li><input checked="" disabled="" type="checkbox"> 联验覆盖单点、A/B、current、临时换算、两收入、失败与 A→B 隔离。</li>
 </ul>
 <p>公共 Interface 变更由提供方说明原因与消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不使用 PDF、文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release 或 Invalidated 状态机。</p>
 <h2>Change Log</h2>
@@ -544,8 +532,7 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <th>批准者</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>2026-09-14</td>
 <td><code>Ready for Development</code></td>
 <td>固定 Cost 范围、产品口径、数据边界与联验</td>
@@ -559,7 +546,7 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <td><code>COST-001</code>、<code>COST-002</code>、Cost 的四个上游 seam、Shell、Map、Geo、Privacy、Account、Socio、Suitability</td>
 <td>设计 AI〔项目负责人授权〕，ADR 0013</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
+</main>
 </body>
 </html>

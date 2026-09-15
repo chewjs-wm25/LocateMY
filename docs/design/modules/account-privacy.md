@@ -33,7 +33,52 @@
 | 八项私有本机状态 / 各 participant | A 只接收类型化处理结果，不读 payload/字段/路径 | 未完成、未知或重复 participant 不能 closed |
 | 公共缓存、语言、远端记录、其他设备会话 | 不属于 close payload | 不删除、不跨账户混入；公共缓存不得含 account ID、自由文字或用户命名 |
 
-## 2. 必须提供的 Interface
+## 2. 需要调用的 Interface
+
+### `AUTH-001` — 明确认证的账户事实
+
+**提供者：** Authentication & Session；**消费者：** Account Privacy（A）。
+**唯一公开 import：** `package:locatemy/features/authentication_session/authentication_session.dart`。
+
+Privacy 只消费该入口的公开 Auth 事实，不主动调用其他 Owner 的内部接口、缓存、profile、token 或 SDK。Shell 是账户范围的唯一 lifecycle 发起者：它取得明确认证的同一账户后调用 `PRIVACY-001.open`；Privacy 不自行登录、恢复会话、导航或结束会话。
+
+```dart
+abstract interface class AuthenticationSession {
+  Future<SessionSnapshot> restoreSession();
+  Stream<SessionSnapshot> watchSession();
+}
+sealed class SessionSnapshot { const SessionSnapshot(); }
+final class AuthenticatedSession extends SessionSnapshot {
+  final AuthenticatedAccount account;
+  const AuthenticatedSession(this.account);
+}
+final class UnauthenticatedSession extends SessionSnapshot { const UnauthenticatedSession(); }
+final class SessionUnavailable extends SessionSnapshot {
+  final SessionFailure failure;
+  const SessionUnavailable(this.failure);
+}
+final class AuthenticatedAccount {
+  final String accountId;
+  final String email;
+  final EmailConfirmation confirmation;
+  const AuthenticatedAccount({required this.accountId, required this.email, required this.confirmation});
+}
+enum EmailConfirmation { confirmed, verificationRequired, unavailable }
+enum SessionFailure { retryableUnavailable, unsupportedClient, remoteRejected }
+```
+
+**输入、结果、权限与顺序。** `open` 只接受当前 `AuthenticatedSession` 的非空 `accountId`；该不可变 Auth 账户是范围身份唯一来源。`UnauthenticatedSession` 与 `SessionUnavailable`（包括 retryable、unsupported、remote-rejected）都不是可打开范围的事实，必须保持无私有内容，不能降级为旧账户、profile 或缓存身份。认证事实与已 opened scope 的 account id 不同、认证变为无会话或不可确认时，Shell 按固定关闭顺序屏蔽私有内容、结束当前设备会话并关闭旧范围；Privacy 只拒绝不匹配/过期的 open 或私有访问，不能替 Shell 推断或替换账户。
+
+```dart
+final snapshot = await authenticationSession.restoreSession();
+if (snapshot case AuthenticatedSession(:final account)) {
+  // Shell 以同一 account 调用 privacy.open(account)；仅 opened 后建立私有应用。
+}
+```
+
+**fake 场景：** fake Auth 依次给 `AuthenticatedSession(A)`、`UnauthenticatedSession`、`SessionUnavailable(retryableUnavailable)` 与 B；Shell/Privacy 验证只有 A 的成功 open 可建立 A 范围，未知或无会话不开放私有内容，A→B 前必须先关闭 A，Privacy 不读取其他来源补充身份。
+
+## 3. 必须提供的 Interface
 
 ### `PRIVACY-001` — 账户范围与关闭参与者
 
@@ -112,7 +157,7 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 
 **Fake Adapter 场景：** Shell fake 返回 A opened、A `CloseIncomplete(propertyInspection, fileCleanupIncomplete)`、A closed、B opened；验证 incomplete 起 A UI/意图/晚到结果均不可用，重试只针对 A，B 不继承 A。Privacy 的 participant fake 返回完整八项、任一 incomplete、未知/重复 ID 或不同 scope；仅完整八项可 closed，其余保持 closing。Property fake 用 A 草稿/待传文件和 B opened 验证 A 文件、queue、比较及晚到成功不可提交/重放，也不删 A 远端实勘；其余 Owner 以同一接口验证自己的保留项。
 
-## 3. 推荐实现与调用顺序
+## 4. 推荐实现与调用顺序
 
 1. A 合入唯一 entry point、声明和最小 fake；消费者不得依赖 `src/`。
 2. 八个 Owner 并行实现自己的 participant，并用真实 Adapter 证明本结果语义；不读其它 payload。
@@ -120,7 +165,7 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 4. 退出/失效/换号：Shell 立即屏蔽旧私有 UI、意图和晚到结果 → `AUTH-001.signOut()` → `close(oldScope, reason)`。两者成功才普通登录；任何失败仍无私有内容并可重试。B 必须重新认证后才可 open。
 5. 接入生产 seam，只保留第 4 节所需跨模块流；Adapter 细节和测试组织仍归 Owner。
 
-## 4. 联合验收
+## 5. 联合验收
 
 | 场景 | 操作 | 可观察结果 | 追踪 |
 | --- | --- | --- | --- |
@@ -132,11 +177,11 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 
 `RISK-PRIVACY-01` 的完整集合/证明和 `RISK-PRIVACY-02` 的先封锁/可恢复语义已关闭设计风险。SQLite/文件不可用、部分处理和进程重启的故障注入仍为实现后的集成证据，不能改变上述结果。
 
-## 5. 实现自由、阻塞项与变更
+## 6. 实现自由、阻塞项与变更
 
 A 可决定 `src/`、participant 注入、内部状态机、Adapter、并发、取消、重试、日志和测试组织。变更唯一 import、公开声明/result variant、八人集合、隔离/顺序/保留项，须说明影响、由提供方和受影响 Owner 确认，并在同一 PR 更新声明、本契约、HTML 与相关 fake/Adapter 测试。
 
-当前阻塞项：无。参考：[FLOW-01](../system/flows.md#flow-01启动注册登录退出与账户切换)、[数据所有权](../system/data-ownership.md#privacy-barrier-参与者清单)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)、[ADR 0013](../adr/0013-autonomous-design-ai-ready-approval.md)。
+当前阻塞项：无。参考：[FLOW-01](../system/flows.md#flow-01启动注册登录退出与账户切换)、[数据所有权](../system/data-ownership.md#privacy-barrier-参与者清单)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)、[ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md)。
 
 ## Change Log
 

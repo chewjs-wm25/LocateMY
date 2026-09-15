@@ -1,6 +1,6 @@
 # Schema Catalog
 
-> 状态：`Draft — Issue #4 system object catalog complete`
+> 状态：`Baselined — 5d11769; environment control amended 2026-09-15`
 > 最后更新：2026-09-13
 
 本文件是 LocateMY 数据对象、字段契约、访问规则和迁移状态的唯一目录，不替代学生编写的可执行 schema。Supabase DDL/RLS/Storage policy 最终以 `supabase/migrations/` 为权威；SQLite 以学生实现的 migration 为权威。系统与 Feature 文档只能引用这里的对象，不复制字段定义。
@@ -124,3 +124,5 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 4. Storage 文件与照片元数据不是原子对象。失败时保留可重试 queue；孤儿清理只处理可证明属于当前账户且无有效元数据的目标。
 5. 基线后的 schema 演进使用 add–migrate–remove：先添加新对象并验证双读/迁移，再切换消费者，最后经项目负责人批准移除旧对象。不得从行政区 id 猜坐标或从 fixture 制造迁移值。
 6. 示例只用清洗数据；迁移、测试和日志不得记录凭据、token、service-role key、真实邮箱、自由文字、照片或可识别精确地点。
+7. 本地 Supabase 使用仓库锁定的 CLI `2.117.0`，`config.toml` 设置 `auto_expose_new_tables = false`；远端只接受与 migration history 一致的 forward migration，不修改已应用历史或执行 history repair。
+8. 遗留 `public` PostGIS 的 Data API 补偿控制由 `RISK-DATA-API-01` 定义：当前应用禁用 GraphQL，并拒绝 `spatial_ref_sys` / `st_estimatedextent` 路径。新增表/View/RPC 仍须自行满足第 1–3 条，不能依赖 pre-request hook 代替 RLS。

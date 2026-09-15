@@ -3,16 +3,17 @@
 > 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 > Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 6
 > 唯一公开入口：`package:locatemy/features/property_inspection/property_inspection.dart`
+> 任务成果：账户本人可安全续填、创建、管理、比较、回收和永久清空自己的实勘与私有照片；风险快照只在同地点两项完整输入下原子保存。
 > 完成定义：消费者仅凭本契约即可安全续填、创建、管理、比较、软删除和清空自己的实勘；风险快照只在同地点的完整 Safety 与 Hazard 输入同时可用时原子保存。
 
-本文件是 Property Inspection 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、精确数据边界及联合验收；`lib/features/property_inspection/` 内的 Widget、状态管理、Supabase/SQLite/Storage Adapter、压缩、队列、并发、取消、重试、文件拆分和测试组织由 B 决定。产品字段、公式、RLS、Storage policy、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。
+本文件是 Property Inspection 唯一的跨 Owner Development Contract，也是同名 HTML 的权威 Markdown 源。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、精确数据边界及联合验收；`lib/features/property_inspection/` 内的 Widget、状态管理、Supabase/SQLite/Storage Adapter、压缩、队列、并发、取消、重试、文件拆分和测试组织由 B 决定。产品字段、公式、RLS、Storage policy、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。
 
 ## 0. 固定阅读顺序与四项 Readiness
 
 1. [领域词汇](../../../CONTEXT.md#房产风险快照)、[房产实勘产品事实](../../knowledge_base/locatemy_product/features/property_inspection.md)、[治安](../../knowledge_base/locatemy_product/features/crime_security.md)与[隐患](../../knowledge_base/locatemy_product/features/hazard_reporting.md)事实；
 2. [Feature map（Property）](../system/feature-map.md#fm-property)、[Interface 注册表](../system/interfaces.md)、[FLOW-06](../system/flows.md#flow-06房产实勘照片风险快照与回收站)；
 3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md)、[风险登记](../system/risks-and-decisions.md#风险与关闭条件)；
-4. 本契约；生成/使用人类 PDF 时最后读 [ADR 0014](../../adr/0014-version-locked-pdf-development-documentation-packages.md) 与 [handoff](../handoff/README.md)。
+4. 本契约与同名 HTML；HTML 只是本 Markdown 的人类可读、语义等价导出，不另行引入发布治理。
 
 | Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
@@ -36,7 +37,7 @@
 | Account Privacy | 同账户 opened/closing 及关闭证明 | 远端实勘或已上传照片删除 | `PRIVACY-001` |
 | Crime / Hazard | 同地点的安全快照输入；附近 pending 数 | 房产写入、照片、比较、回收站 | `SAFETY-001`、`HAZARD-002` |
 
-## 2. 必须调用的 Interface 卡
+## 2. 需要调用的 Interface 卡
 
 ### `SHELL-001` — 房产导航与组合
 
@@ -47,20 +48,35 @@ abstract interface class ApplicationShell {
   Future<ShellIntentOutcome> submit(ShellIntent intent);
   Future<ShellContributionOutcome> publish(ShellContribution contribution);
 }
+
 abstract interface class ShellIntent {}
 abstract interface class ShellContribution {}
+
 sealed class ShellIntentOutcome {}
 final class ShellIntentAccepted extends ShellIntentOutcome {}
 final class ShellAuthenticationRequired extends ShellIntentOutcome {}
-final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; }
+final class ShellIntentRejected extends ShellIntentOutcome {
+  const ShellIntentRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+
 sealed class ShellContributionOutcome {}
 final class ShellContributionAccepted extends ShellContributionOutcome {}
 final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
-final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; }
-enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+final class ShellContributionRejected extends ShellContributionOutcome {
+  const ShellContributionRejected(this.reason);
+  final ShellRejectionReason reason;
+}
+
+enum ShellRejectionReason {
+  missingInput,
+  staleInput,
+  inapplicableDestination,
+  scopeUnavailable,
+}
 ```
 
-Property 从其唯一入口导出 `OpenPropertyPortfolioIntent`、`OpenPropertyEditorIntent`、`OpenPropertyDetailIntent`、`OpenPropertyCompareIntent`、`OpenPropertyRecycleBinIntent`、`PickPropertyLocationIntent`（均为 `ShellIntent`）及 `PropertyShellContribution`（为 `ShellContribution`）。intent 只带稳定实勘/草稿 ID、当前 `PropertyReturnContext` 或 Map 返回任务；不携带照片字节、风险上游 payload、跨账户资料或可变地图对象。
+Property 实际调用子集是 `submit` 与 `publish`；上方仍是来自 Shell owning contract 的**完整 canonical 声明**，不得在 Property 或 fake 截断、复制或改形。Property 从其唯一入口导出 `OpenPropertyPortfolioIntent`、`OpenPropertyEditorIntent`、`OpenPropertyDetailIntent`、`OpenPropertyCompareIntent`、`OpenPropertyRecycleBinIntent`、`PickPropertyLocationIntent`（均为 `ShellIntent`）及 `PropertyShellContribution`（为 `ShellContribution`）。intent 只带稳定实勘/草稿 ID、当前 `PropertyReturnContext` 或 Map 返回任务；不携带照片字节、风险上游 payload、跨账户资料或可变地图对象。
 
 | 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
@@ -76,23 +92,55 @@ Property 从其唯一入口导出 `OpenPropertyPortfolioIntent`、`OpenPropertyE
 abstract interface class LocationCoordinator {
   Future<LocationSelectionOutcome> select(LocationSelectionRequest request);
   LocationRoleSnapshot read(LocationRole role);
+  Future<LocationSelectionOutcome> swapComparisonLocations();
+  Future<SavedLocationOutcome> save(SaveLocationRequest request);
+  Future<SavedLocationOutcome> deleteSavedLocation(String savedLocationId);
+  Stream<SavedLocationsSnapshot> watchSavedLocations();
+  Future<SavedLocationsSnapshot> synchronizeSavedLocations();
 }
 enum LocationRole { single, locationA, locationB, property }
 final class GeographicPoint { final double latitude; final double longitude; }
-final class LocationSelectionRequest { final LocationRole role; final GeographicPoint point; final String? displayName; }
-final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; }
-sealed class LocationSelectionOutcome {}
-final class LocationSelected extends LocationSelectionOutcome { final LocationRole role; final ValidLocationReference location; }
-final class LocationSelectionRejected extends LocationSelectionOutcome { final LocationSelectionFailure failure; }
-enum LocationSelectionFailure { invalidCoordinate, outsideMalaysia, sameComparisonPoint, scopeUnavailable }
+final class LocationSelectionRequest {
+  final LocationRole role; final GeographicPoint point; final String? displayName;
+}
+final class ValidLocationReference {
+  final String locationId; final GeographicPoint point; final String? displayName;
+}
 sealed class LocationRoleSnapshot {}
-final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; }
+final class LocationPresent extends LocationRoleSnapshot {
+  final LocationRole role; final ValidLocationReference location;
+}
 final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; }
+sealed class LocationSelectionOutcome {}
+final class LocationSelected extends LocationSelectionOutcome {
+  final LocationRole role; final ValidLocationReference location;
+}
+final class LocationSelectionRejected extends LocationSelectionOutcome {
+  final LocationSelectionFailure failure;
+}
+enum LocationSelectionFailure { invalidCoordinate, outsideMalaysia, sameComparisonPoint, scopeUnavailable }
+final class SaveLocationRequest { final ValidLocationReference location; final String name; }
+sealed class SavedLocationOutcome {}
+final class SavedLocationSaved extends SavedLocationOutcome { final SavedLocation savedLocation; }
+final class SavedLocationQueued extends SavedLocationOutcome { final SavedLocation savedLocation; }
+final class SavedLocationRejected extends SavedLocationOutcome { final SavedLocationFailure failure; }
+final class SavedLocation {
+  final String id; final String name; final ValidLocationReference location;
+  final DateTime createdAt; final SavedLocationSyncState syncState;
+}
+enum SavedLocationSyncState { synchronized, queued, retryableFailure }
+enum SavedLocationFailure {
+  invalidName, invalidLocation, offlineDeleteUnsupported, retryableUnavailable,
+  permissionDenied, conflict, scopeUnavailable, notFound,
+}
+sealed class SavedLocationsSnapshot {}
+final class SavedLocationsAvailable extends SavedLocationsSnapshot { final List<SavedLocation> locations; }
+final class SavedLocationsUnavailable extends SavedLocationsSnapshot { final SavedLocationFailure failure; }
 ```
 
 | 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| 只接受 Map 已选出的 `property` 角色成功引用；有限 WGS84 数值且已通过马来西亚范围校验。 | selected/present，或 invalidCoordinate、outsideMalaysia、scopeUnavailable。 | Map 只改自己的角色；Property 不读可变 Map 状态、不造坐标、不把收藏名当地点。 | 选点返回后才写草稿/请求风险；失败保留原草稿地点。 `LocationSelected(:final location) => draft.withLocation(location)`。 |
+| Property 实际调用子集是 `select(property)` 与 `read(property)`；只接受 Map 已选出的 `property` 角色成功引用，有限 WGS84 数值且已通过马来西亚范围校验。上方仍是 `LOCATION-001` 的**完整 canonical 声明**，不得截断、复制或改形。 | selected/present，或 invalidCoordinate、outsideMalaysia、scopeUnavailable。 | Map 只改自己的角色；Property 不读可变 Map 状态、不造坐标、不把收藏名当地点。 | 选点返回后才写草稿/请求风险；失败保留原草稿地点。 `LocationSelected(:final location) => draft.withLocation(location)`。 |
 
 **Fake 场景：** fake Map 给 property selected、absent、outsideMalaysia、scope unavailable；只有 selected 的 immutable 引用可创建、改坐标或刷新风险，其他结果绝不触发 Safety/Hazard。
 
@@ -101,25 +149,43 @@ final class LocationAbsent extends LocationRoleSnapshot { final LocationRole rol
 **提供者：** Account Privacy；**消费者：** Property Inspection；**唯一公开 import：** `package:locatemy/features/account_privacy/account_privacy.dart`。
 
 ```dart
-final class AccountScope { final String accountId; const AccountScope(this.accountId); }
-sealed class AccountScopeSnapshot {}
-final class AccountScopeOpened extends AccountScopeSnapshot { final AccountScope scope; }
-final class AccountScopeClosed extends AccountScopeSnapshot { final AccountScope scope; }
-final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; }
-enum AccountScopeFailure { identityMismatch, closing, incompleteOwners, retryableUnavailable }
 abstract interface class AccountPrivacy {
   AccountScopeSnapshot readScope();
-  Future<PropertyPrivateStateCleared> clearPropertyPrivateState(AccountScope scope);
+  Future<OpenAccountScopeOutcome> open(AuthenticatedAccount account);
+  Future<CloseAccountScopeOutcome> close(
+    AccountScope scope, AccountScopeCloseReason reason,
+  );
 }
-sealed class PropertyPrivateStateCleared {}
-final class PropertyPrivateStateClearedForAccount extends PropertyPrivateStateCleared { final String accountId; }
-final class PropertyPrivateStateClearIncomplete extends PropertyPrivateStateCleared { final String accountId; final PropertyPrivateStateFailure failure; }
-enum PropertyPrivateStateFailure { localStoreUnavailable, fileDeletionIncomplete, queueCleanupIncomplete, scopeUnavailable }
+final class AccountScope { final String accountId; const AccountScope(this.accountId); }
+sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
+final class AccountScopeOpened extends AccountScopeSnapshot { final AccountScope scope; const AccountScopeOpened(this.scope); }
+final class AccountScopeClosing extends AccountScopeSnapshot { final AccountScope scope; const AccountScopeClosing(this.scope); }
+final class AccountScopeClosed extends AccountScopeSnapshot { final AccountScope scope; const AccountScopeClosed(this.scope); }
+final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; const AccountScopeUnavailable(this.failure); }
+enum AccountScopeFailure { identityMismatch, scopeNotOpen, scopeClosing, retryableUnavailable }
+enum AccountScopeCloseReason { signOut, sessionInvalidated, accountSwitch }
+sealed class OpenAccountScopeOutcome { const OpenAccountScopeOutcome(); }
+final class AccountScopeOpenedForAccount extends OpenAccountScopeOutcome { final AccountScope scope; const AccountScopeOpenedForAccount(this.scope); }
+final class AccountScopeOpenRejected extends OpenAccountScopeOutcome { final AccountScopeFailure failure; const AccountScopeOpenRejected(this.failure); }
+sealed class CloseAccountScopeOutcome { const CloseAccountScopeOutcome(); }
+final class AccountScopeClosedForAccount extends CloseAccountScopeOutcome { final AccountScope scope; const AccountScopeClosedForAccount(this.scope); }
+final class AccountScopeCloseIncomplete extends CloseAccountScopeOutcome { final AccountScope scope; final List<PrivateStateClearIncomplete> incomplete; const AccountScopeCloseIncomplete(this.scope, this.incomplete); }
+final class AccountScopeCloseRejected extends CloseAccountScopeOutcome { final AccountScope scope; final AccountScopeFailure failure; const AccountScopeCloseRejected(this.scope, this.failure); }
+
+abstract interface class AccountPrivacyParticipant {
+  AccountPrivacyParticipantId get participantId;
+  Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope);
+}
+enum AccountPrivacyParticipantId { authenticationSession, applicationShell, mapLocation, costLivingBudget, infrastructureCoverage, hazardReporting, propertyInspection, accountCenter }
+sealed class PrivateStateClearOutcome { const PrivateStateClearOutcome(); }
+final class PrivateStateCleared extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; const PrivateStateCleared(this.participantId, this.scope); }
+final class PrivateStateClearIncomplete extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; final PrivateStateClearFailure failure; const PrivateStateClearIncomplete(this.participantId, this.scope, this.failure); }
+enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, queuedWorkCleanupIncomplete, scopeUnavailable, retryableUnavailable }
 ```
 
 | 输入约束 | 输出 / typed failures | 状态与副作用 | 顺序、权限与最小示例 |
 | --- | --- | --- | --- |
-| 所有私有读写仅同账户 opened；clear 只针对 Privacy 给出的不可变旧 scope。 | opened/closed/unavailable；清理为 cleared 或 incomplete，均携带账户与分类原因。 | closing 开始即阻断草稿、草稿照片、私有副本、比较、正式待传 queue 和应用目录文件；不删远端实勘、元数据或已上传 Storage。 | Shell 发起 close；Property 只报告自身结果。 `await privacy.clearPropertyPrivateState(oldScope);`；incomplete 时旧内容仍不可读且可重试。 |
+| Property 实际消费子集仅为 `readScope()`；只有 `AccountScopeOpened` 的同账户 scope 可私有读写。Property 同时以 `AccountPrivacyParticipantId.propertyInspection` 提供 `clearPrivateState(scope)`，但不调用 Shell 专属 `open`/`close`。上方是 `PRIVACY-001` 的**完整 canonical 声明**，不得截断、复制或改形。 | `Opened`、`Closing`、`Closed`、`Unavailable`；participant 返回 `PrivateStateCleared` 或 `PrivateStateClearIncomplete`，均带同一 participant/scope。 | closing 开始即阻断草稿、草稿照片、私有副本、比较、正式待传 queue 和应用目录文件；不删远端实勘、元数据或已上传 Storage。 | Shell 发起 close，Privacy 对固定集合调用 participant；Property 只清自己的旧 scope。`await participant.clearPrivateState(oldScope);`；incomplete 时旧内容仍不可读且可重试。 |
 
 **Fake 场景：** A 有草稿/上传中照片后 close，fake Privacy 随后开 B；A 的表单、文件、比较和晚到成功均不可显示/提交/重放，B 只从自己的远端档案开始。
 
@@ -291,7 +357,7 @@ switch (written) {
 
 固定顺序：1) Shell 只在 opened scope 启动 Property；2) Map 返回合法 immutable property location；3) Property 保存草稿；4) create、坐标变更或刷新同时请求 Safety/Hazard；5) 两项均 complete available 且 location 相同才在同一远端写操作整体写风险组；6) create 成功才把草稿照片整体转换为正式 queue，所有转换成功才移除草稿照片；7) 正式照片在 Storage 上传和 metadata 成功后才移除本机副本；8) close 先阻断、后清理本机私有状态，绝不重放至新账户。
 
-## 5. 联合验收、自由度与完成核对
+## 5. 联合集成与验收
 
 | Capability / canonical AT | 场景与操作 | 可观察完成条件 |
 | --- | --- | --- |
@@ -303,13 +369,23 @@ switch (written) {
 | `PROP-05` / `AT-PROP-06` | 软删除、取消、恢复、确认清空、Storage/metadata partial | 回收站可见且软删除保留照片；取消零副作用；清空仅当前账户，partial 列明 remaining 并可重试，不误报全成功。 |
 | 全部 | 中文/English、200% 字体、读屏/非颜色状态 | 字段错误、同步/删除、风险来源/时间/口径、空态、权限和恢复路径均有文字等价信息。 |
 
-Owner 可选择内部架构、数据库/Storage SDK 映射、压缩、上传调度、缓存、重试、取消、并发、Widget 与测试组织。以下变更须取得跨 Owner agreement：唯一公开 import、任一公开声明/result variant、输入约束、风险原子性、账户/父对象授权、Storage 路径契约或 Schema/RLS。变更同时更新契约、受影响 fake/Adapter 测试和 PDF。
+## 6. 内部自由与阻塞项
 
-- [x] 按固定顺序完成成果、责任、调用 Interface、提供 Interface、精确数据、实现顺序、联合验收、自由度/参考。
-- [x] `SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002` 和 `PROPERTY-001` 均有唯一 import、声明/精确调用、约束、typed outcome、权限/副作用、顺序、示例与 fake。
+Owner 可选择内部架构、数据库/Storage SDK 映射、压缩、上传调度、缓存、重试、取消、并发、Widget 与测试组织。唯一公开 import、任一公开声明/result variant、输入约束、风险原子性、账户/父对象授权、Storage 路径契约或 Schema/RLS 变更，须由提供方说明影响并经受影响 Owner 确认；同一 PR 更新本 Development Contract、同名 HTML 导出和受影响 fake/Adapter 测试，不引入独立发布、版本锁定或同步治理流程。
+
+当前设计阻塞：**无**。`RISK-PROP-01`、`RISK-STORAGE-01`、`RISK-PROPERTY-01` 的 Storage、权限、partial 与故障注入证据是实现/集成验收项；若账户隔离、父实勘授权、草稿清理或两项风险输入的原子性无法维持，重新打开相关风险并停止受影响发布。
+
+权威参考：[Issue #23](https://github.com/chewjs-wm25/LocateMY/issues/23)、[ADR 0011](../../adr/0011-human-coded-ai-designed-delivery-process.md)、[ADR 0012](../../adr/0012-high-level-design-coordination-boundaries.md)、[ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md)、[Flows 01、06](../system/flows.md)、[data ownership](../system/data-ownership.md)、[risk decisions](../system/risks-and-decisions.md)、[Schema Catalog](../data/schema-catalog.md)、[Application Shell contract](../modules/application-shell.md)、[Map contract](map-and-location.md)、[Account Privacy contract](../modules/account-privacy.md)。
+
+## 7. 完成核对
+
+- [x] 按固定顺序完成任务成果、责任、调用 Interface、提供 Interface、精确数据、实现顺序、联合验收、内部自由/阻塞与参考。
+- [x] `SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002` 和 `PROPERTY-001` 均有唯一 import、完整 canonical 声明或精确调用、约束、typed outcome、权限/副作用、顺序、示例与 fake；Property 的实际调用子集已标明。
 - [x] 草稿、照片队列、风险原子写、账户隔离、回收站和 Storage partial 均有可观察结果；字段、RLS、路径、RPC SQL、migration 和公式仍有唯一外部权威。
-- [x] Standards/Spec 双轴复审通过；无 Ready 阻塞。风险的 migration/RLS/Storage/故障注入证据留实现与集成验收。
+- [x] 同名 HTML 与本 Markdown 在任务成果、定义完成、完整声明、Storage/账户隔离、风险快照、离线/刷新、联合验收和 Change Log 上语义等价；无 Ready 阻塞。
 
-| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
+## 8. Change Log
+
+| 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
 | --- | --- | --- | --- | --- |
-| 2026-09-15 | `Ready for Development` | Issue #23：升级为单一契约优先 Markdown/PDF；补齐固定顺序、Readiness、五项上游调用卡与 `PROPERTY-001` 声明，不改变产品、Schema 或上游语义 | `PROP-01`–`05`、`PROPERTY-001`、`SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002`、Property 数据对象 | 设计 AI（项目负责人授权） |
+| 2026-09-15 | `Ready for Development` | 依 Issue #23 收束为单一 Development Contract 与同名 HTML 语义等价导出；移除已废止的发布治理，并与 Shell、Map / Location、Account Privacy 的完整 canonical 声明重新对齐。 | `PROP-01`–`05`、`PROPERTY-001`、`SHELL-001`、`LOCATION-001`、`PRIVACY-001`、`SAFETY-001`、`HAZARD-002`、`property_inspections`、`property_inspection_photos`、`inspection-photos`、同名 HTML；Storage、账户隔离、风险快照、刷新/离线与验收语义不变。 | 项目负责人 |

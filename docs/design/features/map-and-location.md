@@ -242,7 +242,7 @@ Owner 可自行决定底图包、Geoapify/空间 Adapter、点位内部映射、
 
 当前设计阻塞：**无**。`RISK-GEO-01` 与 `RISK-SYNC-01` 已关闭设计决定；边界样本、运行时地图/网络/SQLite、双设备/重放/墓碑、可访问性为实现/集成验收项，不是 Ready 阻塞。依赖版本变化或范围/同步语义无法维持时，重新打开风险并暂停受影响实现。
 
-权威参考：[Issue #23](https://github.com/chewjs-wm25/LocateMY/issues/23)、[ADR 0011](../../adr/0011-human-coded-ai-designed-delivery-process.md)、[ADR 0012](../../adr/0012-high-level-design-coordination-boundaries.md)、[ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md)、[Flows 02–05](../system/flows.md)、[data ownership](../system/data-ownership.md)、[risk decisions](../system/risks-and-decisions.md)、[Schema Catalog](../data/schema-catalog.md)、[Authentication contract](authentication-and-session-development-contract.en.md)。
+权威参考：[Issue #23](https://github.com/chewjs-wm25/LocateMY/issues/23)、[ADR 0011](../../adr/0011-human-coded-ai-designed-delivery-process.md)、[ADR 0012](../../adr/0012-high-level-design-coordination-boundaries.md)、[ADR 0013](../../adr/0013-autonomous-design-ai-ready-approval.md)、[Flows 02–05](../system/flows.md)、[data ownership](../system/data-ownership.md)、[risk decisions](../system/risks-and-decisions.md)、[Schema Catalog](../data/schema-catalog.md)、[Authentication contract](authentication-and-session.md)。
 
 ### Change Log
 

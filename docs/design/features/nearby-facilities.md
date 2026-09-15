@@ -297,7 +297,7 @@ fake：Complete 有 Node/Way/Relation、Complete 空、Partial、timeout、rateL
 ## 6. 联合验收
 
 | 场景 | Owners | 操作 | 可观察结果 | Trace |
-| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | 正常与边界 | A、Shell、Map | 合法 single；边界 2,000m、重叠标签、无名称、Node/Way/Relation | 固定五类/中文类型、每类最近三项、圆形过滤、唯一条目、来源/时间；无指数/详情/路线 | `FAC-01`；`AT-ANALYSIS-01` |
 | 完整空与未知 | A、Shell | 完整空、partial、timeout、限流、无效 payload | 仅完整空显示“暂无已收录”；其余 unknown/unavailable 有分类原因且不置零/不缓存空 | `FAC-01`；`AT-ANALYSIS-01` |
 | 缓存与刷新 | A、Shell | 24h 内/外读取；显式 refresh 失败或成功 | 有效缓存标 cached/时间；refresh 绕过缓存；失败只回落有效缓存 | `FAC-01`；`AT-ANALYSIS-01`、`RISK-CACHE-01` |

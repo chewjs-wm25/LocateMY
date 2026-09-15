@@ -1,18 +1,30 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<base href="../design/features/">
-<title>Home &amp; Relocation Outlook 开发协作契约</title>
-<style>
-:root { color-scheme: light; --ink:#172033; --muted:#526176; --line:#d8dee9; --panel:#f7f9fc; --accent:#075985; --code:#0f172a; }
-* { box-sizing:border-box; } html { font-size:16px; } body { max-width:1080px; margin:0 auto; padding:42px 28px 64px; color:var(--ink); background:#fff; font:16px/1.7 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; } main { min-width:0; } h1,h2,h3,h4 { line-height:1.28; color:#0b2239; scroll-margin-top:1rem; } h1 { font-size:2rem; margin:0 0 1rem; padding-bottom:.7rem; border-bottom:3px solid var(--accent); } h2 { margin:2.5rem 0 .85rem; padding-top:.2rem; font-size:1.45rem; } h3 { margin:1.75rem 0 .65rem; font-size:1.16rem; } p { margin:.7rem 0; } a { color:var(--accent); } blockquote { margin:1rem 0; padding:.7rem 1rem; border-left:4px solid #7dd3fc; background:#f0f9ff; color:#27425a; } ul,ol { padding-left:1.6rem; } li { margin:.25rem 0; } table { width:100%; margin:1rem 0 1.3rem; border-collapse:collapse; display:block; overflow-x:auto; } th,td { padding:.6rem .7rem; vertical-align:top; text-align:left; border:1px solid var(--line); } th { background:#eaf2f8; font-weight:700; } tr:nth-child(even) td { background:#fbfcfe; } pre { margin:1rem 0; padding:1rem; overflow:auto; border-radius:7px; background:var(--code); color:#e2e8f0; font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace; } code { font: .9em ui-monospace,SFMono-Regular,Consolas,monospace; } :not(pre)>code { padding:.12em .32em; border-radius:4px; background:#eef2f7; color:#182b3d; } hr { border:0; border-top:1px solid var(--line); margin:2rem 0; } @media print { body { max-width:none; padding:0; font-size:10.5pt; } a { color:inherit; text-decoration:none; } pre { white-space:pre-wrap; overflow:visible; } table { overflow:visible; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home &amp; Relocation Outlook 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
 <body>
 <main>
-<p><strong>人类阅读版 HTML 导出</strong> · 来源：<a href="home-and-relocation-outlook.md">Home &amp; Relocation Outlook 开发协作契约（Markdown）</a></p>
 <h1>Home &amp; Relocation Outlook 开发协作契约</h1>
 <blockquote>
 <p>Owner：<code>A</code><br>
@@ -27,7 +39,7 @@
 <li>用户可选择“探索地图”；Shell 只切换地图 Tab，不产生默认地点、坐标或分析目标。</li>
 <li>包含 <code>HOME-01</code>、<code>HOME-02</code>、<code>HOME-03</code>；不拥有地点分析、个人化地点适配度、地图状态、语言偏好、认证门控或政府数据写入。</li>
 </ul>
-<p>产品事实唯一来源：<a href="../../knowledge_base/locatemy_product/features/home.md">首页</a>、<a href="../../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a>；系统追踪为 <code>HOME-001</code>、<code>D04</code>、<code>FLOW-08</code> 与 <code>AT-HOME-01</code>–<code>AT-HOME-03</code>。</p>
+<p>产品事实唯一来源：<a href="../knowledge_base/locatemy_product/features/home.md">首页</a>、<a href="../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a>；系统追踪为 <code>HOME-001</code>、<code>D04</code>、<code>FLOW-08</code> 与 <code>AT-HOME-01</code>–<code>AT-HOME-03</code>。</p>
 <h2>2. 责任与依赖</h2>
 <table>
 <thead>
@@ -60,7 +72,7 @@
 <p>Home 的受控实现边界是 <code>lib/features/home_relocation_outlook/</code>。消费者只使用下列公开入口；不导入该目录的 <code>src/</code> 或任何 Adapter 文件。</p>
 <h2>3. 需要调用 Interface</h2>
 <h3><code>SHELL-001</code>：提交探索地图意图</h3>
-<p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Home；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。下列是 <a href="../modules/application-shell.md#shell-001--application-coordination">Application Shell 的 canonical <code>SHELL-001</code> 声明</a>；Home 只调用其中的 <code>submit</code>，不调用 <code>publish</code>，也不重述、缩窄或另定义任何 Shell 类型。</p>
+<p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Home；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。下列是 <a href="../design/modules/application-shell.md#shell-001--application-coordination">Application Shell 的 canonical <code>SHELL-001</code> 声明</a>；Home 只调用其中的 <code>submit</code>，不调用 <code>publish</code>，也不重述、缩窄或另定义任何 Shell 类型。</p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
   Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
@@ -283,13 +295,13 @@ switch (outcome) {
 </tr>
 </thead>
 <tbody><tr>
-<td><a href="../data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1"><code>read_home_metrics</code></a></td>
+<td><a href="../design/data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1"><code>read_home_metrics</code></a></td>
 <td>仅 A 的 Home Adapter；authenticated、security-invoker、只读</td>
 <td>取得 CPI、劳动力、经济指标、实际 GDP 与家庭收入五个资料集。</td>
 <td>Flutter 不直读政府镜像；结果用每个资料集实际最大 <code>date</code>，不是 Supabase 刷新时间或目录年份。</td>
 </tr>
 <tr>
-<td><a href="../data/schema-catalog.md#%E6%9C%AC%E6%9C%BA%E5%AF%B9%E8%B1%A1"><code>home_public_cache</code></a></td>
+<td><a href="../design/data/schema-catalog.md#%E6%9C%AC%E6%9C%BA%E5%AF%B9%E8%B1%A1"><code>home_public_cache</code></a></td>
 <td>仅 A；无账户字段，退出保留</td>
 <td>保存公共 result payload/version、各 source date、fetched at、expiry/completeness。</td>
 <td>不保存账户 ID、地点、自由文字或私有资料；在线只以较新资料替换。</td>
@@ -301,7 +313,7 @@ switch (outcome) {
 <td>重启不恢复；不跨账户传递 Home 呈现状态。</td>
 </tr>
 <tr>
-<td><a href="../../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a></td>
+<td><a href="../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a></td>
 <td>A 应用；Shell 仅呈现结果</td>
 <td>三主分项、综合、原因、趋势与家庭收入背景语义。</td>
 <td>严格遵循五年/最小历史、百分位、重归一化、60% 权重门槛、取整和综合条件；公式正文不复制到此处。</td>
@@ -365,7 +377,7 @@ switch (outcome) {
 <p>A 可决定 Feature 内的文件拆分、Widget、状态管理、Adapter、缓存序列化、TTL、请求调度、取消、重试、去重、局部验证和测试组织。Shell 可决定其槽位布局、日期本地化和导航 UI。以下事项须先协商：唯一公开 import、公开声明/结果变体、60 秒成功冷却、三主分项/收入的可用性边界、来源元数据、探索地图的无地点约束、<code>read_home_metrics</code>/<code>home_public_cache</code> 的 schema 或权限。</p>
 <h2>9. 阻塞与权威参考</h2>
 <p><strong>当前阻塞项：无。</strong> <code>read_home_metrics</code> 与 <code>home_public_cache</code> 仍是 <code>proposed</code>：实现前须以 Schema Catalog 的 add–migrate–validate 证据确认官方 schema/键/行数、最大日期和完整/部分/空导入。运行时依赖、离线与可访问性证据由 <code>RISK-NFR-01</code> 在实现/集成验收关闭；它们不改变本契约。</p>
-<p>权威参考：<a href="../modules/application-shell.md#shell-001--application-coordination">Application Shell</a>、<a href="../system/interfaces.md">系统 Interface 注册表</a>、<a href="../system/flows.md#flow-08%E9%A6%96%E9%A1%B5%E5%88%B7%E6%96%B0%E4%B8%8E%E6%8E%A2%E7%B4%A2%E5%9C%B0%E5%9B%BE">FLOW-08</a>、<a href="../system/capability-traceability.md">Capability 追踪</a>、<a href="../system/data-ownership.md">数据所有权</a>、<a href="../data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../system/risks-and-decisions.md">风险与决定</a>、<a href="../../knowledge_base/locatemy_product/features/home.md">首页产品事实</a>、<a href="../../knowledge_base/locatemy_product/home_index_scoring.md">指数事实</a>。</p>
+<p>权威参考：<a href="../design/modules/application-shell.md#shell-001--application-coordination">Application Shell</a>、<a href="../design/system/interfaces.md">系统 Interface 注册表</a>、<a href="../design/system/flows.md#flow-08%E9%A6%96%E9%A1%B5%E5%88%B7%E6%96%B0%E4%B8%8E%E6%8E%A2%E7%B4%A2%E5%9C%B0%E5%9B%BE">FLOW-08</a>、<a href="../design/system/capability-traceability.md">Capability 追踪</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md">风险与决定</a>、<a href="../knowledge_base/locatemy_product/features/home.md">首页产品事实</a>、<a href="../knowledge_base/locatemy_product/home_index_scoring.md">指数事实</a>。</p>
 <h3>Ready 检查</h3>
 <ul>
 <li><input checked="" disabled="" type="checkbox"> Owner、消费者、受控边界和 Wave 4 依赖次序明确。</li>
@@ -375,12 +387,30 @@ switch (outcome) {
 </ul>
 <h2>10. Change Log</h2>
 <table>
-<thead><tr><th>日期</th><th>状态</th><th>变更原因</th><th>受影响对象</th><th>批准者</th></tr></thead>
-<tbody>
-<tr><td>2026-09-14</td><td><code>Ready for Development</code></td><td>初始 Feature 协作设计冻结。</td><td><code>HOME-001</code>、<code>SHELL-001</code>、<code>FLOW-08</code></td><td>项目负责人</td></tr>
-<tr><td>2026-09-15</td><td><code>Ready for Development</code></td><td>Issue #23 单一 Development Contract 复审：移除旧 PDF/ADR 0014/handoff 发布治理表述，改为同名等价 HTML；消费卡改为引用并完整镜像已冻结的 canonical <code>SHELL-001</code> 声明，明确 Home 仅调用 <code>submit</code>。</td><td><code>HOME-001</code>、<code>SHELL-001</code>、Home HTML、<code>FLOW-08</code></td><td>设计 AI（项目负责人授权）</td></tr>
+<thead>
+<tr>
+<th>日期</th>
+<th>状态</th>
+<th>变更原因</th>
+<th>受影响对象</th>
+<th>批准者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-09-14</td>
+<td><code>Ready for Development</code></td>
+<td>初始 Feature 协作设计冻结。</td>
+<td><code>HOME-001</code>、<code>SHELL-001</code>、<code>FLOW-08</code></td>
+<td>项目负责人</td>
+</tr>
+<tr>
+<td>2026-09-15</td>
+<td><code>Ready for Development</code></td>
+<td>Issue #23 单一 Development Contract 复审：移除旧 PDF/ADR 0014/handoff 发布治理表述，改为同名等价 HTML；消费卡改为引用并完整镜像已冻结的 canonical <code>SHELL-001</code> 声明，明确 Home 仅调用 <code>submit</code>。</td>
+<td><code>HOME-001</code>、<code>SHELL-001</code>、Home HTML、<code>FLOW-08</code></td>
+<td>设计 AI（项目负责人授权）</td>
+</tr>
 </tbody></table>
-
 </main>
 </body>
 </html>

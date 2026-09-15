@@ -38,4 +38,4 @@ This is a single-context repo. See `docs/agents/domain.md`.
 
 ### Design docs
 
-涉及系统设计、Feature 实施设计、AI 设计审查或生成开发工作包时，先读 `docs/design/README.md`。
+涉及系统设计、Development Contract、跨 Owner Interface、设计审查或 HTML 交接时，先读 `docs/design/README.md`。

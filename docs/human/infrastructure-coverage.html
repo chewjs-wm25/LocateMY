@@ -1,103 +1,128 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<base href="../design/features/">
-<title>Infrastructure Coverage 开发协作契约 · LocateMY</title>
-<style>
-:root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif;color:#172033;background:#f7f8fb}body{margin:0;line-height:1.65}article{max-width:1040px;margin:0 auto;padding:44px 24px 64px;background:#fff;box-sizing:border-box}h1{font-size:2rem;line-height:1.25;margin:0 0 1rem}h2{margin-top:2.7rem;padding-top:.45rem;border-top:1px solid #e4e7ec}h3{margin-top:2rem}p,li{max-width:90ch}code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:#f1f3f5;padding:.1em .28em;border-radius:3px;overflow-wrap:anywhere}pre{overflow-x:auto;padding:16px;background:#172033;color:#f4f7fb;border-radius:7px;line-height:1.45}pre code{padding:0;background:transparent;color:inherit}blockquote{margin:1rem 0;padding:.1rem 1rem;border-left:4px solid #2b6cb0;background:#f1f6fc}blockquote p{margin:.6rem 0}a{color:#155e9c}.table-wrap{overflow-x:auto;margin:1rem 0 1.5rem}table{border-collapse:collapse;min-width:680px;width:100%}th,td{padding:.65rem .75rem;vertical-align:top;text-align:left;border:1px solid #d9dee8}th{background:#edf3fa}tr:nth-child(even)td{background:#fafbfd}@media print{body,article{background:#fff}article{max-width:none;padding:0}a{color:inherit;text-decoration:none}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Infrastructure Coverage 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
-<body><article>
-<h1 id="infrastructure-coverage-开发协作契约">Infrastructure Coverage 开发协作契约</h1>
-<blockquote><p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013） Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 6 唯一公开入口：<code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code> 定义完成：B 和消费者能仅凭本文件安全协作同一地点的五项分项、single 账户权重 ICI 与 neutral ICI；未知、部分资料、不可比和换号绝不伪装为零、成功或推荐。</p></blockquote>
-<p>本文件是 Infrastructure Coverage 的唯一开发协作契约及同名 PDF 源。它冻结跨 Owner Dart seam、数据访问、权重生命周期和联验；<code>lib/features/infrastructure_coverage/</code> 内的 Widget、状态、Adapter、缓存、并发/取消/重试、计算组织和测试实现由 B 决定。公式正文只在知识库；表/RLS/migration 只在 Schema Catalog。</p>
-<h2 id="0-固定阅读顺序与四项-readiness">0. 固定阅读顺序与四项 Readiness</h2>
+<body>
+<main>
+<h1>Infrastructure Coverage 开发协作契约</h1>
+<blockquote>
+<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 6
+唯一公开入口：<code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>
+完成定义（DoD）：B 在唯一公开入口提供第 3 节完整 <code>INFRA-001</code> 声明；Shell 与 Suitability 可用该入口 fake 完成组合。真实 Adapter 经第 5 节证明五项/ICI 元数据、未知/0、A/B neutral 可比性、预览/保存和 A→B 隔离均可观察，且不伪装为零、成功或推荐。</p>
+</blockquote>
+<p>本文件是 Infrastructure Coverage 唯一的 Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它冻结跨 Owner Dart seam、数据访问、权重生命周期和联验；<code>lib/features/infrastructure_coverage/</code> 内的 Widget、状态、Adapter、缓存、并发/取消/重试、计算组织和测试实现由 B 决定。公式正文只在知识库；表/RLS/migration 只在 Schema Catalog。</p>
+<h2>0. 固定阅读顺序与四项 Readiness</h2>
 <ol>
-<li><a href="../../../CONTEXT.md#行政地理语境">领域词汇</a>、<a href="../../knowledge_base/locatemy_product/features/infrastructure.md">基础设施功能</a>、<a href="../../knowledge_base/locatemy_product/infrastructure_index_scoring.md">ICI 评分模型</a>；</li>
-<li><a href="../system/feature-map.md#fm-infra">Feature map</a>、<a href="../system/interfaces.md">Interface 注册表</a>、<a href="../system/flows.md#flow-02单点选址地点摘要与六类分析">FLOW-02</a>、<a href="../system/flows.md#flow-03地点-ab-比较">FLOW-03</a>；</li>
-<li><a href="../system/capability-traceability.md">Traceability</a>、<a href="../system/data-ownership.md">数据所有权</a>、<a href="../data/schema-catalog.md">Schema Catalog</a>、<a href="../system/risks-and-decisions.md#风险与关闭条件"><code>RISK-SCHEMA-01/02</code></a>、<a href="../system/risks-and-decisions.md#风险与关闭条件"><code>RISK-TRANSIT-01</code></a>；</li>
-<li>本契约；生成 PDF 时最后读 <a href="../../adr/0014-version-locked-pdf-development-documentation-packages.md">ADR 0014</a> 与 <a href="../handoff/README.md">handoff</a>。</li>
+<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">基础设施功能</a>、<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md">ICI 评分模型</a>；</li>
+<li><a href="../design/system/feature-map.md#fm-infra">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-SCHEMA-01/02</code></a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-TRANSIT-01</code></a>；</li>
+<li>本契约及同名 HTML；后项不能改写前项。</li>
 </ol>
-<div class="table-wrap"><table><thead><tr><th>Readiness</th><th>可核查证据</th><th>结论</th></tr></thead><tbody><tr><td>责任和顺序</td><td><code>INFRA-01/02</code> 唯一归 B；先有 <code>D25</code>–<code>D29</code>，再提供给 <code>D46</code> Suitability</td><td>已就绪</td></tr><tr><td>Interface</td><td>第 2、3 节每个跨 Owner seam 都有入口、声明、约束、结果/失败、顺序、权限、示例和 fake</td><td>已就绪</td></tr><tr><td>数据和权限</td><td>B 唯一直读 <code>read_infrastructure_inputs</code> 和 own <code>user_ici_preferences</code>；公共输入只读，preview 仅页面内存</td><td>已就绪</td></tr><tr><td>联验和风险</td><td>第 5 节覆盖 single/A-B/缺失/保存/中性/换号；真实导入与迁移证据仍须满足 Schema risks</td><td>已就绪</td></tr></tbody></table></div>
-<h2 id="1-成果-责任与边界">1. 成果、责任与边界</h2>
+<table>
+<thead>
+<tr>
+<th>Readiness</th>
+<th>可核查证据</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>责任和顺序</td>
+<td><code>INFRA-01/02</code> 唯一归 B；先有 <code>D25</code>–<code>D29</code>，再提供给 <code>D46</code> Suitability</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>Interface</td>
+<td>第 2、3 节每个跨 Owner seam 都有入口、声明、约束、结果/失败、顺序、权限、示例和 fake</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>数据和权限</td>
+<td>B 唯一直读 <code>read_infrastructure_inputs</code> 和 own <code>user_ici_preferences</code>；公共输入只读，preview 仅页面内存</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>联验和风险</td>
+<td>第 5 节覆盖 single/A-B/缺失/保存/中性/换号；真实导入与迁移证据仍须满足 Schema risks</td>
+<td>已就绪</td>
+</tr>
+</tbody></table>
+<h2>1. 成果、责任与边界</h2>
 <ul>
 <li>合法单点显示供水、供电、医疗、教育、公共交通的 0–100 分项、各自来源/日期/范围/缺失原因，以及可用时的 account-weighted ICI。ICI 是相对服务覆盖，不是质量、可靠性、官方评级或推荐。</li>
 <li>医疗、教育、公共交通权重为 <code>1–10</code>；合法调整即时产生标记的 single <code>unsaved preview</code>，远端保存成功才成为跨设备 last saved。供水/供电没有滑块。</li>
 <li>A/B、地点摘要与 Suitability 只拿 <code>5/5/5</code> neutral ICI；两端只有资料口径相容才显示差异，永不显示赢家。</li>
 </ul>
-<div class="table-wrap"><table><thead><tr><th>Owner / 边界</th><th>负责</th><th>不负责</th></tr></thead><tbody><tr><td>B：<code>lib/features/infrastructure_coverage/</code></td><td>五项分项、ICI、权重、<code>INFRA-001</code>、A/B 可比性</td><td>地点、Geo、GTFS、Shell、assessment preferences、Suitability</td></tr><tr><td>Shell</td><td>opened 主应用导航、返回、组合</td><td>ICI/资料/权重/可比性</td></tr><tr><td>Map / Geo / Transit / Privacy</td><td>immutable 合法地点；行政区事实；canonical connectivity；scope</td><td>B 的公式、资料读取、preview 或保存</td></tr></tbody></table></div>
-<h2 id="2-b-需要调用的-interface-与读取对象">2. B 需要调用的 Interface 与读取对象</h2>
+<table>
+<thead>
+<tr>
+<th>Owner / 边界</th>
+<th>负责</th>
+<th>不负责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B：<code>lib/features/infrastructure_coverage/</code></td>
+<td>五项分项、ICI、权重、<code>INFRA-001</code>、A/B 可比性</td>
+<td>地点、Geo、GTFS、Shell、assessment preferences、Suitability</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td>opened 主应用导航、返回、组合</td>
+<td>ICI/资料/权重/可比性</td>
+</tr>
+<tr>
+<td>Map / Geo / Transit / Privacy</td>
+<td>immutable 合法地点；行政区事实；canonical connectivity；scope</td>
+<td>B 的公式、资料读取、preview 或保存</td>
+</tr>
+</tbody></table>
+<h2>2. B 需要调用的 Interface 与读取对象</h2>
 <p>只能 import 指定入口，不能 import 他人 <code>src/</code>、Adapter 或 SDK。以下仅是 declaration，不是可执行实现。</p>
-<h3 id="interface-卡-shell-001-导航和组合">Interface 卡：<code>SHELL-001</code> — 导航和组合</h3>
+<h3>Interface 卡：<code>SHELL-001</code> — 导航和组合</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>唯一 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class ApplicationShell {
-  Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
-  Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
-}
-abstract interface class ShellIntent {}
-abstract interface class ShellContribution {}
-sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
-final class ShellIntentAccepted extends ShellIntentOutcome { const ShellIntentAccepted(); }
-final class ShellAuthenticationRequired extends ShellIntentOutcome { const ShellAuthenticationRequired(); }
-final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; const ShellIntentRejected(this.reason); }
-sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
-final class ShellContributionAccepted extends ShellContributionOutcome { const ShellContributionAccepted(); }
-final class ShellContributionAuthenticationRequired extends ShellContributionOutcome { const ShellContributionAuthenticationRequired(); }
-final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; const ShellContributionRejected(this.reason); }
-enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }</code></pre>
-<p>B 从自己的唯一入口导出 <code>OpenInfrastructureIntent</code>、<code>OpenInfrastructureComparisonIntent</code> 和 <code>InfrastructureContribution</code> marker；只含 immutable location、A/B 原角色、返回语境和 typed result，不能带可变地图、原始行、账户 ID 或表行。仅 opened scope 可 <code>submit/publish</code>；accepted 才导航/组合，authenticationRequired/rejected 是 Shell 结果而非数据 missing。Shell 仅改导航；地点、ICI、权重仍归 B。过期地点/角色/scope 的晚到结果不能发布。</p>
+<p><code>SHELL-001</code> 的完整 canonical 声明、输入约束、结果、权限、顺序和 fake 规则只在 <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell</a> 定义。B 直接 import 该入口，不复制、缩窄或另造 Shell 类型。实际调用子集为 <code>ApplicationShell.submit(ShellIntent)</code> 与 <code>publish(ShellContribution)</code>，并处理 canonical <code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>、<code>ShellContributionAccepted</code>、<code>ShellContributionAuthenticationRequired</code>、<code>ShellContributionRejected(ShellRejectionReason)</code>；reason 仍为 <code>missingInput</code>、<code>staleInput</code>、<code>inapplicableDestination</code>、<code>scopeUnavailable</code>。</p>
+<p>B 从自己的唯一入口完整导出 <code>OpenInfrastructureIntent</code>、<code>OpenInfrastructureComparisonIntent</code> 和 <code>InfrastructureContribution</code> marker；只含 immutable location、A/B 原角色、返回语境和 typed result，不能带可变地图、原始行、账户 ID 或表行。仅 opened scope 可 <code>submit/publish</code>；respective accepted 才导航/组合，authenticationRequired/rejected 是 Shell 结果而非数据 missing。Shell 仅改导航；地点、ICI、权重仍归 B。过期地点/角色/scope 的晚到结果不能发布。</p>
 <p>最小调用：<code>await shell.publish(InfrastructureContribution(outcome, returnContext));</code>。fake Shell 返回 accepted、authenticationRequired、staleInput；断言拒绝不把旧 ICI 发布为新地点结果。</p>
-<h3 id="interface-卡-location-001-immutable-合法地点">Interface 卡：<code>LOCATION-001</code> — immutable 合法地点</h3>
+<h3>Interface 卡：<code>LOCATION-001</code> — immutable 合法地点</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>唯一 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class LocationCoordinator { LocationRoleSnapshot read(LocationRole role); }
-enum LocationRole { single, locationA, locationB, property }
-final class GeographicPoint { final double latitude; final double longitude; const GeographicPoint(this.latitude, this.longitude); }
-final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; const ValidLocationReference({required this.locationId, required this.point, required this.displayName}); }
-sealed class LocationRoleSnapshot { const LocationRoleSnapshot(); }
-final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; const LocationPresent(this.role, this.location); }
-final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; const LocationAbsent(this.role); }</code></pre>
+<p><code>LOCATION-001</code> 的完整 canonical 声明、输入约束、结果与生命周期只在 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a> 定义。B 的调用子集仅为 <code>LocationCoordinator.read(LocationRole)</code>，及 canonical <code>LocationRole</code>（single/locationA/locationB）、<code>LocationPresent</code>、<code>LocationAbsent</code>、<code>ValidLocationReference</code>；不 import <code>src/</code> 或重述 Map 类型。</p>
 <p>只接受 single，或两个不同且角色明确的 A/B <code>LocationPresent</code>。absent、过期、非法/范围外或同点时不读资料、不产生 preview/ICI、不发布，也不以默认城市、收藏名或旧点替代。调用无副作用；结果始终绑定原 <code>locationId</code>、角色和分析日。fake Map 给 single/A-B/缺端/同点，断言缺端无请求、交换不污染原角色。</p>
-<h3 id="interface-卡-geo-001-行政地理语境">Interface 卡：<code>GEO-001</code> — 行政地理语境</h3>
+<h3>Interface 卡：<code>GEO-001</code> — 行政地理语境</h3>
 <p><strong>提供者：</strong> Geographic Context；<strong>唯一 import：</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class GeographicContext { Future&lt;GeographicContextOutcome&gt; resolve(GeographicContextRequest request); }
-final class GeographicContextRequest { final ValidLocationReference location; final Set&lt;GeographicLevel&gt; levels; const GeographicContextRequest({required this.location, required this.levels}); }
-enum GeographicLevel { district, reportingState }
-sealed class GeographicContextOutcome { const GeographicContextOutcome(); }
-final class GeographicContextResolved extends GeographicContextOutcome { final AdministrativeGeographicContext context; const GeographicContextResolved(this.context); }
-final class GeographicContextUnresolved extends GeographicContextOutcome { final GeographicContextFailure failure; const GeographicContextUnresolved(this.failure); }
-final class GeographicContextAmbiguous extends GeographicContextOutcome { final List&lt;AdministrativeCandidate&gt; candidates; final GeographicContextFailure failure; const GeographicContextAmbiguous(this.candidates, this.failure); }
-final class AdministrativeGeographicContext { final String state; final String district; final String sourceId; final String boundaryVersion; const AdministrativeGeographicContext({required this.state, required this.district, required this.sourceId, required this.boundaryVersion}); }
-final class AdministrativeCandidate { final String state; final String district; final String stableId; const AdministrativeCandidate(this.state, this.district, this.stableId); }
-enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiable, scopeUnavailable }</code></pre>
-<p>B 请求同一地点的 district/reportingState；只有 resolved district 能读四项行政区资料。unresolved/ambiguous（即使州 resolved）使水、电、医疗、教育均 missing，保留原因；不得以州、邻区、名称或历史结果补足。调用只读、不改变地点或账户。fake Geo 给 resolved、unresolved、ambiguous 和 state-only；断言交通仍独立但四项不猜测。</p>
-<h3 id="interface-卡-transit-001-canonical-connectivity">Interface 卡：<code>TRANSIT-001</code> — canonical connectivity</h3>
+<p><code>GEO-001</code> 的完整 canonical 声明、逐层结果、provenance 与失败语义只在 <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context</a> 定义。B 的调用子集为 <code>GeographicContext.resolve(GeographicContextRequest)</code>，请求 <code>district</code> 与 <code>reportingState</code>，并处理 canonical <code>GeographicContextAvailable</code> / <code>GeographicContextUnavailable</code> 及每层 <code>GeographicLevelResolved</code>、<code>GeographicLevelUnresolved</code>、<code>GeographicLevelAmbiguous</code>；不复制或重塑任何 Geo 类型。</p>
+<p>B 请求同一地点的 district/reportingState；只有 <code>GeographicLevelResolved(district)</code> 能读四项行政区资料。<code>GeographicLevelUnresolved</code> / <code>GeographicLevelAmbiguous</code>（即使州 resolved）使水、电、医疗、教育均 missing，保留 canonical 原因/provenance/candidates；不得以州、邻区、名称或历史结果补足。调用只读、不改变地点或账户。fake Geo 给 resolved、unresolved、ambiguous 和 state-only；断言交通仍独立但四项不猜测。</p>
+<h3>Interface 卡：<code>TRANSIT-001</code> — canonical connectivity</h3>
 <p><strong>提供者：</strong> Public Transportation；<strong>唯一 import：</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class PublicTransportation { Future&lt;TransitLoadOutcome&gt; load(TransitRequest request); }
-final class TransitRequest { final ValidLocationReference location; final DateTime analysisDate; final TransitLoadPolicy policy; const TransitRequest({required this.location, required this.analysisDate, required this.policy}); }
-enum TransitLoadPolicy { cacheAllowed, refresh }
-sealed class TransitLoadOutcome { const TransitLoadOutcome(); }
-final class TransitAvailable extends TransitLoadOutcome { final TransitSnapshot snapshot; const TransitAvailable(this.snapshot); }
-final class TransitIncomplete extends TransitLoadOutcome { final TransitPartialSnapshot snapshot; const TransitIncomplete(this.snapshot); }
-final class TransitUnavailable extends TransitLoadOutcome { final TransitUnavailableReason reason; const TransitUnavailable(this.reason); }
-final class TransitSnapshot { final ValidLocationReference location; final DateTime analysisDate; final int radiusMeters; final TransitServiceOutcome serviceOutcome; final TransitScore? score; final TransitProvenance provenance; const TransitSnapshot({required this.location, required this.analysisDate, required this.radiusMeters, required this.serviceOutcome, required this.score, required this.provenance}); }
-final class TransitPartialSnapshot { const TransitPartialSnapshot(); }
-enum TransitServiceOutcome { served, noStops, noActiveRoutes }
-final class TransitScore { final int value; const TransitScore(this.value); }
-final class TransitProvenance { final String snapshotId; final String referenceGridVersion; final DateTime generatedAt; const TransitProvenance({required this.snapshotId, required this.referenceGridVersion, required this.generatedAt}); }
-enum TransitUnavailableReason { noUsableFeed, analysisDateOutsideServiceRange, retryableUnavailable, sourceUnverifiable }</code></pre>
+<p><code>TRANSIT-001</code> 的完整 canonical 声明只在 <a href="../design/features/public-transportation.md">Public Transportation</a> 定义。B 的调用子集为 <code>PublicTransportation.load(TransitRequest)</code> 及 canonical available/incomplete/unavailable、service outcome、score 与 provenance；不复制或重塑 Transit 类型。</p>
 <p>请求必须用同地点、明确分析日、<code>1,500m</code>；仅 <code>TransitAvailable + served + score != null</code> 的 score 进入交通分。noStops/noActiveRoutes、incomplete、unavailable 都是交通 component missing，原样保留原因；served score 0 是有效 0。完整 served 的 stale warning 仍可用且保留 warning，B 不下载 GTFS/重算百分位。保存 analysisDate/radius/snapshot/reference-grid 用于 A/B 可比性。fake Transit 覆盖 served 0、noStops、noActiveRoutes、incomplete/unavailable、stale served，断言仅 scored served 入 ICI。</p>
-<h3 id="interface-卡-privacy-001-账户范围">Interface 卡：<code>PRIVACY-001</code> — 账户范围</h3>
+<h3>Interface 卡：<code>PRIVACY-001</code> — 账户范围</h3>
 <p><strong>提供者：</strong> Account Privacy；<strong>唯一 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class AccountPrivacy { AccountScopeSnapshot read(); }
-sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
-final class AccountScopeOpened extends AccountScopeSnapshot { final String accountId; const AccountScopeOpened(this.accountId); }
-final class AccountScopeClosed extends AccountScopeSnapshot { const AccountScopeClosed(); }
-final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; const AccountScopeUnavailable(this.failure); }
-enum AccountScopeFailure { identityMismatch, closing, unavailable }</code></pre>
-<p>Shell 唯一发起 lifecycle。B 仅同账户 opened 时读/写权重；closing 即令旧 preview、last-saved 副本、保存中动作和晚到结果不可读/提交。B 只清理并报告 <code>STATE-INFRA-WEIGHT-PREVIEW</code>，不删远端权重或公共资料；closed/identityMismatch 绝不伪装为已保存 <code>5/5/5</code>。fake A opened→closing→closed→B opened，断言 A 回调不进入 B，公共资料无账户字段。</p>
-<h3 id="直接读取-read_infrastructure_inputs-与-user_ici_preferences-仅-b">直接读取：<code>read_infrastructure_inputs</code> 与 <code>user_ici_preferences</code>（仅 B）</h3>
+<p><code>PRIVACY-001</code> 的完整 canonical 声明、账户范围、关闭参与者和结果只在 <a href="../design/modules/account-privacy.md#privacy-001--%E8%B4%A6%E6%88%B7%E8%8C%83%E5%9B%B4%E4%B8%8E%E5%85%B3%E9%97%AD%E5%8F%82%E4%B8%8E%E8%80%85">Account Privacy</a> 定义。B 的调用子集为 <code>AccountPrivacy.readScope()</code> 与 infrastructureCoverage participant 的 <code>clearPrivateState(AccountScope)</code>；处理 canonical <code>AccountScopeOpened</code>、<code>AccountScopeClosing</code>、<code>AccountScopeClosed</code>、<code>AccountScopeUnavailable</code> 和 <code>PrivateStateCleared</code> / <code>PrivateStateClearIncomplete</code>。不以本地 <code>read()</code>、自定义 account id 或旧 scope 类型替代。</p>
+<p>Shell 唯一发起 lifecycle。B 仅同账户 <code>AccountScopeOpened</code> 时读/写权重；<code>AccountScopeClosing</code> 即令旧 preview、last-saved 副本、保存中动作和晚到结果不可读/提交。B 只清理并报告 <code>STATE-INFRA-WEIGHT-PREVIEW</code>，不删远端权重或公共资料；closed/identity mismatch 绝不伪装为已保存 <code>5/5/5</code>。fake A opened→closing→closed→B opened，断言 A 回调不进入 B，公共资料无账户字段。</p>
+<h3>直接读取：<code>read_infrastructure_inputs</code> 与 <code>user_ici_preferences</code>（仅 B）</h3>
 <p><code>read_infrastructure_inputs</code> 是 authenticated security-invoker、只读、<code>proposed</code> 的 View/RPC；Flutter 不直读 <code>hh_access_amenities</code>、<code>hospital_beds</code>、<code>population_district</code>、<code>schools_district</code>、<code>teachers_district</code>、<code>enrolment_school_district</code>。<code>user_ici_preferences</code> 是 B 的 owner-only CRUD 表：每账户一行，<code>health/education/transit</code> 整数 <code>1–10</code>、<code>updated_at</code>；缺行=5。旧五个 <code>0–1</code> 列仅迁移来源。</p>
 <pre><code class="language-dart">abstract interface class InfrastructureInputsReader { Future&lt;InfrastructureInputsOutcome&gt; read(InfrastructureInputsRequest request); }
 final class InfrastructureInputsRequest { final AdministrativeGeographicContext district; final InfrastructureRefreshPolicy policy; const InfrastructureInputsRequest({required this.district, required this.policy}); }
@@ -112,12 +137,18 @@ final class HospitalBedsRow { final DateTime date; final String type; final int?
 final class PopulationRow { final DateTime date; final String sex; final String age; final String ethnicity; final int? value; const PopulationRow(this.date, this.sex, this.age, this.ethnicity, this.value); }
 final class SchoolsRow { final DateTime date; final String stage; final String type; final int? value; const SchoolsRow(this.date, this.stage, this.type, this.value); }
 final class TeachersRow { final DateTime date; final String stage; final String sex; final int? value; const TeachersRow(this.date, this.stage, this.sex, this.value); }
-final class EnrolmentRow { final DateTime date; final String stage; final String sex; final int? value; const EnrolmentRow(this.date, this.stage, this.sex, this.value); }</code></pre>
+final class EnrolmentRow { final DateTime date; final String stage; final String sex; final int? value; const EnrolmentRow(this.date, this.stage, this.sex, this.value); }
+</code></pre>
 <p>请求 <code>(state,district)</code> 必为 Geo resolved；每数据集取自身最新有效日期，人口同年或最多向前两年且 <code>sex=both/age=overall/ethnicity=overall</code>；排除 <code>All Districts</code>/州合计。失败和必要字段 null 使对应 component missing；明确 0 有效。B 仅同账户 select/insert/update 权重，不能将 preview 写表。fake reader 给完整、必要行缺失、人口超期、0、permissionDenied，验证分项缺失和门槛。</p>
-<h2 id="3-b-必须提供的-interface">3. B 必须提供的 Interface</h2>
-<h3 id="interface-卡-infra-001-五项结果-权重和-neutral-ici">Interface 卡：<code>INFRA-001</code> — 五项结果、权重和 neutral ICI</h3>
+<h2>3. B 必须提供的 Interface</h2>
+<h3>Interface 卡：<code>INFRA-001</code> — 五项结果、权重和 neutral ICI</h3>
 <p><strong>提供者：</strong> Infrastructure Coverage（B）；<strong>消费者：</strong> Application Shell、Personalized Location Suitability；<strong>唯一 import：</strong> <code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>。消费者不得读 B 的表/View、<code>src/</code> 或重算 ICI；B 先合并以下声明和最小 fake。</p>
-<pre><code class="language-dart">abstract interface class InfrastructureCoverage {
+<pre><code class="language-dart">final class InfrastructureReturnContext { final String destination; final String? stableItemId; const InfrastructureReturnContext({required this.destination, this.stableItemId}); }
+final class OpenInfrastructureIntent extends ShellIntent { final ValidLocationReference location; final InfrastructureReturnContext returnContext; const OpenInfrastructureIntent({required this.location, required this.returnContext}); }
+final class OpenInfrastructureComparisonIntent extends ShellIntent { final ValidLocationReference locationA; final ValidLocationReference locationB; final InfrastructureReturnContext returnContext; const OpenInfrastructureComparisonIntent({required this.locationA, required this.locationB, required this.returnContext}); }
+final class InfrastructureContribution extends ShellContribution { final InfrastructureContributionTarget target; final InfrastructureReturnContext returnContext; final InfrastructureLoadOutcome? single; final InfrastructureComparisonOutcome? comparison; const InfrastructureContribution({required this.target, required this.returnContext, this.single, this.comparison}); }
+enum InfrastructureContributionTarget { single, comparison }
+abstract interface class InfrastructureCoverage {
   Future&lt;InfrastructureLoadOutcome&gt; loadSingle(InfrastructureSingleRequest request);
   Future&lt;InfrastructureComparisonOutcome&gt; compare(InfrastructureComparisonRequest request);
   Future&lt;InfrastructureNeutralOutcome&gt; neutralForSummary(InfrastructureNeutralRequest request);
@@ -151,7 +182,8 @@ final class InfrastructureWeightPreviewRejected extends InfrastructureWeightPrev
 sealed class InfrastructureWeightOutcome { const InfrastructureWeightOutcome(); }
 final class InfrastructureWeightsSaved extends InfrastructureWeightOutcome { final InfrastructureWeights weights; final DateTime updatedAt; const InfrastructureWeightsSaved(this.weights, this.updatedAt); }
 final class InfrastructureWeightsSaveRejected extends InfrastructureWeightOutcome { final InfrastructureWeightFailure failure; const InfrastructureWeightsSaveRejected(this.failure); }
-enum InfrastructureWeightFailure { invalidLevel, scopeUnavailable, retryableUnavailable, permissionDenied, staleRequest }</code></pre>
+enum InfrastructureWeightFailure { invalidLevel, scopeUnavailable, retryableUnavailable, permissionDenied, staleRequest }
+</code></pre>
 <pre><code class="language-dart">final class InfrastructureSingleResult { final InfrastructureResultFacts facts; final InfrastructureIci accountWeightedIci; final InfrastructureWeightContext weightContext; const InfrastructureSingleResult({required this.facts, required this.accountWeightedIci, required this.weightContext}); }
 final class InfrastructureNeutralResult { final InfrastructureResultFacts facts; final InfrastructureIci ici; const InfrastructureNeutralResult({required this.facts, required this.ici}); }
 final class InfrastructureResultFacts { final ValidLocationReference location; final AdministrativeGeographicContext? district; final DateTime analysisDate; final List&lt;InfrastructureComponent&gt; components; final InfrastructureProvenance provenance; const InfrastructureResultFacts({required this.location, required this.district, required this.analysisDate, required this.components, required this.provenance}); }
@@ -164,35 +196,160 @@ final class InfrastructureIci { final int value; final InfrastructureIciGrade gr
 enum InfrastructureIciGrade { weak, fair, good, veryGood }
 enum InfrastructureWeightMode { lastSavedAccount, unsavedPreview, neutral }
 final class InfrastructureWeightContext { final InfrastructureWeightMode mode; final InfrastructureWeights weights; final DateTime? savedUpdatedAt; const InfrastructureWeightContext({required this.mode, required this.weights, required this.savedUpdatedAt}); }
-final class InfrastructureProvenance { final String? boundaryVersion; final String? transitSnapshotId; final String? transitReferenceGridVersion; final String calculationModelVersion; const InfrastructureProvenance({required this.boundaryVersion, required this.transitSnapshotId, required this.transitReferenceGridVersion, required this.calculationModelVersion}); }</code></pre>
-<div class="table-wrap"><table><thead><tr><th>主题</th><th>固定协作语义</th></tr></thead><tbody><tr><td>single/account</td><td><code>loadSingle</code> 只接受 single immutable location、分析日和 opened scope；无行=last saved <code>5/5/5</code>。合法 preview 覆盖本页并标记 <code>unsavedPreview</code>。</td></tr><tr><td>neutral</td><td>summary、Suitability、A/B 强制 <code>5/5/5</code> 和 mode neutral；不得读、输出、缓存或推导账户权重。</td></tr><tr><td>分项</td><td>water/electricity 直接百分比；health=所有 type beds ÷ eligible population ×1000 的同期全国行政区百分位；education=学校密度与师生资源百分位各 50%；transit 仅 canonical scored served。均 0–100，附单位/范围、日期/来源/warning。</td></tr><tr><td>缺失/ICI</td><td>任一必要 input 缺失则整个分项 missing；未知不为 0，明确 0 为 available。missing 不入分子/分母；五项原始基础权重均 .20，少于 3 项可用则 ICI unavailable。</td></tr><tr><td>权重</td><td>water/electricity multiplier 1；三个滑块 <code>1–10</code>、multiplier=<code>level/5</code>；account-weighted 仅 single，neutral 固定 5；assessment preferences 永不进入 ICI。</td></tr></tbody></table></div>
+final class InfrastructureProvenance { final String? boundaryVersion; final String? transitSnapshotId; final String? transitReferenceGridVersion; final String calculationModelVersion; const InfrastructureProvenance({required this.boundaryVersion, required this.transitSnapshotId, required this.transitReferenceGridVersion, required this.calculationModelVersion}); }
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>固定协作语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>single/account</td>
+<td><code>loadSingle</code> 只接受 single immutable location、分析日和 opened scope；无行=last saved <code>5/5/5</code>。合法 preview 覆盖本页并标记 <code>unsavedPreview</code>。</td>
+</tr>
+<tr>
+<td>neutral</td>
+<td>summary、Suitability、A/B 强制 <code>5/5/5</code> 和 mode neutral；不得读、输出、缓存或推导账户权重。</td>
+</tr>
+<tr>
+<td>分项</td>
+<td>water/electricity 直接百分比；health=所有 type beds ÷ eligible population ×1000 的同期全国行政区百分位；education=学校密度与师生资源百分位各 50%；transit 仅 canonical scored served。均 0–100，附单位/范围、日期/来源/warning。</td>
+</tr>
+<tr>
+<td>缺失/ICI</td>
+<td>任一必要 input 缺失则整个分项 missing；未知不为 0，明确 0 为 available。missing 不入分子/分母；五项原始基础权重均 .20，少于 3 项可用则 ICI unavailable。</td>
+</tr>
+<tr>
+<td>权重</td>
+<td>water/electricity multiplier 1；三个滑块 <code>1–10</code>、multiplier=<code>level/5</code>；account-weighted 仅 single，neutral 固定 5；assessment preferences 永不进入 ICI。</td>
+</tr>
+</tbody></table>
 <p><code>InfrastructureLoadRejected</code> 是无法安全开始，与已返回其余分项/一个 missing 不同。preview 仅同步改 <code>STATE-INFRA-WEIGHT-PREVIEW</code>；非整数/不在 1–10 返回 <code>invalidLevel</code> 并不改 preview。save 只保存全部三项合法值；仅 <code>InfrastructureWeightsSaved</code> 替换 last saved/发布跨设备，失败保留 preview/last saved，restore 可恢复；不建离线写队列。scope close、身份不符、地点/日期/provenance 改变时，旧 load/save 变 <code>scopeUnavailable/staleRequest</code>，不污染新账户/地点。公开结果不含 account ID、表行或原始数据。</p>
 <p><strong>A/B 顺序：</strong> Shell/Map 先给原顺序 A/B；B 分别取 Geo、输入和 Transit，先形成两端 neutral。任一 ICI unavailable 为 <code>InfrastructureIncomparable(sideUnavailable)</code>；只有全部使用分项的日期/source、district/1,500m basis、模型、Transit snapshot/reference-grid 和完整性相容，才 <code>Comparable</code> 并显示差异。交换只换槽位。Suitability 只调用 <code>neutralForSuitability</code>。</p>
 <pre><code class="language-dart">final outcome = await infrastructure.loadSingle(
   InfrastructureSingleRequest(location: location, analysisDate: analysisDate, policy: InfrastructureLoadPolicy.cacheAllowed),
-);</code></pre>
+);
+</code></pre>
 <p>调用方以 <code>InfrastructureLoaded</code> 呈现 <code>facts</code>、<code>accountWeightedIci</code> 和 <code>weightContext</code>；以 <code>InfrastructureLoadRejected</code> 呈现可区分恢复路径，绝不显示伪 0。</p>
 <p><strong>Fake 场景：</strong> Shell/Suitability 以 fake <code>InfrastructureCoverage</code> 返回完整 neutral、single <code>8/3/10</code> preview、Geo missing/人口超期/Transit noActiveRoutes/served 0、A/B provenance mismatch、save retryable failure、A closing→B opened。断言 Shell 保留地点/原因；Suitability 永远只见 neutral；失败保存不丢 preview；A 回调不进入 B。无需生产 Geo/Transit/Supabase。</p>
-<h2 id="4-直接数据与推荐实施顺序">4. 直接数据与推荐实施顺序</h2>
-<div class="table-wrap"><table><thead><tr><th>对象</th><th>B 的边界</th><th>不可变规则</th></tr></thead><tbody><tr><td><code>read_infrastructure_inputs</code></td><td>authenticated security-invoker read-only；仅 B</td><td>各数据集最新有效日期；每项独立日期/来源；不能以导入时间代替统计日期。</td></tr><tr><td><code>user_ici_preferences</code></td><td>B owner-only select/insert/update</td><td>缺行=5；只存 last saved；旧 0–1 表不消费；其他 Owner 仅 <code>INFRA-001</code>。</td></tr><tr><td><code>STATE-INFRA-WEIGHT-PREVIEW</code></td><td>B 当前账户 single 页内存</td><td>关闭即清；不进 A/B、summary、Suitability/跨设备。</td></tr></tbody></table></div>
+<h2>4. 直接数据与推荐实施顺序</h2>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>B 的边界</th>
+<th>不可变规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>read_infrastructure_inputs</code></td>
+<td>authenticated security-invoker read-only；仅 B</td>
+<td>各数据集最新有效日期；每项独立日期/来源；不能以导入时间代替统计日期。</td>
+</tr>
+<tr>
+<td><code>user_ici_preferences</code></td>
+<td>B owner-only select/insert/update</td>
+<td>缺行=5；只存 last saved；旧 0–1 表不消费；其他 Owner 仅 <code>INFRA-001</code>。</td>
+</tr>
+<tr>
+<td><code>STATE-INFRA-WEIGHT-PREVIEW</code></td>
+<td>B 当前账户 single 页内存</td>
+<td>关闭即清；不进 A/B、summary、Suitability/跨设备。</td>
+</tr>
+</tbody></table>
 <ol>
 <li>B 先合并唯一入口、<code>INFRA-001</code> declarations 和最小 fake。</li>
 <li>B 实现 immutable-location 管线：Geo、稳定 View、canonical Transit 到五项/缺失/provenance。</li>
 <li>B 实现 opened-scope 权重 read/preview/save/restore/close，完成 <code>RISK-SCHEMA-02</code> 迁移证据。</li>
 <li>Shell/Suitability 并行使用 fake；最后只共同联调第 5 节场景。</li>
 </ol>
-<h2 id="5-联合验收">5. 联合验收</h2>
-<div class="table-wrap"><table><thead><tr><th>场景</th><th>Owner</th><th>可观察结果</th><th>追踪</th></tr></thead><tbody><tr><td>完整 single</td><td>B、Map、Geo、Transit、Shell</td><td>五项/ICI 均有分数、单位/范围、来源、各自日期与模型；不称质量</td><td><code>INFRA-01</code>；<code>AT-ANALYSIS-01</code></td></tr><tr><td>unknown/0/stale</td><td>B、Geo、Transit、Shell</td><td>Geo/输入/人口/Transit 不可用均具体 missing；0 保持 0；stale served 可用 warning；&lt;3 项无 ICI</td><td><code>INFRA-01</code>；<code>AT-ANALYSIS-01</code></td></tr><tr><td>A/B neutral</td><td>B、Map、Geo、Transit、Shell</td><td>固定 5/5/5；仅相容显示差异；否则保留原值/原因、无赢家；交换不换引用</td><td><code>INFRA-01</code>；<code>AT-COMPARE-01/03</code></td></tr><tr><td>preview/save</td><td>B、Privacy、Shell</td><td>缺行 5；合法预览即时；成功才发布；失败 retain/retry/restore；分项/neutral 不变</td><td><code>INFRA-02</code>；<code>AT-ANALYSIS-01</code></td></tr><tr><td>neutral consumer</td><td>B、Suitability、Shell</td><td>摘要/A-B/Suitability 只得 neutral 或明确 unavailable</td><td><code>INFRA-01/02</code>；<code>AT-SUIT-01</code></td></tr><tr><td>A→B</td><td>B、Privacy、Shell</td><td>A preview/save/晚到结果不入 B；B 只见自己的行或 5；公共资料无私有字段</td><td><code>INFRA-02</code>；<code>AT-SWITCH-01</code>、<code>AT-RACE-01</code></td></tr></tbody></table></div>
-<h2 id="6-实现自由-阻塞和参考">6. 实现自由、阻塞和参考</h2>
+<h2>5. 联合验收</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>Owner</th>
+<th>可观察结果</th>
+<th>追踪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整 single</td>
+<td>B、Map、Geo、Transit、Shell</td>
+<td>五项/ICI 均有分数、单位/范围、来源、各自日期与模型；不称质量</td>
+<td><code>INFRA-01</code>；<code>AT-ANALYSIS-01</code></td>
+</tr>
+<tr>
+<td>unknown/0/stale</td>
+<td>B、Geo、Transit、Shell</td>
+<td>Geo/输入/人口/Transit 不可用均具体 missing；0 保持 0；stale served 可用 warning；&lt;3 项无 ICI</td>
+<td><code>INFRA-01</code>；<code>AT-ANALYSIS-01</code></td>
+</tr>
+<tr>
+<td>A/B neutral</td>
+<td>B、Map、Geo、Transit、Shell</td>
+<td>固定 5/5/5；仅相容显示差异；否则保留原值/原因、无赢家；交换不换引用</td>
+<td><code>INFRA-01</code>；<code>AT-COMPARE-01/03</code></td>
+</tr>
+<tr>
+<td>preview/save</td>
+<td>B、Privacy、Shell</td>
+<td>缺行 5；合法预览即时；成功才发布；失败 retain/retry/restore；分项/neutral 不变</td>
+<td><code>INFRA-02</code>；<code>AT-ANALYSIS-01</code></td>
+</tr>
+<tr>
+<td>neutral consumer</td>
+<td>B、Suitability、Shell</td>
+<td>摘要/A-B/Suitability 只得 neutral 或明确 unavailable</td>
+<td><code>INFRA-01/02</code>；<code>AT-SUIT-01</code></td>
+</tr>
+<tr>
+<td>A→B</td>
+<td>B、Privacy、Shell</td>
+<td>A preview/save/晚到结果不入 B；B 只见自己的行或 5；公共资料无私有字段</td>
+<td><code>INFRA-02</code>；<code>AT-SWITCH-01</code>、<code>AT-RACE-01</code></td>
+</tr>
+</tbody></table>
+<h2>6. 实现自由、阻塞和参考</h2>
 <p>B 可决定私有文件、Widget、状态管理、缓存、Supabase 映射和测试。若改变公开入口/声明/结果/失败、ICI/neutral 边界、可比性、顺序/权限，或 View/table 字段/RLS/migration/官方口径，须与受影响 Owner 停止协商。</p>
-<p>实现 Gate：<code>read_infrastructure_inputs</code>、<code>user_ici_preferences</code> 仍 <code>proposed</code>。完成前须验证官方 schema、导入行数/最大日期/唯一键、完整/空/部分资料、人口年份、三项迁移、owner-only RLS 和两账户样本，满足 <code>RISK-SCHEMA-01/02</code>；不得以 fixture、旧五列权重或镜像直读冒充完成。权威来源：<a href="../../knowledge_base/locatemy_product/infrastructure_index_scoring.md">评分模型</a>、<a href="../data/schema-catalog.md">Schema Catalog</a>、<a href="public-transportation.md#interface-卡transit-001--公共交通-canonical-connectivity-result">Transit 契约</a>、<a href="../system/data-ownership.md">数据所有权</a>。</p>
-<h2 id="7-契约变更与完成检查">7. 契约变更与完成检查</h2>
-<p>公开变更须由提供方说明原因/消费者，所有消费者确认；同一 PR 更新 declarations、契约、受影响 fake/Adapter tests 和 PDF。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate 或 Development Release。</p>
+<p>实现 Gate：<code>read_infrastructure_inputs</code>、<code>user_ici_preferences</code> 仍 <code>proposed</code>。完成前须验证官方 schema、导入行数/最大日期/唯一键、完整/空/部分资料、人口年份、三项迁移、owner-only RLS 和两账户样本，满足 <code>RISK-SCHEMA-01/02</code>；不得以 fixture、旧五列权重或镜像直读冒充完成。权威来源：<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md">评分模型</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/features/public-transportation.md#interface-%E5%8D%A1transit-001--%E5%85%AC%E5%85%B1%E4%BA%A4%E9%80%9A-canonical-connectivity-result">Transit 契约</a>、<a href="../design/system/data-ownership.md">数据所有权</a>。</p>
+<h2>7. 契约变更与完成检查</h2>
+<p>公开变更须由提供方说明原因/消费者，所有消费者确认；同一 PR 更新 declarations、契约、同名 HTML 与受影响 fake/Adapter tests。Git/PR 保存历史；不使用独立发布、文档版本、checksum、Manifest、Generation Gate 或 Development Release。</p>
 <ul>
-<li>[x] 四项 Readiness 可核查。</li>
-<li>[x] Shell/Location/Geo/Transit/Privacy/<code>INFRA-001</code> 全有入口、声明、约束、typed failures、状态、权限、顺序、示例和 fake。</li>
-<li>[x] 直接数据访问、字段、CRUD/RLS、公式输入、单位、missing/0/60%/权重/neutral 均完整。</li>
-<li>[x] 无函数体、Widget、SDK、SQL、migration 或测试实现。</li>
+<li><input checked="" disabled="" type="checkbox"> 四项 Readiness 可核查。</li>
+<li><input checked="" disabled="" type="checkbox"> Shell/Location/Geo/Transit/Privacy 的完整 frozen 声明由各 owning contract 唯一拥有；本 Feature 只说明实际调用子集。<code>INFRA-001</code> 有唯一入口、完整公开声明、约束、typed failures、状态、权限、顺序、示例和 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> 直接数据访问、字段、CRUD/RLS、公式输入、单位、missing/0/60%/权重/neutral 均完整。</li>
+<li><input checked="" disabled="" type="checkbox"> 无函数体、Widget、SDK、SQL、migration 或测试实现。</li>
+<li><input checked="" disabled="" type="checkbox"> 同名 HTML 与本 Markdown 语义等价；无 PDF、ADR 0014 或 handoff 发布治理。</li>
 </ul>
-</article></body>
+<h2>8. Change Log</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>状态</th>
+<th>变更原因</th>
+<th>受影响对象</th>
+<th>批准者</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-09-14</td>
+<td><code>Ready for Development</code></td>
+<td>固定五项覆盖、ICI、权重、neutral 与联验语义</td>
+<td><code>INFRA-01</code>、<code>INFRA-02</code>、<code>INFRA-001</code></td>
+<td>项目负责人</td>
+</tr>
+<tr>
+<td>2026-09-15</td>
+<td><code>Ready for Development</code></td>
+<td>Issue #23 返工为单一 Development Contract：补首屏可观察 DoD；上游 frozen seam 改为引用 owning canonical 声明并列出实际调用子集；移除 PDF、ADR 0014 与 handoff 治理</td>
+<td><code>INFRA-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>TRANSIT-001</code>、<code>PRIVACY-001</code>、同名 HTML</td>
+<td>设计 AI〔项目负责人授权〕，ADR 0013</td>
+</tr>
+</tbody></table>
+</main>
+</body>
 </html>

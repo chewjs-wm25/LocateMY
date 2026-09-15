@@ -1,6 +1,6 @@
 # Version-locked PDF development documentation packages
 
-> Status: Accepted — 2026-09-14
+> Status: Superseded by ADR 0015 — 2026-09-15
 
 LocateMY distributes each approved human implementation assignment as a version-locked Development Documentation Package rather than treating PDF as a second design authority. A package contains a required Feature Implementation Guide and Package Manifest, plus only the applicable versioned Calculation Specifications and Data & Dataset Contract Specifications. Every projection preserves source IDs and versions; source conflicts, missing applicable specifications, unsafe content, an unready owning design, unresolved blockers, or an unassigned implementer prevent PDF generation. The AI may translate and validate a package, but the project owner approves its Development Release. A relevant source change invalidates the package and requires regeneration rather than manual PDF editing.
 

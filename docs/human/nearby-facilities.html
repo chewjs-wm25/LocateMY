@@ -1,10 +1,27 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nearby Facilities 开发协作契约</title>
-<style>body{max-width:1080px;margin:2rem auto;padding:0 1rem;color:#17212b;font:16px/1.6 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}h1,h2,h3{line-height:1.25;margin-top:2rem}h1{font-size:2rem}h2{border-bottom:1px solid #d9e0e6;padding-bottom:.35rem}table{width:100%;border-collapse:collapse;margin:1rem 0;display:block;overflow-x:auto}th,td{border:1px solid #cbd5df;padding:.55rem;vertical-align:top;text-align:left}th{background:#eef3f7}pre{white-space:pre;overflow:auto;background:#17212b;color:#edf4f8;padding:1rem;border-radius:6px;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}blockquote{border-left:4px solid #5588aa;margin:1rem 0;padding:.2rem 1rem;background:#f3f8fb}.note{background:#fff7df;border:1px solid #e8c45b;padding:1rem;border-radius:6px}a{color:#075a9c}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nearby Facilities 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
 <body>
 <main>
@@ -349,14 +366,59 @@ final class OverpassElement { final String elementType; final String osmId; fina
 </tbody></table>
 <p>页面在正常、empty、cached 与 unavailable 均显示文字状态、数据来源、查询/缓存时间及“未收录不代表现实中不存在”；不能仅靠颜色、固定数量、箭头或“查看更多”传意。</p>
 <h2>6. 联合验收</h2>
-<p>| 场景 | Owners | 操作 | 可观察结果 | Trace |
-| --- | --- | --- | --- |
-| 正常与边界 | A、Shell、Map | 合法 single；边界 2,000m、重叠标签、无名称、Node/Way/Relation | 固定五类/中文类型、每类最近三项、圆形过滤、唯一条目、来源/时间；无指数/详情/路线 | <code>FAC-01</code>；<code>AT-ANALYSIS-01</code> |
-| 完整空与未知 | A、Shell | 完整空、partial、timeout、限流、无效 payload | 仅完整空显示“暂无已收录”；其余 unknown/unavailable 有分类原因且不置零/不缓存空 | <code>FAC-01</code>；<code>AT-ANALYSIS-01</code> |
-| 缓存与刷新 | A、Shell | 24h 内/外读取；显式 refresh 失败或成功 | 有效缓存标 cached/时间；refresh 绕过缓存；失败只回落有效缓存 | <code>FAC-01</code>；<code>AT-ANALYSIS-01</code>、<code>RISK-CACHE-01</code> |
-| A/B 与竞态 | A、Map、Shell | 缺端、同点、两端部分、版本不同、快速换点/交换 | 原地点/顺序绑定；不可比给原因无赢家；晚到旧值不入新槽 | <code>FAC-01</code>；<code>AT-COMPARE-03</code>、<code>AT-RACE-01</code> |
-| 摘要、图层与适配度 | A、Shell、Map、Suitability | 组合完整/unknown；visible/hidden/stale layer；复用设施事实 | 摘要不把 unknown 作比例；图层不改地点且仅完整结果显示；Suitability 不自行查 Overpass | <code>FAC-01</code>；<code>AT-ANALYSIS-01</code> |
-| 关闭与可访问性 | A、Shell、Privacy | scope closing、不同账户、读取各状态 | 旧结果/发布/晚到响应丢弃；公共缓存保留；每种状态、署名与限制有可复制文字 | <code>AT-RACE-01</code>；<code>RISK-OSM-01</code> |</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>Owners</th>
+<th>操作</th>
+<th>可观察结果</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正常与边界</td>
+<td>A、Shell、Map</td>
+<td>合法 single；边界 2,000m、重叠标签、无名称、Node/Way/Relation</td>
+<td>固定五类/中文类型、每类最近三项、圆形过滤、唯一条目、来源/时间；无指数/详情/路线</td>
+<td><code>FAC-01</code>；<code>AT-ANALYSIS-01</code></td>
+</tr>
+<tr>
+<td>完整空与未知</td>
+<td>A、Shell</td>
+<td>完整空、partial、timeout、限流、无效 payload</td>
+<td>仅完整空显示“暂无已收录”；其余 unknown/unavailable 有分类原因且不置零/不缓存空</td>
+<td><code>FAC-01</code>；<code>AT-ANALYSIS-01</code></td>
+</tr>
+<tr>
+<td>缓存与刷新</td>
+<td>A、Shell</td>
+<td>24h 内/外读取；显式 refresh 失败或成功</td>
+<td>有效缓存标 cached/时间；refresh 绕过缓存；失败只回落有效缓存</td>
+<td><code>FAC-01</code>；<code>AT-ANALYSIS-01</code>、<code>RISK-CACHE-01</code></td>
+</tr>
+<tr>
+<td>A/B 与竞态</td>
+<td>A、Map、Shell</td>
+<td>缺端、同点、两端部分、版本不同、快速换点/交换</td>
+<td>原地点/顺序绑定；不可比给原因无赢家；晚到旧值不入新槽</td>
+<td><code>FAC-01</code>；<code>AT-COMPARE-03</code>、<code>AT-RACE-01</code></td>
+</tr>
+<tr>
+<td>摘要、图层与适配度</td>
+<td>A、Shell、Map、Suitability</td>
+<td>组合完整/unknown；visible/hidden/stale layer；复用设施事实</td>
+<td>摘要不把 unknown 作比例；图层不改地点且仅完整结果显示；Suitability 不自行查 Overpass</td>
+<td><code>FAC-01</code>；<code>AT-ANALYSIS-01</code></td>
+</tr>
+<tr>
+<td>关闭与可访问性</td>
+<td>A、Shell、Privacy</td>
+<td>scope closing、不同账户、读取各状态</td>
+<td>旧结果/发布/晚到响应丢弃；公共缓存保留；每种状态、署名与限制有可复制文字</td>
+<td><code>AT-RACE-01</code>；<code>RISK-OSM-01</code></td>
+</tr>
+</tbody></table>
 <h2>7. 内部自由</h2>
 <p>A 可自行决定页面结构、状态管理、Overpass 端点/HTTP 库、缓存存储细节、解析、Haversine 实现、取消/重试/退避/去重的内部安排和测试组织。以下变化须由提供方说明影响并经受影响消费者确认：唯一公开 import、公开声明/result variant、输入约束、完整/empty/unknown 语义、半径/映射版、权限/副作用/次序、图层意图或缓存 Schema/RLS。变更在同一 PR 更新本 Development Contract、同名 HTML 导出与受影响 fake/Adapter 测试；不引入独立发布、版本锁定或同步治理流程。</p>
 <h2>8. 阻塞与权威参考</h2>

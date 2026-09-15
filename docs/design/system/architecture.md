@@ -1,6 +1,6 @@
 # 技术架构与非功能约束
 
-> 状态：`Draft — Issue #4 system contracts complete`
+> 状态：`Baselined — 5d11769`
 > 最后更新：2026-09-13
 
 本文件是运行时边界、依赖方向、composition root 与系统非功能约束的唯一真相。产品行为仍以

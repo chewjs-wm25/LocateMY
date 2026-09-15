@@ -1,17 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{max-width:1120px;margin:2rem auto;padding:0 1rem 3rem;color:#17212b;font:16px/1.65 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}h1,h2,h3{line-height:1.25;margin-top:2rem}h1{font-size:2rem}h2{border-bottom:1px solid #d9e0e6;padding-bottom:.35rem}table{width:100%;border-collapse:collapse;margin:1rem 0;display:block;overflow-x:auto}th,td{border:1px solid #cbd5df;padding:.55rem;vertical-align:top;text-align:left}th{background:#eef3f7}pre{white-space:pre;overflow:auto;background:#17212b;color:#edf4f8;padding:1rem;border-radius:6px;font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}blockquote{border-left:4px solid #5588aa;margin:1rem 0;padding:.2rem 1rem;background:#f3f8fb}a{color:#075a9c}</style>
-<title>Crime & Security 开发协作契约 · LocateMY</title>
-<meta name="generator" content="md2html">
-<meta charset="UTF-8">
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crime &amp; Security 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
 <body>
+<main>
 <h1>Crime &amp; Security 开发协作契约</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）<br>
-Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5<br>
-唯一公开入口：<code>package:locatemy/features/crime_and_security/crime_and_security.dart</code><br>
-定义完成：消费者可只凭本契约请求、呈现和保存同一不可变地点的州级安全结果；不会把警区、未知资料、隐患或导航结果混入治安结论。</p>
+<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）<br>Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5<br>唯一公开入口：<code>package:locatemy/features/crime_and_security/crime_and_security.dart</code><br>定义完成：消费者可只凭本契约请求、呈现和保存同一不可变地点的州级安全结果；不会把警区、未知资料、隐患或导航结果混入治安结论。</p>
 </blockquote>
 <p>本文件是 Crime &amp; Security 对 #23 的唯一 Development Contract；Markdown 是权威来源，<a href="crime-and-security.html">同名 HTML</a> 是语义等价、供人阅读的导出，不是第二份规格或发布包。它固定公开 Dart 声明、跨模块顺序、结果语义、数据边界和联合验收；<code>lib/features/crime_and_security/</code> 内的 Widget、状态管理、Adapter、缓存、并发/取消/重试及测试组织由 B 决定。公式正文只在产品知识库，字段、RLS、迁移和缓存物理结构只在 Schema Catalog。</p>
 <h2>0. 固定阅读顺序与四项 Readiness</h2>
@@ -29,8 +45,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>结论</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>责任与范围</td>
 <td><code>SAFE-01</code>、<code>SAFE-03</code> 唯一归属 Crime；警区边界/安全图层、Hazard、房产和可变选点归其他 Owner</td>
 <td>已就绪</td>
@@ -50,8 +65,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>第 5 节覆盖 canonical <code>AT-*</code>；<code>RISK-SCHEMA-01</code> 留作实现/集成证据</td>
 <td>已就绪</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>1. 成果、责任与冻结边界</h2>
 <ul>
 <li>用户可看到分析地点所属<strong>统计州</strong>的 0–100 安全指数、最新完整年度案件数、五年趋势、类别可用性、来源、年份、完整性和缓存状态；分数高仅表示同年同类别州级已定罪案件规模相对较低。</li>
@@ -68,8 +82,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>协作</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>lib/features/crime_and_security/</code>（B）</td>
 <td>官方资料、州级模型、趋势/筛选、3 天公共缓存、可比性、<code>SAFETY-001</code></td>
 <td>地点选择、行政空间匹配、Shell、Hazard、房产/风险快照、适配度</td>
@@ -99,8 +112,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>用户资料、镜像表直读、跨 Feature cache</td>
 <td>Schema Catalog 唯一权威</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>2. 需要调用的 Interface</h2>
 <h3>Interface 卡：<code>SHELL-001</code> — 分析返回与房产业务导航</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>；<strong>完整 canonical 声明和权威入口：</strong> <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell 的 <code>SHELL-001</code></a>。</p>
@@ -114,15 +126,13 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>顺序、权限与最小示例</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>marker 目的地唯一、地点/返回语境完整、仍属当前 opened scope 且未过期。</td>
 <td>只接受 provider 的三种 canonical outcome；后两者是导航结果，不是资料失败。</td>
 <td>Shell 只改门控、导航/返回栈或组合；Crime 不改 Map、结果、cache 或房产。</td>
 <td>仅 opened 主应用；<code>await shell.submit(returnToMapIntent);</code>。拒绝或需认证时留页并保留安全结果与恢复原因。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><strong>Fake 场景：</strong> fake 必须实现 provider 的完整 <code>ApplicationShell</code>，分别返回 canonical accepted、authentication-required、<code>ShellIntentRejected(staleInput)</code>；断言 payload 不变，后两种不清除安全结果。无需真实 Shell、Map 或 Property。</p>
 <h3>Interface 卡：<code>LOCATION-001</code> — 不可变合法地点（输入前提）</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<strong>完整 canonical 声明和权威入口：</strong> <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location 的 <code>LOCATION-001</code></a>。</p>
@@ -189,15 +199,13 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <th>顺序、权限与最小示例</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>location 必为 <code>LOCATION-001</code> immutable single/A/B；all 恒可请求，类别/type 仅可请求 snapshot 宣告可用项；refresh 绕过 cache。</td>
 <td>available、partial、unavailable(reason) 区分州、资料、完整年度与可重试失败；A/B 为 comparable 或 incomparable(reason)，不伪造差异。</td>
 <td>只读 <code>read_safety_inputs</code>，可读写无账户 <code>crime_public_cache</code>；不写地点、房产、账户、Hazard、图层/Shell。filter 只改 trend。</td>
 <td>先 <code>GEO-001</code> resolved，再读取/计算，再以原引用发布；仅 opened 过程呈现。<code>await safety.load(SafetyRequest(location: location, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend()));</code></td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><strong>Fake 场景：</strong> Shell fake 消费 fresh complete、cached partial、unresolved、ambiguous、无有效类别、retryable，均不可显示为 0；Property fake 只接受同地点 complete available 且有来源/年份的 snapshot；Suitability fake 将 partial/unavailable 保持为安全维度缺失；A/B fake 证明年份/完整性/版本任一不同即不可比，交换仅改显示顺序。</p>
 <h3>Interface 卡：<code>SAFETY-002</code> — 官方资料读取 seam（仅 B）</h3>
 <p><strong>提供者/消费者：</strong> Crime &amp; Security（B）/ Crime &amp; Security（B）；非跨 Owner 入口。B 经 Catalog 的 <code>read_safety_inputs</code> 读取 <code>crime_district</code>，得到州、完整年、类别/type、已定罪案件或分类失败。仅可验证最新完整年度与有效类别可形成结果；网络、SDK、取消、超时、重试、cache 替换和错误映射由 B 封装。应用消费者不能 import Adapter、镜像表或原始行。</p>
@@ -210,8 +218,7 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <th>必须保持的语义</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>安全指数/案件数</td>
 <td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E5%AE%89%E5%85%A8%E6%8C%87%E6%95%B0">治安事实及公式</a>；<code>read_safety_inputs</code></td>
 <td>resolved reporting state 后聚合 <code>crime_district.state</code> 的警区原始行；最新完整年、同年同类别实际州基准、对数/百分位/60:40。排除 Malaysia，按事实源归并联邦直辖区；district 绝不作地理解析。</td>
@@ -236,8 +243,7 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <td>Hazard 产品事实、<code>HAZARD-001</code>/<code>HAZARD-002</code></td>
 <td>不读写报告、投票、计数、图层/状态；隐患不进指数、趋势、比较、cache、Suitability 安全维度。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>顺序：Map 在 <code>FLOW-02</code>/<code>FLOW-03</code> 先给每角色 immutable location；Crime 调 <code>GEO-001</code>，只对 resolved state 经 <code>SAFETY-002</code> 形成 <code>SAFETY-001</code>；Shell 组合但不重算/置零。<code>FLOW-06</code> 的 Property 只消费同地点完整结果并自行写风险快照；Crime 不读写 Property。返回地图/Portfolio/Add Property 均经本契约 Shell card。</p>
 <h2>5. 验收、Ready Gate 与变更</h2>
 <table>
@@ -248,8 +254,7 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <th>可观察完成条件</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>SAFE-01</code> / <code>AT-ANALYSIS-01</code></td>
 <td>resolved 州、两类完整资料，打开单点</td>
 <td>州级 0–100、最新完整年案件、五年趋势及地点/州/年/来源/完整性/cache/口径；无警区或个人风险。</td>
@@ -284,14 +289,13 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <td>中文/English、动态字体、图表/颜色</td>
 <td>文字等价覆盖读数、趋势、筛选、状态、来源/cache/限制；说明州级而非警区/评级/个人概率。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked><code>SAFE-01</code>、<code>SAFE-03</code> 追踪到 Owner、<code>SAFETY-001</code>、<code>crime_district</code>、<code>read_safety_inputs</code>、<code>crime_public_cache</code>、事实源和 AT。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>每个跨 Owner Interface 含唯一 import、声明/精确调用、约束、typed outcome、状态副作用、顺序/权限、最小示例和 fake。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>无实现体、SQL、SDK 映射、缓存策略或内部测试组织。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked><code>RISK-SCHEMA-01</code> 的官方 schema/键、导入行数、最大完整年、五年趋势和州聚合证据留实现/集成验收；不得用 <code>crime_stats</code> 或示例宣称完成。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>SAFE-01</code>、<code>SAFE-03</code> 追踪到 Owner、<code>SAFETY-001</code>、<code>crime_district</code>、<code>read_safety_inputs</code>、<code>crime_public_cache</code>、事实源和 AT。</li>
+<li><input checked="" disabled="" type="checkbox"> 每个跨 Owner Interface 含唯一 import、声明/精确调用、约束、typed outcome、状态副作用、顺序/权限、最小示例和 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> 无实现体、SQL、SDK 映射、缓存策略或内部测试组织。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>RISK-SCHEMA-01</code> 的官方 schema/键、导入行数、最大完整年、五年趋势和州聚合证据留实现/集成验收；不得用 <code>crime_stats</code> 或示例宣称完成。</li>
+<li><input checked="" disabled="" type="checkbox"> Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。</li>
 </ul>
 <p>公共 Interface 变更须由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新声明、本契约、同名 HTML 导出及受影响 fake/Adapter 测试。Git/PR 保存历史；不使用 PDF、文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release 或 Invalidated 生命周期。</p>
 <table>
@@ -304,15 +308,14 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <th>批准者</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
 <td>Issue #23：改为单一 Development Contract 和同名 HTML 导出；移除旧 PDF/ADR 0014/handoff 发布流程引用，并令 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code> 消费卡只指向冻结 provider 的完整 canonical declaration；不改变公式、数据模型、权限、失败或验收语义</td>
 <td><code>SAFE-01</code>、<code>SAFE-03</code>、<code>SAFETY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>crime_public_cache</code>、同名 HTML</td>
 <td>设计 AI（项目负责人授权）</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
+</main>
 </body>
 </html>

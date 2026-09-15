@@ -1,12 +1,150 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Account Privacy 开发协作契约</title><style>:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.65;color:#18212b}body{max-width:1120px;margin:auto;padding:2.5rem 1.25rem 4rem}h1,h2{color:#102a43;line-height:1.25}h2{border-bottom:1px solid #d9e2ec;padding-bottom:.35rem;margin-top:2rem}.meta,.note{background:#f0f4f8;border-left:4px solid #486581;padding:.8rem 1rem}table{border-collapse:collapse;width:100%;margin:1rem 0 1.5rem}th,td{border:1px solid #bcccdc;padding:.6rem;vertical-align:top;text-align:left}th{background:#edf2f7}code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{background:#f0f4f8;padding:.08rem .25rem}pre{white-space:pre-wrap;background:#f8fafc;padding:1rem;overflow:auto}a{color:#0b69a3}@media print{body{max-width:none;padding:0}}</style></head><body>
-<header><h1>Account Privacy 开发协作契约</h1><div class="meta"><p><strong>状态：</strong><code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）</p><p><strong>Owner：</strong><code>A</code>　<strong>系统基线：</strong><code>Baselined — 5d11769</code>　<strong>依赖波次：</strong>Wave 2</p><p><strong>唯一公开入口：</strong><code>package:locatemy/features/account_privacy/account_privacy.dart</code></p><p><strong>完成定义：</strong>Shell 仅凭本文可在真实同账户认证后打开范围；退出、强制退出或换号时立即封锁旧账户，八个具名 Owner 都证明本机私有状态已处理后才 closed。身份不符、不完整或不可用时不显示旧/新账户私有内容，且可恢复关闭同一旧范围。</p></div><p>本文是唯一跨 Owner 合作契约和同名 Markdown 的人类阅读导出。它只冻结公开 Dart seam；注册/注入、状态管理、Adapter、并发、取消、重试、私有文件和测试组织仍归 A。</p></header>
-<nav><strong>固定阅读顺序：</strong><ol><li><a href="../../CONTEXT.md#本地数据库">领域词汇</a>与账户产品事实；</li><li>Feature map、Interface 注册表与 <a href="../design/system/flows.md#flow-01启动注册登录退出与账户切换">FLOW-01</a>；</li><li>Capability Traceability、<a href="../design/system/data-ownership.md#privacy-barrier-参与者清单">数据所有权参与者清单</a>、Schema Catalog 与 privacy 风险；</li><li>本契约。后项不得改写前项。</li></ol></nav>
-<h2>四项 Readiness</h2><table><tr><th>项目</th><th>证据</th><th>结论</th></tr><tr><td>责任与顺序</td><td>A 只拥有 <code>STATE-ACCOUNT-SCOPE</code>、协调/证明；Auth、Shell 和八类 payload 保留原 Owner</td><td>已就绪</td></tr><tr><td>契约与消费者</td><td>唯一 import、声明、Shell 调用和八项 participant 合约在下文</td><td>已就绪</td></tr><tr><td>数据与权限</td><td>同账户范围、payload 不可见、保留项固定；不暴露 token、字段或远端删除</td><td>已就绪</td></tr><tr><td>联调与验收</td><td>恢复、幂等、失败/重试、强制退出、A→B 与 fake 场景</td><td>已就绪</td></tr></table>
-<h2>成果、责任与边界</h2><ul><li>只有 <code>AUTH-001</code> 明确认证的同一账户可 opened；<code>closing</code> 从开始即不可访问。</li><li>Shell 是 lifecycle 唯一发起者；A 汇总固定八名 participant。participant 只处理自己的旧账户分区。</li><li>本模块不结束 Auth 会话、不撤 Shell UI、不删远端记录/已上传 Storage、公共缓存、语言或其他设备会话。</li></ul><p><code>AUTH-001</code> 是 account id 的唯一来源；无会话、不可确认会话、旧 snapshot 或 cache 绝不能打开范围。A 不读 participant payload、字段或路径；公共缓存不得有账户 ID、自由文字或用户命名。</p>
-<h2>必须提供：PRIVACY-001</h2><p><strong>提供者：</strong>Account Privacy（A）。<strong>消费者：</strong>Application Shell、Map / Location、Cost、Infrastructure、Hazard、Property、Account Center。消费者只能 import 唯一入口，不得 import <code>src/</code>。</p><pre>abstract interface class AccountPrivacy {
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Privacy 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
+</head>
+<body>
+<main>
+<h1>Account Privacy 开发协作契约</h1>
+<blockquote>
+<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 2
+唯一公开入口：<code>package:locatemy/features/account_privacy/account_privacy.dart</code>
+完成定义：Shell 仅凭本契约可在真实同账户认证后打开范围；退出、强制退出或换号时立即封锁旧账户，八个具名 Owner 都证明其本机私有状态已处理后才 closed。身份不符、不完整或不可用时绝不显示旧/新账户私有内容，且可恢复关闭同一旧范围。</p>
+</blockquote>
+<p>本文件是 Account Privacy 唯一跨 Owner 开发协作契约和同名 HTML 的 Markdown 源。它冻结 <code>PRIVACY-001</code> 的公开 Dart seam：范围快照、Shell 发起的开关和八个 Owner 的 close-participant 合约。<code>lib/features/account_privacy/</code> 内的注册/注入、状态管理、SQLite/文件 Adapter、并发、取消、重试、私有文件和测试组织由 A 决定。它不拥有 Auth 会话、Shell UI、业务 payload、远端记录/Storage 删除、公共缓存或语言。</p>
+<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<ol>
+<li><a href="../../CONTEXT.md#%E6%9C%AC%E5%9C%B0%E6%95%B0%E6%8D%AE%E5%BA%93">领域词汇</a>及<a href="../knowledge_base/locatemy_product/features/account.md">账户产品事实</a>；</li>
+<li><a href="../design/system/feature-map.md#fm-privacy">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-01%E5%90%AF%E5%8A%A8%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E9%80%80%E5%87%BA%E4%B8%8E%E8%B4%A6%E6%88%B7%E5%88%87%E6%8D%A2">FLOW-01</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md#privacy-barrier-%E5%8F%82%E4%B8%8E%E8%80%85%E6%B8%85%E5%8D%95">数据所有权参与者清单</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>及<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">privacy 风险</a>；</li>
+<li>本契约及同名 HTML；后项不能改写前项。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Readiness</th>
+<th>可核查证据</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>责任与依赖顺序</td>
+<td>A 只拥有 <code>STATE-ACCOUNT-SCOPE</code>、关闭协调/证明；Auth、Shell 和八类 payload 均保留原 Owner；第 4 节固定次序</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>契约与消费者</td>
+<td>第 3 节含唯一 import、声明、Shell 调用及八项 participant 合约</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>数据与权限</td>
+<td>第 2/3 节固定同账户范围、payload 不可见和保留项；不暴露 token、字段或远端删除能力</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>联调与验收</td>
+<td>第 5 节覆盖恢复、幂等、逐 Owner 失败/重试、强制退出和 A→B，且提供 fake 场景</td>
+<td>已就绪</td>
+</tr>
+</tbody></table>
+<h2>1. 成果、责任与直接边界</h2>
+<ul>
+<li>只有 <code>AUTH-001</code> 明确认证的同一账户可为 <code>opened</code>；<code>closing</code> 从开始即不可访问，不是“仍可读的清理中”。</li>
+<li>Application Shell 是 lifecycle 唯一发起者；A 汇总基线固定八名 participant。participant 只处理/证明自己的旧账户分区，不能读、替代或汇总别人的 payload。</li>
+<li><code>AUTH-001</code> 是 account id 唯一来源；<code>UnauthenticatedSession</code>、<code>SessionUnavailable</code>、旧快照或 cache 都不能打开范围。完整 Auth 声明见 <a href="../design/features/authentication-and-session.md#interface-%E5%BD%93%E5%89%8D%E8%AE%BE%E5%A4%87%E4%BC%9A%E8%AF%9Dauth-001">AUTH-001</a>。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>直接对象 / Owner</th>
+<th>本模块边界</th>
+<th>保留 / 不做</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>STATE-ACCOUNT-SCOPE</code> / A</td>
+<td>本机 opened/closing/closed 事实；<code>accountId</code> 来自 Auth，非空且非空白</td>
+<td>不能从 profile/cache 推测 opened</td>
+</tr>
+<tr>
+<td>八项私有本机状态 / 各 participant</td>
+<td>A 只接收类型化处理结果，不读 payload/字段/路径</td>
+<td>未完成、未知或重复 participant 不能 closed</td>
+</tr>
+<tr>
+<td>公共缓存、语言、远端记录、其他设备会话</td>
+<td>不属于 close payload</td>
+<td>不删除、不跨账户混入；公共缓存不得含 account ID、自由文字或用户命名</td>
+</tr>
+</tbody></table>
+<h2>2. 需要调用的 Interface</h2>
+<h3><code>AUTH-001</code> — 明确认证的账户事实</h3>
+<p><strong>提供者：</strong> Authentication &amp; Session；<strong>消费者：</strong> Account Privacy（A）。
+<strong>唯一公开 import：</strong> <code>package:locatemy/features/authentication_session/authentication_session.dart</code>。</p>
+<p>Privacy 只消费该入口的公开 Auth 事实，不主动调用其他 Owner 的内部接口、缓存、profile、token 或 SDK。Shell 是账户范围的唯一 lifecycle 发起者：它取得明确认证的同一账户后调用 <code>PRIVACY-001.open</code>；Privacy 不自行登录、恢复会话、导航或结束会话。</p>
+<pre><code class="language-dart">abstract interface class AuthenticationSession {
+  Future&lt;SessionSnapshot&gt; restoreSession();
+  Stream&lt;SessionSnapshot&gt; watchSession();
+}
+sealed class SessionSnapshot { const SessionSnapshot(); }
+final class AuthenticatedSession extends SessionSnapshot {
+  final AuthenticatedAccount account;
+  const AuthenticatedSession(this.account);
+}
+final class UnauthenticatedSession extends SessionSnapshot { const UnauthenticatedSession(); }
+final class SessionUnavailable extends SessionSnapshot {
+  final SessionFailure failure;
+  const SessionUnavailable(this.failure);
+}
+final class AuthenticatedAccount {
+  final String accountId;
+  final String email;
+  final EmailConfirmation confirmation;
+  const AuthenticatedAccount({required this.accountId, required this.email, required this.confirmation});
+}
+enum EmailConfirmation { confirmed, verificationRequired, unavailable }
+enum SessionFailure { retryableUnavailable, unsupportedClient, remoteRejected }
+</code></pre>
+<p><strong>输入、结果、权限与顺序。</strong> <code>open</code> 只接受当前 <code>AuthenticatedSession</code> 的非空 <code>accountId</code>；该不可变 Auth 账户是范围身份唯一来源。<code>UnauthenticatedSession</code> 与 <code>SessionUnavailable</code>（包括 retryable、unsupported、remote-rejected）都不是可打开范围的事实，必须保持无私有内容，不能降级为旧账户、profile 或缓存身份。认证事实与已 opened scope 的 account id 不同、认证变为无会话或不可确认时，Shell 按固定关闭顺序屏蔽私有内容、结束当前设备会话并关闭旧范围；Privacy 只拒绝不匹配/过期的 open 或私有访问，不能替 Shell 推断或替换账户。</p>
+<pre><code class="language-dart">final snapshot = await authenticationSession.restoreSession();
+if (snapshot case AuthenticatedSession(:final account)) {
+  // Shell 以同一 account 调用 privacy.open(account)；仅 opened 后建立私有应用。
+}
+</code></pre>
+<p><strong>fake 场景：</strong> fake Auth 依次给 <code>AuthenticatedSession(A)</code>、<code>UnauthenticatedSession</code>、<code>SessionUnavailable(retryableUnavailable)</code> 与 B；Shell/Privacy 验证只有 A 的成功 open 可建立 A 范围，未知或无会话不开放私有内容，A→B 前必须先关闭 A，Privacy 不读取其他来源补充身份。</p>
+<h2>3. 必须提供的 Interface</h2>
+<h3><code>PRIVACY-001</code> — 账户范围与关闭参与者</h3>
+<p><strong>提供者：</strong> Account Privacy（A）；<strong>消费者：</strong> Application Shell、Map / Location、Cost of Living &amp; Budget、Infrastructure Coverage、Hazard Reporting、Property Inspection、Account Center。
+<strong>唯一公开 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
+<p>消费者只能 import 此入口，不得 import <code>lib/features/account_privacy/src/</code>。A 先合入以下声明及最小 fake；这是协作形状，不是函数体、注册实现、SDK/SQLite/文件调用、迁移或测试实现。</p>
+<pre><code class="language-dart">abstract interface class AccountPrivacy {
   AccountScopeSnapshot readScope();
   Future&lt;OpenAccountScopeOutcome&gt; open(AuthenticatedAccount account);
-  Future&lt;CloseAccountScopeOutcome&gt; close(AccountScope scope, AccountScopeCloseReason reason);
+  Future&lt;CloseAccountScopeOutcome&gt; close(
+    AccountScope scope, AccountScopeCloseReason reason,
+  );
 }
 final class AccountScope { final String accountId; const AccountScope(this.accountId); }
 sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
@@ -23,18 +161,181 @@ sealed class CloseAccountScopeOutcome { const CloseAccountScopeOutcome(); }
 final class AccountScopeClosedForAccount extends CloseAccountScopeOutcome { final AccountScope scope; const AccountScopeClosedForAccount(this.scope); }
 final class AccountScopeCloseIncomplete extends CloseAccountScopeOutcome { final AccountScope scope; final List&lt;PrivateStateClearIncomplete&gt; incomplete; const AccountScopeCloseIncomplete(this.scope, this.incomplete); }
 final class AccountScopeCloseRejected extends CloseAccountScopeOutcome { final AccountScope scope; final AccountScopeFailure failure; const AccountScopeCloseRejected(this.scope, this.failure); }
-abstract interface class AccountPrivacyParticipant { AccountPrivacyParticipantId get participantId; Future&lt;PrivateStateClearOutcome&gt; clearPrivateState(AccountScope scope); }
+
+abstract interface class AccountPrivacyParticipant {
+  AccountPrivacyParticipantId get participantId;
+  Future&lt;PrivateStateClearOutcome&gt; clearPrivateState(AccountScope scope);
+}
 enum AccountPrivacyParticipantId { authenticationSession, applicationShell, mapLocation, costLivingBudget, infrastructureCoverage, hazardReporting, propertyInspection, accountCenter }
 sealed class PrivateStateClearOutcome { const PrivateStateClearOutcome(); }
 final class PrivateStateCleared extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; const PrivateStateCleared(this.participantId, this.scope); }
 final class PrivateStateClearIncomplete extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; final PrivateStateClearFailure failure; const PrivateStateClearIncomplete(this.participantId, this.scope, this.failure); }
-enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, queuedWorkCleanupIncomplete, scopeUnavailable, retryableUnavailable }</pre>
-<p><code>AuthenticatedAccount</code> 属于 <code>AUTH-001</code>。account id 必须非空且等于当前明确 Auth 事实；scope 只能来自成功 open 或 snapshot，不得任意构造、替换或跨账户使用。incomplete 非空、无重复，且只能含固定八人中的未完成项。</p><table><tr><th>成员</th><th>输入与结果</th><th>状态、权限与顺序</th></tr><tr><td><code>readScope</code></td><td>无输入；opened/closing/closed/unavailable，绝非 null/空字符串约定</td><td>非 opened 不授权私有读写；不清理</td></tr><tr><td><code>open</code></td><td>仅 Shell、当前 Auth 同账户；opened 或 identityMismatch/scopeClosing/retryableUnavailable</td><td>同账户幂等；成功前不建私有 Feature</td></tr><tr><td><code>close</code></td><td>仅 Shell，以 immutable old scope 和三种 reason；closed、逐项 incomplete 或 rejected</td><td>先 closing/阻断；八项全 cleared 才 closed；incomplete 只重试同 scope</td></tr><tr><td>participant clear</td><td>A 仅对固定全量集合调用；cleared 或带 id/scope/failure 的 incomplete</td><td>不可开关 scope、替换集合或代表别人；失败仍不可读</td></tr></table>
-<h2>八项关闭证明</h2><table><tr><th>participant / Owner</th><th>必须处理</th><th>保留</th></tr><tr><td>Auth</td><td>当前设备会话</td><td>其他设备、远端记录</td></tr><tr><td>Shell</td><td>私有导航、意图、组合、ViewModel、晚到结果</td><td>语言、无身份配置</td></tr><tr><td>Map</td><td>STATE-LOCATION、收藏 cache/create queue</td><td>公共地图/边界 cache</td></tr><tr><td>Cost</td><td>current 预案选择/私有副本</td><td>Cost cache、远端预案</td></tr><tr><td>Infrastructure</td><td>ICI 权重内存/副本</td><td>公共 cache、远端权重</td></tr><tr><td>Hazard</td><td>本人/投票视图和未完成请求</td><td>去身份 cache、远端记录</td></tr><tr><td>Property</td><td>草稿、照片、本机副本、比较、queue/文件</td><td>已上传远端实勘/Storage</td></tr><tr><td>Account Center</td><td>偏好内存/副本、账户组合</td><td>远端偏好</td></tr></table>
-<h2>调用、fake 与顺序</h2><pre>final opened = await privacy.open(authenticatedAccount);
+enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, queuedWorkCleanupIncomplete, scopeUnavailable, retryableUnavailable }
+</code></pre>
+<p><code>AuthenticatedAccount</code> 是 <code>AUTH-001</code> 的公开类型。<code>open</code> 的 account id 必须非空且等于当前明确 Auth 事实；<code>AccountScope</code> 只能来自成功 open 或 snapshot，不能由调用者的任意字符串构造、替换或跨账户使用。<code>incomplete</code> 必须非空，只含八名基线 participant 中尚未完成者，且不能重复 ID。</p>
+<table>
+<thead>
+<tr>
+<th>成员</th>
+<th>输入与约束</th>
+<th>outputs / typed failures</th>
+<th>状态、副作用、权限与顺序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>readScope()</code></td>
+<td>无</td>
+<td><code>Opened</code>、<code>Closing</code>、<code>Closed</code>、<code>Unavailable(failure)</code>；非 nullable/空字符串暗号</td>
+<td>非 opened 永不授权私有读写；不触发清理。</td>
+</tr>
+<tr>
+<td><code>open(account)</code></td>
+<td>仅 Shell；当前 Auth 同账户；closing 时不得替换账户</td>
+<td><code>OpenedForAccount</code> 或 <code>OpenRejected(identityMismatch/scopeClosing/retryableUnavailable)</code></td>
+<td>同账户重复 open 返回同一范围，不重置 payload；成功前不建私有 Feature。</td>
+</tr>
+<tr>
+<td><code>close(scope, reason)</code></td>
+<td>仅 Shell；该轮 immutable old scope；reason 为 signOut/sessionInvalidated/accountSwitch</td>
+<td><code>ClosedForAccount</code>、逐项 <code>CloseIncomplete</code> 或 <code>CloseRejected</code></td>
+<td>一开始转 closing 并拒旧读写/意图；全八项 cleared 才 closed；已清项不回滚；incomplete 仅可重试同 scope。</td>
+</tr>
+<tr>
+<td>participant <code>clearPrivateState(scope)</code></td>
+<td>只由 A 在 close 对固定完整集合调用；只处理 scope 的自己分区</td>
+<td><code>Cleared</code> 或 <code>Incomplete</code>，均回带同一 id/scope</td>
+<td>不可 open/close、替换集合或代表他人；失败不恢复旧内容。</td>
+</tr>
+</tbody></table>
+<h3>八项关闭证明</h3>
+<table>
+<thead>
+<tr>
+<th>participant / Owner</th>
+<th>必须处理旧账户本机内容</th>
+<th>明确保留</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>authenticationSession</code> / Auth</td>
+<td>当前设备会话已结束</td>
+<td>其他设备会话、远端记录</td>
+</tr>
+<tr>
+<td><code>applicationShell</code> / Shell</td>
+<td>私有导航、意图、组合请求、ViewModel、晚到结果</td>
+<td>语言、无身份配置</td>
+</tr>
+<tr>
+<td><code>mapLocation</code> / Map</td>
+<td><code>STATE-LOCATION</code>、收藏 cache/create queue</td>
+<td>公共地图/边界 cache</td>
+</tr>
+<tr>
+<td><code>costLivingBudget</code> / Cost</td>
+<td>current 预案内存选择及私有副本</td>
+<td>Cost 公共 cache、远端预案</td>
+</tr>
+<tr>
+<td><code>infrastructureCoverage</code> / Infrastructure</td>
+<td>ICI 权重内存/副本</td>
+<td>公共 cache、远端权重</td>
+</tr>
+<tr>
+<td><code>hazardReporting</code> / Hazard</td>
+<td>本人/投票视图及未完成请求</td>
+<td>去身份公共 cache、远端报告/投票</td>
+</tr>
+<tr>
+<td><code>propertyInspection</code> / Property</td>
+<td>草稿、照片、本机副本、比较、待传 queue/文件</td>
+<td>已上传远端实勘、元数据/Storage</td>
+</tr>
+<tr>
+<td><code>accountCenter</code> / Account Center</td>
+<td>偏好内存/副本与账户组合状态</td>
+<td>远端偏好</td>
+</tr>
+</tbody></table>
+<p><strong>最小调用（Shell）：</strong></p>
+<pre><code class="language-dart">final opened = await privacy.open(authenticatedAccount);
 if (opened case AccountScopeOpenedForAccount(:final scope)) {
   // 仅现在建立 scope.accountId 的私有主应用。
 }
 final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
-// 仅 closed 才普通登录；其余保持无私有内容恢复态。</pre><p><strong>Fake：</strong>Shell fake 返回 A opened、A Property file-cleanup incomplete、A closed、B opened；验证 A 从 incomplete 起不可见且只重试 A，B 不继承 A。participant fake 返回完整八项、任一 incomplete、未知/重复 ID 或不同 scope；只有完整集合可 closed。Property fake 验证 A 草稿/待传文件、比较与晚到成功不进入 B，也不删远端实勘。</p><ol><li>A 先合入 entry point、声明与 fake；消费者不依赖 src。</li><li>八 Owner 各自实现 participant/真实 Adapter 合约。</li><li>Shell 先获明确 Auth，再同账户 open；仅 opened 建私有应用。</li><li>退出/失效/换号：立即屏蔽 → <code>AUTH-001.signOut()</code> → <code>close(oldScope, reason)</code>；两者成功才登录，失败可恢复。</li></ol>
-<h2>联合验收与变更</h2><p>验收涵盖无会话、明确 A、不可确认、身份不符、重复 A open/close、逐 Owner failure/retry、强制退出和 A→B；A 的八类状态均不可见/提交/重放，B 只见 B。`RISK-PRIVACY-01/02` 的设计风险已由完整集合和先封锁/可恢复语义关闭；SQLite/文件/重启故障注入留实现集成验收。</p><div class="note"><strong>阻塞项：</strong>无。变更唯一 import、公开声明/result、八人集合、隔离/顺序/保留项，须双方确认并在同一 PR 更新声明、Markdown、HTML 和相关 fake/Adapter 测试。</div><p>权威参考：<a href="../design/system/flows.md#flow-01启动注册登录退出与账户切换">FLOW-01</a>、<a href="../design/system/data-ownership.md#privacy-barrier-参与者清单">数据所有权</a>、<a href="../design/system/risks-and-decisions.md#风险与关闭条件">风险登记</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>。</p></body></html>
+// 仅 ClosedForAccount 才可到普通登录；其余保持无私有内容恢复态。
+</code></pre>
+<p><strong>Fake Adapter 场景：</strong> Shell fake 返回 A opened、A <code>CloseIncomplete(propertyInspection, fileCleanupIncomplete)</code>、A closed、B opened；验证 incomplete 起 A UI/意图/晚到结果均不可用，重试只针对 A，B 不继承 A。Privacy 的 participant fake 返回完整八项、任一 incomplete、未知/重复 ID 或不同 scope；仅完整八项可 closed，其余保持 closing。Property fake 用 A 草稿/待传文件和 B opened 验证 A 文件、queue、比较及晚到成功不可提交/重放，也不删 A 远端实勘；其余 Owner 以同一接口验证自己的保留项。</p>
+<h2>4. 推荐实现与调用顺序</h2>
+<ol>
+<li>A 合入唯一 entry point、声明和最小 fake；消费者不得依赖 <code>src/</code>。</li>
+<li>八个 Owner 并行实现自己的 participant，并用真实 Adapter 证明本结果语义；不读其它 payload。</li>
+<li>启动/登录：Shell 先获得明确 <code>AUTH-001</code>，以同一账户 <code>open</code>，仅 opened 后建私有应用。</li>
+<li>退出/失效/换号：Shell 立即屏蔽旧私有 UI、意图和晚到结果 → <code>AUTH-001.signOut()</code> → <code>close(oldScope, reason)</code>。两者成功才普通登录；任何失败仍无私有内容并可重试。B 必须重新认证后才可 open。</li>
+<li>接入生产 seam，只保留第 4 节所需跨模块流；Adapter 细节和测试组织仍归 Owner。</li>
+</ol>
+<h2>5. 联合验收</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>操作</th>
+<th>可观察结果</th>
+<th>追踪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>恢复/登录开启</td>
+<td>无会话、明确 A、不可确认或身份不符</td>
+<td>只有明确 A + opened 建私有应用；其余无私有内容</td>
+<td><code>ACCOUNT-07</code>；<code>AT-AUTH-01</code></td>
+</tr>
+<tr>
+<td>同 scope 幂等</td>
+<td>重复 A open；完整关闭后重复 close</td>
+<td>与当前 scope 一致；不重建/混入 payload</td>
+<td><code>ACCOUNT-07</code></td>
+</tr>
+<tr>
+<td>逐 Owner 失败/重试</td>
+<td>八人逐一 incomplete，再重试 A</td>
+<td>首次 closing/不可读；精确 owner/failure；已清项不恢复；全员完成才 closed</td>
+<td><code>AT-OUT-02</code></td>
+</tr>
+<tr>
+<td>强制退出/身份不符</td>
+<td>Auth 拒绝/失效或 opened A 与 Auth B 不符</td>
+<td>不展示任一账户；关闭 A 恢复，不用 B 打开</td>
+<td><code>AT-OUT-01/02</code></td>
+</tr>
+<tr>
+<td>A 换 B</td>
+<td>A opened → 屏蔽/结束/关闭 → B 认证/open</td>
+<td>A 八类状态不可见/提交/重放；B 只见 B；公共 cache/语言保留</td>
+<td><code>AT-SWITCH-01</code></td>
+</tr>
+</tbody></table>
+<p><code>RISK-PRIVACY-01</code> 的完整集合/证明和 <code>RISK-PRIVACY-02</code> 的先封锁/可恢复语义已关闭设计风险。SQLite/文件不可用、部分处理和进程重启的故障注入仍为实现后的集成证据，不能改变上述结果。</p>
+<h2>6. 实现自由、阻塞项与变更</h2>
+<p>A 可决定 <code>src/</code>、participant 注入、内部状态机、Adapter、并发、取消、重试、日志和测试组织。变更唯一 import、公开声明/result variant、八人集合、隔离/顺序/保留项，须说明影响、由提供方和受影响 Owner 确认，并在同一 PR 更新声明、本契约、HTML 与相关 fake/Adapter 测试。</p>
+<p>当前阻塞项：无。参考：<a href="../design/system/flows.md#flow-01%E5%90%AF%E5%8A%A8%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E9%80%80%E5%87%BA%E4%B8%8E%E8%B4%A6%E6%88%B7%E5%88%87%E6%8D%A2">FLOW-01</a>、<a href="../design/system/data-ownership.md#privacy-barrier-%E5%8F%82%E4%B8%8E%E8%80%85%E6%B8%85%E5%8D%95">数据所有权</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>。</p>
+<h2>Change Log</h2>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>状态</th>
+<th>变更原因</th>
+<th>受影响对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2026-09-15</td>
+<td><code>Ready for Development</code></td>
+<td>Issue #23 全审返工：唯一 import、声明级 seam、typed results、participant、顺序、fake 和四项 Readiness；不改产品/Schema/payload Owner</td>
+<td><code>PRIVACY-001</code>、<code>STATE-ACCOUNT-SCOPE</code>、八位 participant、<code>ACCOUNT-07</code></td>
+</tr>
+</tbody></table>
+</main>
+</body>
+</html>

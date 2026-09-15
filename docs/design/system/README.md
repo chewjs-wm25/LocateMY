@@ -125,6 +125,6 @@ Capability ID 沿用产品知识库现有编号。两种 ID 不互换：Capabili
 
 ## 基线变更
 
-变更提案必须记录原因、受影响的 Capability、Feature、Interface、数据对象和工作包。项目负责人
-批准后才修改；相关 Ready 设计退回 `Draft`，工作包标记 `Invalidated`。重新完成受影响审查后
+变更提案必须记录原因、受影响的 Capability、Feature、Interface、数据对象、公开 declarations 和测试。项目负责人
+批准后才修改；相关 Ready Development Contract 退回 `Draft`。同一 PR 同步 Markdown、同名 HTML、declarations 与受影响测试，重新完成影响审查后
 才能恢复状态。Interface 演进优先 add–migrate–remove。

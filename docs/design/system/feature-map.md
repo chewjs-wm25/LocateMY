@@ -1,6 +1,6 @@
 # Feature 与 shared module 边界
 
-> 状态：`Draft — Issue #3 边界与 DAG 已批准`
+> 状态：`Baselined — 5d11769`
 > 最后更新：2026-09-14
 
 本文件是 Feature/shared module 责任、直接设计依赖和设计波次的唯一真相。Capability 的产品含义与
@@ -400,4 +400,4 @@ flowchart LR
 
 Issue #3 的批准只关闭系统步骤 3 与步骤 8；系统已由项目负责人以 `5d11769` 设为 `Baselined`。各节点可按
 波次进入后续系统追踪与 owning design，但只有项目负责人另行批准的 Feature 才能进入
-`Ready for Development` 并生成工作包。
+`Ready for Development`，并同步生成同名语义等价 HTML。

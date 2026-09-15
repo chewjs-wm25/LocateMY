@@ -3,16 +3,16 @@
 > 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 > Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 6
 > 唯一公开入口：`package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart`
-> 定义完成：B 和消费者能仅凭本文件安全协作同一地点的五项分项、single 账户权重 ICI 与 neutral ICI；未知、部分资料、不可比和换号绝不伪装为零、成功或推荐。
+> 完成定义（DoD）：B 在唯一公开入口提供第 3 节完整 `INFRA-001` 声明；Shell 与 Suitability 可用该入口 fake 完成组合。真实 Adapter 经第 5 节证明五项/ICI 元数据、未知/0、A/B neutral 可比性、预览/保存和 A→B 隔离均可观察，且不伪装为零、成功或推荐。
 
-本文件是 Infrastructure Coverage 的唯一开发协作契约及同名 PDF 源。它冻结跨 Owner Dart seam、数据访问、权重生命周期和联验；`lib/features/infrastructure_coverage/` 内的 Widget、状态、Adapter、缓存、并发/取消/重试、计算组织和测试实现由 B 决定。公式正文只在知识库；表/RLS/migration 只在 Schema Catalog。
+本文件是 Infrastructure Coverage 唯一的 Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它冻结跨 Owner Dart seam、数据访问、权重生命周期和联验；`lib/features/infrastructure_coverage/` 内的 Widget、状态、Adapter、缓存、并发/取消/重试、计算组织和测试实现由 B 决定。公式正文只在知识库；表/RLS/migration 只在 Schema Catalog。
 
 ## 0. 固定阅读顺序与四项 Readiness
 
 1. [领域词汇](../../../CONTEXT.md#行政地理语境)、[基础设施功能](../../knowledge_base/locatemy_product/features/infrastructure.md)、[ICI 评分模型](../../knowledge_base/locatemy_product/infrastructure_index_scoring.md)；
 2. [Feature map](../system/feature-map.md#fm-infra)、[Interface 注册表](../system/interfaces.md)、[FLOW-02](../system/flows.md#flow-02单点选址地点摘要与六类分析)、[FLOW-03](../system/flows.md#flow-03地点-ab-比较)；
 3. [Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md)、[`RISK-SCHEMA-01/02`](../system/risks-and-decisions.md#风险与关闭条件)、[`RISK-TRANSIT-01`](../system/risks-and-decisions.md#风险与关闭条件)；
-4. 本契约；生成 PDF 时最后读 [ADR 0014](../../adr/0014-version-locked-pdf-development-documentation-packages.md) 与 [handoff](../handoff/README.md)。
+4. 本契约及同名 HTML；后项不能改写前项。
 
 | Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
@@ -41,25 +41,9 @@
 
 **提供者：** Application Shell；**唯一 import：** `package:locatemy/app/application_shell.dart`。
 
-```dart
-abstract interface class ApplicationShell {
-  Future<ShellIntentOutcome> submit(ShellIntent intent);
-  Future<ShellContributionOutcome> publish(ShellContribution contribution);
-}
-abstract interface class ShellIntent {}
-abstract interface class ShellContribution {}
-sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
-final class ShellIntentAccepted extends ShellIntentOutcome { const ShellIntentAccepted(); }
-final class ShellAuthenticationRequired extends ShellIntentOutcome { const ShellAuthenticationRequired(); }
-final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; const ShellIntentRejected(this.reason); }
-sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
-final class ShellContributionAccepted extends ShellContributionOutcome { const ShellContributionAccepted(); }
-final class ShellContributionAuthenticationRequired extends ShellContributionOutcome { const ShellContributionAuthenticationRequired(); }
-final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; const ShellContributionRejected(this.reason); }
-enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
-```
+`SHELL-001` 的完整 canonical 声明、输入约束、结果、权限、顺序和 fake 规则只在 [Application Shell](../modules/application-shell.md#3-shell-必须提供的-interface) 定义。B 直接 import 该入口，不复制、缩窄或另造 Shell 类型。实际调用子集为 `ApplicationShell.submit(ShellIntent)` 与 `publish(ShellContribution)`，并处理 canonical `ShellIntentAccepted`、`ShellAuthenticationRequired`、`ShellIntentRejected(ShellRejectionReason)`、`ShellContributionAccepted`、`ShellContributionAuthenticationRequired`、`ShellContributionRejected(ShellRejectionReason)`；reason 仍为 `missingInput`、`staleInput`、`inapplicableDestination`、`scopeUnavailable`。
 
-B 从自己的唯一入口导出 `OpenInfrastructureIntent`、`OpenInfrastructureComparisonIntent` 和 `InfrastructureContribution` marker；只含 immutable location、A/B 原角色、返回语境和 typed result，不能带可变地图、原始行、账户 ID 或表行。仅 opened scope 可 `submit/publish`；accepted 才导航/组合，authenticationRequired/rejected 是 Shell 结果而非数据 missing。Shell 仅改导航；地点、ICI、权重仍归 B。过期地点/角色/scope 的晚到结果不能发布。
+B 从自己的唯一入口完整导出 `OpenInfrastructureIntent`、`OpenInfrastructureComparisonIntent` 和 `InfrastructureContribution` marker；只含 immutable location、A/B 原角色、返回语境和 typed result，不能带可变地图、原始行、账户 ID 或表行。仅 opened scope 可 `submit/publish`；respective accepted 才导航/组合，authenticationRequired/rejected 是 Shell 结果而非数据 missing。Shell 仅改导航；地点、ICI、权重仍归 B。过期地点/角色/scope 的晚到结果不能发布。
 
 最小调用：`await shell.publish(InfrastructureContribution(outcome, returnContext));`。fake Shell 返回 accepted、authenticationRequired、staleInput；断言拒绝不把旧 ICI 发布为新地点结果。
 
@@ -67,15 +51,7 @@ B 从自己的唯一入口导出 `OpenInfrastructureIntent`、`OpenInfrastructur
 
 **提供者：** Map / Location；**唯一 import：** `package:locatemy/features/map_location/map_location.dart`。
 
-```dart
-abstract interface class LocationCoordinator { LocationRoleSnapshot read(LocationRole role); }
-enum LocationRole { single, locationA, locationB, property }
-final class GeographicPoint { final double latitude; final double longitude; const GeographicPoint(this.latitude, this.longitude); }
-final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; const ValidLocationReference({required this.locationId, required this.point, required this.displayName}); }
-sealed class LocationRoleSnapshot { const LocationRoleSnapshot(); }
-final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; const LocationPresent(this.role, this.location); }
-final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; const LocationAbsent(this.role); }
-```
+`LOCATION-001` 的完整 canonical 声明、输入约束、结果与生命周期只在 [Map / Location](map-and-location.md#location-001合法地点与收藏) 定义。B 的调用子集仅为 `LocationCoordinator.read(LocationRole)`，及 canonical `LocationRole`（single/locationA/locationB）、`LocationPresent`、`LocationAbsent`、`ValidLocationReference`；不 import `src/` 或重述 Map 类型。
 
 只接受 single，或两个不同且角色明确的 A/B `LocationPresent`。absent、过期、非法/范围外或同点时不读资料、不产生 preview/ICI、不发布，也不以默认城市、收藏名或旧点替代。调用无副作用；结果始终绑定原 `locationId`、角色和分析日。fake Map 给 single/A-B/缺端/同点，断言缺端无请求、交换不污染原角色。
 
@@ -83,40 +59,15 @@ final class LocationAbsent extends LocationRoleSnapshot { final LocationRole rol
 
 **提供者：** Geographic Context；**唯一 import：** `package:locatemy/modules/geographic_context/geographic_context.dart`。
 
-```dart
-abstract interface class GeographicContext { Future<GeographicContextOutcome> resolve(GeographicContextRequest request); }
-final class GeographicContextRequest { final ValidLocationReference location; final Set<GeographicLevel> levels; const GeographicContextRequest({required this.location, required this.levels}); }
-enum GeographicLevel { district, reportingState }
-sealed class GeographicContextOutcome { const GeographicContextOutcome(); }
-final class GeographicContextResolved extends GeographicContextOutcome { final AdministrativeGeographicContext context; const GeographicContextResolved(this.context); }
-final class GeographicContextUnresolved extends GeographicContextOutcome { final GeographicContextFailure failure; const GeographicContextUnresolved(this.failure); }
-final class GeographicContextAmbiguous extends GeographicContextOutcome { final List<AdministrativeCandidate> candidates; final GeographicContextFailure failure; const GeographicContextAmbiguous(this.candidates, this.failure); }
-final class AdministrativeGeographicContext { final String state; final String district; final String sourceId; final String boundaryVersion; const AdministrativeGeographicContext({required this.state, required this.district, required this.sourceId, required this.boundaryVersion}); }
-final class AdministrativeCandidate { final String state; final String district; final String stableId; const AdministrativeCandidate(this.state, this.district, this.stableId); }
-enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiable, scopeUnavailable }
-```
+`GEO-001` 的完整 canonical 声明、逐层结果、provenance 与失败语义只在 [Geographic Context](../modules/geographic-context.md#interface-卡行政统计地理语境geo-001) 定义。B 的调用子集为 `GeographicContext.resolve(GeographicContextRequest)`，请求 `district` 与 `reportingState`，并处理 canonical `GeographicContextAvailable` / `GeographicContextUnavailable` 及每层 `GeographicLevelResolved`、`GeographicLevelUnresolved`、`GeographicLevelAmbiguous`；不复制或重塑任何 Geo 类型。
 
-B 请求同一地点的 district/reportingState；只有 resolved district 能读四项行政区资料。unresolved/ambiguous（即使州 resolved）使水、电、医疗、教育均 missing，保留原因；不得以州、邻区、名称或历史结果补足。调用只读、不改变地点或账户。fake Geo 给 resolved、unresolved、ambiguous 和 state-only；断言交通仍独立但四项不猜测。
+B 请求同一地点的 district/reportingState；只有 `GeographicLevelResolved(district)` 能读四项行政区资料。`GeographicLevelUnresolved` / `GeographicLevelAmbiguous`（即使州 resolved）使水、电、医疗、教育均 missing，保留 canonical 原因/provenance/candidates；不得以州、邻区、名称或历史结果补足。调用只读、不改变地点或账户。fake Geo 给 resolved、unresolved、ambiguous 和 state-only；断言交通仍独立但四项不猜测。
 
 ### Interface 卡：`TRANSIT-001` — canonical connectivity
 
 **提供者：** Public Transportation；**唯一 import：** `package:locatemy/features/public_transportation/public_transportation.dart`。
 
-```dart
-abstract interface class PublicTransportation { Future<TransitLoadOutcome> load(TransitRequest request); }
-final class TransitRequest { final ValidLocationReference location; final DateTime analysisDate; final TransitLoadPolicy policy; const TransitRequest({required this.location, required this.analysisDate, required this.policy}); }
-enum TransitLoadPolicy { cacheAllowed, refresh }
-sealed class TransitLoadOutcome { const TransitLoadOutcome(); }
-final class TransitAvailable extends TransitLoadOutcome { final TransitSnapshot snapshot; const TransitAvailable(this.snapshot); }
-final class TransitIncomplete extends TransitLoadOutcome { final TransitPartialSnapshot snapshot; const TransitIncomplete(this.snapshot); }
-final class TransitUnavailable extends TransitLoadOutcome { final TransitUnavailableReason reason; const TransitUnavailable(this.reason); }
-final class TransitSnapshot { final ValidLocationReference location; final DateTime analysisDate; final int radiusMeters; final TransitServiceOutcome serviceOutcome; final TransitScore? score; final TransitProvenance provenance; const TransitSnapshot({required this.location, required this.analysisDate, required this.radiusMeters, required this.serviceOutcome, required this.score, required this.provenance}); }
-final class TransitPartialSnapshot { const TransitPartialSnapshot(); }
-enum TransitServiceOutcome { served, noStops, noActiveRoutes }
-final class TransitScore { final int value; const TransitScore(this.value); }
-final class TransitProvenance { final String snapshotId; final String referenceGridVersion; final DateTime generatedAt; const TransitProvenance({required this.snapshotId, required this.referenceGridVersion, required this.generatedAt}); }
-enum TransitUnavailableReason { noUsableFeed, analysisDateOutsideServiceRange, retryableUnavailable, sourceUnverifiable }
-```
+`TRANSIT-001` 的完整 canonical 声明只在 [Public Transportation](public-transportation.md) 定义。B 的调用子集为 `PublicTransportation.load(TransitRequest)` 及 canonical available/incomplete/unavailable、service outcome、score 与 provenance；不复制或重塑 Transit 类型。
 
 请求必须用同地点、明确分析日、`1,500m`；仅 `TransitAvailable + served + score != null` 的 score 进入交通分。noStops/noActiveRoutes、incomplete、unavailable 都是交通 component missing，原样保留原因；served score 0 是有效 0。完整 served 的 stale warning 仍可用且保留 warning，B 不下载 GTFS/重算百分位。保存 analysisDate/radius/snapshot/reference-grid 用于 A/B 可比性。fake Transit 覆盖 served 0、noStops、noActiveRoutes、incomplete/unavailable、stale served，断言仅 scored served 入 ICI。
 
@@ -124,16 +75,9 @@ enum TransitUnavailableReason { noUsableFeed, analysisDateOutsideServiceRange, r
 
 **提供者：** Account Privacy；**唯一 import：** `package:locatemy/features/account_privacy/account_privacy.dart`。
 
-```dart
-abstract interface class AccountPrivacy { AccountScopeSnapshot read(); }
-sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
-final class AccountScopeOpened extends AccountScopeSnapshot { final String accountId; const AccountScopeOpened(this.accountId); }
-final class AccountScopeClosed extends AccountScopeSnapshot { const AccountScopeClosed(); }
-final class AccountScopeUnavailable extends AccountScopeSnapshot { final AccountScopeFailure failure; const AccountScopeUnavailable(this.failure); }
-enum AccountScopeFailure { identityMismatch, closing, unavailable }
-```
+`PRIVACY-001` 的完整 canonical 声明、账户范围、关闭参与者和结果只在 [Account Privacy](../modules/account-privacy.md#privacy-001--账户范围与关闭参与者) 定义。B 的调用子集为 `AccountPrivacy.readScope()` 与 infrastructureCoverage participant 的 `clearPrivateState(AccountScope)`；处理 canonical `AccountScopeOpened`、`AccountScopeClosing`、`AccountScopeClosed`、`AccountScopeUnavailable` 和 `PrivateStateCleared` / `PrivateStateClearIncomplete`。不以本地 `read()`、自定义 account id 或旧 scope 类型替代。
 
-Shell 唯一发起 lifecycle。B 仅同账户 opened 时读/写权重；closing 即令旧 preview、last-saved 副本、保存中动作和晚到结果不可读/提交。B 只清理并报告 `STATE-INFRA-WEIGHT-PREVIEW`，不删远端权重或公共资料；closed/identityMismatch 绝不伪装为已保存 `5/5/5`。fake A opened→closing→closed→B opened，断言 A 回调不进入 B，公共资料无账户字段。
+Shell 唯一发起 lifecycle。B 仅同账户 `AccountScopeOpened` 时读/写权重；`AccountScopeClosing` 即令旧 preview、last-saved 副本、保存中动作和晚到结果不可读/提交。B 只清理并报告 `STATE-INFRA-WEIGHT-PREVIEW`，不删远端权重或公共资料；closed/identity mismatch 绝不伪装为已保存 `5/5/5`。fake A opened→closing→closed→B opened，断言 A 回调不进入 B，公共资料无账户字段。
 
 ### 直接读取：`read_infrastructure_inputs` 与 `user_ici_preferences`（仅 B）
 
@@ -165,6 +109,11 @@ final class EnrolmentRow { final DateTime date; final String stage; final String
 **提供者：** Infrastructure Coverage（B）；**消费者：** Application Shell、Personalized Location Suitability；**唯一 import：** `package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart`。消费者不得读 B 的表/View、`src/` 或重算 ICI；B 先合并以下声明和最小 fake。
 
 ```dart
+final class InfrastructureReturnContext { final String destination; final String? stableItemId; const InfrastructureReturnContext({required this.destination, this.stableItemId}); }
+final class OpenInfrastructureIntent extends ShellIntent { final ValidLocationReference location; final InfrastructureReturnContext returnContext; const OpenInfrastructureIntent({required this.location, required this.returnContext}); }
+final class OpenInfrastructureComparisonIntent extends ShellIntent { final ValidLocationReference locationA; final ValidLocationReference locationB; final InfrastructureReturnContext returnContext; const OpenInfrastructureComparisonIntent({required this.locationA, required this.locationB, required this.returnContext}); }
+final class InfrastructureContribution extends ShellContribution { final InfrastructureContributionTarget target; final InfrastructureReturnContext returnContext; final InfrastructureLoadOutcome? single; final InfrastructureComparisonOutcome? comparison; const InfrastructureContribution({required this.target, required this.returnContext, this.single, this.comparison}); }
+enum InfrastructureContributionTarget { single, comparison }
 abstract interface class InfrastructureCoverage {
   Future<InfrastructureLoadOutcome> loadSingle(InfrastructureSingleRequest request);
   Future<InfrastructureComparisonOutcome> compare(InfrastructureComparisonRequest request);
@@ -272,9 +221,17 @@ B 可决定私有文件、Widget、状态管理、缓存、Supabase 映射和测
 
 ## 7. 契约变更与完成检查
 
-公开变更须由提供方说明原因/消费者，所有消费者确认；同一 PR 更新 declarations、契约、受影响 fake/Adapter tests 和 PDF。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate 或 Development Release。
+公开变更须由提供方说明原因/消费者，所有消费者确认；同一 PR 更新 declarations、契约、同名 HTML 与受影响 fake/Adapter tests。Git/PR 保存历史；不使用独立发布、文档版本、checksum、Manifest、Generation Gate 或 Development Release。
 
 - [x] 四项 Readiness 可核查。
-- [x] Shell/Location/Geo/Transit/Privacy/`INFRA-001` 全有入口、声明、约束、typed failures、状态、权限、顺序、示例和 fake。
+- [x] Shell/Location/Geo/Transit/Privacy 的完整 frozen 声明由各 owning contract 唯一拥有；本 Feature 只说明实际调用子集。`INFRA-001` 有唯一入口、完整公开声明、约束、typed failures、状态、权限、顺序、示例和 fake。
 - [x] 直接数据访问、字段、CRUD/RLS、公式输入、单位、missing/0/60%/权重/neutral 均完整。
 - [x] 无函数体、Widget、SDK、SQL、migration 或测试实现。
+- [x] 同名 HTML 与本 Markdown 语义等价；无 PDF、ADR 0014 或 handoff 发布治理。
+
+## 8. Change Log
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
+| --- | --- | --- | --- | --- |
+| 2026-09-14 | `Ready for Development` | 固定五项覆盖、ICI、权重、neutral 与联验语义 | `INFRA-01`、`INFRA-02`、`INFRA-001` | 项目负责人 |
+| 2026-09-15 | `Ready for Development` | Issue #23 返工为单一 Development Contract：补首屏可观察 DoD；上游 frozen seam 改为引用 owning canonical 声明并列出实际调用子集；移除 PDF、ADR 0014 与 handoff 治理 | `INFRA-001`、`SHELL-001`、`LOCATION-001`、`GEO-001`、`TRANSIT-001`、`PRIVACY-001`、同名 HTML | 设计 AI〔项目负责人授权〕，ADR 0013 |

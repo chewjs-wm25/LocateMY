@@ -1,7 +1,30 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Public Transportation 开发协作契约 · LocateMY</title><style>
-:root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; color: #172033; background: #f7f8fb; } body { margin: 0; line-height: 1.65; } article { max-width: 1040px; margin: 0 auto; padding: 44px 24px 64px; background: #fff; box-sizing: border-box; } h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 1rem; } h2 { margin-top: 2.7rem; padding-top: .45rem; border-top: 1px solid #e4e7ec; } h3 { margin-top: 2rem; } h4 { margin-top: 1.5rem; } p, li { max-width: 90ch; } code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em; background: #f1f3f5; padding: .1em .28em; border-radius: 3px; } pre { overflow-x: auto; padding: 16px; background: #172033; color: #f4f7fb; border-radius: 7px; line-height: 1.45; } pre code { padding: 0; background: transparent; color: inherit; } blockquote { margin: 1rem 0; padding: .1rem 1rem; border-left: 4px solid #2b6cb0; background: #f1f6fc; } blockquote p { margin: .6rem 0; } a { color: #155e9c; } .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; } table { border-collapse: collapse; min-width: 680px; width: 100%; } th, td { padding: .65rem .75rem; vertical-align: top; text-align: left; border: 1px solid #d9dee8; } th { background: #edf3fa; } tr:nth-child(even) td { background: #fafbfd; } @media print { body, article { background: #fff; } article { max-width: none; padding: 0; } a { color: inherit; text-decoration: none; } }
-</style></head><body><article>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Public Transportation 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
+</head>
+<body>
+<main>
 <h1>Public Transportation 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
@@ -17,7 +40,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E6%A0%87%E5%87%86%E5%8C%96-gtfs-%E5%AF%B9%E8%B1%A1">Schema Catalog</a>与<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-TRANSIT-01</code></a>；</li>
 <li>本契约及同名 HTML 导出。</li>
 </ol>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>Readiness</th>
@@ -45,7 +68,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>第 5 节覆盖 <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-03</code>、<code>AT-RACE-01</code>；状态矩阵已由 <code>RISK-TRANSIT-01</code> 固定，运行时导入证据留实现/集成</td>
 <td>已就绪</td>
 </tr>
-</tbody></table></div>
+</tbody></table>
 <h2>1. 成果、责任与冻结边界</h2>
 <ul>
 <li>用户可查看合法地点 1,500 m 圆内的完整站点数、最近距离、分析日期有效路线数、连通性分、来源、采集/生成日期、可用性和资料限制；首屏按距离升序列 30 个站点，但统计和分数使用全部范围内站点。</li>
@@ -53,7 +76,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <li>当前页面的局部站点分布图仅显示分析中心、固定圆和当前结果的 Marker；列表/Marker 互选只改变 <code>STATE-TRANSIT-SELECTION</code>，不移动全局选点、主地图中心或启动导航。</li>
 <li>不包含 GTFS ZIP 自动下载/导入、路线导航、票价、班次、真实步行路线、服务质量、ICI 汇总和适配度公式。粗略步行分钟只是展示提示，不进入分数。</li>
 </ul>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>Owner / 受控边界</th>
@@ -86,7 +109,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>重查 GTFS、重算百分位或另造交通分数</td>
 <td>消费 <code>TRANSIT-001</code></td>
 </tr>
-</tbody></table></div>
+</tbody></table>
 <h2>2. 需要调用的 Interface</h2>
 <h3>Interface 卡：<code>SHELL-001</code> — 导航、返回与摘要组合</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Public Transportation；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
@@ -118,7 +141,7 @@ enum ShellRejectionReason {
 }
 </code></pre>
 <p>Transit 从自己的唯一公开入口导出供 Shell 接收的 marker payload：<code>ReturnToMapIntent</code>（当前 immutable location 与 <code>AnalysisReturnContext</code>）及 <code>PublicTransportationContribution</code>（第 3 节的 <code>TransitLoadOutcome</code>、地点角色和原返回语境）。intent/贡献不得携带可变地图状态、GTFS 原始行、账户资料或其他 Feature payload。</p>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>输入约束</th>
@@ -131,7 +154,7 @@ enum ShellRejectionReason {
 <td>accepted、authentication required、rejected(reason)；拒绝是导航/组合结果，不是交通 unavailable。</td>
 <td>仅同账户 opened 主应用可调用。Shell 只更新导航/组合，不改地点、站点选择、GTFS 或分数。Transit 仅对当前地点/date/result publication；过期、换地点或关闭 scope 的结果不可发布。</td>
 </tr>
-</tbody></table></div>
+</tbody></table>
 <p>最小调用：<code>await shell.publish(PublicTransportationContribution(outcome, returnContext));</code>。非 accepted 时保留本页结果并呈现可读恢复路径。</p>
 <p><strong>Fake 场景：</strong> fake Shell 依次返回 accepted、authentication required、stale input；Transit 验证只发布匹配请求的结果，后两者不把资料改为失败或把旧结果放入新槽位。无需 Shell 生产路由。</p>
 <h3>Interface 卡：<code>LOCATION-001</code> — 不可变合法地点</h3>
@@ -279,7 +302,7 @@ final class TransitComparable extends TransitComparisonOutcome { final TransitSn
 final class TransitIncomparable extends TransitComparisonOutcome { final TransitLoadOutcome a; final TransitLoadOutcome b; final TransitComparisonReason reason; const TransitIncomparable(this.a, this.b, this.reason); }
 enum TransitComparisonReason { sideUnavailable, sideIncomplete, analysisDateMismatch, radiusMismatch, provenanceMismatch, serviceOutcomeNotScored }
 </code></pre>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>输入约束</th>
@@ -294,7 +317,7 @@ enum TransitComparisonReason { sideUnavailable, sideIncomplete, analysisDateMism
 <td>只读公共 GTFS 稳定对象；不写地点、账户、ICI、Suitability、Shell 或 Map。站点选择是页面本地状态，不进入 result。</td>
 <td>只在 opened 主应用旅程呈现。Map 先给 immutable reference；A 读取后以相同 location/date/provenance 发布。Infrastructure/Suitability 只能消费 <code>TransitAvailable</code> 的同一 <code>TransitSnapshot</code>，不得重读/重算。</td>
 </tr>
-</tbody></table></div>
+</tbody></table>
 <h4>必须保持的日期、GTFS 与结果语义</h4>
 <ul>
 <li><code>analysisDate</code> 用于 <code>calendar.txt</code> / <code>calendar_dates.txt</code> 的有效服务判定；<code>feed.capturedAt</code> 只表示快照采集时间；<code>generatedAt</code> 只表示本次结果生成时刻，三者不可互代。恰 30 天不 stale；超过 30 天且仍可解析并覆盖 analysisDate 才是 <code>stale</code>。</li>
@@ -318,7 +341,7 @@ switch (outcome) {
 </code></pre>
 <p><strong>Fake 场景：</strong> Infrastructure 的 fake <code>PublicTransportation</code> 返回 served score、noStops、noActiveRoutes、incomplete 和 unavailable，验证只在 served score 时纳入 ICI；Suitability fake 将全部非 scored outcome 保留为维度不可用。Shell fake 对 A/B 的 analysis date、radius 或 provenance 不同返回 <code>TransitIncomparable</code>，不显示差异。消费者无需 GTFS、Supabase 或 Transit 生产实现。</p>
 <h2>4. 直接使用的数据与推荐实施顺序</h2>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>目的</th>
@@ -346,7 +369,7 @@ switch (outcome) {
 <td>Schema Catalog、data ownership</td>
 <td>公共结果无账户字段；不建 Transit 私有 cache/queue。authenticated read 不等于匿名公开；客户端无 service-role。</td>
 </tr>
-</tbody></table></div>
+</tbody></table>
 <ol>
 <li><strong>A 先合入 seam。</strong> 创建唯一入口、<code>TRANSIT-001</code> 声明及最小 fake；Shell、Infrastructure、Suitability 不依赖 Transit <code>src/</code>。</li>
 <li><strong>A 完成真实读与页面结果。</strong> 将 <code>read_transit_analysis</code> 映射为本契约 outcome，验证 16 feed、日期边界、单位、provenance、1.5 km、站点/路线键和无伪零。</li>
@@ -355,7 +378,7 @@ switch (outcome) {
 <li><strong>共同联调。</strong> 接入真实 seam，仅保留第 5 节所需跨模块流测试。</li>
 </ol>
 <h2>5. 联合验收、阻塞与变更</h2>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>Capability / canonical AT</th>
@@ -393,7 +416,7 @@ switch (outcome) {
 <td>中文/English、动态字体、屏幕阅读器、无颜色</td>
 <td>站点、范围、日期、来源、状态、限制、选择和分数含文字/可访问名；交通分只称覆盖读数，不称通勤或质量评价。</td>
 </tr>
-</tbody></table></div>
+</tbody></table>
 <p>当前设计阻塞：<strong>无</strong>。<code>RISK-TRANSIT-01</code> 的产品/契约决定已关闭；16 个官方 feed 的来源登记、快照/解析/服务日期、导入完整性、固定参照网格及第 30 天/部分 feed 运行时证据是实现/集成 Gate。资料结构无法符合 Schema Catalog 或状态矩阵时，停止发布受影响结果并重开风险；不得以 fixture 代替。</p>
 <p>公共 Interface 变更由 A 说明原因和受影响消费者，Shell、Infrastructure、Suitability 与 Map（如涉及图层）确认；同一 PR 更新公开声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release、Invalidated 状态机或独立 handoff 发布治理。</p>
 <ul>
@@ -403,7 +426,7 @@ switch (outcome) {
 <li><input checked="" disabled="" type="checkbox"> Dart 只有声明和使用说明；无函数体、Widget、SDK 调用、SQL migration 或测试实现。</li>
 <li><input checked="" disabled="" type="checkbox"> Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。</li>
 </ul>
-<div class="table-wrap"><table>
+<table>
 <thead>
 <tr>
 <th>日期</th>
@@ -420,7 +443,7 @@ switch (outcome) {
 <td><code>TRANSIT-01</code>–<code>03</code>、<code>TRANSIT-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>/<code>002</code>、<code>read_transit_analysis</code>、<code>RISK-TRANSIT-01</code>、同名 HTML</td>
 <td>设计 AI（项目负责人授权）</td>
 </tr>
-</tbody></table></div>
-
-
-</article></body></html>
+</tbody></table>
+</main>
+</body>
+</html>

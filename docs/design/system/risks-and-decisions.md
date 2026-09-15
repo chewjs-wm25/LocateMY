@@ -1,7 +1,7 @@
 # 系统风险与待决项
 
 > 状态：`Baselined — Issue #5 dispositions recorded at 5d11769`
-> 最后更新：2026-09-14
+> 最后更新：2026-09-15
 
 本文件记录完整 [Feature map](feature-map.md)、[Interface 注册表](interfaces.md)、
 [数据所有权](data-ownership.md)、[技术架构](architecture.md)与[关键流程](flows.md)暴露的系统风险和关闭条件。
@@ -45,6 +45,7 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-HAZARD-02` | 现有 author-update policy 若允许发布后改写报告内容，会破坏公共报告的不可变性 | Hazard 报告、图层、详情与风险计数 | 项目负责人 Q8 已固定发布后仅作者可更新自身 `pending/resolved`；Schema Catalog 将对象退回 proposed，要求 migration 收紧 update policy | 作者状态更新成功；作者改 type/title/description/location/report time、非作者更新和任何维护者更新均被拒绝；成功状态更新在详情/列表/图层一致可见 | Hazard Reporting 实现/集成验收 | 不再阻塞 Hazard Ready；实现/集成验收阻塞 |
 | `RISK-PROPERTY-01` | 现有实勘允许空地点，照片元数据与 Storage 的部分写/删 policy 只校验路径或行 owner，未完整绑定父实勘 owner | Property、风险快照、照片、回收站 | Schema Catalog 将三个对象退回 proposed 并要求父对象所有权和必需地点 | 尝试跨账户 inspection id 重绑/读写删照片；无地点实勘；回收站清空故障注入 | Property Inspection Ready 前 | Feature Ready 阻塞 |
 | `RISK-NFR-01` | 当前仓库尚无 SQLite、文件、本地化、地图和网络最小依赖，非功能约束未有可执行证据 | 全系统 | architecture 固定责任和测试证据，不提前选择具体包版本；Application Shell 已冻结本地化和可访问性的可观察契约 | 实现者锁版本后跑依赖审查、两 locale 流程、离线/性能/可访问性测试 | Application Shell Ready 前完成契约审查；运行时证据在其实现/集成验收关闭；其余 Wave 1–4 Owner 仍在各自 Ready 前逐项关闭 | 非 Baseline 阻塞；Application Shell 实现/集成及其他对应 Feature Ready 阻塞 |
+| `RISK-DATA-API-01` | 既有 PostGIS 安装位于暴露的 `public` schema，且 `spatial_ref_sys` / `st_estimatedextent` 由平台角色拥有，普通 migration 角色无法可靠撤销原 grant | Supabase Data API、所有 Feature | 保留历史扩展以避免破坏已导入资料；PostgREST pre-request hook 拒绝 `spatial_ref_sys`、`st_estimatedextent` 和当前未使用的 GraphQL 路径。新对象仍须显式 grant/RLS；本地 CLI 禁止自动暴露新表 | 完整 migration reset；local/remote legacy anon 请求验证目标路径为 SQLSTATE `42501`，非目标 REST 请求继续进入其原权限判定；见[关闭证据](#risk-data-api-01-关闭证据) | 2026-09-15 已关闭；启用 GraphQL、迁移 PostGIS、改变 PostgREST hook 或 API 暴露策略时重开 | 已关闭；Supabase advisor 的对象所有权静态提示作为已知残余保留 |
 
 ## 明确延后而非静默假设
 
@@ -69,6 +70,7 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 | `RISK-HAZARD-01` | Hazard Reporting | 项目负责人已选安全 RPC 契约；两账户、匿名和安全 search-path 运行时证据留实现/集成验收 |
 | `RISK-HAZARD-02` | Hazard Reporting | 项目负责人 Q8 已固定发布后内容不可变；status-only update migration 与权限/一致性证据留实现/集成验收 |
 | `RISK-NFR-01` | 各相关 owning Feature；Application Shell 汇总 | Application Shell 已于 2026-09-14 完成门控、语言和可访问性契约审查并进入 Ready；运行时依赖/两 locale/可访问性证据留在其实现与集成验收。其余 Wave 1–4 owning design 仍逐项关闭。 |
+| `RISK-DATA-API-01` | 项目负责人 / Supabase 环境 | 三条 2026-09-15 forward migration 已在本地全链重放并推送远端；目标 REST/GraphQL 路径运行时拒绝，guard 位于非暴露 `private` schema，现有普通 REST 权限判定不受影响。若未来需要 GraphQL，须先替换成更细粒度隔离后再启用。 |
 
 上表为责任与 Gate disposition；风险内容、影响、验证方式和最迟关闭点仍只在主表定义。
 
@@ -83,7 +85,14 @@ ADR 门槛。若后续验证迫使改变它们，再由项目负责人决定是�
 - **观察结论**：冷启动可先读到本机缓存，缓存对象即使存在也可能已过期；过期会话成功刷新后才可作为已认证事实。
   可重试网络失败不会把过期缓存提升为有效会话；无效刷新 token 会清除当前会话并产生非自愿退出结果。
 - **契约处置**：上述行为与 `AUTH-001` 的“不可确认时无私有内容”一致，无须把 SDK 方法、事件、重试、时序或
-  Adapter 策略冻结进 Feature 设计。实现验收须从用户可观察结果证明门控成立；升级任一锁定依赖时重新打开本风险。
+Adapter 策略冻结进 Feature 设计。实现验收须从用户可观察结果证明门控成立；升级任一锁定依赖时重新打开本风险。
+
+### `RISK-DATA-API-01` 关闭证据
+
+- **历史约束**：远端已有大量政府镜像资料；PostGIS 扩展及其对象由 `supabase_admin` 拥有。直接移动扩展或重建项目会扩大数据迁移风险，普通 migration 中的 revoke 也不能撤销平台 Owner 发出的原 grant。
+- **前向控制**：`20260915075931_harden_legacy_postgis_api_access.sql` 保留可生效环境中的最小权限防御；`20260915080605_block_legacy_postgis_data_api_paths.sql` 设置 PostgREST pre-request hook；`20260915082507_move_data_api_guard_to_private_schema.sql` 将 guard 移至非暴露 `private` schema。它拒绝遗留 PostGIS REST 路径并关闭本应用未使用的 GraphQL API，其他请求仍执行原 grant/RLS。
+- **验证证据**：锁定 Supabase CLI `2.117.0` 后，本地从零重放十一条 canonical migration 成功；本地及远端 `spatial_ref_sys` 与 GraphQL 请求均返回 HTTP 401、SQLSTATE `42501`。非目标 REST 请求到达对象自身权限检查，证明没有全局误封；公开 guard RPC 返回 404，证明控制函数不再暴露。
+- **残余处置**：advisor 仍会按对象位置、RLS 和 security-definer 属性给出静态提示；运行时 hook 是当前补偿控制。未来若产品使用 GraphQL，应先迁移 PostGIS 到非暴露 schema（必要时联系 Supabase Support）或提供等价细粒度隔离，再删除全局 GraphQL 拒绝。
 
 ### `RISK-GEO-02` 资料决定与未关闭证据
 

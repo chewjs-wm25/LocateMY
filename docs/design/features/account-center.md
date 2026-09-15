@@ -4,7 +4,7 @@
 > Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 6
 > 唯一公开入口：`package:locatemy/features/account_center/account_center.dart`
 
-本文件是 Account Center 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定公开 Dart seam、账户页组合、评估偏好完整快照、账户业务意图及联合验收；`lib/features/account_center/` 内的 Widget、状态管理、Supabase Adapter、订阅、并发/取消/重试和测试组织由 A 决定。字段、RLS 与 migration 只在 Schema Catalog；Auth、Privacy、预算预案和 Shell 各自仍由其 Owner 定义。
+本文件是 Account Center 唯一的跨 Owner Development Contract，也是同名 HTML 的 Markdown 源。它固定公开 Dart seam、账户页组合、评估偏好完整快照、账户业务意图及联合验收；`lib/features/account_center/` 内的 Widget、状态管理、Supabase Adapter、订阅、并发/取消/重试和测试组织由 A 决定。字段、RLS 与 migration 只在 Schema Catalog；Auth、Privacy、预算预案和 Shell 各自仍由其 Owner 定义。
 
 ## 0. 固定阅读顺序与四项 Readiness
 
@@ -13,7 +13,7 @@
 1. [账户中心](../../knowledge_base/locatemy_product/features/account.md)、[评估偏好](../../knowledge_base/locatemy_product/domain_objects.md#assessment-preferences-评估偏好)和[预算预案](../../knowledge_base/locatemy_product/domain_objects.md#budget-scenario-预算预案)；
 2. [Feature map](../system/feature-map.md)、[Interface 注册表](../system/interfaces.md)、[FLOW-01](../system/flows.md#flow-01启动注册登录退出与账户切换)及 [FLOW-07](../system/flows.md#flow-07个人化地点适配度)；
 3. [Capability Traceability](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md#身份与账户业务对象)及 [`RISK-PREF-01`](../system/risks-and-decisions.md#risk-pref-01)；
-4. 本契约；生成或使用人类 PDF 时最后读 [ADR 0014](../../adr/0014-version-locked-pdf-development-documentation-packages.md) 与 [handoff](../handoff/README.md)。
+4. 本契约及同名 HTML；后项不能改写前项。
 
 | Readiness | 可核查证据 | 结论 |
 | --- | --- | --- |
@@ -44,13 +44,15 @@
 
 **唯一公开 import：** `package:locatemy/app/application_shell.dart`
 
-唯一 Shell seam 是 `ApplicationShell.submit(ShellIntent)`；它只返回下列 typed outcomes。
+唯一 Shell seam 是 `ApplicationShell`；Account 只调用 `submit`，但必须消费下列完整 canonical 声明，不能以 submit-only、本地 outcome 或其他变体缩窄它。
 
 ```dart
 abstract interface class ApplicationShell {
   Future<ShellIntentOutcome> submit(ShellIntent intent);
+  Future<ShellContributionOutcome> publish(ShellContribution contribution);
 }
 abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
 sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
 final class ShellIntentAccepted extends ShellIntentOutcome { const ShellIntentAccepted(); }
 final class ShellAuthenticationRequired extends ShellIntentOutcome { const ShellAuthenticationRequired(); }
@@ -59,6 +61,14 @@ final class ShellIntentRejected extends ShellIntentOutcome {
   const ShellIntentRejected(this.reason);
 }
 enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome {
+  const ShellContributionRejected(this.reason);
+  final ShellRejectionReason reason;
+}
 ```
 
 Account 的公开入口声明以下 marker；它们只代表导航/编排请求，不能携带目标 Feature 的私有 payload。
@@ -135,21 +145,31 @@ fake：同一 A 账户的三个 `EmailConfirmation` 与 `SessionUnavailable(retr
 **唯一公开 import：** `package:locatemy/features/account_privacy/account_privacy.dart`
 
 ```dart
-abstract interface class AccountPrivacy { AccountScopeSnapshot read(); }
+abstract interface class AccountPrivacy {
+  AccountScopeSnapshot readScope();
+}
+final class AccountScope { final String accountId; const AccountScope(this.accountId); }
 sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
 final class AccountScopeOpened extends AccountScopeSnapshot {
-  final String accountId;
-  const AccountScopeOpened(this.accountId);
+  final AccountScope scope;
+  const AccountScopeOpened(this.scope);
 }
-final class AccountScopeClosed extends AccountScopeSnapshot { const AccountScopeClosed(); }
+final class AccountScopeClosing extends AccountScopeSnapshot {
+  final AccountScope scope;
+  const AccountScopeClosing(this.scope);
+}
+final class AccountScopeClosed extends AccountScopeSnapshot {
+  final AccountScope scope;
+  const AccountScopeClosed(this.scope);
+}
 final class AccountScopeUnavailable extends AccountScopeSnapshot {
   final AccountScopeFailure failure;
   const AccountScopeUnavailable(this.failure);
 }
-enum AccountScopeFailure { identityMismatch, closing, unavailable }
+enum AccountScopeFailure { identityMismatch, scopeNotOpen, scopeClosing, retryableUnavailable }
 ```
 
-A 只在 Account Center 读取到同一账户 `AccountScopeOpened` 时读取、保存或发布偏好和组合结果。`closed`、`identityMismatch`、`closing`、`unavailable` 均拒绝访问/发布；关闭开始即清除 A 的偏好内存/副本和账户页组合状态。关闭证明只代表该本机 payload 已处理，不删除远端 `user_assessment_preferences`、公共缓存或语言。
+A 只在 Account Center 读取到与 Auth 同一 `accountId` 的 `AccountScopeOpened.scope` 时读取、保存或发布偏好和组合结果。`AccountScopeClosing`、`AccountScopeClosed`、`identityMismatch`、`scopeNotOpen`、`scopeClosing`、`retryableUnavailable` 均拒绝访问/发布；关闭开始即清除 A 的偏好内存/副本和账户页组合状态。关闭证明只代表该本机 payload 已处理，不删除远端 `user_assessment_preferences`、公共缓存或语言。
 
 fake：A opened → closing/closed → B opened，验证 A 的资料、草稿、complete snapshot 与晚到响应都不进入 B。
 
@@ -312,4 +332,10 @@ A 可决定内部文件、Widget、状态机、Supabase Adapter、订阅、取�
 - [x] 精确 DB 对象为 `user_assessment_preferences`，无 Account RPC；消费者不直读 Auth、profiles 或预算表。
 - [x] 不含函数体、SDK、SQL、migration、测试实现或 Widget 结构；联验覆盖资料、意图、偏好、预案、退出和 A→B 隔离。
 
-公共 Interface 变更由提供方说明原因与消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、受影响 fake/Adapter 测试和 PDF。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate 或 Development Release。
+公共 Interface 变更由提供方说明原因与消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate、Development Release、PDF 或 ADR 0014/handoff 治理。
+
+## 7. Change Log
+
+| 日期 | 状态 | 变更原因 | 受影响对象 | 批准者 |
+| --- | --- | --- | --- | --- |
+| 2026-09-15 | `Ready for Development` | Issue #23：改为单一 Development Contract 与同名 HTML；删除 PDF/ADR 0014/handoff 治理，Account 的 HTML 依固定阅读顺序重导出。同步 Shell 的 canonical `submit`/`publish` 和 Privacy 的 `readScope`/scope snapshot 声明。 | `ACCOUNT-001`、`SHELL-001`、`PRIVACY-001`、`user_assessment_preferences`、`account-center.html` | 设计 AI（项目负责人授权） |

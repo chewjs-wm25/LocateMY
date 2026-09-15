@@ -1,19 +1,27 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="LocateMY Account Center 开发协作契约的人类可读 HTML 导出。">
-<base href="../design/features/">
-<title>Account Center 开发协作契约｜LocateMY</title>
-<style>
-:root { color-scheme: light; --ink:#1f2937; --muted:#4b5563; --line:#d1d5db; --panel:#f8fafc; --accent:#0f766e; }
-* { box-sizing:border-box; }
-body { margin:0; background:#f1f5f9; color:var(--ink); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
-main { max-width:1080px; margin:32px auto; padding:44px 54px; background:#fff; box-shadow:0 1px 4px #0001; }
-h1,h2,h3 { line-height:1.3; color:#111827; margin-top:2.1em; } h1 { margin-top:0; font-size:2rem; } h2 { font-size:1.45rem; border-bottom:2px solid #99f6e4; padding-bottom:.35rem; } h3 { font-size:1.1rem; }
-p { margin:1em 0; } a { color:#0f766e; } code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:.9em; background:#f1f5f9; padding:.08em .25em; border-radius:3px; } pre { overflow:auto; background:#0f172a; color:#e2e8f0; padding:18px; border-radius:7px; line-height:1.5; } pre code { background:transparent; padding:0; color:inherit; } blockquote { margin:1.2em 0; padding:.6em 1em; border-left:4px solid #14b8a6; background:#f0fdfa; color:var(--muted); } .overview { display:block; margin:1.2em 0; padding:.8em 1em; border:1px solid #99f6e4; border-radius:7px; background:#f0fdfa; } table { width:100%; border-collapse:collapse; margin:1.25em 0; display:block; overflow-x:auto; } th,td { border:1px solid var(--line); padding:.6em .7em; text-align:left; vertical-align:top; } th { background:#f0fdfa; } ul,ol { padding-left:1.5em; } li { margin:.35em 0; } @media print { body { background:#fff; } main { margin:0; max-width:none; padding:0; box-shadow:none; } a { color:inherit; text-decoration:none; } pre { white-space:pre-wrap; } } @media (max-width:700px) { main { margin:0; padding:24px 18px; } h1 { font-size:1.65rem; } }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Center 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
 <body>
 <main>
@@ -23,8 +31,44 @@ p { margin:1em 0; } a { color:#0f766e; } code { font-family:ui-monospace,SFMono-
 Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 6
 唯一公开入口：<code>package:locatemy/features/account_center/account_center.dart</code></p>
 </blockquote>
-<p>本文件是 Account Center 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定公开 Dart seam、账户页组合、评估偏好完整快照、账户业务意图及联合验收；<code>lib/features/account_center/</code> 内的 Widget、状态管理、Supabase Adapter、订阅、并发/取消/重试和测试组织由 A 决定。字段、RLS 与 migration 只在 Schema Catalog；Auth、Privacy、预算预案和 Shell 各自仍由其 Owner 定义。</p>
-<aside class="overview"><strong>任务概览。</strong> A 在 Wave 6 交付账户页组合与 <code>ACCOUNT-001</code>：只在同账户 opened scope 中，以一次远端成功保存的完整五项偏好快照供 Suitability 使用；页面经 Shell 发出房产、本人隐患、预案管理与确认退出意图。完成标准见下方的联合验收与实现 Gate。</aside>
+<p>本文件是 Account Center 唯一的跨 Owner Development Contract，也是同名 HTML 的 Markdown 源。它固定公开 Dart seam、账户页组合、评估偏好完整快照、账户业务意图及联合验收；<code>lib/features/account_center/</code> 内的 Widget、状态管理、Supabase Adapter、订阅、并发/取消/重试和测试组织由 A 决定。字段、RLS 与 migration 只在 Schema Catalog；Auth、Privacy、预算预案和 Shell 各自仍由其 Owner 定义。</p>
+<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<p>实施和审查严格按此顺序读取，后项只能补充前项已经固定的事实：</p>
+<ol>
+<li><a href="../knowledge_base/locatemy_product/features/account.md">账户中心</a>、<a href="../knowledge_base/locatemy_product/domain_objects.md#assessment-preferences-%E8%AF%84%E4%BC%B0%E5%81%8F%E5%A5%BD">评估偏好</a>和<a href="../knowledge_base/locatemy_product/domain_objects.md#budget-scenario-%E9%A2%84%E7%AE%97%E9%A2%84%E6%A1%88">预算预案</a>；</li>
+<li><a href="../design/system/feature-map.md">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-01%E5%90%AF%E5%8A%A8%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E9%80%80%E5%87%BA%E4%B8%8E%E8%B4%A6%E6%88%B7%E5%88%87%E6%8D%A2">FLOW-01</a>及 <a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>及 <a href="../design/system/risks-and-decisions.md#risk-pref-01"><code>RISK-PREF-01</code></a>；</li>
+<li>本契约及同名 HTML；后项不能改写前项。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Readiness</th>
+<th>可核查证据</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>责任与范围</td>
+<td>A 唯一拥有 <code>ACCOUNT-01</code>、<code>ACCOUNT-02</code>、<code>ACCOUNT-08</code>；认证退出、<code>ACCOUNT-09</code>、ICI、语言及目标业务数据仍归原 Owner</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>契约与消费者</td>
+<td><code>ACCOUNT-001</code> 的唯一入口、公开声明、typed failures、调用顺序和 fake 在第 3 节；消费者为 Shell 与 Suitability</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>数据与安全</td>
+<td>A 只读写 owner-only <code>user_assessment_preferences</code>；真实身份只消费 <code>AUTH-001</code>，预案只消费 <code>COST-002</code>，没有直读 <code>auth.users</code>、<code>profiles</code> 或预案表</td>
+<td>已就绪</td>
+</tr>
+<tr>
+<td>验收与风险</td>
+<td>第 5 节覆盖 <code>AT-AUTH-02</code>、<code>AT-HAZARD-01</code>、<code>AT-PROP-01</code>、<code>AT-SUIT-01</code>–<code>06</code>、<code>AT-OUT-01/02</code> 与 <code>AT-SWITCH-01</code>；<code>RISK-PREF-01</code> 的 null 语义已锁定</td>
+<td>已就绪</td>
+</tr>
+</tbody></table>
 <h2>1. 成果、责任与边界</h2>
 <ul>
 <li>已 opened 的账户看到 Auth 的真实邮箱和确认状态、已配置偏好或设置入口、Cost 的 current 预案摘要，以及房产档案、本人隐患、预案管理和确认退出入口。</li>
@@ -40,8 +84,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>协作</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Account Center（A）</td>
 <td>账户页组合、<code>ACCOUNT-001</code>、偏好完整确认/变化、账户与退出意图</td>
 <td>Auth/预算/ICI/语言/房产/隐患的数据规则或写入，退出完成</td>
@@ -71,17 +114,18 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>Account 资料/偏好</td>
 <td><code>COST-002</code></td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>2. A 消费的 Interface 与精确数据对象</h2>
 <p>消费者只能 import 标明的入口，不 import 对方 <code>src/</code>、SDK 或表实现。</p>
 <h3><code>SHELL-001</code>：导航、账户业务与退出意图</h3>
 <p><strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code></p>
-<p>唯一 Shell seam 是 <code>ApplicationShell.submit(ShellIntent)</code>；它只返回下列 typed outcomes。</p>
+<p>唯一 Shell seam 是 <code>ApplicationShell</code>；Account 只调用 <code>submit</code>，但必须消费下列完整 canonical 声明，不能以 submit-only、本地 outcome 或其他变体缩窄它。</p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
+  Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
 }
 abstract interface class ShellIntent {}
+abstract interface class ShellContribution {}
 sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
 final class ShellIntentAccepted extends ShellIntentOutcome { const ShellIntentAccepted(); }
 final class ShellAuthenticationRequired extends ShellIntentOutcome { const ShellAuthenticationRequired(); }
@@ -90,6 +134,14 @@ final class ShellIntentRejected extends ShellIntentOutcome {
   const ShellIntentRejected(this.reason);
 }
 enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
+
+sealed class ShellContributionOutcome {}
+final class ShellContributionAccepted extends ShellContributionOutcome {}
+final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
+final class ShellContributionRejected extends ShellContributionOutcome {
+  const ShellContributionRejected(this.reason);
+  final ShellRejectionReason reason;
+}
 </code></pre>
 <p>Account 的公开入口声明以下 marker；它们只代表导航/编排请求，不能携带目标 Feature 的私有 payload。</p>
 <pre><code class="language-dart">final class OpenPropertyInspectionsIntent implements ShellIntent {
@@ -115,7 +167,7 @@ final class AccountReturnContext {
 </code></pre>
 <p>只有当前同账户 scope opened 时可提交。<code>ShellIntentAccepted</code> 才进入目标；<code>ShellAuthenticationRequired</code> 保持当前无私有内容路径；<code>ShellIntentRejected</code> 保留其 reason 并提供返回/重试，不能伪装成资料、偏好或预案失败。退出确认后 Shell 固定协调屏蔽私有内容 → <code>AUTH-001.signOut</code> → <code>PRIVACY-001.close(oldAccountId)</code>；Account 不直接结束会话。</p>
 <pre><code class="language-dart">final outcome = await applicationShell.submit(
-  OpenBudgetScenarioManagementIntent(const AccountReturnContext('account-center')),
+  OpenBudgetScenarioManagementIntent(const AccountReturnContext(&#39;account-center&#39;)),
 );
 // 仅 ShellIntentAccepted 进入预算管理；其余结果保留在账户任务语境。
 </code></pre>
@@ -149,20 +201,30 @@ enum SessionFailure { retryableUnavailable, unsupportedClient, remoteRejected }
 <p>fake：同一 A 账户的三个 <code>EmailConfirmation</code> 与 <code>SessionUnavailable(retryableUnavailable)</code>；验证 unavailable 绝不显示 verified，account id 不匹配时不显示 A 的资料。</p>
 <h3><code>PRIVACY-001</code>：账户范围</h3>
 <p><strong>唯一公开 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code></p>
-<pre><code class="language-dart">abstract interface class AccountPrivacy { AccountScopeSnapshot read(); }
+<pre><code class="language-dart">abstract interface class AccountPrivacy {
+  AccountScopeSnapshot readScope();
+}
+final class AccountScope { final String accountId; const AccountScope(this.accountId); }
 sealed class AccountScopeSnapshot { const AccountScopeSnapshot(); }
 final class AccountScopeOpened extends AccountScopeSnapshot {
-  final String accountId;
-  const AccountScopeOpened(this.accountId);
+  final AccountScope scope;
+  const AccountScopeOpened(this.scope);
 }
-final class AccountScopeClosed extends AccountScopeSnapshot { const AccountScopeClosed(); }
+final class AccountScopeClosing extends AccountScopeSnapshot {
+  final AccountScope scope;
+  const AccountScopeClosing(this.scope);
+}
+final class AccountScopeClosed extends AccountScopeSnapshot {
+  final AccountScope scope;
+  const AccountScopeClosed(this.scope);
+}
 final class AccountScopeUnavailable extends AccountScopeSnapshot {
   final AccountScopeFailure failure;
   const AccountScopeUnavailable(this.failure);
 }
-enum AccountScopeFailure { identityMismatch, closing, unavailable }
+enum AccountScopeFailure { identityMismatch, scopeNotOpen, scopeClosing, retryableUnavailable }
 </code></pre>
-<p>A 只在 Account Center 读取到同一账户 <code>AccountScopeOpened</code> 时读取、保存或发布偏好和组合结果。<code>closed</code>、<code>identityMismatch</code>、<code>closing</code>、<code>unavailable</code> 均拒绝访问/发布；关闭开始即清除 A 的偏好内存/副本和账户页组合状态。关闭证明只代表该本机 payload 已处理，不删除远端 <code>user_assessment_preferences</code>、公共缓存或语言。</p>
+<p>A 只在 Account Center 读取到与 Auth 同一 <code>accountId</code> 的 <code>AccountScopeOpened.scope</code> 时读取、保存或发布偏好和组合结果。<code>AccountScopeClosing</code>、<code>AccountScopeClosed</code>、<code>identityMismatch</code>、<code>scopeNotOpen</code>、<code>scopeClosing</code>、<code>retryableUnavailable</code> 均拒绝访问/发布；关闭开始即清除 A 的偏好内存/副本和账户页组合状态。关闭证明只代表该本机 payload 已处理，不删除远端 <code>user_assessment_preferences</code>、公共缓存或语言。</p>
 <p>fake：A opened → closing/closed → B opened，验证 A 的资料、草稿、complete snapshot 与晚到响应都不进入 B。</p>
 <h3><code>COST-002</code>：current 预算预案</h3>
 <p><strong>唯一公开 import：</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
@@ -195,7 +257,7 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <p><code>BudgetScenario</code> 是 B 的只读保存快照：Account 显示 name、additionalLivingExpenseRm、housingExpenseRm、transportExpenseRm、monthlyNetIncomeRm、householdMonthlyIncomeRm 与每项缺失状态。<code>CurrentBudgetScenarioAvailable</code> 才显示 current；<code>NoCurrentBudgetScenario</code> 仍保留管理入口；<code>BudgetScenariosUnavailable</code> 以其 enum 呈现恢复路径，不能伪装为空/no-current。Account 不读写精确表 <code>user_budget_scenarios</code>，不创建默认预案、不选择 current；月净收入只说明预算压力，家庭月度总收入只说明 Socio 收入位置，二者不可互代。</p>
 <p>fake：current、no-current、仅一项收入、permissionDenied、retryableUnavailable；验证摘要版本变化使旧摘要失效，缺失保持缺失且两种收入不互换。</p>
 <h3>精确数据对象：评估偏好</h3>
-<p>Account 是精确 Supabase 表 <code>user_assessment_preferences</code> 的唯一读写 Owner；没有 Account 专属 RPC。Flutter 只在同账户 opened 路径访问该 owner-only CRUD 表。该表以 <code>user id</code> 为主键，字段为 <code>safety</code>、<code>cost</code>、<code>daily convenience</code>、<code>transit accessibility</code>、<code>infrastructure</code>（均为整数 <code>1–10</code>）、nullable <code>configured_at</code> 与 <code>updated at</code>。字段/RLS/migration 的唯一权威是 <a href="../data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>：migration 必须 additive 地增加 <code>configured_at</code>，现有行保持 null，不能猜测升级。</p>
+<p>Account 是精确 Supabase 表 <code>user_assessment_preferences</code> 的唯一读写 Owner；没有 Account 专属 RPC。Flutter 只在同账户 opened 路径访问该 owner-only CRUD 表。该表以 <code>user id</code> 为主键，字段为 <code>safety</code>、<code>cost</code>、<code>daily convenience</code>、<code>transit accessibility</code>、<code>infrastructure</code>（均为整数 <code>1–10</code>）、nullable <code>configured_at</code> 与 <code>updated at</code>。字段/RLS/migration 的唯一权威是 <a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>：migration 必须 additive 地增加 <code>configured_at</code>，现有行保持 null，不能猜测升级。</p>
 <p><code>configured_at == null</code> 或无行都是 prerequisite missing；五个默认 <code>5</code> 仅是未保存表单预填。仅一次远端成功保存五个有效值且写入 <code>configured_at</code> 后才能发布 complete snapshot。后续成功修改必须保留已配置事实，使用新的 snapshot version。无离线写队列；validation、permission、conflict 或网络失败均保留最后已保存事实。</p>
 <h2>3. A 必须提供的 Interface</h2>
 <h3><code>ACCOUNT-001</code>：评估偏好快照与账户页意图</h3>
@@ -268,8 +330,7 @@ enum AssessmentPreferencesFailure {
 <th>typed failure / 消费者处理</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>readAssessmentPreferences</code> / <code>watchAssessmentPreferences</code></td>
 <td>当前同账户 opened；无其他输入</td>
 <td><code>AssessmentPreferencesComplete</code> 或 <code>AssessmentPreferencesPrerequisiteMissing</code></td>
@@ -281,8 +342,7 @@ enum AssessmentPreferencesFailure {
 <td>远端成功后 <code>AssessmentPreferencesSaved(complete snapshot)</code>；首次保存写入 configuredAt，后续保存递增 version 且保留 configuredAt</td>
 <td>invalid 不写；conflict/permission/network/scope 保留最后已保存 snapshot，不发布草稿/部分值</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><strong>完整快照、权限与顺序。</strong> <code>CompleteAssessmentPreferencesSnapshot</code> 必须是同一账户、完整五项、非 null <code>configuredAt</code> 与保存 version 的不可变组合；Suitability 只消费此结果，绝不从页面默认值、草稿、表存在或 <code>configured_at</code> 自行推导。保存完成或 <code>COST-002</code> current 成功变更后，由 Shell 使相同账户关联的 Suitability 请求失效；任何 account/scope/version 变化后的旧读写响应均丢弃。A 不写预算、ICI、语言、Auth 或目标 Feature 数据。</p>
 <pre><code class="language-dart">final result = await accountCenter.saveAssessmentPreferences(
   const AssessmentPreferenceValues(
@@ -309,8 +369,7 @@ enum AssessmentPreferencesFailure {
 <th>追踪</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>真实身份与确认状态</td>
 <td>A、Authentication、Shell</td>
 <td>仅同 scope 的真实 email/confirmed/pending/unavailable；未知不显示 verified</td>
@@ -352,58 +411,37 @@ enum AssessmentPreferencesFailure {
 <td>中文/English、读屏、键盘/替代输入、200% 字体、长邮箱和错误状态均有文字、名称和可理解顺序</td>
 <td><code>ACCOUNT-01/02/08</code>；上述 <code>AT-*</code></td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>6. 实现自由、Gate 与检查</h2>
 <p>A 可决定内部文件、Widget、状态机、Supabase Adapter、订阅、取消/重试、冲突策略、局部校验及测试组织。以下变更必须暂停协商：唯一公开 import、公共声明/result variant、五项完整性、snapshot version、权限/副作用/顺序、<code>user_assessment_preferences</code> 的 Schema/RLS，或 Auth/Privacy/Cost/Shell 的 owning contract。</p>
 <p>实现 Gate：<code>user_assessment_preferences</code> 仍是 proposed。实现前必须验证 owner-only RLS、<code>user id</code> 主键、五个整数 <code>1–10</code>、nullable <code>configured_at</code> 的 additive migration、旧行保持 null、两账户隔离及远端成功后才发布。不得以 fixture 宣称 migration/RLS 完成；该 Gate 不改变本 Feature 的 Ready 状态。</p>
 <ul>
-<li>[x] 四项 Readiness 均可核查。</li>
-<li>[x] <code>ACCOUNT-001</code> 有唯一入口、声明、输入、typed outputs/failures、完整快照、权限/副作用/顺序、示例和 fake。</li>
-<li>[x] Shell/Auth/Privacy/Cost-002 均列唯一入口、声明级协作形状、约束、typed failures 与 fake；唯一 Shell seam 是 <code>ApplicationShell.submit(ShellIntent)</code>。</li>
-<li>[x] 精确 DB 对象为 <code>user_assessment_preferences</code>，无 Account RPC；消费者不直读 Auth、profiles 或预算表。</li>
-<li>[x] 不含函数体、SDK、SQL、migration、测试实现或 Widget 结构；联验覆盖资料、意图、偏好、预案、退出和 A→B 隔离。</li>
+<li><input checked="" disabled="" type="checkbox"> 四项 Readiness 均可核查。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>ACCOUNT-001</code> 有唯一入口、声明、输入、typed outputs/failures、完整快照、权限/副作用/顺序、示例和 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> Shell/Auth/Privacy/Cost-002 均列唯一入口、声明级协作形状、约束、typed failures 与 fake；唯一 Shell seam 是 <code>ApplicationShell.submit(ShellIntent)</code>。</li>
+<li><input checked="" disabled="" type="checkbox"> 精确 DB 对象为 <code>user_assessment_preferences</code>，无 Account RPC；消费者不直读 Auth、profiles 或预算表。</li>
+<li><input checked="" disabled="" type="checkbox"> 不含函数体、SDK、SQL、migration、测试实现或 Widget 结构；联验覆盖资料、意图、偏好、预案、退出和 A→B 隔离。</li>
 </ul>
-<p>公共 Interface 变更由提供方说明原因与消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、受影响 fake/Adapter 测试和 PDF。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate 或 Development Release。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
-<p>实施和审查严格按此顺序读取，后项只能补充前项已经固定的事实：</p>
-<ol>
-<li><a href="../../knowledge_base/locatemy_product/features/account.md">账户中心</a>、<a href="../../knowledge_base/locatemy_product/domain_objects.md#assessment-preferences-%E8%AF%84%E4%BC%B0%E5%81%8F%E5%A5%BD">评估偏好</a>和<a href="../../knowledge_base/locatemy_product/domain_objects.md#budget-scenario-%E9%A2%84%E7%AE%97%E9%A2%84%E6%A1%88">预算预案</a>；</li>
-<li><a href="../system/feature-map.md">Feature map</a>、<a href="../system/interfaces.md">Interface 注册表</a>、<a href="../system/flows.md#flow-01%E5%90%AF%E5%8A%A8%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E9%80%80%E5%87%BA%E4%B8%8E%E8%B4%A6%E6%88%B7%E5%88%87%E6%8D%A2">FLOW-01</a>及 <a href="../system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
-<li><a href="../system/capability-traceability.md">Capability Traceability</a>、<a href="../system/data-ownership.md">数据所有权</a>、<a href="../data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>及 <a href="../system/risks-and-decisions.md#risk-pref-01"><code>RISK-PREF-01</code></a>；</li>
-<li>本契约；生成或使用人类 PDF 时最后读 <a href="../../adr/0014-version-locked-pdf-development-documentation-packages.md">ADR 0014</a> 与 <a href="../handoff/README.md">handoff</a>。</li>
-</ol>
+<p>公共 Interface 变更由提供方说明原因与消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不使用文档版本、checksum、Manifest、Generation Gate、Development Release、PDF 或 ADR 0014/handoff 治理。</p>
+<h2>7. Change Log</h2>
 <table>
 <thead>
 <tr>
-<th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>日期</th>
+<th>状态</th>
+<th>变更原因</th>
+<th>受影响对象</th>
+<th>批准者</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>责任与范围</td>
-<td>A 唯一拥有 <code>ACCOUNT-01</code>、<code>ACCOUNT-02</code>、<code>ACCOUNT-08</code>；认证退出、<code>ACCOUNT-09</code>、ICI、语言及目标业务数据仍归原 Owner</td>
-<td>已就绪</td>
+<tbody><tr>
+<td>2026-09-15</td>
+<td><code>Ready for Development</code></td>
+<td>Issue #23：改为单一 Development Contract 与同名 HTML；删除 PDF/ADR 0014/handoff 治理，Account 的 HTML 依固定阅读顺序重导出。同步 Shell 的 canonical <code>submit</code>/<code>publish</code> 和 Privacy 的 <code>readScope</code>/scope snapshot 声明。</td>
+<td><code>ACCOUNT-001</code>、<code>SHELL-001</code>、<code>PRIVACY-001</code>、<code>user_assessment_preferences</code>、<code>account-center.html</code></td>
+<td>设计 AI（项目负责人授权）</td>
 </tr>
-<tr>
-<td>契约与消费者</td>
-<td><code>ACCOUNT-001</code> 的唯一入口、公开声明、typed failures、调用顺序和 fake 在第 3 节；消费者为 Shell 与 Suitability</td>
-<td>已就绪</td>
-</tr>
-<tr>
-<td>数据与安全</td>
-<td>A 只读写 owner-only <code>user_assessment_preferences</code>；真实身份只消费 <code>AUTH-001</code>，预案只消费 <code>COST-002</code>，没有直读 <code>auth.users</code>、<code>profiles</code> 或预案表</td>
-<td>已就绪</td>
-</tr>
-<tr>
-<td>验收与风险</td>
-<td>第 5 节覆盖 <code>AT-AUTH-02</code>、<code>AT-HAZARD-01</code>、<code>AT-PROP-01</code>、<code>AT-SUIT-01</code>–<code>06</code>、<code>AT-OUT-01/02</code> 与 <code>AT-SWITCH-01</code>；<code>RISK-PREF-01</code> 的 null 语义已锁定</td>
-<td>已就绪</td>
-</tr>
-</tbody>
-</table>
+</tbody></table>
 </main>
 </body>
 </html>

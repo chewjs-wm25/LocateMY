@@ -1,26 +1,44 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Personalized Location Suitability 开发协作契约</title>
-<style>body{margin:0;background:#f6f8fa;color:#1f2328;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}main{max-width:1120px;margin:32px auto;padding:42px 48px;background:#fff;box-shadow:0 1px 4px #1f23281f}h1,h2,h3{line-height:1.25;color:#0f3d5e}h1{font-size:2em;border-bottom:2px solid #d0d7de;padding-bottom:.45em}h2{margin-top:2.1em;border-bottom:1px solid #d8dee4;padding-bottom:.35em}h3{margin-top:1.6em}a{color:#0969da}code{font: .9em ui-monospace,SFMono-Regular,Consolas,monospace;background:#f1f3f5;padding:.12em .28em;border-radius:3px}pre{overflow:auto;background:#f6f8fa;border:1px solid #d8dee4;border-radius:6px;padding:16px;line-height:1.45}pre code{background:transparent;padding:0}table{display:block;overflow-x:auto;width:100%;border-collapse:collapse;margin:1em 0}th,td{border:1px solid #d8dee4;padding:.55em .7em;vertical-align:top}th{background:#f6f8fa}blockquote{margin:1em 0;padding:.2em 1em;border-left:4px solid #54aeff;background:#f6fbff}li{margin:.28em 0}@media(max-width:700px){main{margin:0;padding:22px 16px}body{font-size:15px}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personalized Location Suitability 开发协作契约</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
+    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
+    h1 { margin-top: 0; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
+    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
+    th { background: #f3f4f6; }
+    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      pre, th { background: #1f2937; }
+      th, td { border-color: #4b5563; }
+      blockquote { background: #1f2937; }
+    }
+  </style>
 </head>
-<body><main>
+<body>
+<main>
 <h1>Personalized Location Suitability 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 7
 唯一公开入口：<code>package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart</code></p>
 </blockquote>
-<p>本文件是 Personalized Location Suitability 唯一的跨 Owner 开发协作契约，也是同名人类 PDF 的 Markdown 源。它固定五维输入、资格门控、转换、重归一化、解释和 A/B 并列语义；<code>lib/features/personalized_location_suitability/</code> 内 Widget、状态管理、并发/取消、缓存、计算组织与测试组织由 B 决定。公式正文只在产品知识库；数据库字段、RLS 和 migration 只在 Schema Catalog。</p>
+<p>本文件是 Personalized Location Suitability 唯一的 Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它固定五维输入、资格门控、转换、重归一化、解释和 A/B 并列语义；<code>lib/features/personalized_location_suitability/</code> 内 Widget、状态管理、并发/取消、缓存、计算组织与测试组织由 B 决定。公式正文只在产品知识库；数据库字段、RLS 和 migration 只在 Schema Catalog。</p>
 <h2>0. 固定阅读顺序与四项 Readiness</h2>
 <p>实施和审查必须按下面顺序读取；后项只能补充已经冻结的事实：</p>
 <ol>
-<li><a href="../../../CONTEXT.md#%E8%AF%84%E4%BC%B0%E5%81%8F%E5%A5%BD">领域词汇</a>、<a href="../../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">个人化地点适配度</a>、<a href="../../knowledge_base/locatemy_product/features/map_location.md#%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6map-07">地图 MAP-07 规则</a>、<a href="../../knowledge_base/locatemy_product/features/cost_of_living.md">成本预算压力</a>；</li>
-<li><a href="../system/feature-map.md">Feature map（Suitability）</a>、<a href="../system/interfaces.md">Interface 注册表</a>、<a href="../system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
-<li><a href="../system/capability-traceability.md">Capability Traceability</a>、<a href="../system/data-ownership.md">数据所有权</a>、<a href="../data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>；</li>
-<li>本契约；生成或使用人类 PDF 时最后读 <a href="../../adr/0014-version-locked-pdf-development-documentation-packages.md">ADR 0014</a> 与 <a href="../handoff/README.md">handoff</a>。</li>
+<li><a href="../../CONTEXT.md#%E8%AF%84%E4%BC%B0%E5%81%8F%E5%A5%BD">领域词汇</a>、<a href="../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">个人化地点适配度</a>、<a href="../knowledge_base/locatemy_product/features/map_location.md#%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6map-07">地图 MAP-07 规则</a>、<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">成本预算压力</a>；</li>
+<li><a href="../design/system/feature-map.md">Feature map（Suitability）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>；</li>
+<li>本契约及同名 HTML；后项不能改写前项。</li>
 </ol>
 <table>
 <thead>
@@ -30,8 +48,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>结论</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>责任与范围</td>
 <td><code>MAP-07</code> 唯一归 Suitability；原始安全/成本/设施/交通/ICI、偏好和预案持久化、选点和推荐均归其他 Owner</td>
 <td>已就绪</td>
@@ -51,9 +68,9 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>第 5 节覆盖 <code>AT-SUIT-01</code>–<code>06</code>、<code>AT-RACE-01</code>、<code>AT-SWITCH-01</code>；<code>RISK-PREF-01</code> 的 null/default 边界已冻结，运行证据留实现/集成</td>
 <td>已就绪</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>1. 成果、责任与冻结边界</h2>
+<p><strong>完成定义（DoD）。</strong> B 已在唯一公开入口提供第 3 节完整 <code>SUITABILITY-001</code> 声明；Shell 可用同一 fake 组合单点/A-B 成果。真实 Adapter 经第 5 节证明同账户完整五项偏好、current 预案和五维输入形成可解释 <code>0–100</code> 读数；前置/维度缺失及低优先级重归一化如实呈现；A/B 只并列不排序；scope、地点、偏好或 current 版本变化不发布旧结果。完成不包括 Widget、SDK、SQL 或测试实现。</p>
 <ul>
 <li>已 opened 账户可以对一个合法地点看到可解释的 <code>0–100</code> 个人化读数，或精确知道是偏好、current 预案还是哪一维资料阻止结果。它不是客观宜居评分、官方评级、赢家或推荐。</li>
 <li>五维固定顺序为：安全、成本、日常便利、公共交通可达性、基础设施。主读数固定为安全指数、个人预算压力转换分、2 km 五类确认设施覆盖转换分、交通连通性分和 <strong>neutral <code>5/5/5</code> ICI</strong>。</li>
@@ -68,8 +85,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>协作</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>lib/features/personalized_location_suitability/</code>（B）</td>
 <td><code>SUITABILITY-001</code>、五维资格、转换/加权、低优先级缺失重归一化、解释、A/B 可比性</td>
 <td>原始分析、偏好/预案/ICI 权重写入、地图、导航、推荐</td>
@@ -87,34 +103,14 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>Suitability 转换、偏好加权、总分</td>
 <td>只经各自公开入口交付快照</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>2. B 需要调用的 Interface 卡</h2>
 <p>消费者只能 import 卡中唯一入口，不能 import 对方 <code>src/</code>、Adapter、SDK、表或 cache。以下声明是协作形状，不含实现体。</p>
 <h3>Interface 卡：<code>SHELL-001</code> — 详情/A-B 槽位、设置导航与结果发布</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class ApplicationShell {
-  Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
-  Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
-}
-abstract interface class ShellIntent {}
-abstract interface class ShellContribution {}
-sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
-final class ShellIntentAccepted extends ShellIntentOutcome { const ShellIntentAccepted(); }
-final class ShellAuthenticationRequired extends ShellIntentOutcome { const ShellAuthenticationRequired(); }
-final class ShellIntentRejected extends ShellIntentOutcome { final ShellRejectionReason reason; const ShellIntentRejected(this.reason); }
-sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
-final class ShellContributionAccepted extends ShellContributionOutcome { const ShellContributionAccepted(); }
-final class ShellContributionAuthenticationRequired extends ShellContributionOutcome { const ShellContributionAuthenticationRequired(); }
-final class ShellContributionRejected extends ShellContributionOutcome { final ShellRejectionReason reason; const ShellContributionRejected(this.reason); }
-enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
-</code></pre>
+<p><code>SHELL-001</code> 的完整 canonical 声明、输入约束、结果、权限、顺序与 fake 规则只在 <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell</a> 定义。B 的调用子集为 <code>ApplicationShell.submit(ShellIntent)</code>、<code>publish(ShellContribution)</code> 及 canonical intent/contribution accepted、authentication-required、rejected(<code>missingInput</code>/<code>staleInput</code>/<code>inapplicableDestination</code>/<code>scopeUnavailable</code>) outcomes；不复制、缩窄或另造 Shell 类型。</p>
 <p>B 从自己的公开入口导出 <code>OpenAssessmentPreferencesIntent</code>、<code>OpenCurrentBudgetScenarioIntent</code>（均带 <code>SuitabilityReturnContext</code>）及 <code>SuitabilityContribution implements ShellContribution</code>。贡献只含 <code>SuitabilitySingleOutcome</code> 或 <code>SuitabilityComparisonOutcome</code>、不可变地点、账户/输入版本和原始 warnings；不得携带账户草稿、收入、预案字段或上游内部对象。</p>
-<pre><code class="language-dart">final class SuitabilityReturnContext { final String source; const SuitabilityReturnContext(this.source); }
-final class OpenAssessmentPreferencesIntent implements ShellIntent { final SuitabilityReturnContext returnContext; const OpenAssessmentPreferencesIntent(this.returnContext); }
-final class OpenCurrentBudgetScenarioIntent implements ShellIntent { final SuitabilityReturnContext returnContext; const OpenCurrentBudgetScenarioIntent(this.returnContext); }
-final class SuitabilityContribution implements ShellContribution { final Object outcome; const SuitabilityContribution(this.outcome); }
-</code></pre>
+<p><code>SUITABILITY-001</code> 的完整公开声明在第 3 节；其 marker 也在该同一入口导出：<code>SuitabilityReturnContext</code>、<code>OpenAssessmentPreferencesIntent extends ShellIntent</code>、<code>OpenCurrentBudgetScenarioIntent extends ShellIntent</code>、<code>SuitabilityContribution extends ShellContribution</code>。每个 intent 仅带 return context；contribution 必须精确带一个 <code>SuitabilitySingleOutcome</code> 或一个 <code>SuitabilityComparisonOutcome</code>、不可变地点/角色、账户及输入版本与 warnings，不能用 <code>Object</code>、账户草稿、收入、预案字段或上游内部对象代替。</p>
 <table>
 <thead>
 <tr>
@@ -124,24 +120,16 @@ final class SuitabilityContribution implements ShellContribution { final Object 
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>只向 opened 同账户 Shell submit/publish；贡献的 location、accountId、input versions 必须仍等于当前请求语境。</td>
 <td><code>accepted</code> 才导航/进入槽位；<code>authenticationRequired</code>、<code>rejected(reason)</code> 是 Shell 结果，不能改写为资料失败。</td>
 <td>Shell 只导航/组合；Suitability 不改地图、上游、偏好、预案或 ICI 权重。</td>
 <td><code>await shell.publish(contribution);</code> 仅 accepted 发布。fake 依次回 accepted/authenticationRequired/staleInput，断言拒绝保留 Suitability 结果与原因且不泄露私有输入。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>LOCATION-001</code> — 不可变合法地点</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class LocationCoordinator { LocationRoleSnapshot read(LocationRole role); }
-enum LocationRole { single, locationA, locationB, property }
-sealed class LocationRoleSnapshot { const LocationRoleSnapshot(); }
-final class LocationPresent extends LocationRoleSnapshot { final LocationRole role; final ValidLocationReference location; const LocationPresent(this.role, this.location); }
-final class LocationAbsent extends LocationRoleSnapshot { final LocationRole role; const LocationAbsent(this.role); }
-final class ValidLocationReference { final String locationId; final GeographicPoint point; final String? displayName; const ValidLocationReference(this.locationId, this.point, this.displayName); }
-</code></pre>
+<p><code>LOCATION-001</code> 的完整 canonical 声明、输入校验、角色、结果与生命周期只在 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a> 定义。B 的调用子集为 <code>LocationCoordinator.read(LocationRole)</code>，以及 canonical single/A/B roles、<code>LocationPresent</code>、<code>LocationAbsent</code> 与 <code>ValidLocationReference</code>；不重述 Map 类型或读取可变地图状态。</p>
 <table>
 <thead>
 <tr>
@@ -151,26 +139,16 @@ final class ValidLocationReference { final String locationId; final GeographicPo
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>只接收 Map 已成功产生的 immutable single/A/B reference；不得造坐标、读可变地图状态、用默认城市或收藏名代替坐标。</td>
 <td><code>LocationAbsent</code>、非法/范围外/same point（由 Map 拒绝）使计算为 <code>SuitabilityPrerequisiteMissing(location)</code>，不调上游。</td>
 <td>读取无副作用；地点 id 改变时旧结果不可发布。</td>
 <td>Shell 先按 FLOW-02/03 取角色引用，再传 B。fake 给 single、A/B、absent、换点；断言 absent 不请求上游、A/B 不混端。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>ACCOUNT-001</code> — complete 评估偏好快照</h3>
 <p><strong>提供者：</strong> Account Center；<strong>唯一公开 import：</strong> <code>package:locatemy/features/account_center/account_center.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class AccountCenter { Future&lt;AssessmentPreferencesOutcome&gt; readAssessmentPreferences(); Stream&lt;AssessmentPreferencesOutcome&gt; watchAssessmentPreferences(); }
-sealed class AssessmentPreferencesOutcome { const AssessmentPreferencesOutcome(); }
-final class AssessmentPreferencesComplete extends AssessmentPreferencesOutcome { final CompleteAssessmentPreferencesSnapshot snapshot; const AssessmentPreferencesComplete(this.snapshot); }
-final class AssessmentPreferencesPrerequisiteMissing extends AssessmentPreferencesOutcome { const AssessmentPreferencesPrerequisiteMissing(); }
-final class AssessmentPreferencesUnavailable extends AssessmentPreferencesOutcome { final AssessmentPreferencesFailure failure; const AssessmentPreferencesUnavailable(this.failure); }
-final class CompleteAssessmentPreferencesSnapshot { final String accountId; final AssessmentPreferenceValues values; final int version; final DateTime configuredAt; const CompleteAssessmentPreferencesSnapshot(this.accountId, this.values, this.version, this.configuredAt); }
-final class AssessmentPreferenceValues { final int safety, cost, dailyConvenience, transitAccessibility, infrastructure; const AssessmentPreferenceValues(this.safety, this.cost, this.dailyConvenience, this.transitAccessibility, this.infrastructure); }
-enum AssessmentPreferencesFailure { invalidInput, permissionDenied, conflict, retryableUnavailable, scopeUnavailable }
-</code></pre>
+<p><code>ACCOUNT-001</code> 的完整 canonical 声明只在 <a href="../design/features/account-center.md">Account Center</a> 定义。B 的调用子集为 assessment-preferences <code>read</code>/<code>watch</code> 及 canonical complete、prerequisite-missing、unavailable outcome 和完整五项 preference snapshot/version；不直读偏好表或复制 Account 类型。</p>
 <table>
 <thead>
 <tr>
@@ -180,30 +158,16 @@ enum AssessmentPreferencesFailure { invalidInput, permissionDenied, conflict, re
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>必须同账户，五项均为 <code>1–10</code>，<code>configuredAt</code> 非 null 的完整 immutable snapshot。</td>
 <td><code>PrerequisiteMissing</code>（无行/<code>configured_at</code> null）与 <code>Unavailable(failure)</code> 分开；页面预填 5、草稿、部分保存均不是输入。</td>
 <td>只读；账户或 snapshot version 改变使旧适配度失效。</td>
 <td>先取得/监听 complete，再取五维。fake：missing、A/v4、save conflict、A→B、A/v5；仅同账户 complete 进入计算。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>COST-001</code> 与 <code>COST-002</code> — 个人预算压力和 current 预案</h3>
 <p><strong>提供者：</strong> Cost of Living &amp; Budget；<strong>唯一公开 import：</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class CostOfLivingBudget { Future&lt;CostAnalysisOutcome&gt; analyse(CostAnalysisRequest request); }
-abstract interface class BudgetScenarioStore { Future&lt;BudgetScenariosOutcome&gt; read(); Stream&lt;BudgetScenariosOutcome&gt; watch(); }
-sealed class CostAnalysisOutcome { const CostAnalysisOutcome(); }
-final class CostAnalysisAvailable extends CostAnalysisOutcome { final CostAnalysis analysis; const CostAnalysisAvailable(this.analysis); }
-final class CostAnalysisPartial extends CostAnalysisOutcome { final CostAnalysis analysis; final List&lt;CostAvailabilityGap&gt; gaps; const CostAnalysisPartial(this.analysis, this.gaps); }
-final class CostAnalysisUnavailable extends CostAnalysisOutcome { final CostAnalysisFailure failure; const CostAnalysisUnavailable(this.failure); }
-sealed class BudgetScenariosOutcome { const BudgetScenariosOutcome(); }
-final class BudgetScenariosAvailable extends BudgetScenariosOutcome { final CurrentBudgetScenarioSnapshot current; const BudgetScenariosAvailable(this.current); }
-final class BudgetScenariosUnavailable extends BudgetScenariosOutcome { final BudgetScenarioFailure failure; const BudgetScenariosUnavailable(this.failure); }
-sealed class CurrentBudgetScenarioSnapshot { const CurrentBudgetScenarioSnapshot(); }
-final class CurrentBudgetScenarioAvailable extends CurrentBudgetScenarioSnapshot { final BudgetScenario scenario; final int version; const CurrentBudgetScenarioAvailable(this.scenario, this.version); }
-final class NoCurrentBudgetScenario extends CurrentBudgetScenarioSnapshot { final int version; const NoCurrentBudgetScenario(this.version); }
-</code></pre>
+<p><code>COST-001</code>/<code>COST-002</code> 的完整 canonical 声明只在 <a href="../design/features/cost-of-living-and-budget.md">Cost of Living &amp; Budget</a> 定义。B 的调用子集为成本 <code>analyse</code>、预案 <code>read</code>/<code>watch</code>，以及 canonical complete burden、partial/unavailable、current/no-current 和 version outcomes；不调用 CRUD、不读预案表或重塑 Cost 类型。</p>
 <table>
 <thead>
 <tr>
@@ -213,27 +177,16 @@ final class NoCurrentBudgetScenario extends CurrentBudgetScenarioSnapshot { fina
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>analyse</code> 用同一 immutable location 和 <code>CurrentBudgetScenarioAvailable</code>；仅 Cost 已发布的完整 <code>PersonalBudgetBurden(%)</code> 可转分。住房/交通 RM 0 有效；缺住房、交通、月净收入、少于 6 个月或平均覆盖低于 80% 不合格。</td>
 <td>no-current 为 prerequisite missing；partial/unavailable、预案读取 failure 均为成本维度 unavailable，不可用临时 CPI、地点成本指数、家庭月度总收入或其他预案替换。</td>
 <td>Suitability 只读，绝不读表或写 current；current version/地点/成本版本变更使旧分失效。</td>
 <td>先 <code>COST-002</code> current，再 <code>COST-001</code>。fake：no-current、完整 burden 42、partial basket、住房 RM0、缺 monthly net income、CPI temporary；只有完整 42 转换。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>SAFETY-001</code> — 州级安全指数</h3>
 <p><strong>提供者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/features/crime_and_security/crime_and_security.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class CrimeAndSecurity { Future&lt;SafetyLoadOutcome&gt; load(SafetyRequest request); }
-sealed class SafetyLoadOutcome { const SafetyLoadOutcome(); }
-final class SafetyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyAvailable(this.snapshot); }
-final class SafetyPartiallyAvailable extends SafetyLoadOutcome { final SafetySnapshot snapshot; const SafetyPartiallyAvailable(this.snapshot); }
-final class SafetyUnavailable extends SafetyLoadOutcome { final SafetyUnavailableReason reason; const SafetyUnavailable(this.reason); }
-final class SafetySnapshot { final ValidLocationReference location; final SafetyScore score; final SafetyFreshness freshness; final SafetyCompleteness completeness; final SafetyProvenance provenance; const SafetySnapshot(this.location, this.score, this.freshness, this.completeness, this.provenance); }
-final class SafetyScore { final int value; const SafetyScore(this.value); }
-enum SafetyFreshness { fresh, cached, stale }
-enum SafetyCompleteness { complete, partial }
-</code></pre>
+<p><code>SAFETY-001</code> 的完整 canonical 声明只在 <a href="../design/features/crime-and-security.md">Crime &amp; Security</a> 定义。B 的调用子集为同地点 load 及 canonical complete available score、partial/unavailable、freshness/completeness/provenance；不复制 Safety 类型。</p>
 <table>
 <thead>
 <tr>
@@ -243,22 +196,16 @@ enum SafetyCompleteness { complete, partial }
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>同地点请求；仅 <code>SafetyAvailable</code> 且 complete score 纳入。</td>
 <td>unresolved/ambiguous、partial、unavailable 保持安全维度原因；不得用犯罪原始数、Hazard 或 0 替代。</td>
 <td>只读上游；stale 但 available 可纳入且 warning 原样保留。</td>
 <td>Map 后请求 Safety。fake：complete 0/stale、partial、unresolved、ambiguous；明确 0 有效，其他均缺失。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>FACILITY-001</code> — 2 km 五类确认覆盖</h3>
 <p><strong>提供者：</strong> Nearby Facilities；<strong>唯一公开 import：</strong> <code>package:locatemy/features/nearby_facilities/nearby_facilities.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class NearbyFacilities { Future&lt;FacilityAnalysisOutcome&gt; analyse(FacilityAnalysisRequest request); }
-sealed class FacilityAnalysisOutcome { const FacilityAnalysisOutcome(); }
-final class FacilityAnalysisAvailable extends FacilityAnalysisOutcome { final FacilityAnalysis analysis; const FacilityAnalysisAvailable(this.analysis); }
-final class FacilityAnalysisUnavailable extends FacilityAnalysisOutcome { final FacilityFailure failure; const FacilityAnalysisUnavailable(this.failure); }
-</code></pre>
+<p><code>FACILITY-001</code> 的完整 canonical 声明只在 <a href="../design/features/nearby-facilities.md">Nearby Facilities</a> 定义。B 的调用子集为同地点 <code>analyse</code> 与 canonical complete available/unavailable、五类别、2 km、来源、缓存/查询时间、mapping version 和 warning；不复制 Facilities 类型。</p>
 <table>
 <thead>
 <tr>
@@ -268,25 +215,16 @@ final class FacilityAnalysisUnavailable extends FacilityAnalysisOutcome { final 
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>只消费同地点、半径 <code>2,000m</code>、五类完整的 canonical result。</td>
 <td>任一类别 unknown/unavailable 或整体 failure 即日常便利 unavailable；complete-empty 的确认类别数为 0 有效。</td>
 <td>只读；保留 OSM 来源、查询/缓存时间、mapping version 与 warning。</td>
 <td>先地点后 Facilities。fake：5/5、0/5 complete、1 类 unknown、refresh failure；仅两个 complete 结果可转 <code>100 × count / 5</code>。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>TRANSIT-001</code> — canonical connectivity score</h3>
 <p><strong>提供者：</strong> Public Transportation；<strong>唯一公开 import：</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class PublicTransportation { Future&lt;TransitLoadOutcome&gt; load(TransitRequest request); }
-sealed class TransitLoadOutcome { const TransitLoadOutcome(); }
-final class TransitAvailable extends TransitLoadOutcome { final TransitSnapshot snapshot; const TransitAvailable(this.snapshot); }
-final class TransitIncomplete extends TransitLoadOutcome { final TransitPartialSnapshot snapshot; const TransitIncomplete(this.snapshot); }
-final class TransitUnavailable extends TransitLoadOutcome { final TransitUnavailableReason reason; const TransitUnavailable(this.reason); }
-final class TransitSnapshot { final ValidLocationReference location; final int radiusMeters; final TransitServiceOutcome serviceOutcome; final TransitScore? score; final TransitProvenance provenance; const TransitSnapshot(this.location, this.radiusMeters, this.serviceOutcome, this.score, this.provenance); }
-enum TransitServiceOutcome { served, noStops, noActiveRoutes }
-</code></pre>
+<p><code>TRANSIT-001</code> 的完整 canonical 声明只在 <a href="../design/features/public-transportation.md">Public Transportation</a> 定义。B 的调用子集为同地点 <code>load</code> 与 canonical available/incomplete/unavailable、served/noStops/noActiveRoutes、score、1.5 km、feed snapshot/reference-grid/model 和 warning；不复制 Transit 类型。</p>
 <table>
 <thead>
 <tr>
@@ -296,25 +234,16 @@ enum TransitServiceOutcome { served, noStops, noActiveRoutes }
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>必须为同地点 <code>1,500m</code>、<code>TransitAvailable</code>、<code>served</code> 且非空 score。</td>
 <td>incomplete/unavailable/noStops/noActiveRoutes 都是交通维度 unavailable；不能把无服务或 partial 显示为零分。</td>
 <td>只读；可用 stale feed 的 warning、feed snapshot/reference-grid/model 随结果保留。</td>
 <td>fake：served 73 stale、served 0、noStops、noActiveRoutes、incomplete；前两者纳入，其余缺失。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h3>Interface 卡：<code>INFRA-001</code> — neutral ICI</h3>
 <p><strong>提供者：</strong> Infrastructure Coverage；<strong>唯一公开 import：</strong> <code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class InfrastructureCoverage { Future&lt;InfrastructureNeutralOutcome&gt; neutralForSuitability(InfrastructureNeutralRequest request); }
-sealed class InfrastructureNeutralOutcome { const InfrastructureNeutralOutcome(); }
-final class InfrastructureNeutralAvailable extends InfrastructureNeutralOutcome { final InfrastructureNeutralResult result; const InfrastructureNeutralAvailable(this.result); }
-final class InfrastructureNeutralUnavailable extends InfrastructureNeutralOutcome { final InfrastructureNeutralFailure failure; final InfrastructureResultFacts facts; const InfrastructureNeutralUnavailable(this.failure, this.facts); }
-final class InfrastructureNeutralResult { final InfrastructureResultFacts facts; final InfrastructureIci ici; const InfrastructureNeutralResult(this.facts, this.ici); }
-final class InfrastructureIci { final int value; final InfrastructureIciGrade grade; const InfrastructureIci(this.value, this.grade); }
-enum InfrastructureWeightMode { lastSavedAccount, unsavedPreview, neutral }
-</code></pre>
+<p><code>INFRA-001</code> 的完整 canonical 声明只在 <a href="../design/features/infrastructure-coverage.md">Infrastructure Coverage</a> 定义。B 的调用子集仅为 <code>neutralForSuitability(InfrastructureNeutralRequest)</code> 及 canonical neutral available/unavailable、facts、ICI、provenance 与 failure；固定 neutral <code>5/5/5</code>，不复制类型或接受 account-weighted/preview ICI。</p>
 <table>
 <thead>
 <tr>
@@ -324,18 +253,21 @@ enum InfrastructureWeightMode { lastSavedAccount, unsavedPreview, neutral }
 <th>顺序、权限与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>只请求 <code>neutralForSuitability</code>；固定 <code>5/5/5</code>，同地点、分析日和版本。</td>
 <td>neutral unavailable 保留 failure/facts 为基础设施维度原因；account-weighted、last saved、unsaved preview 一律不接受。</td>
 <td>只读，不读/缓存账户 ICI 权重；保留分项、行政区/交通基础、来源日期与 model/reference version。</td>
 <td>fake：neutral 66、account preview 99、少于 3 项、provenance 变；仅 neutral 66 可纳入。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <h2>3. B 必须提供的 Interface 卡：<code>SUITABILITY-001</code></h2>
 <p><strong>提供者：</strong> Personalized Location Suitability（B）；<strong>消费者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart</code>。</p>
-<pre><code class="language-dart">abstract interface class PersonalizedLocationSuitability { Future&lt;SuitabilitySingleOutcome&gt; assess(SuitabilityRequest request); Future&lt;SuitabilityComparisonOutcome&gt; compare(SuitabilityComparisonRequest request); }
+<pre><code class="language-dart">final class SuitabilityReturnContext { final String source; final String? stableItemId; const SuitabilityReturnContext({required this.source, this.stableItemId}); }
+final class OpenAssessmentPreferencesIntent extends ShellIntent { final SuitabilityReturnContext returnContext; const OpenAssessmentPreferencesIntent(this.returnContext); }
+final class OpenCurrentBudgetScenarioIntent extends ShellIntent { final SuitabilityReturnContext returnContext; const OpenCurrentBudgetScenarioIntent(this.returnContext); }
+final class SuitabilityContribution extends ShellContribution { final SuitabilityContributionTarget target; final SuitabilityReturnContext returnContext; final SuitabilitySingleOutcome? single; final SuitabilityComparisonOutcome? comparison; const SuitabilityContribution({required this.target, required this.returnContext, this.single, this.comparison}); }
+enum SuitabilityContributionTarget { single, comparison }
+abstract interface class PersonalizedLocationSuitability { Future&lt;SuitabilitySingleOutcome&gt; assess(SuitabilityRequest request); Future&lt;SuitabilityComparisonOutcome&gt; compare(SuitabilityComparisonRequest request); }
 final class SuitabilityRequest { final ValidLocationReference location; final SuitabilityRequestContext context; const SuitabilityRequest(this.location, this.context); }
 final class SuitabilityRequestContext { final String accountId; final int preferenceVersion, currentScenarioVersion; const SuitabilityRequestContext(this.accountId, this.preferenceVersion, this.currentScenarioVersion); }
 final class SuitabilityComparisonRequest { final SuitabilityRequest a, b; const SuitabilityComparisonRequest(this.a, this.b); }
@@ -367,8 +299,7 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <th>状态、副作用、顺序与 fake</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>assess</code></td>
 <td>immutable valid location；opened 同账户 complete preferences、current scenario 与版本仍匹配。</td>
 <td><code>Available</code>；缺前置为 <code>PrerequisiteMissing</code>；中/高维缺失为 <code>DimensionUnavailable</code>；全不可用/可用权重零为 <code>NoAvailableDimensions</code>。</td>
@@ -380,8 +311,7 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <td>两端 compatible 才 <code>Comparable</code>；其余 <code>Incomparable(reason)</code> 并保留两端可用原分/coverage。</td>
 <td>先独立 assess A/B，再核对；交换只改呈现槽位。fake 验证不同集合、版本、模型、单侧缺失均不产生 winner/delta。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><code>SuitabilityCoverage</code> 必须逐维保留 priority、included/excluded、原始/转换读数或 typed reason、来源/日期/完整性/stale warning。<code>SuitabilityProvenance</code> 必须保留 preference/current/rule version 及每个纳入维的上游 model、mapping/basket/reference/boundary 版本。公开结果不可含月净收入、预案名称/字段、账户草稿或账户 ICI 权重。</p>
 <h2>4. 固定业务语义、状态与顺序</h2>
 <table>
@@ -391,8 +321,7 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <th>不可变协作语义</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>前置</td>
 <td>无合法地点、非 opened scope、非同账户 complete preferences 或无 current 均先返回 prerequisite missing；不请求或拼接默认值、草稿、其他账户/预案。</td>
 </tr>
@@ -420,8 +349,7 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <td>生命周期</td>
 <td>preference/current/地点/上游 input version 或 scope 变化立即使旧请求失效；关闭开始释放私有总分/coverage。公共上游结果可由其 Owner 存续，但不可与旧账户输入重新组合。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>实施顺序：B 先合入唯一入口、<code>SUITABILITY-001</code> 声明和最小 fake；各上游/ Shell 可并行以 fake 对接；B 再接入公开 Interface；最后按 FLOW-02、03、07 联调。不得以运行时 cache、SDK、并发策略或内部测试形状改变以上可观察结果。</p>
 <h2>5. 联合验收、Ready Gate 与变更</h2>
 <table>
@@ -432,8 +360,7 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <th>可观察完成条件</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-01</code></td>
 <td>complete 五项、current、五个合格输入；安全/设施/交通有明确 0，交通 stale</td>
 <td><code>0–100</code>、转换、权重、覆盖、来源/日期/warning 均可读；0 与 stale 不丢失。</td>
@@ -468,13 +395,12 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <td>中文/English、读屏/键盘、200% 字体、长日期/原因</td>
 <td>分数不作唯一表达；五维、优先级、纳入/排除、来源、限制、设置入口有文字与正确阅读顺序。</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <ul>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>所有跨 Owner Interface 均有唯一 import、声明、约束、typed outcome、状态/副作用、顺序、最小调用与 fake。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>五维门控、明确零/未知、低优先级重归一化、stale、A/B 无赢家与账户隔离均有唯一事实源。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>不含实现体、SQL、SDK 映射、缓存/并发策略或内部测试组织。</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked>Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。公共 Interface 变更须由项目负责人批准，并同步受影响消费者、契约、fake 与 PDF。</li>
+<li><input checked="" disabled="" type="checkbox"> 所有跨 Owner seam 均有唯一 import；上游完整 frozen 声明只由 owning contract 维护，本 Feature 只列实际调用子集。<code>SUITABILITY-001</code> 有完整公开声明、约束、typed outcome、状态/副作用、顺序、最小调用与 fake。</li>
+<li><input checked="" disabled="" type="checkbox"> 五维门控、明确零/未知、低优先级重归一化、stale、A/B 无赢家与账户隔离均有唯一事实源。</li>
+<li><input checked="" disabled="" type="checkbox"> 不含实现体、SQL、SDK 映射、缓存/并发策略或内部测试组织。</li>
+<li><input checked="" disabled="" type="checkbox"> Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。公开 Interface 变更须由提供方说明影响、消费者确认，并在同一 PR 同步声明、契约、HTML、fake 与测试。</li>
 </ul>
 <table>
 <thead>
@@ -486,15 +412,21 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <th>批准者</th>
 </tr>
 </thead>
-<tbody>
+<tbody><tr>
+<td>2026-09-14</td>
+<td><code>Ready for Development</code></td>
+<td>固定五维偏好、current 预案、转换、重归一化、A/B 与联验语义</td>
+<td><code>MAP-07</code>、<code>SUITABILITY-001</code></td>
+<td>项目负责人</td>
+</tr>
 <tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
-<td>Issue #23：升级为单一契约优先 Markdown/PDF；补齐 nine interface cards、typed declarations、Shell submit/publish、状态/权限/顺序/fake；不改变产品公式或数据模型</td>
-<td><code>MAP-07</code>、<code>SUITABILITY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>ACCOUNT-001</code>、<code>COST-001/002</code>、<code>SAFETY-001</code>、<code>FACILITY-001</code>、<code>TRANSIT-001</code>、<code>INFRA-001</code></td>
-<td>设计 AI（项目负责人授权）</td>
+<td>Issue #23 返工为单一 Development Contract：补首屏可观察 DoD；上游 frozen seam 改为引用 owning canonical 声明并列出实际调用子集；移除 PDF、ADR 0014 与 handoff 治理</td>
+<td><code>SUITABILITY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>ACCOUNT-001</code>、<code>COST-001/002</code>、<code>SAFETY-001</code>、<code>FACILITY-001</code>、<code>TRANSIT-001</code>、<code>INFRA-001</code>、同名 HTML</td>
+<td>设计 AI（项目负责人授权），ADR 0013</td>
 </tr>
-</tbody>
-</table>
-</main></body></html>
-
+</tbody></table>
+</main>
+</body>
+</html>
