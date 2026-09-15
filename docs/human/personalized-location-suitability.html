@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Personalized Location Suitability 开发协作契约</title>
+  <title>Personalized Location Suitability Development Collaboration Contract</title>
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
     body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
@@ -25,243 +25,243 @@
 </head>
 <body>
 <main>
-<h1>Personalized Location Suitability 开发协作契约</h1>
+<h1>Personalized Location Suitability Development Collaboration Contract</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
-Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 7
-唯一公开入口：<code>package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart</code></p>
+<p>state:<code>Ready for Development</code>(2026-09-15; Design AI [authorized by the project leader], ADR 0013)
+Owner:<code>B</code>;System baseline:<code>Baselined — 5d11769</code>;Depends on wave: Wave 7
+The only public entrance:<code>package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart</code></p>
 </blockquote>
-<p>本文件是 Personalized Location Suitability 唯一的 Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它固定五维输入、资格门控、转换、重归一化、解释和 A/B 并列语义；<code>lib/features/personalized_location_suitability/</code> 内 Widget、状态管理、并发/取消、缓存、计算组织与测试组织由 B 决定。公式正文只在产品知识库；数据库字段、RLS 和 migration 只在 Schema Catalog。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
-<p>实施和审查必须按下面顺序读取；后项只能补充已经冻结的事实：</p>
+<p>This document is the only Development Contract of Personalized Location Suitability; the HTML with the same name is a human-readable copy exported from it, not an independent specification. It fixes five-dimensional input, eligibility gating, transformations, renormalization, interpretation, and A/B parallel semantics;<code>lib/features/personalized_location_suitability/</code> Internal widgets, state management, concurrency/cancellation, caching, calculation organization and test organization are determined by B. The formula body is only in the product knowledge base; the database fields, RLS and migration are only in the Schema Catalog.</p>
+<h2>0. Fixed reading order and four items of Readiness</h2>
+<p>Implementation and review must be read in the following order; the latter items can only supplement the facts that have been frozen:</p>
 <ol>
-<li><a href="../../CONTEXT.md#%E8%AF%84%E4%BC%B0%E5%81%8F%E5%A5%BD">领域词汇</a>、<a href="../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">个人化地点适配度</a>、<a href="../knowledge_base/locatemy_product/features/map_location.md#%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6map-07">地图 MAP-07 规则</a>、<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">成本预算压力</a>；</li>
-<li><a href="../design/system/feature-map.md">Feature map（Suitability）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>；</li>
-<li>本契约及同名 HTML；后项不能改写前项。</li>
+<li><a href="../../CONTEXT.md#%E8%AF%84%E4%BC%B0%E5%81%8F%E5%A5%BD">domain vocabulary</a>、<a href="../knowledge_base/locatemy_product/domain_objects.md#personalized-location-suitability-%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">Personalized location fitness</a>、<a href="../knowledge_base/locatemy_product/features/map_location.md#%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6map-07">Map MAP-07 Rules</a>、<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">cost budget pressure</a>；</li>
+<li><a href="../design/system/feature-map.md">Feature map（Suitability）</a>、<a href="../design/system/interfaces.md">Interface registry</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">Data ownership</a>、<a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">risk register</a>；</li>
+<li>This contract and the HTML of the same name; the latter cannot override the preceding.</li>
 </ol>
 <table>
 <thead>
 <tr>
 <th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>verifiable evidence</th>
+<th>in conclusion</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>责任与范围</td>
-<td><code>MAP-07</code> 唯一归 Suitability；原始安全/成本/设施/交通/ICI、偏好和预案持久化、选点和推荐均归其他 Owner</td>
-<td>已就绪</td>
+<td>Responsibility and Scope</td>
+<td><code>MAP-07</code> The sole property belongs to Suitability; the original safety/cost/facilities/transportation/ICI, preferences and plan persistence, site selection and recommendations belong to other owners</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>契约与消费者</td>
-<td>第 2 节逐卡冻结 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>ACCOUNT-001</code>、五个 canonical 输入；第 3 节给出唯一 <code>SUITABILITY-001</code> 与 fake</td>
-<td>已就绪</td>
+<td>Contracts and consumers</td>
+<td>Section 2 Freeze card by card <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>ACCOUNT-001</code>, five canonical inputs; Section 3 gives the unique <code>SUITABILITY-001</code> with fake</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>数据与安全</td>
-<td>只消费公开 Interface，不直读 <code>user_assessment_preferences</code>、<code>user_budget_scenarios</code>、政府镜像或上游 cache；总分只存在同账户页面内存</td>
-<td>已就绪</td>
+<td>Data and security</td>
+<td>Only consume public Interface, do not read directly <code>user_assessment_preferences</code>、<code>user_budget_scenarios</code>, government mirror or upstream cache; the total score is only stored in the same account page memory</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>验收与风险</td>
-<td>第 5 节覆盖 <code>AT-SUIT-01</code>–<code>06</code>、<code>AT-RACE-01</code>、<code>AT-SWITCH-01</code>；<code>RISK-PREF-01</code> 的 null/default 边界已冻结，运行证据留实现/集成</td>
-<td>已就绪</td>
+<td>Acceptance and risk</td>
+<td>Section 5 Coverage <code>AT-SUIT-01</code>–<code>06</code>、<code>AT-RACE-01</code>、<code>AT-SWITCH-01</code>；<code>RISK-PREF-01</code> The null/default boundaries are frozen, runtime evidence remains for implementation/integration</td>
+<td>Ready</td>
 </tr>
 </tbody></table>
-<h2>1. 成果、责任与冻结边界</h2>
-<p><strong>完成定义（DoD）。</strong> B 已在唯一公开入口提供第 3 节完整 <code>SUITABILITY-001</code> 声明；Shell 可用同一 fake 组合单点/A-B 成果。真实 Adapter 经第 5 节证明同账户完整五项偏好、current 预案和五维输入形成可解释 <code>0–100</code> 读数；前置/维度缺失及低优先级重归一化如实呈现；A/B 只并列不排序；scope、地点、偏好或 current 版本变化不发布旧结果。完成不包括 Widget、SDK、SQL 或测试实现。</p>
+<h2>1. Results, responsibilities and frozen boundaries</h2>
+<p><strong>Definition of Done (DoD).</strong> B has provided the entire section 3 at the only public entrance <code>SUITABILITY-001</code> Statement; the shell can combine single point/A-B results with the same fake. The real Adapter is proved in Section 5 to have the same account complete five preferences, current plan and five-dimensional input to form an interpretable <code>0–100</code> Readings; missing front/dimensions and low-priority renormalization are presented faithfully; A/B are only juxtaposed but not sorted; changes in scope, location, preference, or current version do not publish old results. Completion does not include Widgets, SDKs, SQL, or test implementations.</p>
 <ul>
-<li>已 opened 账户可以对一个合法地点看到可解释的 <code>0–100</code> 个人化读数，或精确知道是偏好、current 预案还是哪一维资料阻止结果。它不是客观宜居评分、官方评级、赢家或推荐。</li>
-<li>五维固定顺序为：安全、成本、日常便利、公共交通可达性、基础设施。主读数固定为安全指数、个人预算压力转换分、2 km 五类确认设施覆盖转换分、交通连通性分和 <strong>neutral <code>5/5/5</code> ICI</strong>。</li>
-<li>A/B 先各自计算，再只在共同语境相容时并列显示原始读数；绝不产生数值差、排序、赢家或自动搬迁建议。</li>
+<li>Opened account can see explainable to a legitimate location <code>0–100</code> Personalize your readings, or know exactly whether it's preferences, current plans, or which dimension is blocking results. It is not an objective livability score, an official rating, a winner, or a recommendation.</li>
+<li>The five-dimensional fixed order is: safety, cost, daily convenience, public transportation accessibility, and infrastructure. The main reading is fixed as safety index, personal budget pressure conversion score, 2 km five-category confirmed facility coverage conversion score, transportation connectivity score and <strong>neutral <code>5/5/5</code> ICI</strong>。</li>
+<li>A/B are calculated individually and then the raw readings are displayed side by side only when common context is compatible; no numerical differences, rankings, winners or automatic relocation suggestions are ever generated.</li>
 </ul>
 <table>
 <thead>
 <tr>
-<th>Owner / 受控边界</th>
-<th>负责</th>
-<th>不负责</th>
-<th>协作</th>
+<th>Owner/controlled boundary</th>
+<th>Responsible</th>
+<th>irresponsible</th>
+<th>cooperation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>lib/features/personalized_location_suitability/</code>（B）</td>
-<td><code>SUITABILITY-001</code>、五维资格、转换/加权、低优先级缺失重归一化、解释、A/B 可比性</td>
-<td>原始分析、偏好/预案/ICI 权重写入、地图、导航、推荐</td>
-<td>消费 Shell、Location、Account、Cost、Safety、Facility、Transit、Infrastructure；提供 Shell</td>
+<td><code>SUITABILITY-001</code>, Five Dimensional Qualifications, Transformation/Weighting, Low Priority Missing Renormalization, Interpretation, A/B Comparability</td>
+<td>Original analysis, preference/plan/ICI weight writing, map, navigation, recommendation</td>
+<td>Consume Shell, Location, Account, Cost, Safety, Facility, Transit, Infrastructure; Provide Shell</td>
 </tr>
 <tr>
 <td>Application Shell</td>
-<td>opened 门控、地点详情/A-B 槽位、设置导航、按 <code>FLOW-07</code> 使旧请求失效</td>
-<td>计算或补齐任一维、改写原因、决定可比性</td>
-<td>消费 <code>SUITABILITY-001</code></td>
+<td>opened door control, location details/A-B slots, setting navigation, press <code>FLOW-07</code> Invalidate old requests</td>
+<td>Calculate or complete any dimension, rewrite reasons, determine comparability</td>
+<td>Consumption <code>SUITABILITY-001</code></td>
 </tr>
 <tr>
-<td>各上游 Owner</td>
-<td>产生并解释自己的 canonical 结果与资料状态</td>
-<td>Suitability 转换、偏好加权、总分</td>
-<td>只经各自公开入口交付快照</td>
+<td>Each upstream Owner</td>
+<td>Generate and interpret your own canonical results and data status</td>
+<td>Suitability conversion, preference weighting, total score</td>
+<td>Snapshots are only delivered via their respective public portals</td>
 </tr>
 </tbody></table>
-<h2>2. B 需要调用的 Interface 卡</h2>
-<p>消费者只能 import 卡中唯一入口，不能 import 对方 <code>src/</code>、Adapter、SDK、表或 cache。以下声明是协作形状，不含实现体。</p>
-<h3>Interface 卡：<code>SHELL-001</code> — 详情/A-B 槽位、设置导航与结果发布</h3>
-<p><strong>提供者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
-<p><code>SHELL-001</code> 的完整 canonical 声明、输入约束、结果、权限、顺序与 fake 规则只在 <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell</a> 定义。B 的调用子集为 <code>ApplicationShell.submit(ShellIntent)</code>、<code>publish(ShellContribution)</code> 及 canonical intent/contribution accepted、authentication-required、rejected(<code>missingInput</code>/<code>staleInput</code>/<code>inapplicableDestination</code>/<code>scopeUnavailable</code>) outcomes；不复制、缩窄或另造 Shell 类型。</p>
-<p>B 从自己的公开入口导出 <code>OpenAssessmentPreferencesIntent</code>、<code>OpenCurrentBudgetScenarioIntent</code>（均带 <code>SuitabilityReturnContext</code>）及 <code>SuitabilityContribution implements ShellContribution</code>。贡献只含 <code>SuitabilitySingleOutcome</code> 或 <code>SuitabilityComparisonOutcome</code>、不可变地点、账户/输入版本和原始 warnings；不得携带账户草稿、收入、预案字段或上游内部对象。</p>
-<p><code>SUITABILITY-001</code> 的完整公开声明在第 3 节；其 marker 也在该同一入口导出：<code>SuitabilityReturnContext</code>、<code>OpenAssessmentPreferencesIntent extends ShellIntent</code>、<code>OpenCurrentBudgetScenarioIntent extends ShellIntent</code>、<code>SuitabilityContribution extends ShellContribution</code>。每个 intent 仅带 return context；contribution 必须精确带一个 <code>SuitabilitySingleOutcome</code> 或一个 <code>SuitabilityComparisonOutcome</code>、不可变地点/角色、账户及输入版本与 warnings，不能用 <code>Object</code>、账户草稿、收入、预案字段或上游内部对象代替。</p>
+<h2>2. B needs to call the Interface card</h2>
+<p>Consumers can only import the only entry in the card and cannot import the other party. <code>src/</code>, Adapter, SDK, table or cache. The following declarations are collaboration shapes and do not contain implementation bodies.</p>
+<h3>Interface card:<code>SHELL-001</code> — Details/A-B slots, setting navigation and result release</h3>
+<p><strong>Provider:</strong> Application Shell；<strong>The only public import:</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
+<p><code>SHELL-001</code> The complete canonical declaration, input constraints, results, permissions, ordering and fake rules are only available in <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell</a> definition. The subset of calls to B is <code>ApplicationShell.submit(ShellIntent)</code>、<code>publish(ShellContribution)</code> and canonical intent/contribution accepted, authentication-required, rejected(<code>missingInput</code>/<code>staleInput</code>/<code>inapplicableDestination</code>/<code>scopeUnavailable</code>) outcomes; does not copy, narrow, or create a new Shell type.</p>
+<p>B Export from its own public entrance <code>OpenAssessmentPreferencesIntent</code>、<code>OpenCurrentBudgetScenarioIntent</code>(all with <code>SuitabilityReturnContext</code>)and <code>SuitabilityContribution implements ShellContribution</code>. Contributions only include <code>SuitabilitySingleOutcome</code> or <code>SuitabilityComparisonOutcome</code>, immutable locations, accounts/input versions, and origin warnings; must not carry account drafts, revenue, scenario fields, or upstream internal objects.</p>
+<p><code>SUITABILITY-001</code> The full public declaration of is in Section 3; its marker is also exported in the same entry:<code>SuitabilityReturnContext</code>、<code>OpenAssessmentPreferencesIntent extends ShellIntent</code>、<code>OpenCurrentBudgetScenarioIntent extends ShellIntent</code>、<code>SuitabilityContribution extends ShellContribution</code>. Each intent only takes return context; contribution must take exactly one <code>SuitabilitySingleOutcome</code> or a <code>SuitabilityComparisonOutcome</code>, immutable location/role, account and input version and warnings, cannot be used <code>Object</code>, account draft, revenue, plan fields or upstream internal objects instead.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>只向 opened 同账户 Shell submit/publish；贡献的 location、accountId、input versions 必须仍等于当前请求语境。</td>
-<td><code>accepted</code> 才导航/进入槽位；<code>authenticationRequired</code>、<code>rejected(reason)</code> 是 Shell 结果，不能改写为资料失败。</td>
-<td>Shell 只导航/组合；Suitability 不改地图、上游、偏好、预案或 ICI 权重。</td>
-<td><code>await shell.publish(contribution);</code> 仅 accepted 发布。fake 依次回 accepted/authenticationRequired/staleInput，断言拒绝保留 Suitability 结果与原因且不泄露私有输入。</td>
+<td>Only submit/publish to opened Shell with the same account; the contributed location, accountId, and input versions must still be equal to the current request context.</td>
+<td><code>accepted</code> Only then navigate/enter the slot;<code>authenticationRequired</code>、<code>rejected(reason)</code> It is a shell result and cannot be overwritten as a data failure.</td>
+<td>Shell only navigates/combines; Suitability does not change maps, upstreams, preferences, scenarios, or ICI weights.</td>
+<td><code>await shell.publish(contribution);</code> Only accepted releases. fake returns accepted/authenticationRequired/staleInput in turn, asserting that the rejection retains the Suitability result and reason without leaking private input.</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>LOCATION-001</code> — 不可变合法地点</h3>
-<p><strong>提供者：</strong> Map / Location；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
-<p><code>LOCATION-001</code> 的完整 canonical 声明、输入校验、角色、结果与生命周期只在 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a> 定义。B 的调用子集为 <code>LocationCoordinator.read(LocationRole)</code>，以及 canonical single/A/B roles、<code>LocationPresent</code>、<code>LocationAbsent</code> 与 <code>ValidLocationReference</code>；不重述 Map 类型或读取可变地图状态。</p>
+<h3>Interface card:<code>LOCATION-001</code> — Immutable legal location</h3>
+<p><strong>Provider:</strong> Map / Location；<strong>The only public import:</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
+<p><code>LOCATION-001</code> The complete canonical declaration, input validation, roles, results and lifecycle are only available in <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a> definition. The subset of calls to B is <code>LocationCoordinator.read(LocationRole)</code>, and canonical single/A/B roles,<code>LocationPresent</code>、<code>LocationAbsent</code> and <code>ValidLocationReference</code>;Does not reiterate Map types or read mutable map state.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>只接收 Map 已成功产生的 immutable single/A/B reference；不得造坐标、读可变地图状态、用默认城市或收藏名代替坐标。</td>
-<td><code>LocationAbsent</code>、非法/范围外/same point（由 Map 拒绝）使计算为 <code>SuitabilityPrerequisiteMissing(location)</code>，不调上游。</td>
-<td>读取无副作用；地点 id 改变时旧结果不可发布。</td>
-<td>Shell 先按 FLOW-02/03 取角色引用，再传 B。fake 给 single、A/B、absent、换点；断言 absent 不请求上游、A/B 不混端。</td>
+<td>Only accept immutable single/A/B references that have been successfully generated by the Map; it is not allowed to create coordinates, read variable map states, or replace coordinates with default city or collection names.</td>
+<td><code>LocationAbsent</code>, illegal/out-of-range/same point (rejected by Map) causes the calculation to be <code>SuitabilityPrerequisiteMissing(location)</code>, do not adjust upstream.</td>
+<td>Reading has no side effects; old results cannot be published when location id changes.</td>
+<td>Shell first presses FLOW-02/03 to get the role reference, and then passes B. Fake gives single, A/B, absent, and change points; asserting absent does not request the upstream, and A/B does not mix ends.</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>ACCOUNT-001</code> — complete 评估偏好快照</h3>
-<p><strong>提供者：</strong> Account Center；<strong>唯一公开 import：</strong> <code>package:locatemy/features/account_center/account_center.dart</code>。</p>
-<p><code>ACCOUNT-001</code> 的完整 canonical 声明只在 <a href="../design/features/account-center.md">Account Center</a> 定义。B 的调用子集为 assessment-preferences <code>read</code>/<code>watch</code> 及 canonical complete、prerequisite-missing、unavailable outcome 和完整五项 preference snapshot/version；不直读偏好表或复制 Account 类型。</p>
+<h3>Interface card:<code>ACCOUNT-001</code> — complete evaluation preference snapshot</h3>
+<p><strong>Provider:</strong> Account Center；<strong>The only public import:</strong> <code>package:locatemy/features/account_center/account_center.dart</code>。</p>
+<p><code>ACCOUNT-001</code> The complete canonical statement is only available in <a href="../design/features/account-center.md">Account Center</a> definition. The subset of calls to B is assessment-preferences <code>read</code>/<code>watch</code> and canonical complete, prerequisite-missing, unavailable outcome and complete five preference snapshot/version; does not directly read the preference table or copy the Account type.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>必须同账户，五项均为 <code>1–10</code>，<code>configuredAt</code> 非 null 的完整 immutable snapshot。</td>
-<td><code>PrerequisiteMissing</code>（无行/<code>configured_at</code> null）与 <code>Unavailable(failure)</code> 分开；页面预填 5、草稿、部分保存均不是输入。</td>
-<td>只读；账户或 snapshot version 改变使旧适配度失效。</td>
-<td>先取得/监听 complete，再取五维。fake：missing、A/v4、save conflict、A→B、A/v5；仅同账户 complete 进入计算。</td>
+<td>Must have the same account, all five items are <code>1–10</code>，<code>configuredAt</code> A non-null complete immutable snapshot.</td>
+<td><code>PrerequisiteMissing</code>(no lines/<code>configured_at</code> null) and <code>Unavailable(failure)</code> Separate; page pre-fill 5, draft, partial save are not input.</td>
+<td>Read-only; account or snapshot version changes invalidate old fitness.</td>
+<td>Get/listen to complete first, then get the fifth dimension. fake: missing, A/v4, save conflict, A→B, A/v5; only complete with the same account enters the calculation.</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>COST-001</code> 与 <code>COST-002</code> — 个人预算压力和 current 预案</h3>
-<p><strong>提供者：</strong> Cost of Living &amp; Budget；<strong>唯一公开 import：</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code>。</p>
-<p><code>COST-001</code>/<code>COST-002</code> 的完整 canonical 声明只在 <a href="../design/features/cost-of-living-and-budget.md">Cost of Living &amp; Budget</a> 定义。B 的调用子集为成本 <code>analyse</code>、预案 <code>read</code>/<code>watch</code>，以及 canonical complete burden、partial/unavailable、current/no-current 和 version outcomes；不调用 CRUD、不读预案表或重塑 Cost 类型。</p>
+<h3>Interface card:<code>COST-001</code> and <code>COST-002</code> —Personal budget pressure and current plans</h3>
+<p><strong>Provider:</strong> Cost of Living &amp; Budget；<strong>The only public import:</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code>。</p>
+<p><code>COST-001</code>/<code>COST-002</code> The complete canonical statement is only available in <a href="../design/features/cost-of-living-and-budget.md">Cost of Living &amp; Budget</a> definition. The subset of calls to B is cost <code>analyse</code>, plan <code>read</code>/<code>watch</code>, as well as canonical complete burden, partial/unavailable, current/no-current, and version outcomes; no CRUD calls, no plan tables read, or Cost types reshaped.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>analyse</code> 用同一 immutable location 和 <code>CurrentBudgetScenarioAvailable</code>；仅 Cost 已发布的完整 <code>PersonalBudgetBurden(%)</code> 可转分。住房/交通 RM 0 有效；缺住房、交通、月净收入、少于 6 个月或平均覆盖低于 80% 不合格。</td>
-<td>no-current 为 prerequisite missing；partial/unavailable、预案读取 failure 均为成本维度 unavailable，不可用临时 CPI、地点成本指数、家庭月度总收入或其他预案替换。</td>
-<td>Suitability 只读，绝不读表或写 current；current version/地点/成本版本变更使旧分失效。</td>
-<td>先 <code>COST-002</code> current，再 <code>COST-001</code>。fake：no-current、完整 burden 42、partial basket、住房 RM0、缺 monthly net income、CPI temporary；只有完整 42 转换。</td>
+<td><code>analyse</code> Use the same immutable location and <code>CurrentBudgetScenarioAvailable</code>;Only Cost published complete <code>PersonalBudgetBurden(%)</code> Can be transferred. Housing/Transportation RM 0 is valid; missing housing, transportation, monthly net income, less than 6 months or average coverage below 80% is ineligible.</td>
+<td>no-current means prerequisite missing; partial/unavailable and plan reading failure are all cost dimensions unavailable and cannot be replaced by temporary CPI, location cost index, total monthly household income or other plans.</td>
+<td>Suitability is read-only, never read tables or write current; current version/location/cost version changes invalidate old ones.</td>
+<td>First <code>COST-002</code> current, again <code>COST-001</code>. fake: no-current, full burden 42, partial basket, housing RM0, missing monthly net income, CPI temporary; only full 42 conversion.</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>SAFETY-001</code> — 州级安全指数</h3>
-<p><strong>提供者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/features/crime_and_security/crime_and_security.dart</code>。</p>
-<p><code>SAFETY-001</code> 的完整 canonical 声明只在 <a href="../design/features/crime-and-security.md">Crime &amp; Security</a> 定义。B 的调用子集为同地点 load 及 canonical complete available score、partial/unavailable、freshness/completeness/provenance；不复制 Safety 类型。</p>
+<h3>Interface card:<code>SAFETY-001</code> — State Level Safety Index</h3>
+<p><strong>Provider:</strong> Crime &amp; Security；<strong>The only public import:</strong> <code>package:locatemy/features/crime_and_security/crime_and_security.dart</code>。</p>
+<p><code>SAFETY-001</code> The complete canonical statement is only available in <a href="../design/features/crime-and-security.md">Crime &amp; Security</a> definition. A subset of B's ​​calls are co-located load and canonical complete available score, partial/unavailable, freshness/completeness/provenance; the Safety type is not copied.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>同地点请求；仅 <code>SafetyAvailable</code> 且 complete score 纳入。</td>
-<td>unresolved/ambiguous、partial、unavailable 保持安全维度原因；不得用犯罪原始数、Hazard 或 0 替代。</td>
-<td>只读上游；stale 但 available 可纳入且 warning 原样保留。</td>
-<td>Map 后请求 Safety。fake：complete 0/stale、partial、unresolved、ambiguous；明确 0 有效，其他均缺失。</td>
+<td>Same location request; only <code>SafetyAvailable</code> And complete score is included.</td>
+<td>unresolved/ambigous, partial, unavailable Reason for maintaining safe dimensions; may not be replaced by crime raw numbers, Hazard, or 0.</td>
+<td>Read-only upstream; stale but available can be included and warning is left as is.</td>
+<td>Request Safety after Map. fake: complete 0/stale, partial, unresolved, ambiguous; clear 0 is valid, others are missing.</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>FACILITY-001</code> — 2 km 五类确认覆盖</h3>
-<p><strong>提供者：</strong> Nearby Facilities；<strong>唯一公开 import：</strong> <code>package:locatemy/features/nearby_facilities/nearby_facilities.dart</code>。</p>
-<p><code>FACILITY-001</code> 的完整 canonical 声明只在 <a href="../design/features/nearby-facilities.md">Nearby Facilities</a> 定义。B 的调用子集为同地点 <code>analyse</code> 与 canonical complete available/unavailable、五类别、2 km、来源、缓存/查询时间、mapping version 和 warning；不复制 Facilities 类型。</p>
+<h3>Interface card:<code>FACILITY-001</code> — 2 km Category 5 confirmation coverage</h3>
+<p><strong>Provider:</strong> Nearby Facilities；<strong>The only public import:</strong> <code>package:locatemy/features/nearby_facilities/nearby_facilities.dart</code>。</p>
+<p><code>FACILITY-001</code> The complete canonical statement is only available in <a href="../design/features/nearby-facilities.md">Nearby Facilities</a> definition. A subset of B's ​​calls are co-located <code>analyse</code> With canonical complete available/unavailable, five categories, 2 km, source, cache/query time, mapping version and warning; Facilities type is not copied.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>只消费同地点、半径 <code>2,000m</code>、五类完整的 canonical result。</td>
-<td>任一类别 unknown/unavailable 或整体 failure 即日常便利 unavailable；complete-empty 的确认类别数为 0 有效。</td>
-<td>只读；保留 OSM 来源、查询/缓存时间、mapping version 与 warning。</td>
-<td>先地点后 Facilities。fake：5/5、0/5 complete、1 类 unknown、refresh failure；仅两个 complete 结果可转 <code>100 × count / 5</code>。</td>
+<td>Only consume at the same location and radius <code>2,000m</code>, five types of complete canonical results.</td>
+<td>Either category unknown/unavailable or overall failure i.e. everyday convenience unavailable; complete-empty is valid if the number of confirmed categories is 0.</td>
+<td>Read-only; retains OSM origin, query/cache time, mapping version, and warnings.</td>
+<td>Place first, then Facilities. fake: 5/5, 0/5 complete, type 1 unknown, refresh failure; only two complete results can be transferred <code>100 × count / 5</code>。</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>TRANSIT-001</code> — canonical connectivity score</h3>
-<p><strong>提供者：</strong> Public Transportation；<strong>唯一公开 import：</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
-<p><code>TRANSIT-001</code> 的完整 canonical 声明只在 <a href="../design/features/public-transportation.md">Public Transportation</a> 定义。B 的调用子集为同地点 <code>load</code> 与 canonical available/incomplete/unavailable、served/noStops/noActiveRoutes、score、1.5 km、feed snapshot/reference-grid/model 和 warning；不复制 Transit 类型。</p>
+<h3>Interface card:<code>TRANSIT-001</code> — canonical connectivity score</h3>
+<p><strong>Provider:</strong> Public Transportation；<strong>The only public import:</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
+<p><code>TRANSIT-001</code> The complete canonical statement is only available in <a href="../design/features/public-transportation.md">Public Transportation</a> definition. A subset of B's ​​calls are co-located <code>load</code> With canonical available/incomplete/unavailable, served/noStops/noActiveRoutes, score, 1.5 km, feed snapshot/reference-grid/model and warning; Transit type is not copied.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>必须为同地点 <code>1,500m</code>、<code>TransitAvailable</code>、<code>served</code> 且非空 score。</td>
-<td>incomplete/unavailable/noStops/noActiveRoutes 都是交通维度 unavailable；不能把无服务或 partial 显示为零分。</td>
-<td>只读；可用 stale feed 的 warning、feed snapshot/reference-grid/model 随结果保留。</td>
-<td>fake：served 73 stale、served 0、noStops、noActiveRoutes、incomplete；前两者纳入，其余缺失。</td>
+<td>Must be in the same location <code>1,500m</code>、<code>TransitAvailable</code>、<code>served</code> and non-empty score.</td>
+<td>incomplete/unavailable/noStops/noActiveRoutes are all traffic dimensions unavailable; no service or partial cannot be displayed as zero points.</td>
+<td>Read-only; available stale feed warnings, feed snapshot/reference-grid/model are retained with the results.</td>
+<td>fake: served 73 stale, served 0, noStops, noActiveRoutes, incomplete; the first two are included, and the rest are missing.</td>
 </tr>
 </tbody></table>
-<h3>Interface 卡：<code>INFRA-001</code> — neutral ICI</h3>
-<p><strong>提供者：</strong> Infrastructure Coverage；<strong>唯一公开 import：</strong> <code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>。</p>
-<p><code>INFRA-001</code> 的完整 canonical 声明只在 <a href="../design/features/infrastructure-coverage.md">Infrastructure Coverage</a> 定义。B 的调用子集仅为 <code>neutralForSuitability(InfrastructureNeutralRequest)</code> 及 canonical neutral available/unavailable、facts、ICI、provenance 与 failure；固定 neutral <code>5/5/5</code>，不复制类型或接受 account-weighted/preview ICI。</p>
+<h3>Interface card:<code>INFRA-001</code> — neutral ICI</h3>
+<p><strong>Provider:</strong> Infrastructure Coverage；<strong>The only public import:</strong> <code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>。</p>
+<p><code>INFRA-001</code> The complete canonical statement is only available in <a href="../design/features/infrastructure-coverage.md">Infrastructure Coverage</a> definition. The subset of calls to B is only <code>neutralForSuitability(InfrastructureNeutralRequest)</code> and canonical neutral available/unavailable, facts, ICI, provenance and failure; fixed neutral <code>5/5/5</code>, does not copy types or accept account-weighted/preview ICI.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与 fake</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, Permissions and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>只请求 <code>neutralForSuitability</code>；固定 <code>5/5/5</code>，同地点、分析日和版本。</td>
-<td>neutral unavailable 保留 failure/facts 为基础设施维度原因；account-weighted、last saved、unsaved preview 一律不接受。</td>
-<td>只读，不读/缓存账户 ICI 权重；保留分项、行政区/交通基础、来源日期与 model/reference version。</td>
-<td>fake：neutral 66、account preview 99、少于 3 项、provenance 变；仅 neutral 66 可纳入。</td>
+<td>Request only <code>neutralForSuitability</code>;fixed <code>5/5/5</code>, same location, day of analysis, and version.</td>
+<td>Neutral unavailable retains failure/facts as infrastructure dimension reasons; account-weighted, last saved, and unsaved preview are not accepted.</td>
+<td>Read only, do not read/cache account ICI weight; retain sub-item, administrative area/transportation basis, source date and model/reference version.</td>
+<td>fake: neutral 66, account preview 99, less than 3 items, provenance; only neutral 66 can be included.</td>
 </tr>
 </tbody></table>
-<h2>3. B 必须提供的 Interface 卡：<code>SUITABILITY-001</code></h2>
-<p><strong>提供者：</strong> Personalized Location Suitability（B）；<strong>消费者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart</code>。</p>
+<h2>3. Interface card that B must provide:<code>SUITABILITY-001</code></h2>
+<p><strong>Provider:</strong> Personalized Location Suitability（B）；<strong>consumer:</strong> Application Shell；<strong>The only public import:</strong> <code>package:locatemy/features/personalized_location_suitability/personalized_location_suitability.dart</code>。</p>
 <pre><code class="language-dart">final class SuitabilityReturnContext { final String source; final String? stableItemId; const SuitabilityReturnContext({required this.source, this.stableItemId}); }
 final class OpenAssessmentPreferencesIntent extends ShellIntent { final SuitabilityReturnContext returnContext; const OpenAssessmentPreferencesIntent(this.returnContext); }
 final class OpenCurrentBudgetScenarioIntent extends ShellIntent { final SuitabilityReturnContext returnContext; const OpenCurrentBudgetScenarioIntent(this.returnContext); }
@@ -293,138 +293,138 @@ final class SuitabilityProvenance { final int preferenceVersion, currentScenario
 <table>
 <thead>
 <tr>
-<th>调用</th>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态、副作用、顺序与 fake</th>
+<th>call</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>State, Side Effects, Sequence and Fake</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>assess</code></td>
-<td>immutable valid location；opened 同账户 complete preferences、current scenario 与版本仍匹配。</td>
-<td><code>Available</code>；缺前置为 <code>PrerequisiteMissing</code>；中/高维缺失为 <code>DimensionUnavailable</code>；全不可用/可用权重零为 <code>NoAvailableDimensions</code>。</td>
-<td>依序确认 Location → Account complete → COST-002 current → 五个 canonical inputs → 门控/计算 → publish；只存页面内存。fake 组合完整、low missing、medium/high missing、all missing、scope close/late response。</td>
+<td>immutable valid location; opened same account complete preferences, current scenario and version still match.</td>
+<td><code>Available</code>; The missing prefix is <code>PrerequisiteMissing</code>;Medium/high dimensional missingness is <code>DimensionUnavailable</code>;All unavailable/available weight zero <code>NoAvailableDimensions</code>。</td>
+<td>Confirm in sequence Location → Account complete → COST-002 current → five canonical inputs → Gating/calculation → publish; only the page memory is saved. fake combines complete, low missing, medium/high missing, all missing, scope close/late response.</td>
 </tr>
 <tr>
 <td><code>compare</code></td>
-<td>A/B 不同 immutable location；同一账户/complete preference/current 语境。</td>
-<td>两端 compatible 才 <code>Comparable</code>；其余 <code>Incomparable(reason)</code> 并保留两端可用原分/coverage。</td>
-<td>先独立 assess A/B，再核对；交换只改呈现槽位。fake 验证不同集合、版本、模型、单侧缺失均不产生 winner/delta。</td>
+<td>A/B different immutable locations; same account/complete preference/current context.</td>
+<td>Only when both ends are compatible <code>Comparable</code>;the remaining <code>Incomparable(reason)</code> And retain the original points/coverage available at both ends.</td>
+<td>Assess A/B independently first, and then check; swapping only changes the displayed slot. fake verifies that different collections, versions, models, and unilateral deletions do not produce winner/delta.</td>
 </tr>
 </tbody></table>
-<p><code>SuitabilityCoverage</code> 必须逐维保留 priority、included/excluded、原始/转换读数或 typed reason、来源/日期/完整性/stale warning。<code>SuitabilityProvenance</code> 必须保留 preference/current/rule version 及每个纳入维的上游 model、mapping/basket/reference/boundary 版本。公开结果不可含月净收入、预案名称/字段、账户草稿或账户 ICI 权重。</p>
-<h2>4. 固定业务语义、状态与顺序</h2>
+<p><code>SuitabilityCoverage</code> Priority, included/excluded, raw/converted readings or typed reason, source/date/completeness/stale warnings must be preserved per dimension.<code>SuitabilityProvenance</code> The preference/current/rule version and the upstream model, mapping/basket/reference/boundary version of each included dimension must be preserved. Public results cannot include monthly net income, plan names/fields, account drafts, or account ICI weights.</p>
+<h2>4. Fixed business semantics, status and sequence</h2>
 <table>
 <thead>
 <tr>
-<th>主题</th>
-<th>不可变协作语义</th>
+<th>theme</th>
+<th>Immutable collaboration semantics</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>前置</td>
-<td>无合法地点、非 opened scope、非同账户 complete preferences 或无 current 均先返回 prerequisite missing；不请求或拼接默认值、草稿、其他账户/预案。</td>
+<td>prefix</td>
+<td>If there is no legal location, non-opened scope, different account complete preferences or no current, prerequisite missing will be returned first; default values, drafts, other accounts/plans will not be requested or spliced.</td>
 </tr>
 <tr>
-<td>五维转换</td>
-<td>安全直接用安全指数；成本为 <code>100 − clamp(PersonalBudgetBurden(%), 0, 100)</code>；日常便利为 <code>100 × 已确认覆盖类别数 ÷ 5</code>；交通直接用 connectivity score；基础设施直接用 neutral ICI。所有范围为 0–100，具体公式唯一见知识库。</td>
+<td>Five-dimensional conversion</td>
+<td>Safety directly uses the safety index; the cost is <code>100 − clamp(PersonalBudgetBurden(%), 0, 100)</code>; daily convenience uses <code>100 × confirmed covered-category count ÷ 5</code>; traffic directly uses connectivity score; infrastructure directly uses neutral ICI. All ranges are 0–100, and specific formulas can only be found in the knowledge base.</td>
 </tr>
 <tr>
-<td>门控</td>
-<td>偏好 <code>1–3</code> 为低、<code>4–6</code> 中、<code>7–10</code> 高。中/高任一不可用时不显示总分；低不可用可排除并说明。明确零是可用，unknown/partial/unavailable/no route 不是零。</td>
+<td>Gating</td>
+<td>Preference <code>1–3</code> is low,<code>4–6</code> middle,<code>7–10</code> high. If either medium or high is unavailable, the total score will not be displayed; if low is unavailable, it can be excluded and explained. Explicit zero is available, unknown/partial/unavailable/no route is non-zero.</td>
 </tr>
 <tr>
-<td>重归一化</td>
-<td>每个可用维权重乘数=<code>preference ÷ 5</code>；只对可用维按权重加权平均。所有维不可用或可用权重为零，固定文案为“个人化地点适配度暂不可用：目前没有可用的评估维度”。</td>
+<td>renormalization</td>
+<td>Weight multiplier for each available dimension =<code>preference ÷ 5</code>;Only the weighted average of available dimensions. All dimensions are unavailable or have zero available weights, and the fixed text is "Personalized location suitability is temporarily unavailable: There are currently no available evaluation dimensions."</td>
 </tr>
 <tr>
 <td>stale</td>
-<td>上游明确 available 的 stale 读数可参与且 warning 必须保留；partial 或 unavailable 不因缓存存在变 available。</td>
+<td>Stale readings that are explicitly available from upstream can participate and warnings must be retained; partial or unavailable does not become available due to the existence of cache.</td>
 </tr>
 <tr>
 <td>A/B</td>
-<td>仅两端 available、included/excluded 集合一致、同账户同偏好/current/rule version，且每个纳入维的上游模型、篮子/类别映射、边界/参照组与完整性相容时 Comparable。来源日期/stale 可不同但需并列披露；任何不相容均 incomparable。</td>
+<td>Comparable only when the available, included/excluded sets at both ends are consistent, the same account has the same preference/current/rule version, and the upstream model, basket/category mapping, boundary/reference group of each included dimension is compatible with integrity. Source dates/stale may differ but need to be disclosed side by side; any incomparability is incomparable.</td>
 </tr>
 <tr>
-<td>生命周期</td>
-<td>preference/current/地点/上游 input version 或 scope 变化立即使旧请求失效；关闭开始释放私有总分/coverage。公共上游结果可由其 Owner 存续，但不可与旧账户输入重新组合。</td>
+<td>life cycle</td>
+<td>Preference/current/location/upstream input version or scope changes immediately invalidate old requests; shutdown starts freeing up private coverage/coverage. Public upstream results can survive their Owner, but cannot be recombined with old account inputs.</td>
 </tr>
 </tbody></table>
-<p>实施顺序：B 先合入唯一入口、<code>SUITABILITY-001</code> 声明和最小 fake；各上游/ Shell 可并行以 fake 对接；B 再接入公开 Interface；最后按 FLOW-02、03、07 联调。不得以运行时 cache、SDK、并发策略或内部测试形状改变以上可观察结果。</p>
-<h2>5. 联合验收、Ready Gate 与变更</h2>
+<p>Implementation sequence: B first merges into the only entrance,<code>SUITABILITY-001</code> Declaration and minimum fake; each upstream/shell can be connected with fake in parallel; B then connects to the public interface; finally press FLOW-02, 03, 07 for joint debugging. The above observable results must not be altered by runtime cache, SDK, concurrency strategies, or internal test shapes.</p>
+<h2>5. Joint acceptance, Ready Gate and changes</h2>
 <table>
 <thead>
 <tr>
 <th>Capability / canonical AT</th>
-<th>情景与操作</th>
-<th>可观察完成条件</th>
+<th>Scenarios and operations</th>
+<th>Observable completion conditions</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-01</code></td>
-<td>complete 五项、current、五个合格输入；安全/设施/交通有明确 0，交通 stale</td>
-<td><code>0–100</code>、转换、权重、覆盖、来源/日期/warning 均可读；0 与 stale 不丢失。</td>
+<td>complete Five items, current, five qualified inputs; security/facilities/traffic are clear 0, traffic stale</td>
+<td><code>0–100</code>, conversion, weight, coverage, source/date/warning are all readable; 0 and stale are not lost.</td>
 </tr>
 <tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-02</code></td>
-<td>no preferences/<code>configured_at</code> null、no current、草稿/保存失败、账户不同</td>
-<td>分类 prerequisite missing 并提供 Shell 设置入口；默认 5、其他预案、temporary CPI、家庭收入均不替代。</td>
+<td>no preferences/<code>configured_at</code> null, no current, draft/save failed, different accounts</td>
+<td>Category prerequisite missing and provide Shell setting entrance; default 5, other plans, temporary CPI, family income are not replaced.</td>
 </tr>
 <tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-03</code></td>
-<td>每一维 unavailable/partial/unknown/no route；低/中/高缺失；全缺失</td>
-<td>低缺失重归一化且披露；中/高无总分；全缺失固定文案；未知绝不成 0。</td>
+<td>Each dimension is unavailable/partial/unknown/no route; low/medium/high missing; all missing</td>
+<td>Low missing renormalization and disclosure; medium/high no total score; all missing fixed copy; unknown never equals 0.</td>
 </tr>
 <tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-04</code>、<code>AT-RACE-01</code></td>
-<td>current/偏好成功变更、地点/上游版本刷新、快速换点</td>
-<td>旧请求不发布，新完整语境重算；失败保存或晚到响应不覆盖有效结果。</td>
+<td>Current/preference is successfully changed, location/upstream version is refreshed, and points are quickly changed.</td>
+<td>Old requests are not released, and new complete contexts are recalculated; failed saves or late responses do not overwrite valid results.</td>
 </tr>
 <tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-05</code></td>
-<td>A/B 共同语境、单侧缺失、集合/偏好/current/rule/provenance 不同、交换</td>
-<td>合格仅并列原分；不可用和 incomparable 有不同原因；永无差值、赢家、推荐；交换只改呈现。</td>
+<td>A/B common context, unilateral deletion, set/preference/current/rule/provenance difference, exchange</td>
+<td>Qualified are only tied for the original score; unavailable and incomparable have different reasons; there is never a difference, winner, recommendation; exchange only changes the presentation.</td>
 </tr>
 <tr>
 <td><code>MAP-07</code> / <code>AT-SUIT-06</code>、<code>AT-SWITCH-01</code></td>
-<td>A/B 账户不同偏好/current、scope close、晚到回调</td>
-<td>A 的总分、coverage、预案/偏好事实不进入 B；关闭期间无私有结果。</td>
+<td>A/B account different preferences/current, scope close, late callback</td>
+<td>A's total score, coverage, plan/preference facts do not enter B; no private results during shutdown.</td>
 </tr>
 <tr>
-<td>可访问性</td>
-<td>中文/English、读屏/键盘、200% 字体、长日期/原因</td>
-<td>分数不作唯一表达；五维、优先级、纳入/排除、来源、限制、设置入口有文字与正确阅读顺序。</td>
+<td>accessibility</td>
+<td>Chinese/English, screen reading/keyboard, 200% font, long date/reason</td>
+<td>The score is not a unique expression; the five dimensions, priority, inclusion/exclusion, source, restriction, and setting entrance have text and correct reading order.</td>
 </tr>
 </tbody></table>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> 所有跨 Owner seam 均有唯一 import；上游完整 frozen 声明只由 owning contract 维护，本 Feature 只列实际调用子集。<code>SUITABILITY-001</code> 有完整公开声明、约束、typed outcome、状态/副作用、顺序、最小调用与 fake。</li>
-<li><input checked="" disabled="" type="checkbox"> 五维门控、明确零/未知、低优先级重归一化、stale、A/B 无赢家与账户隔离均有唯一事实源。</li>
-<li><input checked="" disabled="" type="checkbox"> 不含实现体、SQL、SDK 映射、缓存/并发策略或内部测试组织。</li>
-<li><input checked="" disabled="" type="checkbox"> Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。公开 Interface 变更须由提供方说明影响、消费者确认，并在同一 PR 同步声明、契约、HTML、fake 与测试。</li>
+<li><input checked="" disabled="" type="checkbox"> All cross-owner seams have unique imports; the complete upstream frozen declaration is only maintained by the owning contract. This Feature only lists a subset of actual calls.<code>SUITABILITY-001</code> Has full public declarations, constraints, typed outcomes, state/side effects, ordering, minimal calls, and fakes.</li>
+<li><input checked="" disabled="" type="checkbox"> Five-dimensional gating, explicit zero/unknown, low-priority renormalization, stale, A/B no-winners, and account isolation all have a single source of truth.</li>
+<li><input checked="" disabled="" type="checkbox"> Does not include implementations, SQL, SDK mappings, caching/concurrency strategies, or internal testing organization.</li>
+<li><input checked="" disabled="" type="checkbox"> Standards/Spec biaxial review passed; Design AI approved Ready per ADR 0013. Public Interface changes must be explained by the provider, confirmed by consumers, and declared, contracted, HTML, faked, and tested in the same PR.</li>
 </ul>
 <table>
 <thead>
 <tr>
-<th>日期</th>
-<th>状态</th>
-<th>变更原因</th>
-<th>受影响对象</th>
-<th>批准者</th>
+<th>date</th>
+<th>state</th>
+<th>Reason for change</th>
+<th>Affected objects</th>
+<th>approver</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>2026-09-14</td>
 <td><code>Ready for Development</code></td>
-<td>固定五维偏好、current 预案、转换、重归一化、A/B 与联验语义</td>
+<td>Fixed five-dimensional preference, current plan, transformation, renormalization, A/B and joint semantics</td>
 <td><code>MAP-07</code>、<code>SUITABILITY-001</code></td>
-<td>项目负责人</td>
+<td>Project leader</td>
 </tr>
 <tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
-<td>Issue #23 返工为单一 Development Contract：补首屏可观察 DoD；上游 frozen seam 改为引用 owning canonical 声明并列出实际调用子集；移除 PDF、ADR 0014 与 handoff 治理</td>
-<td><code>SUITABILITY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>ACCOUNT-001</code>、<code>COST-001/002</code>、<code>SAFETY-001</code>、<code>FACILITY-001</code>、<code>TRANSIT-001</code>、<code>INFRA-001</code>、同名 HTML</td>
-<td>设计 AI（项目负责人授权），ADR 0013</td>
+<td>Issue #23 Rework into a single Development Contract: add above-the-fold observable DoD; upstream frozen seam is changed to reference owning canonical declaration and list the actual call subset; remove PDF, ADR 0014 and handoff governance</td>
+<td><code>SUITABILITY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>ACCOUNT-001</code>、<code>COST-001/002</code>、<code>SAFETY-001</code>、<code>FACILITY-001</code>、<code>TRANSIT-001</code>、<code>INFRA-001</code>, HTML with the same name</td>
+<td>Design AI (Authorization by Project Leader), ADR 0013</td>
 </tr>
 </tbody></table>
 </main>

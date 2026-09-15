@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Geographic Context 开发协作契约</title>
+  <title>Geographic Context Development Collaboration Contract</title>
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
     body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
@@ -25,112 +25,112 @@
 </head>
 <body>
 <main>
-<h1>Geographic Context 开发协作契约</h1>
+<h1>Geographic Context Development Collaboration Contract</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
-Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 1
-唯一公开入口：<code>package:locatemy/modules/geographic_context/geographic_context.dart</code>
-定义完成：四个消费者可只经一个 Dart seam，以同一合法地点取得逐层、可追溯且不猜测的行政区/统计州事实；fake 与生产 Adapter 的结果语义相同。</p>
+<p>state:<code>Ready for Development</code>(2026-09-15; Design AI [authorized by the project leader], ADR 0013)
+Owner:<code>B</code>;System baseline:<code>Baselined — 5d11769</code>;Depends on wave: Wave 1
+The only public entrance:<code>package:locatemy/modules/geographic_context/geographic_context.dart</code>
+The definition is complete: four consumers can obtain layer-by-layer, traceable and non-guessable administrative district/statistical state facts at the same legal location through only one Dart seam; fake has the same semantics as the result of producing an Adapter.</p>
 </blockquote>
-<p>本文件是 Geographic Context 唯一的跨 Owner 开发协作契约，也是同名 HTML 的权威 Markdown 源。它冻结公开 Dart 声明、资料读取、顺序和联合验收；<code>lib/modules/geographic_context/</code> 内的文件、空间库、缓存、Supabase SDK 映射、并发/取消/重试及测试组织由 B 决定。不得以本文件规定函数体、私有实现、迁移或测试实现。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<p>This document is Geographic Context’s only cross-owner development collaboration contract and is also the authoritative Markdown source of HTML with the same name. It freezes public Dart declarations, data reads, sequencing, and joint acceptance;<code>lib/modules/geographic_context/</code> The files, spatial libraries, caches, Supabase SDK mappings, concurrency/cancel/retry and test organization are determined by B. This document may not specify function bodies, private implementations, migrations, or test implementations.</p>
+<h2>0. Fixed reading order and four items of Readiness</h2>
 <ol>
-<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83">领域词汇</a>及下游<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">生活成本</a>、<a href="../knowledge_base/locatemy_product/features/crime_security.md">治安</a>、<a href="../knowledge_base/locatemy_product/features/socio_economic.md">社会经济</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">基础设施</a>事实；</li>
-<li><a href="../design/system/feature-map.md#fm-geo">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>及<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>；</li>
-<li><a href="../design/system/data-ownership.md#%E5%85%AC%E5%85%B1%E8%B5%84%E6%96%99%E9%95%9C%E5%83%8F%E4%B8%8E%E7%BC%93%E5%AD%98">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-geo-02-%E8%B5%84%E6%96%99%E5%86%B3%E5%AE%9A%E4%B8%8E%E6%9C%AA%E5%85%B3%E9%97%AD%E8%AF%81%E6%8D%AE"><code>RISK-GEO-02</code></a>；</li>
-<li>本契约与同名 HTML 导出。</li>
+<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83">domain vocabulary</a>and downstream<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">cost of living</a>、<a href="../knowledge_base/locatemy_product/features/crime_security.md">law and order</a>、<a href="../knowledge_base/locatemy_product/features/socio_economic.md">social economy</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">infrastructure</a>fact;</li>
+<li><a href="../design/system/feature-map.md#fm-geo">Feature map</a>、<a href="../design/system/interfaces.md">Interface registry</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>and<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>；</li>
+<li><a href="../design/system/data-ownership.md#%E5%85%AC%E5%85%B1%E8%B5%84%E6%96%99%E9%95%9C%E5%83%8F%E4%B8%8E%E7%BC%93%E5%AD%98">Data ownership</a>、<a href="../design/data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-geo-02-%E8%B5%84%E6%96%99%E5%86%B3%E5%AE%9A%E4%B8%8E%E6%9C%AA%E5%85%B3%E9%97%AD%E8%AF%81%E6%8D%AE"><code>RISK-GEO-02</code></a>；</li>
+<li>This contract is exported to HTML with the same name.</li>
 </ol>
 <table>
 <thead>
 <tr>
 <th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>verifiable evidence</th>
+<th>in conclusion</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>责任与依赖顺序</td>
-<td><code>GEO-001</code> 唯一归 B；消费者为 Cost、Crime、Socio-economic、Infrastructure；输入先由 <code>LOCATION-001</code> 产生</td>
-<td>已就绪</td>
+<td>Responsibility and dependency order</td>
+<td><code>GEO-001</code> The only one belongs to B; the consumers are Cost, Crime, Socio-economic, and Infrastructure; the input is first <code>LOCATION-001</code> produce</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>跨 Owner 契约</td>
-<td>第 3 节的唯一入口、声明、输入、typed 结果/失败、顺序、权限、示例和 fake 场景</td>
-<td>已就绪</td>
+<td>Cross-Owner Contract</td>
+<td>Unique entry point for section 3, declarations, inputs, typed results/failures, order, permissions, examples and fake scenarios</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>数据与权限</td>
-<td>B 唯一经 authenticated-only RPC 读取边界；消费者只见公开地理类型，不见表/RPC 或账户资料</td>
-<td>已就绪</td>
+<td>Data and Permissions</td>
+<td>B Unique authenticated-only RPC read boundary; consumer only sees the public geography type, not the table/RPC or account data</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>联验与风险</td>
-<td>第 5 节覆盖单点/A-B、零/多候选、版本及四个消费者；<code>RISK-GEO-02</code> 已关闭</td>
-<td>已就绪</td>
+<td>Joint testing and risk</td>
+<td>Section 5 covers single point/A-B, zero/multiple candidates, versions, and four consumers;<code>RISK-GEO-02</code> Closed</td>
+<td>Ready</td>
 </tr>
 </tbody></table>
-<h2>1. 任务成果、责任与协作顺序</h2>
+<h2>1. Task results, responsibilities and collaboration sequence</h2>
 <ul>
-<li>对 <code>LOCATION-001</code> 已验证的不可变坐标，逐个请求层级返回 <code>resolved</code>、<code>unresolved</code> 或 <code>ambiguous</code>，并回带同一读取批次的来源与版本事实。</li>
-<li>行政区用于收入、供水、供电、医疗、教育等地区统计；统计州只供 Crime 按 <code>crime_district.state</code> 聚合。Geo 不解析警区，也不决定任一 Feature 的统计回退。</li>
-<li>一个层级成功不代表另一层级成功；零覆盖、边界点、重叠、资料不可读或版本不可验证时，不以最近、默认、名称或相邻地区替代。</li>
+<li>right <code>LOCATION-001</code> Validated immutable coordinates, returned on a per-request level basis <code>resolved</code>、<code>unresolved</code> or <code>ambiguous</code>, and bring back the source and version facts of the same read batch.</li>
+<li>Administrative districts are used for regional statistics on income, water supply, power supply, medical care, education, etc.; statistical states are only used for crime statistics <code>crime_district.state</code> polymerization. Geo does not parse police zones, nor does it determine statistical rollback for any Feature.</li>
+<li>Success at one level does not mean success at another level; when there is zero coverage, boundary points, overlaps, unreadable data, or unverifiable versions, nearest, default, name, or adjacent regions will not be substituted.</li>
 </ul>
 <table>
 <thead>
 <tr>
-<th>Owner / 受控边界</th>
-<th>负责</th>
-<th>不负责</th>
-<th>协作</th>
+<th>Owner/controlled boundary</th>
+<th>Responsible</th>
+<th>irresponsible</th>
+<th>cooperation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Geographic Context（B）</td>
-<td><code>GEO-001</code>、边界候选分类、逐层事实与 provenance、公开无账户缓存</td>
-<td>地点合法性/选点、资料导入迁移、指标读取/回退、地图和导航</td>
-<td>消费 <code>LOCATION-001</code> 的公开类型；提供唯一入口</td>
+<td><code>GEO-001</code>, Boundary candidate classification, layer-by-layer facts and provenance, public accountless caching</td>
+<td>Location legality/point selection, data import and migration, indicator reading/rollback, map and navigation</td>
+<td>Consumption <code>LOCATION-001</code> Public type of; provides unique entry</td>
 </tr>
 <tr>
 <td>Map / Location</td>
-<td>合法 immutable <code>ValidLocationReference</code></td>
-<td>统计州/行政区解析</td>
-<td>先提供地点；Geo 不读可变地图状态</td>
+<td>legal immutable <code>ValidLocationReference</code></td>
+<td>Statistical state/administrative region analysis</td>
+<td>Provide location first; Geo doesn't read variable map state</td>
 </tr>
 <tr>
 <td>Cost / Crime / Socio / Infrastructure</td>
-<td>各自资料、缺失、回退与用户文案</td>
-<td>空间匹配或猜测地区</td>
-<td>仅 import <code>GEO-001</code>；按层级结果决定是否读自身资料</td>
+<td>Respective data, missing, fallback and user copywriting</td>
+<td>Spatial match or guess area</td>
+<td>only import <code>GEO-001</code>;Determine whether to read your own data based on the level results</td>
 </tr>
 </tbody></table>
-<p><strong>协作顺序。</strong> (1) Map 已合入 <code>LOCATION-001</code> 声明；(2) B 先合入本节唯一公开入口、声明和最小 fake；(3) 四个消费者以该 fake 并行实现，绝不 import B 的 <code>src/</code>；(4) B 接真实 <code>GEO-002</code> Adapter；(5) 只保留第 5 节必要的 joint flows。公开 seam 变化须由 B 说明影响、所有受影响消费者确认，并在同一 PR 更新声明、契约、HTML 和受影响测试。</p>
-<h2>2. B 需要调用的 Interface 与读取对象</h2>
-<h3>Interface 卡：合法地点（<code>LOCATION-001</code>）</h3>
-<p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> B；<strong>唯一 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
-<p>Geo 只接受该 Interface 已成功产生的 <code>ValidLocationReference</code>；<code>locationId</code> 非空，<code>point.latitude</code>/<code>point.longitude</code> 为有限 WGS84 数，且已通过 Malaysia 范围校验。<code>displayName</code> 可为 null，绝不参与解析或缓存键。absence、非法坐标、范围外和 A/B 同点均由 Map 拒绝，B 不重验为另一种地点、更不读取边界。Geo 的解析只读，不改 Map 的任何角色或地点状态。</p>
-<p><strong>最小使用：</strong> <code>GeographicContextRequest(location: selectedLocation, levels: {GeographicLevel.district})</code>，其中 <code>selectedLocation</code> 必为 Map 成功结果。<strong>fake 场景：</strong> fake Map 给合法单点、合法 A/B 与 absence；只有合法引用进入 Geo，A/B 的原始引用和角色归消费者保持，不被 Geo 替换。</p>
-<h3>Interface 卡：版本化边界候选读取（<code>GEO-002</code>，仅 B）</h3>
-<p><strong>提供者 / 消费者：</strong> <code>read_administrative_boundary_candidates</code> / Geographic Context（B）。这是 B 的外部来源 seam，不是其他 Owner 的 Dart import；生产与 B 的固定样本 Adapter 必须满足相同候选事实。</p>
+<p><strong>Collaboration sequence.</strong> (1) Map has been merged <code>LOCATION-001</code> Statement; (2) B first incorporates the only public entrance, statement and minimum fake in this section; (3) Four consumers are implemented in parallel with this fake and never import B <code>src/</code>;(4) B is connected to true <code>GEO-002</code> Adapter;(5) Only necessary joint flows from Section 5 are retained. Public seam changes must be documented by B, confirmed by all affected consumers, and updated with declarations, contracts, HTML, and affected tests in the same PR.</p>
+<h2>2. B needs to call the Interface and read object</h2>
+<h3>Interface Card: Legal Location (<code>LOCATION-001</code>）</h3>
+<p><strong>Provider:</strong> Map / Location；<strong>consumer:</strong> B；<strong>The only import:</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
+<p>Geo only accepts the interface that has been successfully generated. <code>ValidLocationReference</code>；<code>locationId</code> Not empty,<code>point.latitude</code>/<code>point.longitude</code> It is a limited WGS84 number and has been verified to the Malaysia range.<code>displayName</code> Can be null and never participates in parsing or caching keys. Absence, illegal coordinates, out-of-range, and A/B identical points are all rejected by Map, and B is not revalidated as another location, nor does it read the boundary. Geo's parsing is read-only and does not change any role or location status of the Map.</p>
+<p><strong>Minimum usage:</strong> <code>GeographicContextRequest(location: selectedLocation, levels: {GeographicLevel.district})</code>,in <code>selectedLocation</code> Must be a successful result of Map.<strong>fake scenario:</strong> Fake Map gives legal single points, legal A/B and absence; only legal references enter Geo, and the original references and roles of A/B are retained by the consumer and will not be replaced by Geo.</p>
+<h3>Interface Card: Versioned Boundary Candidate Read (<code>GEO-002</code>, only B)</h3>
+<p><strong>Provider/Consumer:</strong> <code>read_administrative_boundary_candidates</code> /Geographic Context(B). This is B's external source seam, not the Dart import of other Owners; the fixed sample Adapter produced with B must satisfy the same candidate facts.</p>
 <table>
 <thead>
 <tr>
-<th>精确调用 / 行形状</th>
-<th>输入、结果与 failure</th>
-<th>权限、副作用与顺序</th>
+<th>Exact call/row shape</th>
+<th>Input, results and failure</th>
+<th>Permissions, Side Effects and Order</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>authenticated-only <code>security definer</code> RPC：<code>read_administrative_boundary_candidates(latitude double precision, longitude double precision)</code>；每行严格为 <code>boundary_id</code>, <code>state</code>, <code>district</code>, <code>source_dataset</code>, <code>source_url</code>, <code>source_version</code>, <code>source_sha256</code>, <code>geometry_transform</code>, <code>derived_geometry_sha256</code>, <code>imported_at timestamptz</code>。</td>
-<td>两个输入均为有限 WGS84 值，latitude <code>[-90, 90]</code>、longitude <code>[-180, 180]</code>。零行是 <code>noCoverage</code>，一/多行是完整候选；RPC/认证不可用为 <code>sourceUnavailable</code>/<code>scopeUnavailable</code>，缺少任一 provenance 字段为 <code>versionUnverifiable</code>。这些不是空列表成功。</td>
-<td>仅 authenticated 账户可 execute；anon 和客户端对两张底表均无读权。B 不写 RPC、边界、导入审计、Map 或下游结果。只能在取得合法地点后调用；同一响应的所有候选必须原样保留并按 <code>boundary_id</code> 稳定处理。</td>
+<td>authenticated-only <code>security definer</code> RPC：<code>read_administrative_boundary_candidates(latitude double precision, longitude double precision)</code>;Each line is strictly <code>boundary_id</code>, <code>state</code>, <code>district</code>, <code>source_dataset</code>, <code>source_url</code>, <code>source_version</code>, <code>source_sha256</code>, <code>geometry_transform</code>, <code>derived_geometry_sha256</code>, <code>imported_at timestamptz</code>。</td>
+<td>Both inputs are finite WGS84 values, latitude <code>[-90, 90]</code>、longitude <code>[-180, 180]</code>. row zero is <code>noCoverage</code>, one/more rows are complete candidates; RPC/Authentication is not available for <code>sourceUnavailable</code>/<code>scopeUnavailable</code>, missing either provenance field is <code>versionUnverifiable</code>. These are not empty lists successfully.</td>
+<td>Only authenticated accounts can execute; neither anon nor the client has read rights to the two bottom tables. B does not write RPC, Boundary, Import Audit, Map or downstream results. Can only be called after obtaining a legal location; all candidates for the same response must be left intact and pressed <code>boundary_id</code> Stable handling.</td>
 </tr>
 </tbody></table>
-<p>资料对象、字段权限和 migration 唯一权威为 <a href="../design/data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>；固定资料、hash、离岛和重叠证据为 <a href="../design/system/risks-and-decisions.md#risk-geo-02-%E8%B5%84%E6%96%99%E5%86%B3%E5%AE%9A%E4%B8%8E%E6%9C%AA%E5%85%B3%E9%97%AD%E8%AF%81%E6%8D%AE"><code>RISK-GEO-02</code></a>。</p>
-<h2>3. B 必须提供的 Interface</h2>
-<h3>Interface 卡：行政统计地理语境（<code>GEO-001</code>）</h3>
-<p><strong>提供者：</strong> Geographic Context（B）；<strong>消费者：</strong> Cost、Crime、Socio-economic、Infrastructure。
-<strong>唯一公开 import：</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
-<p>消费者只能 import 此入口，不得 import <code>lib/modules/geographic_context/src/</code>、B 的 Adapter 或 Supabase SDK。B 应先合入下列<strong>声明</strong>与最小 fake；它们是跨 Owner 形状，而不是函数体。</p>
+<p>The only authority for data objects, field permissions and migrations is <a href="../design/data/schema-catalog.md#%E7%A8%B3%E5%AE%9A%E5%85%AC%E5%85%B1%E8%AF%BB%E5%8F%96%E5%AF%B9%E8%B1%A1">Schema Catalog</a>;Fixed data, hash, outlying islands and overlapping evidence are <a href="../design/system/risks-and-decisions.md#risk-geo-02-%E8%B5%84%E6%96%99%E5%86%B3%E5%AE%9A%E4%B8%8E%E6%9C%AA%E5%85%B3%E9%97%AD%E8%AF%81%E6%8D%AE"><code>RISK-GEO-02</code></a>。</p>
+<h2>3. Interface that B must provide</h2>
+<h3>Interface Card: Administrative Statistics Geographic Context (<code>GEO-001</code>）</h3>
+<p><strong>Provider:</strong> Geographic Context（B）；<strong>consumer:</strong> Cost、Crime、Socio-economic、Infrastructure。
+<strong>The only public import:</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
+<p>Consumers can only import this entry and are not allowed to import <code>lib/modules/geographic_context/src/</code>, B's Adapter or Supabase SDK. B should first be combined into the following<strong>statement</strong>With minimal fake; they are across the Owner shape, not the function body.</p>
 <pre><code class="language-dart">abstract interface class GeographicContext {
   Future&lt;GeographicContextOutcome&gt; resolve(GeographicContextRequest request);
 }
@@ -178,152 +178,152 @@ final class BoundaryProvenance {
 }
 enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiable, scopeUnavailable }
 </code></pre>
-<p><code>GeographicContextAvailable.results</code> 的键<strong>恰好</strong>等于 request 的 <code>levels</code>；map 和 <code>candidates</code> 均为不可变快照。<code>levels</code> 必须非空且仅含 enum 值。所有 ID、名称和 provenance 字符串非空；<code>sourceUri</code> 必为绝对 URI；<code>importedAt</code> 为 UTC。<code>BoundaryProvenance?</code> 仅可在来源不可读/不可验证时为 null；它不允许以 <code>DateTime.now()</code> 或缓存读取时间代替资料版本。<code>AdministrativeArea(level: district)</code> 的 reporting-state 字段描述其所属统计州；<code>AdministrativeArea(level: reportingState)</code> 的 <code>stableId</code> 必等于 <code>reportingStateId</code>，<code>name</code> 必等于 <code>reportingStateName</code>。</p>
-<h4>输入、结果、失败与调用者处理</h4>
+<p><code>GeographicContextAvailable.results</code> key<strong>exactly</strong>equal to request <code>levels</code>;map and <code>candidates</code> All are immutable snapshots.<code>levels</code> Must be non-empty and contain only enum values. All ID, name, and provenance strings are non-empty;<code>sourceUri</code> Must be an absolute URI;<code>importedAt</code> is UTC.<code>BoundaryProvenance?</code> Can only be null if the source is not readable/verifiable; it is not allowed to end with <code>DateTime.now()</code> Or cache read times instead of data versions.<code>AdministrativeArea(level: district)</code> The reporting-state field describes the statistical state to which it belongs;<code>AdministrativeArea(level: reportingState)</code> of <code>stableId</code> Must be equal to <code>reportingStateId</code>，<code>name</code> Must be equal to <code>reportingStateName</code>。</p>
+<h4>Input, results, failure and caller handling</h4>
 <table>
 <thead>
 <tr>
-<th>条件 / 结果</th>
-<th>精确意义</th>
-<th>消费者必须处理</th>
+<th>condition/result</th>
+<th>precise meaning</th>
+<th>Consumers must deal with</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>请求</td>
-<td><code>location</code> 是 <code>LOCATION-001</code> 成功的 immutable 合法引用；levels 为 non-empty set。Cost/Socio/Infrastructure 请求 <code>district</code> 与 <code>reportingState</code>；Crime 只请求 <code>reportingState</code>。</td>
-<td>不自行构造坐标，不读 Map 可变状态；无地点/非法地点不调用 Geo。</td>
+<td>ask</td>
+<td><code>location</code> yes <code>LOCATION-001</code> Successful immutable legal reference; levels are non-empty set. Cost/Socio/Infrastructure Request <code>district</code> and <code>reportingState</code>;Crime only requests <code>reportingState</code>。</td>
+<td>Do not construct coordinates by yourself, do not read Map variable state; do not call Geo for no location/illegal location.</td>
 </tr>
 <tr>
 <td><code>GeographicContextAvailable</code></td>
-<td>请求的每个层级都有一个独立结果：resolved、unresolved 或 ambiguous；这不是“所有层级 resolved”的同义词。</td>
-<td>只将自己所需层级的 <code>GeographicLevelResolved</code> 用于资料读取；另一层级不成功仍如实呈现。</td>
+<td>Each level of the request has a separate result: resolved, unresolved, or ambiguous; this is not a synonym for "all levels resolved".</td>
+<td>Only add those at the level you need <code>GeographicLevelResolved</code> Used for data reading; if the other level fails, it will still be displayed faithfully.</td>
 </tr>
 <tr>
 <td><code>GeographicLevelResolved</code></td>
-<td>恰一完整候选；area 和 provenance 是该批次事实。</td>
-<td>Cost/Infrastructure 用 district；Crime 用 reporting state 聚合原始警区；Socio 依其事实源自行决定州级回退。</td>
+<td>Exactly one complete candidate; area and provenance are facts for the batch.</td>
+<td>Cost/Infrastructure uses districts; Crime uses reporting state to aggregate original police districts; Socio uses its own factual sources to determine state-level fallbacks.</td>
 </tr>
 <tr>
 <td><code>GeographicLevelUnresolved</code></td>
-<td><code>noCoverage</code>、<code>sourceUnavailable</code>、<code>versionUnverifiable</code> 或 <code>scopeUnavailable</code>；provenance 为已知则回带，未知则 null。</td>
-<td>呈现/传播具体不可用原因；绝不补 0、最近、默认、名称或邻近地区。</td>
+<td><code>noCoverage</code>、<code>sourceUnavailable</code>、<code>versionUnverifiable</code> or <code>scopeUnavailable</code>; Return if provenance is known, null if unknown.</td>
+<td>Present/propagate specific unavailability reasons; never complement 0, nearest, default, name, or proximity.</td>
 </tr>
 <tr>
 <td><code>GeographicLevelAmbiguous</code></td>
-<td>两个或更多完整候选（含边界点或资料重叠），不含任选答案。</td>
-<td>将该层级视为不可用于自身资料；完整 candidates 用于可解释性，不选首项。</td>
+<td>Two or more complete candidates (including boundary points or data overlap), without optional answers.</td>
+<td>Treat this level as unavailable for its own data; full candidates are used for interpretability, with no first option selected.</td>
 </tr>
 <tr>
 <td><code>GeographicContextUnavailable</code></td>
-<td>请求无法产生可信的逐层结果；failure 与可知 provenance 描述整次读取。</td>
-<td>将所有请求层级视为不可用；不把它折叠成 <code>noCoverage</code> 或空成功。</td>
+<td>The request failed to produce trusted layer-by-layer results; failure and known provenance describe the entire read.</td>
+<td>Treat all request tiers as unavailable; do not collapse it into <code>noCoverage</code> or empty success.</td>
 </tr>
 </tbody></table>
-<p>预期资料/权限故障一律用上述 typed result，消费者不得解析异常文字；编程错误不属于资料结果契约。B 不提供 <code>resolveState</code> 等第二公开入口，消费者一律调用 <code>resolve</code>。</p>
-<h4>状态、副作用、权限与生命周期</h4>
+<p>The above typed results are always used for expected data/permission failures, and consumers are not allowed to parse abnormal text; programming errors do not belong to the data result contract. B not provided <code>resolveState</code> Waiting for the second public entrance, consumers will call it <code>resolve</code>。</p>
+<h4>Status, Side Effects, Permissions and Lifecycle</h4>
 <ul>
-<li>这是公共只读 Interface：不读/写账户、收藏名、Map 状态、消费者结果或远端边界资料。可维护无账户公共缓存，但缓存值及键不得含 account id、收藏名或私有 payload；退出可保留。</li>
-<li>调用只允许已 opened 主应用路径。Geo 本身不打开/关闭账户 scope；<code>scopeUnavailable</code> 说明认证/RPC 权限无法安全满足，绝不降级为匿名表读。</li>
-<li>同一 location 坐标、levels 和 <code>BoundaryProvenance</code> 必有确定性逐层结果。版本不同的结果不宣称可比；地点、请求层级或版本在请求期间改变时，消费者丢弃晚到结果，不覆盖新地点/A-B 端。</li>
-<li>先由 Map 成功产生 immutable 地点，再调用一次 <code>resolve</code>，再仅用 resolved 层级读自己的资料。公开 Interface 不承诺缓存、网络、并发、取消、超时或重试策略。</li>
+<li>This is a public read-only interface: does not read/write accounts, collection names, map states, consumer results, or remote boundary data. Public caches without accounts can be maintained, but cache values ​​and keys must not contain account ids, collection names, or private payloads; they can be retained after exiting.</li>
+<li>Calls are only allowed on the main application path that has been opened. Geo itself does not open/close account scope;<code>scopeUnavailable</code> Note that authentication/RPC permissions cannot be safely satisfied and will never be downgraded to anonymous table reading.</li>
+<li>The same location coordinates, levels and <code>BoundaryProvenance</code> There must be deterministic layer-by-layer results. Results from different versions are not claimed to be comparable; when the location, request level, or version changes during a request, the consumer discards late results and does not cover the new location/A-B side.</li>
+<li>First, the immutable location is successfully generated by Map, and then called again <code>resolve</code>, and then only use the resolved level to read its own data. The public Interface does not commit to cache, network, concurrency, cancellation, timeout, or retry strategies.</li>
 </ul>
-<h4>最小调用示例（Crime）</h4>
+<h4>Minimal call example (Crime)</h4>
 <pre><code class="language-dart">final outcome = await geographicContext.resolve(GeographicContextRequest(
   location: selectedLocation, levels: {GeographicLevel.reportingState},
 ));
 switch (outcome) {
   case GeographicContextAvailable(:final results):
     final state = results[GeographicLevel.reportingState];
-    // 仅 GeographicLevelResolved 可进入 Crime 的州级资料读取。
+    // Only GeographicLevelResolved may enter Crime's state-level data read.
   case GeographicContextUnavailable(:final failure):
-    // 显示 failure 的不可用/恢复路径；不猜测州。
+    // Show the failure's unavailable/recovery path; do not guess the state.
 }
 </code></pre>
-<p>这是 seam 用法说明，不是可提交的 Crime 实现。</p>
-<h4>Fake Adapter 场景</h4>
-<p>消费者用 fake <code>GeographicContext</code> 实现相同 <code>resolve</code> 声明：(a) 两个 resolved：Cost/Socio/Infrastructure 只将 district 用于地区资料、Crime 只用 reporting state；(b) state resolved + district <code>GeographicLevelUnresolved(noCoverage)</code>：Socio 仅按自己的事实源显示州级参考，其他消费者不伪造 district；(c) <code>GeographicLevelAmbiguous</code>（完整候选）或 <code>GeographicContextUnavailable(scopeUnavailable)</code>：不读下游资料、不选候选、不显示零；(d) 同坐标不同 <code>sourceVersion</code>：不称可比，晚到旧版不覆盖当前。fake 不需要 Supabase、空间库或 B 的生产 Adapter；B 的真实 Adapter 须证明满足同一 Interface。</p>
-<h2>4. 直接资料与确定性口径</h2>
+<p>This is a seam usage note, not a committable Crime implementation.</p>
+<h4>Fake Adapter scene</h4>
+<p>Consumers use fake <code>GeographicContext</code> achieve the same <code>resolve</code> Statement: (a) Two resolved: Cost/Socio/Infrastructure only uses district for regional data, Crime only uses reporting state; (b) state resolved + district <code>GeographicLevelUnresolved(noCoverage)</code>: Socio only displays state-level references by its own source of truth, other consumers do not falsify districts; (c) <code>GeographicLevelAmbiguous</code>(full candidate) or <code>GeographicContextUnavailable(scopeUnavailable)</code>: Do not read downstream data, do not select candidates, do not display zero; (d) Same coordinates but different <code>sourceVersion</code>: Not comparable, the older version will not cover the current version. fake does not require Supabase, spatial library, or B's production Adapter; B's real Adapter must prove to satisfy the same Interface.</p>
+<h2>4. Direct data and deterministic standards</h2>
 <table>
 <thead>
 <tr>
-<th>目的</th>
-<th>权威对象 / 访问</th>
-<th>不能改变的语义</th>
+<th>Purpose</th>
+<th>Authoritative Object/Access</th>
+<th>Unchangeable semantics</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>行政统计解析</td>
-<td><code>administrative_district_boundaries</code> 和 <code>government_dataset_imports</code>，仅经 <code>GEO-002</code> RPC</td>
-<td>160 个 DOSM <code>administrative_2_district</code> 边界的 source/version/hash 随结果；Flutter 不直读底表。</td>
+<td>Administrative Statistics Analysis</td>
+<td><code>administrative_district_boundaries</code> and <code>government_dataset_imports</code>, only after <code>GEO-002</code> RPC</td>
+<td>160 DOSM <code>administrative_2_district</code> The source/version/hash of the boundary depends on the result; Flutter does not read the bottom table directly.</td>
 </tr>
 <tr>
-<td>州级治安</td>
-<td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E8%AE%A1%E7%AE%97%E8%8C%83%E5%9B%B4">治安事实</a></td>
-<td>Geo 只给 reporting state；Crime 自行按 <code>crime_district.state</code> 聚合，绝不解析警区。</td>
+<td>State level security</td>
+<td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E8%AE%A1%E7%AE%97%E8%8C%83%E5%9B%B4">Public security facts</a></td>
+<td>Geo only provides reporting state; Crime presses its own <code>crime_district.state</code> Aggregation, never analysis of police districts.</td>
 </tr>
 <tr>
-<td>行政区和州资料</td>
+<td>District and state information</td>
 <td><a href="../knowledge_base/locatemy_product/features/cost_of_living.md">Cost</a>、<a href="../knowledge_base/locatemy_product/features/socio_economic.md#%E5%B7%B2%E7%A1%AE%E8%AE%A4%E7%9A%84%E4%BA%A7%E5%93%81%E5%8F%A3%E5%BE%84">Socio</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">Infrastructure</a></td>
-<td>Geo 不决定指标缺失、层级回退、可比性文案或任何数值。</td>
+<td>Geo does not determine missing indicators, tier fallbacks, comparability copy, or any numerical values.</td>
 </tr>
 </tbody></table>
-<p><code>ST_Covers</code> 使边界点成为所有覆盖边界的候选；候选数为零/一/多分别映射为 unresolved/resolved/ambiguous。对于 reporting state，B 从完整 district candidates 派生州候选：不同 state id 多个即 ambiguous；恰一个才 resolved；不能由候选的第一项或 district 名称猜测。该派生规则仅分类已经返回的候选，不改变资料、边界或下游事实。</p>
-<h2>5. 联调与验收情景</h2>
+<p><code>ST_Covers</code> Make the boundary point a candidate for all coverage boundaries; the number of candidates is zero/one/many and is mapped to unresolved/resolved/ambiguous respectively. For reporting state, B derives state candidates from complete district candidates: multiple different state ids are ambiguous; exactly one is resolved; cannot be guessed from the first item of the candidate or the district name. This derivation rule only classifies the candidates that have been returned and does not change the data, boundaries, or downstream facts.</p>
+<h2>5. Joint debugging and acceptance scenarios</h2>
 <table>
 <thead>
 <tr>
-<th>场景</th>
-<th>参与 Owner</th>
-<th>操作</th>
-<th>可观察结果</th>
+<th>scene</th>
+<th>Participate Owner</th>
+<th>operate</th>
+<th>observable results</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>单一行政区</td>
+<td>single administrative region</td>
 <td>B、Cost、Crime、Socio、Infrastructure</td>
-<td>对合法地点请求各自层级</td>
-<td>同一 provenance 下返回同一州/行政区事实；只有对应 resolved 层级进入各自资料读取。</td>
+<td>Request respective levels for legal locations</td>
+<td>Facts of the same state/administrative region are returned under the same provenance; only the corresponding resolved level can be read into respective data.</td>
 </tr>
 <tr>
-<td>州成功、行政区零覆盖</td>
+<td>State success, administrative district zero coverage</td>
 <td>B、Socio、Cost、Infrastructure</td>
-<td>fake/真实样本返回 state resolved、district <code>noCoverage</code></td>
-<td>Socio 仅按其事实源可给州级参考；Cost/Infrastructure 不猜测 district 或补零。</td>
+<td>fake/real sample returns state resolved, district <code>noCoverage</code></td>
+<td>Socio can give state references only by their source of truth; Cost/Infrastructure does not guess districts or zero-pad.</td>
 </tr>
 <tr>
-<td>边界点/重叠</td>
-<td>B、四个消费者</td>
-<td>返回完整多候选</td>
-<td>该层级是 ambiguous；没有消费者任选候选或产生伪解析。</td>
+<td>Boundary points/overlaps</td>
+<td>B. Four consumers</td>
+<td>Return complete multiple candidates</td>
+<td>This level is ambiguous; no consumer chooses candidates or produces spurious parses.</td>
 </tr>
 <tr>
-<td>RPC 权限或来源不可用</td>
-<td>B、四个消费者</td>
-<td>未 opened、认证/RPC 拒绝、provenance 不完整</td>
-<td><code>scopeUnavailable</code>、<code>sourceUnavailable</code> 或 <code>versionUnverifiable</code> 可区分；不伪装为空资料。</td>
+<td>RPC permission or origin is not available</td>
+<td>B. Four consumers</td>
+<td>Not opened, authentication/RPC rejected, provenance incomplete</td>
+<td><code>scopeUnavailable</code>、<code>sourceUnavailable</code> or <code>versionUnverifiable</code> Differentiable; does not pretend to be empty data.</td>
 </tr>
 <tr>
-<td>A/B 与版本变化</td>
-<td>B、消费者</td>
-<td>同点并行、不同地点或不同版本的晚到响应</td>
-<td>同 location/版本一致；不同版本不可比，旧地点/旧版本不覆盖当前端。</td>
+<td>A/B and version changes</td>
+<td>B. consumers</td>
+<td>Late response at the same point in parallel, different locations or different versions</td>
+<td>Same location/version; different versions are not comparable, old locations/old versions do not cover the current end.</td>
 </tr>
 </tbody></table>
-<p>追踪：<code>D09</code>、<code>D13</code>、<code>D23</code>、<code>D27</code>；<code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01</code>、<code>AT-COMPARE-03</code>。</p>
-<h2>6. 实现自由、阻塞项与完成检查</h2>
-<p>B 可决定内部 Adapter、缓存、空间匹配库、状态管理、并发/取消/重试及真实/fake 测试组织。以下情况必须暂停协商：变更唯一公开入口、任何公开声明/失败/顺序/权限，修改 RPC 行形状或 authenticated-only 例外，或资料版本使 <code>RISK-GEO-02</code> 结论失效。</p>
-<p>当前阻塞项：无。边界资料、导入审计、固定空间样本和权限证据已关闭 <code>RISK-GEO-02</code>；来源/依赖版本变化时重新打开。</p>
+<p>track:<code>D09</code>、<code>D13</code>、<code>D23</code>、<code>D27</code>；<code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01</code>、<code>AT-COMPARE-03</code>。</p>
+<h2>6. Implement free, blocking items and completion checks</h2>
+<p>B can determine internal Adapter, cache, spatial matching library, state management, concurrency/cancellation/retry and real/fake test organization. Negotiation must be suspended if: changes to the only public entry, any public claims/failures/orders/permissions, modifications to RPC row shapes or authenticated-only exceptions, or data version changes <code>RISK-GEO-02</code> The conclusion is invalid.</p>
+<p>Current blocking items: None. Boundary profiles, import auditing, fixed space samples and permission evidence are closed <code>RISK-GEO-02</code>;Reopen when source/dependency version changes.</p>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> 四项 Readiness 在第 0 节均有可核查证据，Owner 始终为 <code>B</code>。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>GEO-001</code> 有一个公开 entry point、声明、精确输入/nullability/约束、typed 结果/失败、状态/权限/顺序、最小调用与 fake 场景。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>GEO-002</code> 有精确 RPC/行形状和 B 专属权限边界；未向消费者泄漏 persistence seam。</li>
-<li><input checked="" disabled="" type="checkbox"> 本文只含 declaration-level Dart 与协作验收，不含函数体、私有实现、migration 或测试实现。</li>
+<li><input checked="" disabled="" type="checkbox"> All four Readinesses have verifiable evidence in Section 0, and Owner is always <code>B</code>。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>GEO-001</code> There is a public entry point, declarations, exact input/nullability/constraints, typed results/failures, status/permissions/ordering, minimal calls, and fake scenarios.</li>
+<li><input checked="" disabled="" type="checkbox"> <code>GEO-002</code> Has precise RPC/row shape and B-exclusive permission boundaries; no persistence seam leaked to consumers.</li>
+<li><input checked="" disabled="" type="checkbox"> This article only contains declaration-level Dart and collaborative acceptance, and does not include function bodies, private implementations, migrations or test implementations.</li>
 </ul>
 <h2>7. Change Log</h2>
-<p>| 日期 | 状态 | 变更原因 | 影响 | 批准者 |
+<p>| Date | Status | Reason for Change | Impact | Approvers |
 | --- | --- | --- | --- |
-| 2026-09-14 | <code>Ready for Development</code> | 固定边界资料、导入、空间验证及 authenticated-only 例外 | <code>GEO-001</code>、<code>GEO-002</code>、四个消费者 | 项目负责人 |
-| 2026-09-15 | <code>Ready for Development</code> | Issue #23 将 owning design 返工为单一开发协作契约；冻结唯一公开 Dart seam 与 fakeable 结果模型 | <code>GEO-001</code>、<code>GEO-002</code>、Cost、Crime、Socio、Infrastructure | 设计 AI〔项目负责人授权〕，ADR 0013 |</p>
+| 2026-09-14 | <code>Ready for Development</code> | Fixed boundary data, imports, spatial validation, and authenticated-only exceptions | <code>GEO-001</code>、<code>GEO-002</code>, Four Consumers | Project Leader |
+| 2026-09-15 | <code>Ready for Development</code> | Issue #23 Rework owning design into a single development collaboration contract; freeze only public Dart seam and fakeable result models | <code>GEO-001</code>、<code>GEO-002</code>, Cost, Crime, Socio, Infrastructure | Design AI [authorized by the project leader], ADR 0013 |</p>
 </main>
 </body>
 </html>

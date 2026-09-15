@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Infrastructure Coverage 开发协作契约</title>
+  <title>Infrastructure Coverage Development Collaboration Contract</title>
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
     body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
@@ -25,105 +25,105 @@
 </head>
 <body>
 <main>
-<h1>Infrastructure Coverage 开发协作契约</h1>
+<h1>Infrastructure Coverage Development Collaboration Contract</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
-Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 6
-唯一公开入口：<code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>
-完成定义（DoD）：B 在唯一公开入口提供第 3 节完整 <code>INFRA-001</code> 声明；Shell 与 Suitability 可用该入口 fake 完成组合。真实 Adapter 经第 5 节证明五项/ICI 元数据、未知/0、A/B neutral 可比性、预览/保存和 A→B 隔离均可观察，且不伪装为零、成功或推荐。</p>
+<p>state:<code>Ready for Development</code>(2026-09-15; Design AI [authorized by the project leader], ADR 0013)
+Owner:<code>B</code>;System baseline:<code>Baselined — 5d11769</code>;Depends on wave: Wave 6
+The only public entrance:<code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>
+Definition of Done (DoD): B Section 3 complete available at the only public entrance <code>INFRA-001</code> Statement; Shell and Suitability can be combined using this entry fake. A true Adapter is certified by Section 5 that five items/ICI metadata, unknown/0, A/B neutral comparability, preview/save, and A→B isolation are all observable and do not pretend to be zero, successful, or recommended.</p>
 </blockquote>
-<p>本文件是 Infrastructure Coverage 唯一的 Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它冻结跨 Owner Dart seam、数据访问、权重生命周期和联验；<code>lib/features/infrastructure_coverage/</code> 内的 Widget、状态、Adapter、缓存、并发/取消/重试、计算组织和测试实现由 B 决定。公式正文只在知识库；表/RLS/migration 只在 Schema Catalog。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<p>This document is the Infrastructure Coverage's only Development Contract; the HTML with the same name is a human-readable copy derived from it, not a stand-alone specification. It freezes across Owner Dart seams, data access, weight lifecycle, and unions;<code>lib/features/infrastructure_coverage/</code> The implementation of Widgets, state, Adapters, caching, concurrency/cancellation/retry, computation organization and testing is determined by B. The formula text is only in the knowledge base; the table/RLS/migration is only in the Schema Catalog.</p>
+<h2>0. Fixed reading order and four items of Readiness</h2>
 <ol>
-<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">基础设施功能</a>、<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md">ICI 评分模型</a>；</li>
-<li><a href="../design/system/feature-map.md#fm-infra">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-SCHEMA-01/02</code></a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-TRANSIT-01</code></a>；</li>
-<li>本契约及同名 HTML；后项不能改写前项。</li>
+<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83">domain vocabulary</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">Infrastructure functions</a>、<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md">ICI scoring model</a>；</li>
+<li><a href="../design/system/feature-map.md#fm-infra">Feature map</a>、<a href="../design/system/interfaces.md">Interface registry</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Traceability</a>、<a href="../design/system/data-ownership.md">Data ownership</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-SCHEMA-01/02</code></a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6"><code>RISK-TRANSIT-01</code></a>；</li>
+<li>This contract and the HTML of the same name; the latter cannot override the preceding.</li>
 </ol>
 <table>
 <thead>
 <tr>
 <th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>verifiable evidence</th>
+<th>in conclusion</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>责任和顺序</td>
-<td><code>INFRA-01/02</code> 唯一归 B；先有 <code>D25</code>–<code>D29</code>，再提供给 <code>D46</code> Suitability</td>
-<td>已就绪</td>
+<td>Responsibilities and order</td>
+<td><code>INFRA-01/02</code> Unique to B; comes first <code>D25</code>–<code>D29</code>, and then provide it to <code>D46</code> Suitability</td>
+<td>Ready</td>
 </tr>
 <tr>
 <td>Interface</td>
-<td>第 2、3 节每个跨 Owner seam 都有入口、声明、约束、结果/失败、顺序、权限、示例和 fake</td>
-<td>已就绪</td>
+<td>Sections 2 and 3 Each cross-Owner seam has entries, declarations, constraints, results/failures, sequences, permissions, examples and fakes</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>数据和权限</td>
-<td>B 唯一直读 <code>read_infrastructure_inputs</code> 和 own <code>user_ici_preferences</code>；公共输入只读，preview 仅页面内存</td>
-<td>已就绪</td>
+<td>Data and permissions</td>
+<td>B the only direct reading <code>read_infrastructure_inputs</code> and own <code>user_ici_preferences</code>;Public input is read-only, preview only has page memory</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>联验和风险</td>
-<td>第 5 节覆盖 single/A-B/缺失/保存/中性/换号；真实导入与迁移证据仍须满足 Schema risks</td>
-<td>已就绪</td>
+<td>joint testing and risk</td>
+<td>Section 5 covers single/A-B/missing/save/neutral/number change; real import and migration evidence must still meet Schema risks</td>
+<td>Ready</td>
 </tr>
 </tbody></table>
-<h2>1. 成果、责任与边界</h2>
+<h2>1. Results, Responsibilities and Boundaries</h2>
 <ul>
-<li>合法单点显示供水、供电、医疗、教育、公共交通的 0–100 分项、各自来源/日期/范围/缺失原因，以及可用时的 account-weighted ICI。ICI 是相对服务覆盖，不是质量、可靠性、官方评级或推荐。</li>
-<li>医疗、教育、公共交通权重为 <code>1–10</code>；合法调整即时产生标记的 single <code>unsaved preview</code>，远端保存成功才成为跨设备 last saved。供水/供电没有滑块。</li>
-<li>A/B、地点摘要与 Suitability 只拿 <code>5/5/5</code> neutral ICI；两端只有资料口径相容才显示差异，永不显示赢家。</li>
+<li>Legal single points show 0–100 breakdown for water, electricity, health, education, public transport, respective source/date/range/reason for missing, and account-weighted ICI when available. ICI is relative service coverage, not quality, reliability, official ratings or recommendations.</li>
+<li>The weights of medical care, education and public transportation are <code>1–10</code>; Legally adjust the single that generates the mark immediately <code>unsaved preview</code>, it becomes cross-device last saved only if the remote save is successful. There are no sliders for water/electricity.</li>
+<li>A/B, location summary and Suitability only take <code>5/5/5</code> Neutral ICI; only the differences between the two ends will be shown if the data caliber is compatible, and the winner will never be shown.</li>
 </ul>
 <table>
 <thead>
 <tr>
-<th>Owner / 边界</th>
-<th>负责</th>
-<th>不负责</th>
+<th>Owner / Boundary</th>
+<th>Responsible</th>
+<th>irresponsible</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>B：<code>lib/features/infrastructure_coverage/</code></td>
-<td>五项分项、ICI、权重、<code>INFRA-001</code>、A/B 可比性</td>
-<td>地点、Geo、GTFS、Shell、assessment preferences、Suitability</td>
+<td>Five sub-items, ICI, weight,<code>INFRA-001</code>,A/B comparability</td>
+<td>Location, Geo, GTFS, Shell, assessment preferences, Suitability</td>
 </tr>
 <tr>
 <td>Shell</td>
-<td>opened 主应用导航、返回、组合</td>
-<td>ICI/资料/权重/可比性</td>
+<td>opened main application navigation, return, combination</td>
+<td>ICI/data/weighting/comparability</td>
 </tr>
 <tr>
 <td>Map / Geo / Transit / Privacy</td>
-<td>immutable 合法地点；行政区事实；canonical connectivity；scope</td>
-<td>B 的公式、资料读取、preview 或保存</td>
+<td>immutable legal location; administrative district fact; canonical connectivity; scope</td>
+<td>B's formula, data reading, preview or saving</td>
 </tr>
 </tbody></table>
-<h2>2. B 需要调用的 Interface 与读取对象</h2>
-<p>只能 import 指定入口，不能 import 他人 <code>src/</code>、Adapter 或 SDK。以下仅是 declaration，不是可执行实现。</p>
-<h3>Interface 卡：<code>SHELL-001</code> — 导航和组合</h3>
-<p><strong>提供者：</strong> Application Shell；<strong>唯一 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
-<p><code>SHELL-001</code> 的完整 canonical 声明、输入约束、结果、权限、顺序和 fake 规则只在 <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell</a> 定义。B 直接 import 该入口，不复制、缩窄或另造 Shell 类型。实际调用子集为 <code>ApplicationShell.submit(ShellIntent)</code> 与 <code>publish(ShellContribution)</code>，并处理 canonical <code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>、<code>ShellContributionAccepted</code>、<code>ShellContributionAuthenticationRequired</code>、<code>ShellContributionRejected(ShellRejectionReason)</code>；reason 仍为 <code>missingInput</code>、<code>staleInput</code>、<code>inapplicableDestination</code>、<code>scopeUnavailable</code>。</p>
-<p>B 从自己的唯一入口完整导出 <code>OpenInfrastructureIntent</code>、<code>OpenInfrastructureComparisonIntent</code> 和 <code>InfrastructureContribution</code> marker；只含 immutable location、A/B 原角色、返回语境和 typed result，不能带可变地图、原始行、账户 ID 或表行。仅 opened scope 可 <code>submit/publish</code>；respective accepted 才导航/组合，authenticationRequired/rejected 是 Shell 结果而非数据 missing。Shell 仅改导航；地点、ICI、权重仍归 B。过期地点/角色/scope 的晚到结果不能发布。</p>
-<p>最小调用：<code>await shell.publish(InfrastructureContribution(outcome, returnContext));</code>。fake Shell 返回 accepted、authenticationRequired、staleInput；断言拒绝不把旧 ICI 发布为新地点结果。</p>
-<h3>Interface 卡：<code>LOCATION-001</code> — immutable 合法地点</h3>
-<p><strong>提供者：</strong> Map / Location；<strong>唯一 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
-<p><code>LOCATION-001</code> 的完整 canonical 声明、输入约束、结果与生命周期只在 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a> 定义。B 的调用子集仅为 <code>LocationCoordinator.read(LocationRole)</code>，及 canonical <code>LocationRole</code>（single/locationA/locationB）、<code>LocationPresent</code>、<code>LocationAbsent</code>、<code>ValidLocationReference</code>；不 import <code>src/</code> 或重述 Map 类型。</p>
-<p>只接受 single，或两个不同且角色明确的 A/B <code>LocationPresent</code>。absent、过期、非法/范围外或同点时不读资料、不产生 preview/ICI、不发布，也不以默认城市、收藏名或旧点替代。调用无副作用；结果始终绑定原 <code>locationId</code>、角色和分析日。fake Map 给 single/A-B/缺端/同点，断言缺端无请求、交换不污染原角色。</p>
-<h3>Interface 卡：<code>GEO-001</code> — 行政地理语境</h3>
-<p><strong>提供者：</strong> Geographic Context；<strong>唯一 import：</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code>。</p>
-<p><code>GEO-001</code> 的完整 canonical 声明、逐层结果、provenance 与失败语义只在 <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context</a> 定义。B 的调用子集为 <code>GeographicContext.resolve(GeographicContextRequest)</code>，请求 <code>district</code> 与 <code>reportingState</code>，并处理 canonical <code>GeographicContextAvailable</code> / <code>GeographicContextUnavailable</code> 及每层 <code>GeographicLevelResolved</code>、<code>GeographicLevelUnresolved</code>、<code>GeographicLevelAmbiguous</code>；不复制或重塑任何 Geo 类型。</p>
-<p>B 请求同一地点的 district/reportingState；只有 <code>GeographicLevelResolved(district)</code> 能读四项行政区资料。<code>GeographicLevelUnresolved</code> / <code>GeographicLevelAmbiguous</code>（即使州 resolved）使水、电、医疗、教育均 missing，保留 canonical 原因/provenance/candidates；不得以州、邻区、名称或历史结果补足。调用只读、不改变地点或账户。fake Geo 给 resolved、unresolved、ambiguous 和 state-only；断言交通仍独立但四项不猜测。</p>
-<h3>Interface 卡：<code>TRANSIT-001</code> — canonical connectivity</h3>
-<p><strong>提供者：</strong> Public Transportation；<strong>唯一 import：</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
-<p><code>TRANSIT-001</code> 的完整 canonical 声明只在 <a href="../design/features/public-transportation.md">Public Transportation</a> 定义。B 的调用子集为 <code>PublicTransportation.load(TransitRequest)</code> 及 canonical available/incomplete/unavailable、service outcome、score 与 provenance；不复制或重塑 Transit 类型。</p>
-<p>请求必须用同地点、明确分析日、<code>1,500m</code>；仅 <code>TransitAvailable + served + score != null</code> 的 score 进入交通分。noStops/noActiveRoutes、incomplete、unavailable 都是交通 component missing，原样保留原因；served score 0 是有效 0。完整 served 的 stale warning 仍可用且保留 warning，B 不下载 GTFS/重算百分位。保存 analysisDate/radius/snapshot/reference-grid 用于 A/B 可比性。fake Transit 覆盖 served 0、noStops、noActiveRoutes、incomplete/unavailable、stale served，断言仅 scored served 入 ICI。</p>
-<h3>Interface 卡：<code>PRIVACY-001</code> — 账户范围</h3>
-<p><strong>提供者：</strong> Account Privacy；<strong>唯一 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
-<p><code>PRIVACY-001</code> 的完整 canonical 声明、账户范围、关闭参与者和结果只在 <a href="../design/modules/account-privacy.md#privacy-001--%E8%B4%A6%E6%88%B7%E8%8C%83%E5%9B%B4%E4%B8%8E%E5%85%B3%E9%97%AD%E5%8F%82%E4%B8%8E%E8%80%85">Account Privacy</a> 定义。B 的调用子集为 <code>AccountPrivacy.readScope()</code> 与 infrastructureCoverage participant 的 <code>clearPrivateState(AccountScope)</code>；处理 canonical <code>AccountScopeOpened</code>、<code>AccountScopeClosing</code>、<code>AccountScopeClosed</code>、<code>AccountScopeUnavailable</code> 和 <code>PrivateStateCleared</code> / <code>PrivateStateClearIncomplete</code>。不以本地 <code>read()</code>、自定义 account id 或旧 scope 类型替代。</p>
-<p>Shell 唯一发起 lifecycle。B 仅同账户 <code>AccountScopeOpened</code> 时读/写权重；<code>AccountScopeClosing</code> 即令旧 preview、last-saved 副本、保存中动作和晚到结果不可读/提交。B 只清理并报告 <code>STATE-INFRA-WEIGHT-PREVIEW</code>，不删远端权重或公共资料；closed/identity mismatch 绝不伪装为已保存 <code>5/5/5</code>。fake A opened→closing→closed→B opened，断言 A 回调不进入 B，公共资料无账户字段。</p>
-<h3>直接读取：<code>read_infrastructure_inputs</code> 与 <code>user_ici_preferences</code>（仅 B）</h3>
-<p><code>read_infrastructure_inputs</code> 是 authenticated security-invoker、只读、<code>proposed</code> 的 View/RPC；Flutter 不直读 <code>hh_access_amenities</code>、<code>hospital_beds</code>、<code>population_district</code>、<code>schools_district</code>、<code>teachers_district</code>、<code>enrolment_school_district</code>。<code>user_ici_preferences</code> 是 B 的 owner-only CRUD 表：每账户一行，<code>health/education/transit</code> 整数 <code>1–10</code>、<code>updated_at</code>；缺行=5。旧五个 <code>0–1</code> 列仅迁移来源。</p>
+<h2>2. B needs to call the Interface and read object</h2>
+<p>You can only import the specified entry and cannot import others. <code>src/</code>, Adapter or SDK. The following is only a declaration, not an executable implementation.</p>
+<h3>Interface card:<code>SHELL-001</code> — Navigation and Portfolio</h3>
+<p><strong>Provider:</strong> Application Shell；<strong>The only import:</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
+<p><code>SHELL-001</code> The complete canonical declaration, input constraints, results, permissions, ordering and fake rules are only available in <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell</a> definition. B directly import this entry without copying, narrowing or creating another Shell type. The actual call subset is <code>ApplicationShell.submit(ShellIntent)</code> and <code>publish(ShellContribution)</code>, and handle canonical <code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>、<code>ShellContributionAccepted</code>、<code>ShellContributionAuthenticationRequired</code>、<code>ShellContributionRejected(ShellRejectionReason)</code>;reason is still <code>missingInput</code>、<code>staleInput</code>、<code>inapplicableDestination</code>、<code>scopeUnavailable</code>。</p>
+<p>B is fully exported from its own unique entrance. <code>OpenInfrastructureIntent</code>、<code>OpenInfrastructureComparisonIntent</code> and <code>InfrastructureContribution</code> marker; only contains immutable location, A/B original role, return context and typed result, not mutable map, original row, account ID or table row. Only opened scope is available <code>submit/publish</code>;respective accepted is the navigation/combination, authenticationRequired/rejected is the shell result rather than data missing. Shell only changes navigation; location, ICI, and weight still belong to B. Late results for expired locations/roles/scopes cannot be published.</p>
+<p>Minimal call:<code>await shell.publish(InfrastructureContribution(outcome, returnContext));</code>. fake Shell returns accepted, authenticationRequired, staleInput; assertion reject does not publish old ICI as new location result.</p>
+<h3>Interface card:<code>LOCATION-001</code> — immutable legal location</h3>
+<p><strong>Provider:</strong> Map / Location；<strong>The only import:</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
+<p><code>LOCATION-001</code> The complete canonical declaration, input constraints, results and lifecycle are only available in <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a> definition. The subset of calls to B is only <code>LocationCoordinator.read(LocationRole)</code>, and canonical <code>LocationRole</code>（single/locationA/locationB）、<code>LocationPresent</code>、<code>LocationAbsent</code>、<code>ValidLocationReference</code>;no import <code>src/</code> Or restate the Map type.</p>
+<p>Only single, or two different A/Bs with clear roles are accepted <code>LocationPresent</code>. The data will not be read, preview/ICI will not be generated, it will not be published, and it will not be replaced by the default city, collection name or old point when it is absent, expired, illegal/out of range or at the same point. The call has no side effects; the result is always bound to the original <code>locationId</code>, role and analysis day. Fake Map gives single/A-B/missing end/same point, asserting that the missing end has no request and the exchange does not pollute the original role.</p>
+<h3>Interface card:<code>GEO-001</code> — Administrative geography context</h3>
+<p><strong>Provider:</strong> Geographic Context；<strong>The only import:</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code>。</p>
+<p><code>GEO-001</code> The complete canonical statement, layer-by-layer results, provenance and failure semantics are only available in <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context</a> definition. The subset of calls to B is <code>GeographicContext.resolve(GeographicContextRequest)</code>,ask <code>district</code> and <code>reportingState</code>, and handle canonical <code>GeographicContextAvailable</code> / <code>GeographicContextUnavailable</code> and each floor <code>GeographicLevelResolved</code>、<code>GeographicLevelUnresolved</code>、<code>GeographicLevelAmbiguous</code>;Does not copy or reshape any Geo types.</p>
+<p>B requests district/reportingState for the same location; only <code>GeographicLevelResolved(district)</code> Can read four administrative area information.<code>GeographicLevelUnresolved</code> / <code>GeographicLevelAmbiguous</code>(Even if the state is resolved) Water, electricity, medical care, and education are all missing, and canonical reasons/provenance/candidates are retained; they cannot be filled with states, neighboring districts, names, or historical results. The call is read-only and does not change location or account. fake Geo gives resolved, unresolved, ambiguous and state-only; asserts traffic is still independent but does not guess the four.</p>
+<h3>Interface card:<code>TRANSIT-001</code> — canonical connectivity</h3>
+<p><strong>Provider:</strong> Public Transportation；<strong>The only import:</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
+<p><code>TRANSIT-001</code> The complete canonical statement is only available in <a href="../design/features/public-transportation.md">Public Transportation</a> definition. The subset of calls to B is <code>PublicTransportation.load(TransitRequest)</code> and canonical available/incomplete/unavailable, service outcome, score, and provenance; does not copy or reinvent the Transit type.</p>
+<p>Requests must be from the same location, specify the date of analysis,<code>1,500m</code>;only <code>TransitAvailable + served + score != null</code> The score enters the traffic score. noStops/noActiveRoutes, incomplete, and unavailable are all traffic component missing, and the reasons are kept as they are; served score 0 is valid 0. The fully served stale warning is still available and the warning is retained, B does not download GTFS/recompute percentiles. Save analysisDate/radius/snapshot/reference-grid for A/B comparability. fake Transit covers served 0, noStops, noActiveRoutes, incomplete/unavailable, stale served, and asserts that only scored served enters ICI.</p>
+<h3>Interface card:<code>PRIVACY-001</code> — Account scope</h3>
+<p><strong>Provider:</strong> Account Privacy；<strong>The only import:</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
+<p><code>PRIVACY-001</code> The full canonical statement, account scope, closed participants and results are available only at <a href="../design/modules/account-privacy.md#privacy-001--%E8%B4%A6%E6%88%B7%E8%8C%83%E5%9B%B4%E4%B8%8E%E5%85%B3%E9%97%AD%E5%8F%82%E4%B8%8E%E8%80%85">Account Privacy</a> definition. The subset of calls to B is <code>AccountPrivacy.readScope()</code> with infrastructureCoverage participant <code>clearPrivateState(AccountScope)</code>;process canonical <code>AccountScopeOpened</code>、<code>AccountScopeClosing</code>、<code>AccountScopeClosed</code>、<code>AccountScopeUnavailable</code> and <code>PrivateStateCleared</code> / <code>PrivateStateClearIncomplete</code>. not local <code>read()</code>, custom account id or old scope type replacement.</p>
+<p>Shell only initiates lifecycle. B Only the same account <code>AccountScopeOpened</code> time read/write weight;<code>AccountScopeClosing</code> This makes old previews, last-saved copies, saving actions, and late results unreadable/committed. B only cleans and reports <code>STATE-INFRA-WEIGHT-PREVIEW</code>, do not delete remote weights or public information; closed/identity mismatch will never be disguised as saved <code>5/5/5</code>. Fake A opened→closing→closed→B opened, asserting that the callback of A does not enter B, and the public information has no account field.</p>
+<h3>Read directly:<code>read_infrastructure_inputs</code> and <code>user_ici_preferences</code>(B only)</h3>
+<p><code>read_infrastructure_inputs</code> is authenticated security-invoker, read-only,<code>proposed</code> View/RPC; Flutter does not read directly <code>hh_access_amenities</code>、<code>hospital_beds</code>、<code>population_district</code>、<code>schools_district</code>、<code>teachers_district</code>、<code>enrolment_school_district</code>。<code>user_ici_preferences</code> is B's owner-only CRUD table: one row per account,<code>health/education/transit</code> integer <code>1–10</code>、<code>updated_at</code>;missing row=5. old five <code>0–1</code> Columns are only migrated from.</p>
 <pre><code class="language-dart">abstract interface class InfrastructureInputsReader { Future&lt;InfrastructureInputsOutcome&gt; read(InfrastructureInputsRequest request); }
 final class InfrastructureInputsRequest { final AdministrativeGeographicContext district; final InfrastructureRefreshPolicy policy; const InfrastructureInputsRequest({required this.district, required this.policy}); }
 enum InfrastructureRefreshPolicy { cacheAllowed, refresh }
@@ -139,10 +139,10 @@ final class SchoolsRow { final DateTime date; final String stage; final String t
 final class TeachersRow { final DateTime date; final String stage; final String sex; final int? value; const TeachersRow(this.date, this.stage, this.sex, this.value); }
 final class EnrolmentRow { final DateTime date; final String stage; final String sex; final int? value; const EnrolmentRow(this.date, this.stage, this.sex, this.value); }
 </code></pre>
-<p>请求 <code>(state,district)</code> 必为 Geo resolved；每数据集取自身最新有效日期，人口同年或最多向前两年且 <code>sex=both/age=overall/ethnicity=overall</code>；排除 <code>All Districts</code>/州合计。失败和必要字段 null 使对应 component missing；明确 0 有效。B 仅同账户 select/insert/update 权重，不能将 preview 写表。fake reader 给完整、必要行缺失、人口超期、0、permissionDenied，验证分项缺失和门槛。</p>
-<h2>3. B 必须提供的 Interface</h2>
-<h3>Interface 卡：<code>INFRA-001</code> — 五项结果、权重和 neutral ICI</h3>
-<p><strong>提供者：</strong> Infrastructure Coverage（B）；<strong>消费者：</strong> Application Shell、Personalized Location Suitability；<strong>唯一 import：</strong> <code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>。消费者不得读 B 的表/View、<code>src/</code> 或重算 ICI；B 先合并以下声明和最小 fake。</p>
+<p>ask <code>(state,district)</code> Must be Geo resolved; each data set takes its latest valid date, the population is in the same year or up to two years earlier and <code>sex=both/age=overall/ethnicity=overall</code>;exclude <code>All Districts</code>/state total. Failure and required fields null make the corresponding component missing; explicitly 0 is effective. B only has the same account select/insert/update weight and cannot write preview to the table. fake reader gives complete, necessary rows missing, population expired, 0, permissionDenied, verification sub-items missing and threshold.</p>
+<h2>3. Interface that B must provide</h2>
+<h3>Interface card:<code>INFRA-001</code> — Five results, weights and neutral ICI</h3>
+<p><strong>Provider:</strong> Infrastructure Coverage（B）；<strong>consumer:</strong> Application Shell、Personalized Location Suitability；<strong>The only import:</strong> <code>package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart</code>. Consumers are not allowed to read B’s table/View,<code>src/</code> Or recalculate ICI; B first merges the following statement and the smallest fake.</p>
 <pre><code class="language-dart">final class InfrastructureReturnContext { final String destination; final String? stableItemId; const InfrastructureReturnContext({required this.destination, this.stableItemId}); }
 final class OpenInfrastructureIntent extends ShellIntent { final ValidLocationReference location; final InfrastructureReturnContext returnContext; const OpenInfrastructureIntent({required this.location, required this.returnContext}); }
 final class OpenInfrastructureComparisonIntent extends ShellIntent { final ValidLocationReference locationA; final ValidLocationReference locationB; final InfrastructureReturnContext returnContext; const OpenInfrastructureComparisonIntent({required this.locationA, required this.locationB, required this.returnContext}); }
@@ -201,153 +201,153 @@ final class InfrastructureProvenance { final String? boundaryVersion; final Stri
 <table>
 <thead>
 <tr>
-<th>主题</th>
-<th>固定协作语义</th>
+<th>theme</th>
+<th>Fixed collaboration semantics</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>single/account</td>
-<td><code>loadSingle</code> 只接受 single immutable location、分析日和 opened scope；无行=last saved <code>5/5/5</code>。合法 preview 覆盖本页并标记 <code>unsavedPreview</code>。</td>
+<td><code>loadSingle</code> Only accepts single immutable location, analysis date, and opened scope; no row=last saved <code>5/5/5</code>. Legal preview covers this page and marks <code>unsavedPreview</code>。</td>
 </tr>
 <tr>
 <td>neutral</td>
-<td>summary、Suitability、A/B 强制 <code>5/5/5</code> 和 mode neutral；不得读、输出、缓存或推导账户权重。</td>
+<td>summary, Suitability, A/B mandatory <code>5/5/5</code> and mode neutral; account weights may not be read, output, cached, or derived.</td>
 </tr>
 <tr>
-<td>分项</td>
-<td>water/electricity 直接百分比；health=所有 type beds ÷ eligible population ×1000 的同期全国行政区百分位；education=学校密度与师生资源百分位各 50%；transit 仅 canonical scored served。均 0–100，附单位/范围、日期/来源/warning。</td>
+<td>Itemized</td>
+<td>water/electricity direct percentage; health=all type beds ÷ eligible population ×1000 national administrative district percentile for the same period; education=school density and teacher and student resource percentile 50% each; transit only canonical scored served. All 0–100, with unit/range, date/source/warning attached.</td>
 </tr>
 <tr>
-<td>缺失/ICI</td>
-<td>任一必要 input 缺失则整个分项 missing；未知不为 0，明确 0 为 available。missing 不入分子/分母；五项原始基础权重均 .20，少于 3 项可用则 ICI unavailable。</td>
+<td>Missing/ICI</td>
+<td>If any required input is missing, the entire item is missing; unknown is not 0, and 0 is clearly available. missing does not enter the numerator/denominator; the five original base weights are all .20, and if less than 3 items are available, the ICI is unavailable.</td>
 </tr>
 <tr>
-<td>权重</td>
-<td>water/electricity multiplier 1；三个滑块 <code>1–10</code>、multiplier=<code>level/5</code>；account-weighted 仅 single，neutral 固定 5；assessment preferences 永不进入 ICI。</td>
+<td>weight</td>
+<td>water/electricity multiplier 1; three sliders <code>1–10</code>、multiplier=<code>level/5</code>;account-weighted single only, neutral fixed 5;assessment preferences never enter ICI.</td>
 </tr>
 </tbody></table>
-<p><code>InfrastructureLoadRejected</code> 是无法安全开始，与已返回其余分项/一个 missing 不同。preview 仅同步改 <code>STATE-INFRA-WEIGHT-PREVIEW</code>；非整数/不在 1–10 返回 <code>invalidLevel</code> 并不改 preview。save 只保存全部三项合法值；仅 <code>InfrastructureWeightsSaved</code> 替换 last saved/发布跨设备，失败保留 preview/last saved，restore 可恢复；不建离线写队列。scope close、身份不符、地点/日期/provenance 改变时，旧 load/save 变 <code>scopeUnavailable/staleRequest</code>，不污染新账户/地点。公开结果不含 account ID、表行或原始数据。</p>
-<p><strong>A/B 顺序：</strong> Shell/Map 先给原顺序 A/B；B 分别取 Geo、输入和 Transit，先形成两端 neutral。任一 ICI unavailable 为 <code>InfrastructureIncomparable(sideUnavailable)</code>；只有全部使用分项的日期/source、district/1,500m basis、模型、Transit snapshot/reference-grid 和完整性相容，才 <code>Comparable</code> 并显示差异。交换只换槽位。Suitability 只调用 <code>neutralForSuitability</code>。</p>
+<p><code>InfrastructureLoadRejected</code> is not safe to start, unlike having returned the remaining items/a missing. preview only sync changes <code>STATE-INFRA-WEIGHT-PREVIEW</code>;Not an integer/not in the range 1–10 returned <code>invalidLevel</code> Does not change preview. save only saves all three legal values; only <code>InfrastructureWeightsSaved</code> Replace last saved/publish across devices, retain preview/last saved if failed, restore can be recovered; no offline write queue is created. When scope close, identity discrepancy, location/date/provenance change, the old load/save becomes <code>scopeUnavailable/staleRequest</code>, without polluting new accounts/locations. Public results do not contain account IDs, table rows, or raw data.</p>
+<p><strong>A/B order:</strong> Shell/Map first gives the original sequence A/B; B takes Geo, input and Transit respectively, and first forms neutral at both ends. Any ICI unavailable is <code>InfrastructureIncomparable(sideUnavailable)</code>;Only if the date/source, district/1,500m basis, model, Transit snapshot/reference-grid and integrity of all used items are compatible <code>Comparable</code> and show the difference. Swapping only changes slots. Suitability only calls <code>neutralForSuitability</code>。</p>
 <pre><code class="language-dart">final outcome = await infrastructure.loadSingle(
   InfrastructureSingleRequest(location: location, analysisDate: analysisDate, policy: InfrastructureLoadPolicy.cacheAllowed),
 );
 </code></pre>
-<p>调用方以 <code>InfrastructureLoaded</code> 呈现 <code>facts</code>、<code>accountWeightedIci</code> 和 <code>weightContext</code>；以 <code>InfrastructureLoadRejected</code> 呈现可区分恢复路径，绝不显示伪 0。</p>
-<p><strong>Fake 场景：</strong> Shell/Suitability 以 fake <code>InfrastructureCoverage</code> 返回完整 neutral、single <code>8/3/10</code> preview、Geo missing/人口超期/Transit noActiveRoutes/served 0、A/B provenance mismatch、save retryable failure、A closing→B opened。断言 Shell 保留地点/原因；Suitability 永远只见 neutral；失败保存不丢 preview；A 回调不进入 B。无需生产 Geo/Transit/Supabase。</p>
-<h2>4. 直接数据与推荐实施顺序</h2>
+<p>The caller starts with <code>InfrastructureLoaded</code> present <code>facts</code>、<code>accountWeightedIci</code> and <code>weightContext</code>;by <code>InfrastructureLoadRejected</code> Presents distinguishable recovery paths and never displays false zeros.</p>
+<p><strong>Fake scene:</strong> Shell/Suitability to fake <code>InfrastructureCoverage</code> Return to complete neutral, single <code>8/3/10</code> preview, Geo missing/population expired/Transit noActiveRoutes/served 0, A/B provenance mismatch, save retryable failure, A closing→B opened. Assert that Shell retains the location/reason; Suitability will always only see neutral; failure to save will not lose the preview; A callback will not enter B. No need to produce Geo/Transit/Supabase.</p>
+<h2>4. Direct data and recommended implementation sequence</h2>
 <table>
 <thead>
 <tr>
-<th>对象</th>
-<th>B 的边界</th>
-<th>不可变规则</th>
+<th>object</th>
+<th>B's boundary</th>
+<th>immutable rules</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>read_infrastructure_inputs</code></td>
-<td>authenticated security-invoker read-only；仅 B</td>
-<td>各数据集最新有效日期；每项独立日期/来源；不能以导入时间代替统计日期。</td>
+<td>authenticated security-invoker read-only; B only</td>
+<td>The latest valid date of each data set; each independent date/source; the import time cannot be used instead of the statistical date.</td>
 </tr>
 <tr>
 <td><code>user_ici_preferences</code></td>
 <td>B owner-only select/insert/update</td>
-<td>缺行=5；只存 last saved；旧 0–1 表不消费；其他 Owner 仅 <code>INFRA-001</code>。</td>
+<td>Missing row = 5; only last saved; old 0–1 table does not consume; other Owner only <code>INFRA-001</code>。</td>
 </tr>
 <tr>
 <td><code>STATE-INFRA-WEIGHT-PREVIEW</code></td>
-<td>B 当前账户 single 页内存</td>
-<td>关闭即清；不进 A/B、summary、Suitability/跨设备。</td>
+<td>B current account single page memory</td>
+<td>Clear when closed; do not enter A/B, summary, Suitability/cross-device.</td>
 </tr>
 </tbody></table>
 <ol>
-<li>B 先合并唯一入口、<code>INFRA-001</code> declarations 和最小 fake。</li>
-<li>B 实现 immutable-location 管线：Geo、稳定 View、canonical Transit 到五项/缺失/provenance。</li>
-<li>B 实现 opened-scope 权重 read/preview/save/restore/close，完成 <code>RISK-SCHEMA-02</code> 迁移证据。</li>
-<li>Shell/Suitability 并行使用 fake；最后只共同联调第 5 节场景。</li>
+<li>B first merge the only entrance,<code>INFRA-001</code> declarations and minimal fakes.</li>
+<li>B implements the immutable-location pipeline: Geo, stable View, canonical Transit to five items/missing/provenance.</li>
+<li>B implements opened-scope weight read/preview/save/restore/close, completed <code>RISK-SCHEMA-02</code> Evidence of migration.</li>
+<li>Shell/Suitability uses fake in parallel; in the end, only the scene in Section 5 is jointly debugged.</li>
 </ol>
-<h2>5. 联合验收</h2>
+<h2>5. Joint acceptance</h2>
 <table>
 <thead>
 <tr>
-<th>场景</th>
+<th>scene</th>
 <th>Owner</th>
-<th>可观察结果</th>
-<th>追踪</th>
+<th>observable results</th>
+<th>track</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>完整 single</td>
+<td>complete single</td>
 <td>B、Map、Geo、Transit、Shell</td>
-<td>五项/ICI 均有分数、单位/范围、来源、各自日期与模型；不称质量</td>
+<td>Each of the five items/ICI has a score, unit/range, source, respective date and model; no mass</td>
 <td><code>INFRA-01</code>；<code>AT-ANALYSIS-01</code></td>
 </tr>
 <tr>
 <td>unknown/0/stale</td>
 <td>B、Geo、Transit、Shell</td>
-<td>Geo/输入/人口/Transit 不可用均具体 missing；0 保持 0；stale served 可用 warning；&lt;3 项无 ICI</td>
+<td>Geo/Input/Population/Transit Unavailable are all missing; 0 remains 0; stale served is available warning; &lt;3 items have no ICI</td>
 <td><code>INFRA-01</code>；<code>AT-ANALYSIS-01</code></td>
 </tr>
 <tr>
 <td>A/B neutral</td>
 <td>B、Map、Geo、Transit、Shell</td>
-<td>固定 5/5/5；仅相容显示差异；否则保留原值/原因、无赢家；交换不换引用</td>
+<td>Fixed 5/5/5; only compatible differences are displayed; otherwise, the original value/reason is retained and there is no winner; the exchange does not change the reference</td>
 <td><code>INFRA-01</code>；<code>AT-COMPARE-01/03</code></td>
 </tr>
 <tr>
 <td>preview/save</td>
 <td>B、Privacy、Shell</td>
-<td>缺行 5；合法预览即时；成功才发布；失败 retain/retry/restore；分项/neutral 不变</td>
+<td>Missing line 5; legal preview is immediate; published only after success; failure retain/retry/restore; item/neutral remains unchanged</td>
 <td><code>INFRA-02</code>；<code>AT-ANALYSIS-01</code></td>
 </tr>
 <tr>
 <td>neutral consumer</td>
 <td>B、Suitability、Shell</td>
-<td>摘要/A-B/Suitability 只得 neutral 或明确 unavailable</td>
+<td>Summary/A-B/Suitability must only be neutral or explicitly unavailable</td>
 <td><code>INFRA-01/02</code>；<code>AT-SUIT-01</code></td>
 </tr>
 <tr>
 <td>A→B</td>
 <td>B、Privacy、Shell</td>
-<td>A preview/save/晚到结果不入 B；B 只见自己的行或 5；公共资料无私有字段</td>
+<td>A preview/save/late result does not enter B; B only sees its own row or 5; public data has no private fields</td>
 <td><code>INFRA-02</code>；<code>AT-SWITCH-01</code>、<code>AT-RACE-01</code></td>
 </tr>
 </tbody></table>
-<h2>6. 实现自由、阻塞和参考</h2>
-<p>B 可决定私有文件、Widget、状态管理、缓存、Supabase 映射和测试。若改变公开入口/声明/结果/失败、ICI/neutral 边界、可比性、顺序/权限，或 View/table 字段/RLS/migration/官方口径，须与受影响 Owner 停止协商。</p>
-<p>实现 Gate：<code>read_infrastructure_inputs</code>、<code>user_ici_preferences</code> 仍 <code>proposed</code>。完成前须验证官方 schema、导入行数/最大日期/唯一键、完整/空/部分资料、人口年份、三项迁移、owner-only RLS 和两账户样本，满足 <code>RISK-SCHEMA-01/02</code>；不得以 fixture、旧五列权重或镜像直读冒充完成。权威来源：<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md">评分模型</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/features/public-transportation.md#interface-%E5%8D%A1transit-001--%E5%85%AC%E5%85%B1%E4%BA%A4%E9%80%9A-canonical-connectivity-result">Transit 契约</a>、<a href="../design/system/data-ownership.md">数据所有权</a>。</p>
-<h2>7. 契约变更与完成检查</h2>
-<p>公开变更须由提供方说明原因/消费者，所有消费者确认；同一 PR 更新 declarations、契约、同名 HTML 与受影响 fake/Adapter tests。Git/PR 保存历史；不使用独立发布、文档版本、checksum、Manifest、Generation Gate 或 Development Release。</p>
+<h2>6. Achieve freedom, blocking and reference</h2>
+<p>B can decide on private files, widgets, state management, caching, Supabase mapping and testing. If you change the public entry/statement/result/failure, ICI/neutral boundary, comparability, order/permissions, or View/table field/RLS/migration/official caliber, you must negotiate with the affected Owner.</p>
+<p>Implement Gate:<code>read_infrastructure_inputs</code>、<code>user_ici_preferences</code> still <code>proposed</code>. Before completion, the official schema, number of imported rows/maximum date/unique key, complete/empty/partial data, population year, three migrations, owner-only RLS and two-account samples must be verified to meet the requirements <code>RISK-SCHEMA-01/02</code>;Do not use fixtures, old five-column weights, or mirrored direct reading to pretend to be completed. Authoritative source:<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md">Scoring model</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/features/public-transportation.md#interface-%E5%8D%A1transit-001--%E5%85%AC%E5%85%B1%E4%BA%A4%E9%80%9A-canonical-connectivity-result">Transit Contract</a>、<a href="../design/system/data-ownership.md">Data ownership</a>。</p>
+<h2>7. Contract modification and completion inspection</h2>
+<p>Public changes must be explained by the provider/consumer and confirmed by all consumers; the same PR updates declarations, contracts, HTML with the same name and affected fake/Adapter tests. Git/PR preserves history; does not use standalone releases, document versions, checksums, manifests, Generation Gates, or Development Releases.</p>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> 四项 Readiness 可核查。</li>
-<li><input checked="" disabled="" type="checkbox"> Shell/Location/Geo/Transit/Privacy 的完整 frozen 声明由各 owning contract 唯一拥有；本 Feature 只说明实际调用子集。<code>INFRA-001</code> 有唯一入口、完整公开声明、约束、typed failures、状态、权限、顺序、示例和 fake。</li>
-<li><input checked="" disabled="" type="checkbox"> 直接数据访问、字段、CRUD/RLS、公式输入、单位、missing/0/60%/权重/neutral 均完整。</li>
-<li><input checked="" disabled="" type="checkbox"> 无函数体、Widget、SDK、SQL、migration 或测试实现。</li>
-<li><input checked="" disabled="" type="checkbox"> 同名 HTML 与本 Markdown 语义等价；无 PDF、ADR 0014 或 handoff 发布治理。</li>
+<li><input checked="" disabled="" type="checkbox"> Four items of Readiness are verifiable.</li>
+<li><input checked="" disabled="" type="checkbox"> The complete frozen declaration of Shell/Location/Geo/Transit/Privacy is uniquely owned by each owning contract; this Feature only describes a subset of the actual calls.<code>INFRA-001</code> There are unique entries, full public declarations, constraints, typed failures, state, permissions, order, examples and fakes.</li>
+<li><input checked="" disabled="" type="checkbox"> Direct data access, fields, CRUD/RLS, formula input, units, missing/0/60%/weights/neutral are all complete.</li>
+<li><input checked="" disabled="" type="checkbox"> No function bodies, widgets, SDKs, SQL, migrations or test implementations.</li>
+<li><input checked="" disabled="" type="checkbox"> HTML with the same name is semantically equivalent to this Markdown; no PDF, ADR 0014, or handoff release management.</li>
 </ul>
 <h2>8. Change Log</h2>
 <table>
 <thead>
 <tr>
-<th>日期</th>
-<th>状态</th>
-<th>变更原因</th>
-<th>受影响对象</th>
-<th>批准者</th>
+<th>date</th>
+<th>state</th>
+<th>Reason for change</th>
+<th>Affected objects</th>
+<th>approver</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>2026-09-14</td>
 <td><code>Ready for Development</code></td>
-<td>固定五项覆盖、ICI、权重、neutral 与联验语义</td>
+<td>Fixed five-term coverage, ICI, weight, neutral and joint semantics</td>
 <td><code>INFRA-01</code>、<code>INFRA-02</code>、<code>INFRA-001</code></td>
-<td>项目负责人</td>
+<td>Project leader</td>
 </tr>
 <tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
-<td>Issue #23 返工为单一 Development Contract：补首屏可观察 DoD；上游 frozen seam 改为引用 owning canonical 声明并列出实际调用子集；移除 PDF、ADR 0014 与 handoff 治理</td>
-<td><code>INFRA-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>TRANSIT-001</code>、<code>PRIVACY-001</code>、同名 HTML</td>
-<td>设计 AI〔项目负责人授权〕，ADR 0013</td>
+<td>Issue #23 Rework into a single Development Contract: add above-the-fold observable DoD; upstream frozen seam is changed to reference owning canonical declaration and list the actual call subset; remove PDF, ADR 0014 and handoff governance</td>
+<td><code>INFRA-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>TRANSIT-001</code>、<code>PRIVACY-001</code>, HTML with the same name</td>
+<td>Design AI [authorization by project leader], ADR 0013</td>
 </tr>
 </tbody></table>
 </main>

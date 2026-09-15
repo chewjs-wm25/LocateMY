@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cost of Living &amp; Budget 开发协作契约</title>
+  <title>Cost of Living &amp; Budget Development Collaboration Contract</title>
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
     body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
@@ -25,96 +25,96 @@
 </head>
 <body>
 <main>
-<h1>Cost of Living &amp; Budget 开发协作契约</h1>
+<h1>Cost of Living &amp; Budget Development Collaboration Contract</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
-Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5
-唯一公开入口：<code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
+<p>state:<code>Ready for Development</code>(2026-09-15; Design AI [authorized by the project leader], ADR 0013)
+Owner:<code>B</code>;System baseline:<code>Baselined — 5d11769</code>;Depends on wave: Wave 5
+The only public entrance:<code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
 </blockquote>
-<p>本文件是 Cost of Living &amp; Budget 唯一的跨 Owner Development Contract，也是同名 HTML 的 Markdown 源。它固定公开 Dart seam、稳定读取对象、结果语义、权限、次序和联验；<code>lib/features/cost_of_living_budget/</code> 内的 Widget、状态管理、Adapter、缓存键、查询/并发/取消/重试、公式代码与测试组织均由 B 决定。公式正文只在产品知识库，字段、RLS 与 migration 只在 Schema Catalog。</p>
-<p><strong>定义完成：</strong> 对合法 immutable 单点，页面可如实展示本地价格、<code>ObservedSpend12</code>、覆盖率及满足门槛时的地点成本指数；对同账户完整 current 预案，才另展示 <code>ScenarioSpend12</code> 与个人预算压力。A/B 保留原顺序，只在同篮子版本、窗口和元数据兼容时显示差异。预案 CRUD/current、两种收入边界、临时 CPI 等效换算及 A→B 隔离均按本契约可观察；缺失、partial、不可比、认证或 scope 故障必须保留其 typed 原因，绝不补零、猜测或自动选择预案。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
-<p>实施和审查按顺序读取，后项只能补充而不能改写前项：</p>
+<p>This document is the only cross-Owner Development Contract for Cost of Living &amp; Budget and is the Markdown source of the HTML of the same name. It permanently exposes Dart seams, stable read objects, result semantics, permissions, ordering, and unions;<code>lib/features/cost_of_living_budget/</code> The Widgets, state management, Adapter, cache keys, query/concurrency/cancel/retry, formula code and test organization are all determined by B. The formula body is only in the product knowledge base, and the fields, RLS and migration are only in the Schema Catalog.</p>
+<p><strong>The definition is complete:</strong> For legal immutable single points, the page can faithfully display local prices,<code>ObservedSpend12</code>, coverage and location cost index when the threshold is met; the complete current plan for the same account will be displayed separately. <code>ScenarioSpend12</code> and personal budget pressure. A/B preserves the original order and only shows differences if they are compatible with the basket version, window, and metadata. The plan CRUD/current, two income boundaries, temporary CPI equivalent conversion and A→B isolation are all observable according to this contract; missing, partial, incomparable, authentication or scope failures must retain their typed reasons, and will never be zeroed, guessed or automatically selected.</p>
+<h2>0. Fixed reading order and four items of Readiness</h2>
+<p>Implementation and review are read in order, and the latter item can only supplement but not overwrite the previous one:</p>
 <ol>
-<li><a href="../knowledge_base/locatemy_product/features/cost_of_living.md">生活成本与预算</a>、<a href="../knowledge_base/locatemy_product/cost_basket_v1.md">统一生活篮子 v1</a>、<a href="../knowledge_base/locatemy_product/features/account.md">账户</a>；</li>
-<li><a href="../design/system/feature-map.md">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E5%AE%8C%E6%95%B4%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-cost-01"><code>RISK-COST-01</code></a>；</li>
-<li>本契约及同名 HTML；HTML 是供人阅读的等价导出，不产生平行工作包或新的治理事实。</li>
+<li><a href="../knowledge_base/locatemy_product/features/cost_of_living.md">Cost of living and budgeting</a>、<a href="../knowledge_base/locatemy_product/cost_basket_v1.md">Unified Life Basket v1</a>、<a href="../knowledge_base/locatemy_product/features/account.md">Account</a>；</li>
+<li><a href="../design/system/feature-map.md">Feature map</a>、<a href="../design/system/interfaces.md">Interface registry</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E5%AE%8C%E6%95%B4%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">Data ownership</a>、<a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-cost-01"><code>RISK-COST-01</code></a>；</li>
+<li>This contract and the HTML of the same name are equivalent exports for human reading and do not create parallel work packages or new governance facts.</li>
 </ol>
 <table>
 <thead>
 <tr>
 <th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>verifiable evidence</th>
+<th>in conclusion</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>责任与范围</td>
-<td>B 唯一拥有 <code>COST-01</code>–<code>03</code>、<code>ACCOUNT-09</code>；<code>COST-04</code> excluded；地点、Geo、scope、适配度和 Socio 仍归原 Owner</td>
-<td>已就绪</td>
+<td>Responsibility and Scope</td>
+<td>B only owns <code>COST-01</code>–<code>03</code>、<code>ACCOUNT-09</code>；<code>COST-04</code> excluded; location, Geo, scope, fitness and Socio still belong to the original Owner</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>契约与消费者</td>
-<td><code>COST-001</code>、<code>COST-002</code> 的唯一入口、声明、失败、顺序和 fake 场景均在第 3 节</td>
-<td>已就绪</td>
+<td>Contracts and consumers</td>
+<td><code>COST-001</code>、<code>COST-002</code> The only entry, declaration, failure, sequence and fake scenarios are in Section 3</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>数据与安全</td>
-<td>Flutter 仅读 security-invoker <code>read_cost_inputs</code>；预案仅 <code>user_budget_scenarios</code> owner-only CRUD；公共缓存无账户/预案/收入/临时输入</td>
-<td>已就绪</td>
+<td>Data and security</td>
+<td>Flutter read only security-invoker <code>read_cost_inputs</code>;Plan only <code>user_budget_scenarios</code> owner-only CRUD; public cache no account/plan/income/temporary input</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>验收与风险</td>
-<td>第 5 节覆盖 <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01/03</code>、<code>AT-SUIT-02/04/06</code>；<code>RISK-COST-01</code> 的口径锁定</td>
-<td>已就绪</td>
+<td>Acceptance and risk</td>
+<td>Section 5 Coverage <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01/03</code>、<code>AT-SUIT-02/04/06</code>；<code>RISK-COST-01</code> caliber lock</td>
+<td>Ready</td>
 </tr>
 </tbody></table>
-<h2>1. 成果、责任与边界</h2>
+<h2>1. Results, Responsibilities and Boundaries</h2>
 <ul>
-<li>合法单点显示真实单位的本地价格、<code>ObservedSpend12</code>、覆盖率和合格时地点成本指数；同账户完整 current 预案时另显示 <code>ScenarioSpend12</code>、地点基线及个人预算压力。</li>
-<li>A/B 复用同一篮子版本和月份窗口；仅元数据可比时显示差异。预案可 CRUD/选择；每账户至多一份 current，删除 current 后明确为无 current，绝不自动选择别份。</li>
-<li>无可用预案金额时可做页面内存的 CPI 等效换算；它不保存，绝不进入压力或适配度。</li>
+<li>Legal single points display local prices for real units,<code>ObservedSpend12</code>, coverage and location cost index when qualified; additionally displayed when the same account completes the current plan <code>ScenarioSpend12</code>, location baselines and personal budget pressures.</li>
+<li>A/B reuses the same basket version and month window; differences are shown only if the metadata is comparable. The plan can be CRUD/selected; each account can have at most one copy of the current. After deleting the current, it will be clear that there is no current, and it will never be automatically selected.</li>
+<li>CPI equivalent conversion of page memory can be done when there is no available plan amount; it is not saved and never enters pressure or fitness.</li>
 </ul>
 <table>
 <thead>
 <tr>
 <th>Owner</th>
-<th>负责</th>
-<th>不负责</th>
-<th>协作</th>
+<th>Responsible</th>
+<th>irresponsible</th>
+<th>cooperation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Cost of Living &amp; Budget（B）</td>
-<td><code>COST-001</code>/<code>002</code>、成本模型应用、3 天公共缓存、<code>STATE-COST-TEMP</code>、预案 CRUD/current</td>
-<td>地点、行政区匹配、Shell、scope、Schema/RLS/migration、适配度和偏好</td>
-<td>消费 Shell、Location、Geo、Privacy、<code>read_cost_inputs</code></td>
+<td><code>COST-001</code>/<code>002</code>, cost model application, 3-day public cache,<code>STATE-COST-TEMP</code>, plan CRUD/current</td>
+<td>Location, borough matching, shell, scope, Schema/RLS/migration, fitness and preference</td>
+<td>Consume Shell, Location, Geo, Privacy,<code>read_cost_inputs</code></td>
 </tr>
 <tr>
 <td>Shell</td>
-<td>成本/预案导航、返回语境和组合呈现</td>
-<td>Cost 计算、预案写入、可比性</td>
-<td>消费 Cost 两 seam</td>
+<td>Cost/plan navigation, return context and portfolio presentation</td>
+<td>Cost calculation, plan writing, comparability</td>
+<td>Consumption Cost 2 seam</td>
 </tr>
 <tr>
 <td>Map / Geo</td>
-<td>合法 immutable 地点；行政区/州及边界版本</td>
-<td>成本与预案规则</td>
+<td>Legal immutable locations; district/state and boundary versions</td>
+<td>Cost and Planning Rules</td>
 <td><code>LOCATION-001</code> / <code>GEO-001</code></td>
 </tr>
 <tr>
 <td>Privacy</td>
-<td>同账户 scope 与关闭证明</td>
-<td>Cost payload 或远端预案</td>
+<td>Same account scope and closure certificate</td>
+<td>Cost payload or remote plan</td>
 <td><code>PRIVACY-001</code></td>
 </tr>
 </tbody></table>
-<h2>2. B 消费的 Interface / 读取对象</h2>
-<p>完整语义仍属 owning document；B 只能 import 指定入口，不能 import 对方 <code>src/</code> 或 SDK。</p>
-<h3><code>SHELL-001</code>：导航与组合</h3>
-<p><strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code></p>
-<p>下列为 <a href="../design/modules/application-shell.md#shell-001--application-coordination">Application Shell</a> 的完整 canonical 声明；Cost 不得自行缩窄、复制或改名其中任一公开类型。</p>
+<h2>2. Interface consumed by B / read object</h2>
+<p>The complete semantics still belong to the owning document; B can only import the specified entry, but cannot import the other party. <code>src/</code> or SDK.</p>
+<h3><code>SHELL-001</code>: Navigation and combination</h3>
+<p><strong>The only public import:</strong> <code>package:locatemy/app/application_shell.dart</code></p>
+<p>The following are <a href="../design/modules/application-shell.md#shell-001--application-coordination">Application Shell</a> Full canonical statement; Cost may not at its discretion narrow, copy, or rename any of these public types.</p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
   Future&lt;ShellContributionOutcome&gt; publish(ShellContribution contribution);
@@ -144,13 +144,13 @@ enum ShellRejectionReason {
   scopeUnavailable,
 }
 </code></pre>
-<p>B 在自己的入口声明 <code>OpenCostIntent</code>、<code>OpenCostComparisonIntent</code> 和 <code>OpenBudgetScenarioIntent</code> 等 <code>ShellIntent</code> marker。分析 intent 携带 <code>LOCATION-001</code> immutable 引用，比较携带 A/B 原顺序和返回语境；若 Cost 向 Shell 组合结果，则使用同一 canonical <code>ShellContribution</code> / <code>publish</code>。只有同账户 <code>opened</code> 可提交或发布；accepted 才导航或组合，authenticationRequired 保持原页，rejected 仅表示导航/组合拒绝，不能改写为资料失败。Shell 不得改写地点、预案或临时输入。</p>
+<p>B declares at its own entrance <code>OpenCostIntent</code>、<code>OpenCostComparisonIntent</code> and <code>OpenBudgetScenarioIntent</code> wait <code>ShellIntent</code> marker. Analyze intent carry <code>LOCATION-001</code> immutable reference, comparison carries the original order of A/B and the return context; if Cost combines the results to the Shell, the same canonical is used <code>ShellContribution</code> / <code>publish</code>. Only the same account <code>opened</code> It can be submitted or published; accepted means navigation or combination, authenticationRequired means keeping the original page, rejected only means navigation/combination rejection, and cannot be rewritten as data failure. The shell may not overwrite locations, scenarios, or ad hoc inputs.</p>
 <pre><code class="language-dart">final result = await applicationShell.submit(OpenCostIntent(location: location));
-// 仅 ShellIntentAccepted 进入目标。
+// Enter the destination only after ShellIntentAccepted.
 </code></pre>
-<p>fake：返回 accepted/authenticationRequired/staleInput，验证不导航至错误地点且拒绝不显示成 cost unavailable。</p>
-<h3><code>LOCATION-001</code> 与 <code>GEO-001</code>：地点和行政地理</h3>
-<p><strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
+<p>fake: Returns accepted/authenticationRequired/staleInput, the authentication does not navigate to the wrong location and the rejection does not appear as cost unavailable.</p>
+<h3><code>LOCATION-001</code> and <code>GEO-001</code>: location and administrative geography</h3>
+<p><strong>The only public import:</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
 <pre><code class="language-dart">abstract interface class LocationCoordinator {
   Future&lt;LocationSelectionOutcome&gt; select(LocationSelectionRequest request);
   LocationRoleSnapshot read(LocationRole role);
@@ -246,16 +246,16 @@ final class BoundaryProvenance {
 }
 enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiable, scopeUnavailable }
 </code></pre>
-<p>以上分别是 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Location</a> 和 <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geo</a> 的完整 canonical 声明。输入仅 <code>single</code> 或不相同 A/B 的 <code>LocationPresent</code>；absent、非法、范围外或同点不发 Cost 请求、不写缓存。B 用原引用请求 district 与 reporting state；<code>GeographicContextAvailable.results</code> 的键恰为请求层级，B 仅使用其中 <code>GeographicLevelResolved</code> 的 district 读成本资料。unresolved/ambiguous 与整次 unavailable 都保留其原因、候选（适用时）和 provenance；行政区不得以附近、州或名称猜测，州 resolved 也不使 district resolved。调用只读、不改变 Map/Geo；地点或边界版本变化后的晚到结果不可发布。</p>
+<p>The above are <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Location</a> and <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geo</a> The full canonical statement. Enter only <code>single</code> or not the same A/B <code>LocationPresent</code>; Absent, illegal, out of range or at the same point. No Cost request will be sent, and no cache will be written. B uses the original reference to request district and reporting state;<code>GeographicContextAvailable.results</code> The key of is exactly the request level, and B only uses it <code>GeographicLevelResolved</code> The district reads this information. unresolved/ambigous retains its cause, candidacy (when applicable), and provenance with the entirety of unavailable; a district may not be guessed by neighborhood, state, or name, nor does state resolved make a district resolved. Call read-only, does not change Map/Geo; late results after location or boundary version changes are not publishable.</p>
 <pre><code class="language-dart">if (locations.read(LocationRole.single) case LocationPresent(:final location)) {
   final geo = await geographicContext.resolve(GeographicContextRequest(
     location: location, levels: {GeographicLevel.district, GeographicLevel.reportingState},
   ));
 }
 </code></pre>
-<p>fake：Location 给 absent/single/A-B；Geo 给 resolved、district unresolved+state resolved、ambiguous。验证 absent 无请求，州 CPI 可独立解释但行政区价格/收入不猜测，A/B 角色不变。</p>
-<h3><code>PRIVACY-001</code>：账户范围</h3>
-<p><strong>唯一公开 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code></p>
+<p>Fake: Location is for absent/single/A-B; Geo is for resolved, district unresolved+state resolved, and ambiguous. Validate absent No request, state CPI can be interpreted independently but borough prices/income are not guessed, A/B roles unchanged.</p>
+<h3><code>PRIVACY-001</code>:Account scope</h3>
+<p><strong>The only public import:</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code></p>
 <pre><code class="language-dart">abstract interface class AccountPrivacy {
   AccountScopeSnapshot readScope();
   Future&lt;OpenAccountScopeOutcome&gt; open(AuthenticatedAccount account);
@@ -289,14 +289,14 @@ final class PrivateStateCleared extends PrivateStateClearOutcome { final Account
 final class PrivateStateClearIncomplete extends PrivateStateClearOutcome { final AccountPrivacyParticipantId participantId; final AccountScope scope; final PrivateStateClearFailure failure; const PrivateStateClearIncomplete(this.participantId, this.scope, this.failure); }
 enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, queuedWorkCleanupIncomplete, scopeUnavailable, retryableUnavailable }
 </code></pre>
-<p>以上为 <a href="../design/modules/account-privacy.md#privacy-001--%E8%B4%A6%E6%88%B7%E8%8C%83%E5%9B%B4%E4%B8%8E%E5%85%B3%E9%97%AD%E5%8F%82%E4%B8%8E%E8%80%85">Account Privacy</a> 的完整 canonical 声明。Shell 是 lifecycle 唯一发起者。B 只在当前同账户 <code>AccountScopeOpened</code> 读写预案；closing 开始即清除 current 内存选择/私有副本并拒绝旧读写和晚到响应。B 以 <code>AccountPrivacyParticipantId.costLivingBudget</code> 对固定旧 scope 提供 close 证明；不删远端预案、公共缓存或语言。<code>identityMismatch</code>、<code>scopeNotOpen</code>、<code>scopeClosing</code>、<code>retryableUnavailable</code> 是 typed failure，绝不以空预案冒充。</p>
+<p>The above is <a href="../design/modules/account-privacy.md#privacy-001--%E8%B4%A6%E6%88%B7%E8%8C%83%E5%9B%B4%E4%B8%8E%E5%85%B3%E9%97%AD%E5%8F%82%E4%B8%8E%E8%80%85">Account Privacy</a> The full canonical statement. Shell is the only initiator of lifecycle. B only in the current same account <code>AccountScopeOpened</code> Read and write plan; clear current memory selection/private copy at the beginning of closing and reject old reads and writes and late responses. B with <code>AccountPrivacyParticipantId.costLivingBudget</code> Provide close proof for pinning old scopes; do not delete remote plans, public caches, or languages.<code>identityMismatch</code>、<code>scopeNotOpen</code>、<code>scopeClosing</code>、<code>retryableUnavailable</code> It is a typed failure, never pretend to be an empty plan.</p>
 <pre><code class="language-dart">if (privacy.readScope() case AccountScopeOpened(:final scope)) {
-  // 仅操作 scope.accountId 的预算预案。
+  // Operate only on budget scenarios for scope.accountId.
 }
 </code></pre>
-<p>fake：A opened→closing/closed→B opened，验证 A 的 current/压力不进入 B，公共成本缓存仍可保留。</p>
-<h3><code>read_cost_inputs</code>：稳定公共读取对象（仅 B）</h3>
-<p><strong>精确对象：</strong> Schema Catalog 的 security-invoker View/RPC <code>read_cost_inputs</code>（<code>proposed</code>）。Flutter 不直读 PriceCatcher、lookup、CPI 或收入镜像。</p>
+<p>Fake: A opened→closing/closed→B opened, verify that the current/pressure of A does not enter B, and the public cost cache can still be retained.</p>
+<h3><code>read_cost_inputs</code>: Stable public read object (B only)</h3>
+<p><strong>Exact object:</strong> Security-invoker View/RPC of Schema Catalog <code>read_cost_inputs</code>（<code>proposed</code>). Flutter does not read PriceCatcher, lookup, CPI or revenue images directly.</p>
 <pre><code class="language-dart">abstract interface class CostInputsReader { Future&lt;CostInputsOutcome&gt; read(CostInputsRequest request); }
 final class CostInputsRequest {
   final ValidLocationReference location;
@@ -313,19 +313,19 @@ final class CostInputsPartial extends CostInputsOutcome { final CostInputs input
 final class CostInputsUnavailable extends CostInputsOutcome { final CostInputFailure failure; }
 enum CostInputFailure { invalidGeographicContext, sourceUnavailable, permissionDenied, retryableUnavailable, incompatibleVersion }
 </code></pre>
-<p>输入是本次 Geo 已 resolved 的地点、district/state 和各自可验证 provenance，篮子固定 <code>cost-basket-v1</code>，刷新只为 cacheAllowed/显式 refresh；任一层级非 <code>GeographicLevelResolved</code> 时不得构造此读取请求。available/partial 均回带 item 单位/观测、资料日期、全国基准、行政区收入、州/全国同口径 Headline/Overall CPI 与导入完整性；partial 不是零或完整。只读且仅 opened 路径可用；permission/retry/version failure 不伪装为空。<code>cost_public_cache</code> 仅 location/admin key、模型版、来源日期、fetched-at、3-day expiry/完整性。</p>
+<p>The input is the resolved location, district/state and respective verifiable provenance of this Geo, and the basket is fixed. <code>cost-basket-v1</code>, the refresh is only cacheAllowed/explicit refresh; any level is not <code>GeographicLevelResolved</code> This read request must not be constructed while . available/partial returns item unit/observation, data date, national benchmark, administrative district income, state/national same caliber Headline/Overall CPI and import integrity; partial is not zero or complete. Read-only and only the opened path is available; permission/retry/version failure does not pretend to be empty.<code>cost_public_cache</code> Only location/admin key, model version, source date, fetched-at, 3-day expiry/completeness.</p>
 <pre><code class="language-dart">final inputs = await costInputsReader.read(CostInputsRequest(
   location: location, district: districtArea, reportingState: reportingStateArea,
   districtProvenance: districtProvenance, reportingStateProvenance: reportingStateProvenance,
   basketVersion: &#39;cost-basket-v1&#39;, refreshPolicy: CostRefreshPolicy.cacheAllowed,
 ));
 </code></pre>
-<p>fake：完整 12 月、5 月、低覆盖、CPI 无共同月、retryable；验证只有事实源门槛满足时发布指数/压力，缓存无私有字段。</p>
-<h2>3. B 提供的 Interface</h2>
-<h3><code>COST-001</code>：地点成本、个人压力、临时换算</h3>
-<p><strong>提供者：</strong> B；<strong>消费者：</strong> Application Shell、Personalized Location Suitability
-<strong>唯一公开 import：</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
-<p>消费者只能 import 该入口，不能 import <code>src/</code>。下列是声明，不是实现、SQL、SDK 调用或公式正文。</p>
+<p>fake: full December, May, low coverage, no common month for CPI, retryable; verifies that only the index/pressure is published when the fact source threshold is met, no private fields are cached.</p>
+<h2>3. Interface provided by B</h2>
+<h3><code>COST-001</code>: Location cost, personal pressure, temporary conversion</h3>
+<p><strong>Provider:</strong> B；<strong>consumer:</strong> Application Shell、Personalized Location Suitability
+<strong>The only public import:</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
+<p>Consumers can only import this entry, not import <code>src/</code>. The following is a statement, not implementation, SQL, SDK call, or formula text.</p>
 <pre><code class="language-dart">abstract interface class CostOfLivingBudget {
   Future&lt;CostAnalysisOutcome&gt; analyse(CostAnalysisRequest request);
   Future&lt;CostComparisonOutcome&gt; compare(CostComparisonRequest request);
@@ -352,47 +352,47 @@ enum CpiEquivalentFailure { invalidInput, geographicContextUnavailable, cpiUnava
 <table>
 <thead>
 <tr>
-<th>调用</th>
-<th>输入约束</th>
-<th>输出</th>
-<th>typed failure / 调用方处理</th>
+<th>call</th>
+<th>input constraints</th>
+<th>output</th>
+<th>typed failure / caller handling</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>analyse</code></td>
-<td>合法 immutable single；refresh 二选一</td>
-<td>地点、行政区/州口径、篮子/模型版、来源、资料日期、单位、覆盖率和 fresh/cached/stale/partial/unavailable；可含价格、Observed、指数、Scenario、压力</td>
-<td>各 failure 分类呈现；不把 0/空/缓存称完整 fresh</td>
+<td>Legal immutable single; refresh choose one of the two</td>
+<td>Location, administrative area/state caliber, basket/model version, source, data date, unit, coverage and fresh/cached/stale/partial/unavailable; can include price, Observed, index, Scenario, pressure</td>
+<td>Each failure is presented in categories; 0/empty/cache is not called complete fresh</td>
 </tr>
 <tr>
 <td><code>compare</code></td>
-<td>合法且不同 A/B；Map 原顺序</td>
-<td>各端原值/元数据；仅兼容读数有差异</td>
-<td>samePoint 或不可用时不判赢家；partial 保留值和不可比原因</td>
+<td>Legal and different A/B; Map original order</td>
+<td>Original value/metadata of each end; only compatible readings are different</td>
+<td>No winner will be determined when samePoint or unavailable; partial reserved value and incomparable reason</td>
 </tr>
 <tr>
 <td><code>calculateCpiEquivalent</code></td>
-<td>有限非负的全国基准 RM/月；仅 <code>STATE-COST-TEMP</code></td>
-<td>最新共同月份州/全国 Headline/Overall CPI、日期、口径、等效 RM</td>
-<td>invalid/CPI 缺失/无共同月/网络/scope 分开；不跨月</td>
+<td>Limited non-negative national benchmark RM/month; only <code>STATE-COST-TEMP</code></td>
+<td>Latest common month state/national Headline/Overall CPI, date, caliber, equivalent RM</td>
+<td>invalid/CPI missing/no common month/network/scope separated; not spanning months</td>
 </tr>
 <tr>
 <td><code>clearTemporaryCpiInput</code></td>
-<td>无</td>
-<td>离页后临时输入不存在</td>
-<td>无远端写入；不改预案/压力/Suitability</td>
+<td>none</td>
+<td>Temporary input does not exist after leaving the page</td>
+<td>No remote writing; no changes to plan/pressure/Suitability</td>
 </tr>
 </tbody></table>
-<p><strong>状态、权限、副作用、次序。</strong> 按<a href="../knowledge_base/locatemy_product/features/cost_of_living.md#%E5%B7%B2%E7%A1%AE%E8%AE%A4%E7%9A%84%E5%8D%95%E7%82%B9%E7%94%9F%E6%B4%BB%E6%88%90%E6%9C%AC%E6%A8%A1%E5%9E%8B">模型</a>应用逐商户中位数、逐月平均、删项、12 月窗口、至少 6 月/平均覆盖率 80% 门槛。<code>CostIndex</code> 仅同版 <code>ObservedSpend12</code>/<code>BaseSpend12</code>，不含住房/交通/额外生活开销，不是官方 CPI/评级。只有完整核心市场、住房/交通已填或明确 RM 0、已保存 current 的月净收入才发布 <code>ScenarioSpend12</code>/个人压力；家庭月度总收入不可替月净收入。临时输入不访问预案，离页清除。每次先绑定 location、Geo/资料/篮子/current 版本，任何版本或 scope 变化均使旧响应无效。</p>
+<p><strong>Status, permissions, side effects, order.</strong> according to<a href="../knowledge_base/locatemy_product/features/cost_of_living.md#%E5%B7%B2%E7%A1%AE%E8%AE%A4%E7%9A%84%E5%8D%95%E7%82%B9%E7%94%9F%E6%B4%BB%E6%88%90%E6%9C%AC%E6%A8%A1%E5%9E%8B">Model</a>Apply median-by-merchant, average-by-month, drop-out, 12-month window, minimum 6-month/average coverage 80% thresholds.<code>CostIndex</code> Only the same version <code>ObservedSpend12</code>/<code>BaseSpend12</code>, does not include housing/transportation/additional living expenses and is not an official CPI/rating. Only monthly net income for complete core markets, housing/transportation filled in or clear RM 0, and current saved will be published. <code>ScenarioSpend12</code>/Personal pressure; total monthly household income cannot be substituted for monthly net income. Temporarily enter the no-access plan and clear it off the page. Each time, the location, Geo/data/basket/current version is bound first, and any version or scope changes will invalidate the old response.</p>
 <pre><code class="language-dart">final result = await costOfLivingBudget.analyse(
   CostAnalysisRequest(location: location, refreshPolicy: CostRefreshPolicy.cacheAllowed),
 );
-// Suitability 仅消费明确可用且同账户同 current 版本的个人压力。
+// Suitability consumes personal burden only when it is explicitly available for the same account and current version.
 </code></pre>
-<p>fake：Shell 验证完整/Geo unresolved/partial/stale 的来源日期原因保留；Suitability 验证合格压力、无 current、缺住房、仅家庭收入，只有合格压力进入成本维度；临时 reading 永不进入。</p>
-<h3><code>COST-002</code>：预算预案与 current 变化</h3>
-<p><strong>提供者：</strong> B；<strong>消费者：</strong> Account Center、Socio-economic、Suitability、Shell
-<strong>唯一公开 import：</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
+<p>Fake: Shell verifies the source date reason of complete/Geo unresolved/partial/stale is retained; Suitability verifies qualified pressure, no current, lack of housing, family income only, only qualified pressure enters the cost dimension; temporary reading never enters.</p>
+<h3><code>COST-002</code>: Budget plan and current changes</h3>
+<p><strong>Provider:</strong> B；<strong>consumer:</strong> Account Center、Socio-economic、Suitability、Shell
+<strong>The only public import:</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
 <pre><code class="language-dart">abstract interface class BudgetScenarioStore {
   Future&lt;BudgetScenariosOutcome&gt; read(); Stream&lt;BudgetScenariosOutcome&gt; watch();
   Future&lt;BudgetScenarioMutationOutcome&gt; create(BudgetScenarioDraft draft);
@@ -420,131 +420,131 @@ enum BudgetScenarioFailure { invalidName, invalidAmount, notFound, conflict, per
 <table>
 <thead>
 <tr>
-<th>调用</th>
-<th>输入约束</th>
-<th>输出</th>
-<th>typed failure / 调用方处理</th>
+<th>call</th>
+<th>input constraints</th>
+<th>output</th>
+<th>typed failure / caller handling</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>read</code> / <code>watch</code></td>
-<td>当前同账户 opened</td>
-<td>全部该账户预案与 current/no-current、保存版本</td>
-<td>permission/retry/scope 不得伪装为空列表/no-current</td>
+<td>Currently the same account opened</td>
+<td>All plans for this account and current/no-current, saved versions</td>
+<td>permission/retry/scope must not pretend to be an empty list/no-current</td>
 </tr>
 <tr>
 <td><code>create</code> / <code>update</code></td>
-<td>name trim 后 1–120；所有已填金额有限且非负；空额外生活开销即无额外开销</td>
-<td>仅远端成功后 Saved、新 current/version</td>
-<td>invalid 不写；conflict/permission/retry 保留最后已保存事实</td>
+<td>1–120 after name trim; all filled-in amounts are limited and non-negative; empty additional living expenses means no additional expenses</td>
+<td>Saved, new current/version only after remote success</td>
+<td>invalid does not write; conflict/permission/retry retains the last saved fact</td>
 </tr>
 <tr>
 <td><code>selectCurrent</code></td>
-<td>当前账户已存在 id</td>
-<td>Saved 及版本</td>
-<td>不存在/跨账户/冲突不提升 current</td>
+<td>The current account already has an id</td>
+<td>Saved and version</td>
+<td>Does not exist/cross-account/conflict current will not be promoted</td>
 </tr>
 <tr>
 <td><code>delete</code></td>
-<td>当前账户已存在 id；最后一份允许</td>
-<td>Deleted；删 current 返回 NoCurrent</td>
-<td>不自动选择；不离线排队</td>
+<td>The id already exists in the current account; the last one is allowed</td>
+<td>Deleted; delete current and return NoCurrent</td>
+<td>No automatic selection; no offline queuing</td>
 </tr>
 </tbody></table>
-<p><code>BudgetScenario</code> 是只读保存快照，含 id/name、五个金额及其缺失状态、isCurrent、时间和版本。Account 固定显示名称、额外生活开销、住房、交通、月净收入、家庭月度总收入及缺失状态；Socio 只读 current 家庭月度总收入；Suitability 只读同账户同版本 current。B 是 <code>user_budget_scenarios</code> 唯一读写 Owner；每次远端保存成功才发布 version，消费者可去重并使依赖读数失效/重算。</p>
+<p><code>BudgetScenario</code> It is a read-only saved snapshot, including id/name, five amounts and their missing status, isCurrent, time and version. Account fixed display name, additional living expenses, housing, transportation, monthly net income, total monthly household income and missing status; Socio read-only current total monthly household income; Suitability read-only current for the same account and version. B is <code>user_budget_scenarios</code> The only read-write Owner; the version is released every time the remote save is successful, and the consumer can deduplicate and invalidate/recalculate dependent readings.</p>
 <pre><code class="language-dart">final outcome = await budgetScenarioStore.selectCurrent(scenarioId);
-// Saved 才用 current.version 更新摘要；Rejected 保留最后已保存摘要并显示恢复路径。
+// Update the summary with current.version only after Saved; Rejected retains the last saved summary and shows a recovery path.
 </code></pre>
-<p>fake：Account 验证 no-current、invalidName、conflict、retry；Socio 以仅月净收入/仅家庭收入验证只读家庭收入；Suitability 用 A/B 与 version 变化验证不跨账户、不用过期结果。</p>
-<h2>4. 协作交付顺序</h2>
+<p>Fake: Account verifies no-current, invalidName, conflict, retry; Socio verifies read-only family income with monthly net income only/family income only; Suitability verifies no cross-account and no expired results with A/B and version changes.</p>
+<h2>4. Collaborative Delivery Sequence</h2>
 <ol>
-<li><strong>B 先合入公开 seam：</strong> 唯一入口、两 Interface 声明和最小 fake；消费者不得依赖 B 私有文件。</li>
-<li><strong>B 完成输入边界：</strong> 接入 Location/Geo/Privacy、<code>read_cost_inputs</code> 和 <code>user_budget_scenarios</code>；验证 item/单位/资料日期、CPI 共同月份、完整/部分/空导入。</li>
-<li><strong>消费者并行 fake：</strong> Shell 只导航/呈现；Account 只摘要/意图；Socio 只家庭月收入；Suitability 只合格同版本压力/current。</li>
-<li><strong>共同联调：</strong> 按 FLOW-02/03/07 接生产 seam；迁移、RLS、导入、缓存与关闭的运行时证据留实现/集成验收。</li>
+<li><strong>B merges into the public seam first:</strong> Single entry point, two Interface declarations, and minimal fakes; consumers must not rely on B private files.</li>
+<li><strong>B completes the input boundary:</strong> Access Location/Geo/Privacy,<code>read_cost_inputs</code> and <code>user_budget_scenarios</code>;Verify item/unit/data date, CPI common month, complete/partial/empty import.</li>
+<li><strong>Consumer parallel fake:</strong> Shell only navigation/presentation; Account only summary/intent; Socio only family monthly income; Suitability only qualified for the same version pressure/current.</li>
+<li><strong>Joint coordination:</strong> Pick up production seam as per FLOW-02/03/07; runtime proof of migration, RLS, import, cache and shutdown left for implementation/integration acceptance.</li>
 </ol>
-<h2>5. 联合验收</h2>
+<h2>5. Joint acceptance</h2>
 <table>
 <thead>
 <tr>
-<th>场景</th>
+<th>scene</th>
 <th>Owner</th>
-<th>可观察结果</th>
-<th>追踪</th>
+<th>observable results</th>
+<th>track</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>单点完整/缺失</td>
+<td>Single point complete/missing</td>
 <td>B、Map、Geo、Shell</td>
-<td>完整时价格/Observed/覆盖率/指数/压力；&lt;6 月、低覆盖、Geo unresolved/ambiguous 时保留读数和精确原因</td>
+<td>Price/Observed/Coverage/Index/Stress when complete; retain readings and precise reasons when &lt;6 months, low coverage, Geo unresolved/ambiguous</td>
 <td><code>COST-01</code>；<code>AT-ANALYSIS-01</code></td>
 </tr>
 <tr>
-<td>A/B 可比/不可比</td>
+<td>A/B Comparable/Incomparable</td>
 <td>B、Map、Geo、Shell</td>
-<td>原 A/B 与元数据保留；仅兼容有差异；无赢家/自动推荐</td>
+<td>Original A/B and metadata retained; only compatible with differences; no winner/automatic recommendation</td>
 <td><code>COST-01</code>；<code>AT-COMPARE-01/03</code></td>
 </tr>
 <tr>
-<td>预案与两收入</td>
+<td>Plan and two incomes</td>
 <td>B、Account、Socio、Suitability</td>
-<td>月净收入仅压力，家庭收入仅 Socio；空与 RM 0 区分；切换即按 version 重算</td>
+<td>Monthly net income is only pressure, household income is only Socio; empty is distinguished from RM 0; switch to recalculate according to version</td>
 <td><code>COST-01/03</code>、<code>ACCOUNT-09</code>；<code>AT-SUIT-02/04</code></td>
 </tr>
 <tr>
-<td>删除/保存失败</td>
+<td>Delete/save failed</td>
 <td>B、Account、Shell</td>
-<td>删除 current/最后一份为 no-current；validation/conflict/permission/network 保留最后保存事实且不排队</td>
+<td>Delete current/last copy as no-current; validation/conflict/permission/network retains the last save fact and does not queue</td>
 <td><code>COST-03</code>；<code>AT-SUIT-02/04</code></td>
 </tr>
 <tr>
-<td>临时 CPI</td>
+<td>Provisional CPI</td>
 <td>B、Geo、Shell</td>
-<td>仅同月等效/来源；缺失/异月不跨月；离页清除且不影响预案/压力/适配度</td>
+<td>Only the same month is equivalent/source; missing/different months do not span months; off-page clearance does not affect the plan/pressure/fitness</td>
 <td><code>COST-02</code>；<code>AT-ANALYSIS-01</code></td>
 </tr>
 <tr>
-<td>退出换号</td>
+<td>Exit number change</td>
 <td>B、Privacy、Shell、Suitability</td>
-<td>A current/副本不可读，B 不继承，公共无身份缓存可留；失败为无私有内容恢复态</td>
+<td>A current/copy is not readable, B is not inherited, no public identity cache can be retained; failure means no private content recovery state</td>
 <td><code>COST-03</code>；<code>AT-SUIT-06</code></td>
 </tr>
 </tbody></table>
-<h2>6. 实现自由、Gate 与检查</h2>
-<p>B 可决定内部文件、Widget、状态机、SDK/SQLite、缓存、取消、重试、冲突、公式代码和测试组织。以下变更须暂停协商：唯一公开 import、公共声明/result variant、输入约束、版本语义、权限/副作用/顺序、<code>read_cost_inputs</code>/<code>user_budget_scenarios</code> Schema/RLS，或事实源锁定的篮子/门槛/两种收入边界。</p>
-<p>实现 Gate：<code>read_cost_inputs</code> 与 <code>user_budget_scenarios</code> 仍 proposed；实现前必须验证官方 schema/键/单位、导入完整性和最大日期、CPI 最新共同月、完整/部分/空导入、可空非负字段和旧预案缺失保留。不得用 fixture 宣称完成；此 Gate 不改变本 Feature 的 Ready 设计状态。</p>
+<h2>6. Achieve freedom, gate and inspection</h2>
+<p>B can decide on internal files, widgets, state machines, SDK/SQLite, caching, cancellation, retries, conflicts, formula code, and test organization. The following changes are subject to suspension of negotiation: unique public import, public declaration/result variant, input constraints, version semantics, permissions/side effects/order,<code>read_cost_inputs</code>/<code>user_budget_scenarios</code> Schema/RLS, or source-of-fact locked basket/threshold/two income boundaries.</p>
+<p>Implement Gate:<code>read_cost_inputs</code> and <code>user_budget_scenarios</code> Still proposed; official schema/keys/units, import completeness and max date, CPI latest common month, full/partial/empty imports, nullable non-negative fields and legacy schema missing retention must be verified before implementation. Fixtures may not be used to declare completion; this Gate does not change the Ready design status of this Feature.</p>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> 四项 Readiness 均可核查。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>COST-001</code>/<code>002</code> 均有唯一入口、声明、输入、typed outputs/failures、状态/权限/副作用/顺序、示例和 fake。</li>
-<li><input checked="" disabled="" type="checkbox"> Shell/Location/Geo/Privacy 与精确 View/RPC 都有唯一入口/对象、声明级协作形状、约束和 fake。</li>
-<li><input checked="" disabled="" type="checkbox"> 无函数体、SDK、SQL、migration、测试实现或 Widget 结构。</li>
-<li><input checked="" disabled="" type="checkbox"> 联验覆盖单点、A/B、current、临时换算、两收入、失败与 A→B 隔离。</li>
+<li><input checked="" disabled="" type="checkbox"> All four Readiness items are verifiable.</li>
+<li><input checked="" disabled="" type="checkbox"> <code>COST-001</code>/<code>002</code> All have unique entries, declarations, inputs, typed outputs/failures, status/permissions/side effects/sequences, examples, and fakes.</li>
+<li><input checked="" disabled="" type="checkbox"> Shell/Location/Geo/Privacy and Exact View/RPC have unique entries/objects, declarative collaboration shapes, constraints and fakes.</li>
+<li><input checked="" disabled="" type="checkbox"> No function bodies, SDKs, SQL, migrations, test implementations, or widget structures.</li>
+<li><input checked="" disabled="" type="checkbox"> The joint test covers single point, A/B, current, temporary conversion, two incomes, failure and A→B isolation.</li>
 </ul>
-<p>公共 Interface 变更由提供方说明原因与消费者，所有受影响消费者确认；同一 PR 更新公开声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不使用 PDF、文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release 或 Invalidated 状态机。</p>
+<p>Public Interface changes must be explained by the provider and consumers, and confirmed by all affected consumers; the same PR updates the public statement, this contract, the HTML with the same name, and the affected fake/Adapter tests. Git/PR preserves history; does not use PDFs, document versions, checksums, manifests, Locked Source Sets, Generation Gates, Development Releases, or Invalidated state machines.</p>
 <h2>Change Log</h2>
 <table>
 <thead>
 <tr>
-<th>日期</th>
-<th>状态</th>
-<th>变更原因</th>
-<th>受影响对象</th>
-<th>批准者</th>
+<th>date</th>
+<th>state</th>
+<th>Reason for change</th>
+<th>Affected objects</th>
+<th>approver</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>2026-09-14</td>
 <td><code>Ready for Development</code></td>
-<td>固定 Cost 范围、产品口径、数据边界与联验</td>
+<td>Fixed Cost range, product caliber, data boundary and joint validation</td>
 <td><code>COST-01</code>–<code>03</code>、<code>ACCOUNT-09</code></td>
-<td>项目负责人</td>
+<td>Project leader</td>
 </tr>
 <tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
-<td>Issue #23 返工为单一 Development Contract：首屏完成定义、HTML 等价导出、完整引用冻结的 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code> 与 <code>PRIVACY-001</code>；移除 PDF/ADR 0014/handoff 发布治理</td>
-<td><code>COST-001</code>、<code>COST-002</code>、Cost 的四个上游 seam、Shell、Map、Geo、Privacy、Account、Socio、Suitability</td>
-<td>设计 AI〔项目负责人授权〕，ADR 0013</td>
+<td>Issue #23 Reworked into a single Development Contract: first screen completion definition, HTML equivalent export, complete reference frozen <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code> and <code>PRIVACY-001</code>;Remove PDF/ADR 0014/handoff release management</td>
+<td><code>COST-001</code>、<code>COST-002</code>, Cost’s four upstream seam, Shell, Map, Geo, Privacy, Account, Socio, Suitability</td>
+<td>Design AI [authorization by project leader], ADR 0013</td>
 </tr>
 </tbody></table>
 </main>

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crime &amp; Security 开发协作契约</title>
+  <title>Crime &amp; Security Development Collaboration Contract</title>
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
     body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
@@ -25,128 +25,128 @@
 </head>
 <body>
 <main>
-<h1>Crime &amp; Security 开发协作契约</h1>
+<h1>Crime &amp; Security Development Collaboration Contract</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）<br>Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5<br>唯一公开入口：<code>package:locatemy/features/crime_and_security/crime_and_security.dart</code><br>定义完成：消费者可只凭本契约请求、呈现和保存同一不可变地点的州级安全结果；不会把警区、未知资料、隐患或导航结果混入治安结论。</p>
+<p>state:<code>Ready for Development</code>(2026-09-15; Design AI [authorized by the project leader], ADR 0013)<br>Owner：<code>B</code>;System baseline:<code>Baselined — 5d11769</code>;Depends on wave: Wave 5<br>The only public entrance:<code>package:locatemy/features/crime_and_security/crime_and_security.dart</code><br>Definition Complete: Consumers can request, present, and save state-level security results for the same immutable location based solely on this contract; no police district, unknown information, hazard, or navigation results will be mixed into security results.</p>
 </blockquote>
-<p>本文件是 Crime &amp; Security 对 #23 的唯一 Development Contract；Markdown 是权威来源，<a href="crime-and-security.html">同名 HTML</a> 是语义等价、供人阅读的导出，不是第二份规格或发布包。它固定公开 Dart 声明、跨模块顺序、结果语义、数据边界和联合验收；<code>lib/features/crime_and_security/</code> 内的 Widget、状态管理、Adapter、缓存、并发/取消/重试及测试组织由 B 决定。公式正文只在产品知识库，字段、RLS、迁移和缓存物理结构只在 Schema Catalog。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<p>This document is Crime &amp; Security's sole Development Contract for #23; Markdown is the authoritative source,<a href="crime-and-security.html">HTML with the same name</a> It is a semantically equivalent, human-readable export, not a second specification or release package. It exposes Dart declarations, cross-module ordering, result semantics, data boundaries, and joint acceptance;<code>lib/features/crime_and_security/</code> The Widget, state management, Adapter, cache, concurrency/cancellation/retry and test organization within are determined by B. The formula body is only in the product knowledge base, and the fields, RLS, migration, and cache physical structures are only in the Schema Catalog.</p>
+<h2>0. Fixed reading order and four items of Readiness</h2>
 <ol>
-<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%8C%BA%E4%B8%8E%E7%BB%9F%E8%AE%A1%E5%B7%9E">地点/统计州领域词汇</a> 与<a href="../knowledge_base/locatemy_product/features/crime_security.md">治安产品事实及公式</a>；</li>
-<li><a href="../design/system/feature-map.md#fm-safety">Feature map（Crime）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E5%9C%B0%E7%82%B9%E5%88%86%E6%9E%90%E4%B8%8E%E6%91%98%E8%A6%81%E7%BB%84%E5%90%88">FLOW-02</a>、<a href="../design/system/flows.md#flow-03a-b-%E5%9C%B0%E7%82%B9%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-06%E6%88%BF%E4%BA%A7%E9%A3%8E%E9%99%A9%E5%BF%AB%E7%85%A7">FLOW-06</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>；</li>
-<li>本契约与<a href="crime-and-security.html">同名 HTML 导出</a>。Git/PR 保存变更历史；不使用 PDF、Manifest、checksum、Locked Source Set、Generation Gate、Development Release 或 Invalidated 生命周期。</li>
+<li><a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%8C%BA%E4%B8%8E%E7%BB%9F%E8%AE%A1%E5%B7%9E">Location/Statistics State Field Vocabulary</a> and<a href="../knowledge_base/locatemy_product/features/crime_security.md">Security Product Facts and Formulas</a>；</li>
+<li><a href="../design/system/feature-map.md#fm-safety">Feature map（Crime）</a>、<a href="../design/system/interfaces.md">Interface registry</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E5%9C%B0%E7%82%B9%E5%88%86%E6%9E%90%E4%B8%8E%E6%91%98%E8%A6%81%E7%BB%84%E5%90%88">FLOW-02</a>、<a href="../design/system/flows.md#flow-03a-b-%E5%9C%B0%E7%82%B9%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-06%E6%88%BF%E4%BA%A7%E9%A3%8E%E9%99%A9%E5%BF%AB%E7%85%A7">FLOW-06</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">Data ownership</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">risk register</a>；</li>
+<li>This contract and<a href="crime-and-security.html">HTML export with the same name</a>. Git/PR preserves change history; does not use PDF, Manifest, checksum, Locked Source Set, Generation Gate, Development Release, or Invalidated lifecycles.</li>
 </ol>
 <table>
 <thead>
 <tr>
 <th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>verifiable evidence</th>
+<th>in conclusion</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>责任与范围</td>
-<td><code>SAFE-01</code>、<code>SAFE-03</code> 唯一归属 Crime；警区边界/安全图层、Hazard、房产和可变选点归其他 Owner</td>
-<td>已就绪</td>
+<td>Responsibility and Scope</td>
+<td><code>SAFE-01</code>、<code>SAFE-03</code> Owned only by Crime; police boundary/security layers, Hazards, properties, and variable picks belong to other owners</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>契约与消费者</td>
-<td><code>SAFETY-001</code> 唯一入口、声明、顺序和 fake 在第 3 节；上游仅 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code></td>
-<td>已就绪</td>
+<td>Contracts and consumers</td>
+<td><code>SAFETY-001</code> The only entry, declaration, order, and fake are in Section 3; upstream only <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code></td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>数据与安全</td>
-<td>只由 <code>read_safety_inputs</code> 读取 <code>crime_district</code>；<code>crime_public_cache</code> 无账户字段；对象契约只在 Catalog</td>
-<td>已就绪</td>
+<td>Data and security</td>
+<td>only by <code>read_safety_inputs</code> read <code>crime_district</code>；<code>crime_public_cache</code> No account field; object contract only in Catalog</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>验收与风险</td>
-<td>第 5 节覆盖 canonical <code>AT-*</code>；<code>RISK-SCHEMA-01</code> 留作实现/集成证据</td>
-<td>已就绪</td>
+<td>Acceptance and risk</td>
+<td>Section 5 covers canonical <code>AT-*</code>；<code>RISK-SCHEMA-01</code> Reserved as implementation/integration evidence</td>
+<td>Ready</td>
 </tr>
 </tbody></table>
-<h2>1. 成果、责任与冻结边界</h2>
+<h2>1. Results, responsibilities and frozen boundaries</h2>
 <ul>
-<li>用户可看到分析地点所属<strong>统计州</strong>的 0–100 安全指数、最新完整年度案件数、五年趋势、类别可用性、来源、年份、完整性和缓存状态；分数高仅表示同年同类别州级已定罪案件规模相对较低。</li>
-<li>单点与 A/B 都绑定 Map 的不可变地点引用。A/B 仅在年份、口径、完整性、模型及边界版本一致时显示差异；不产生赢家或搬迁建议。</li>
-<li><code>all</code>、<code>assault</code>、<code>property</code> 和可用具体 <code>type</code> 仅筛选趋势，绝不改变指数、最新完整年度或总体案件数。</li>
-<li>不包含 <code>SAFE-02</code>：不解析/呈现警区边界或安全地图图层；<code>crime_district.district</code> 只为州级聚合原始字段。Hazard 报告、投票、状态、图层和计数不进入本 Feature 结果、缓存或适配度输入。</li>
+<li>Users can see which analysis location belongs to<strong>Statistical state</strong>0–100 security index, latest completed annual case count, five-year trend, category availability, source, vintage, completeness, and cache status; high scores simply indicate a relatively low state-level conviction case size for the same category in the same year.</li>
+<li>Both single point and A/B are bound to Map's immutable location reference. A/B only shows differences if year, caliber, completeness, model and border version match; no winner or relocation recommendations are generated.</li>
+<li><code>all</code>、<code>assault</code>、<code>property</code> and available specific <code>type</code> Screens for trends only and never changes the index, latest complete year, or overall case count.</li>
+<li>Not included <code>SAFE-02</code>:Does not parse/render police district boundaries or security map layers;<code>crime_district.district</code> Aggregate raw fields only for the state level. Hazard reports, votes, states, layers, and counts do not enter this Feature's results, cache, or fitness input.</li>
 </ul>
 <table>
 <thead>
 <tr>
-<th>Owner / 受控边界</th>
-<th>负责</th>
-<th>不负责</th>
-<th>协作</th>
+<th>Owner/controlled boundary</th>
+<th>Responsible</th>
+<th>irresponsible</th>
+<th>cooperation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>lib/features/crime_and_security/</code>（B）</td>
-<td>官方资料、州级模型、趋势/筛选、3 天公共缓存、可比性、<code>SAFETY-001</code></td>
-<td>地点选择、行政空间匹配、Shell、Hazard、房产/风险快照、适配度</td>
-<td>消费 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>；提供 <code>SAFETY-001</code></td>
+<td>Official data, state-level models, trends/filters, 3-day public cache, comparability,<code>SAFETY-001</code></td>
+<td>Location selection, administrative space matching, Shell, Hazard, property/risk snapshot, fitness</td>
+<td>Consumption <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>;supply <code>SAFETY-001</code></td>
 </tr>
 <tr>
 <td>Application Shell</td>
-<td>门控、分析/比较/返回/房产目的地导航、摘要组合</td>
-<td>公式、资料解释、比较、缓存、房产资料</td>
-<td>接收 Crime intent；消费 <code>SAFETY-001</code></td>
+<td>Gating, Analysis/Compare/Back/Property Destination Navigation, Summary Portfolio</td>
+<td>Formulas, data explanation, comparison, caching, real estate data</td>
+<td>Receive Crime intent; consume <code>SAFETY-001</code></td>
 </tr>
 <tr>
 <td>Map / Location</td>
-<td>合法 immutable single/A/B 地点和主地图</td>
-<td>统计州、治安资料/图层</td>
+<td>Legal immutable single/A/B location and main map</td>
+<td>Statistical state, police data/layer</td>
 <td><code>LOCATION-001</code></td>
 </tr>
 <tr>
 <td>Geographic Context</td>
-<td>坐标到 reporting state 的版本化 resolved/unresolved/ambiguous</td>
-<td>警区、聚合、指数</td>
+<td>Coordinates to versioned reporting state resolved/unresolved/ambiguous</td>
+<td>Police District, Aggregation, Index</td>
 <td><code>GEO-001</code></td>
 </tr>
 <tr>
-<td>Crime 受控对象</td>
+<td>Crime Controlled Subject</td>
 <td><code>read_safety_inputs</code>、<code>crime_public_cache</code></td>
-<td>用户资料、镜像表直读、跨 Feature cache</td>
-<td>Schema Catalog 唯一权威</td>
+<td>User information, direct reading of mirror table, cross-feature cache</td>
+<td>Schema Catalog is the only authority</td>
 </tr>
 </tbody></table>
-<h2>2. 需要调用的 Interface</h2>
-<h3>Interface 卡：<code>SHELL-001</code> — 分析返回与房产业务导航</h3>
-<p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>；<strong>完整 canonical 声明和权威入口：</strong> <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell 的 <code>SHELL-001</code></a>。</p>
-<p>Crime 只能对 provider 原样声明的 <code>ApplicationShell.submit(ShellIntent)</code> 调用，且只处理原样的 <code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>；不得在本 Feature 截断、复制、改名或另造 submit-only declaration / outcome。Crime 从自己的唯一入口导出具体 <code>ShellIntent</code> marker：返回地图时含当前 immutable <code>ValidLocationReference</code> 与原返回语境；打开房产档案或新增房产时只含原返回语境，不能携带房产、草稿、照片、治安结果或可变地图对象。其字段形状与返回语境的完整声明由 Crime 入口在与 Shell 联调前先合入；Shell 不拥有或重述这些领域字段。</p>
+<h2>2. Interface that needs to be called</h2>
+<h3>Interface card:<code>SHELL-001</code> — Analysis return and real estate business navigation</h3>
+<p><strong>Provider:</strong> Application Shell；<strong>consumer:</strong> Crime &amp; Security；<strong>The only public import:</strong> <code>package:locatemy/app/application_shell.dart</code>；<strong>Full canonical statement and authoritative entry:</strong> <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell <code>SHELL-001</code></a>。</p>
+<p>Crime can only be declared as is on the provider <code>ApplicationShell.submit(ShellIntent)</code> call, and only handle the original <code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>;Do not truncate, copy, rename or create a new submit-only declaration / outcome in this Feature. Crime exports specifics from its own unique entry <code>ShellIntent</code> marker: Return the map with the current immutable <code>ValidLocationReference</code> With the original return context; when opening a property file or adding a new property, only the original return context is included, and properties, drafts, photos, security results, or variable map objects cannot be carried. A complete declaration of its field shape and return context is incorporated by the Crime entry before debugging with the Shell; the Shell does not own or reiterate these field fields.</p>
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与最小示例</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, permissions, and minimal examples</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>marker 目的地唯一、地点/返回语境完整、仍属当前 opened scope 且未过期。</td>
-<td>只接受 provider 的三种 canonical outcome；后两者是导航结果，不是资料失败。</td>
-<td>Shell 只改门控、导航/返回栈或组合；Crime 不改 Map、结果、cache 或房产。</td>
-<td>仅 opened 主应用；<code>await shell.submit(returnToMapIntent);</code>。拒绝或需认证时留页并保留安全结果与恢复原因。</td>
+<td>The marker has a unique destination, complete location/return context, is still within the current opened scope, and has not expired.</td>
+<td>Only three canonical outcomes from the provider are accepted; the latter two are navigation results, not data failures.</td>
+<td>Shell only changes gates, navigation/return stacks, or combinations; Crime does not change Maps, results, caches, or properties.</td>
+<td>Only opened the main application;<code>await shell.submit(returnToMapIntent);</code>. When rejected or requiring authentication, leave a page and retain the security results and recovery reasons.</td>
 </tr>
 </tbody></table>
-<p><strong>Fake 场景：</strong> fake 必须实现 provider 的完整 <code>ApplicationShell</code>，分别返回 canonical accepted、authentication-required、<code>ShellIntentRejected(staleInput)</code>；断言 payload 不变，后两种不清除安全结果。无需真实 Shell、Map 或 Property。</p>
-<h3>Interface 卡：<code>LOCATION-001</code> — 不可变合法地点（输入前提）</h3>
-<p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<strong>完整 canonical 声明和权威入口：</strong> <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location 的 <code>LOCATION-001</code></a>。</p>
-<p>Crime 不调用或包装 <code>LocationCoordinator</code> 来选点；它只接受 provider 的完整 canonical <code>ValidLocationReference</code> 作为 <code>SafetyRequest.location</code>。该引用必须来自 <code>LocationSelected</code>，角色为 single 或保留顺序的 A/B。<code>LocationAbsent</code>、<code>LocationSelectionRejected(invalidCoordinate/outsideMalaysia/sameComparisonPoint/scopeUnavailable)</code> 及任何自行构造、过期或可变地图状态都不得触发 Geo、资料读取、cache 或 Shell contribution。<code>displayName</code> 可为 null，且不作地区解析或 cache key。</p>
-<p><strong>最小使用：</strong> <code>SafetyRequest(location: selectedLocation, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend())</code>，其中 <code>selectedLocation</code> 是 canonical <code>LocationSelected.location</code>。<strong>Fake 场景：</strong> fake <code>LocationCoordinator</code> 只交付 canonical single/A/B 成功引用或上述 canonical rejection；Crime 仅转交成功引用。</p>
-<h3>Interface 卡：<code>GEO-001</code> — reporting state 语境</h3>
-<p><strong>提供者：</strong> Geographic Context；<strong>消费者：</strong> Crime &amp; Security；<strong>唯一公开 import：</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code>；<strong>完整 canonical 声明和权威入口：</strong> <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context 的 <code>GEO-001</code></a>。</p>
-<p>Crime 只能调用 provider 原样声明的 <code>GeographicContext.resolve(GeographicContextRequest)</code>，请求必须是 <code>location: selectedLocation</code>、<code>levels: {GeographicLevel.reportingState}</code>。只在 <code>GeographicContextAvailable.results[GeographicLevel.reportingState]</code> 是 <code>GeographicLevelResolved</code> 时，使用该 <code>AdministrativeArea.reportingStateId</code> / <code>reportingStateName</code> 和同批 <code>BoundaryProvenance</code> 进入官方读取。<code>GeographicContextUnavailable</code>、<code>GeographicLevelUnresolved</code> 与 <code>GeographicLevelAmbiguous</code> 都映射为 Safety 的 typed unavailable；保留原因和已知 provenance，不选候选、不猜名称、不回退行政区、最近州或警区。</p>
-<p>请求是公共只读，不能改地点、边界、账户或既有结果。边界 provenance 的 dataset/version/hash 是 cache key、<code>SafetyProvenance.boundaryVersion</code> 与 A/B 可比性的输入；版本不同不能称可比，旧地点/旧版本晚到结果不能覆盖当前端。</p>
-<p><strong>最小调用：</strong> <code>await geographicContext.resolve(GeographicContextRequest(location: selectedLocation, levels: {GeographicLevel.reportingState}));</code>。<strong>Fake 场景：</strong> fake 实现完整 canonical <code>GeographicContext</code>，覆盖 resolved、<code>GeographicLevelUnresolved(noCoverage)</code>、完整候选的 ambiguous、<code>GeographicContextUnavailable(scopeUnavailable)</code> 与不同 <code>sourceVersion</code>；仅 resolved 进入 <code>SAFETY-002</code>。</p>
-<h2>3. 必须提供的 Interface</h2>
-<h3>Interface 卡：<code>SAFETY-001</code> — 州级安全结果与趋势</h3>
-<p><strong>提供者：</strong> Crime &amp; Security（B）；<strong>消费者：</strong> Application Shell、Property Inspection、Personalized Location Suitability；<strong>唯一公开 import：</strong> <code>package:locatemy/features/crime_and_security/crime_and_security.dart</code>。</p>
-<p>消费者只能 import 此入口。B 应先合入下列声明与最小 fake；这是协作形状，不是可提交实现体。</p>
+<p><strong>Fake scene:</strong> fake must implement the integrity of provider <code>ApplicationShell</code>, return canonical accepted, authentication-required, respectively.<code>ShellIntentRejected(staleInput)</code>; Assert that the payload remains unchanged, and the latter two do not clear the security results. No real Shell, Map or Property required.</p>
+<h3>Interface card:<code>LOCATION-001</code> — Immutable legal location (input premise)</h3>
+<p><strong>Provider:</strong> Map / Location；<strong>consumer:</strong> Crime &amp; Security；<strong>The only public import:</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<strong>Full canonical statement and authoritative entry:</strong> <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map/Location <code>LOCATION-001</code></a>。</p>
+<p>Crime does not call or wrap <code>LocationCoordinator</code> to select the point; it only accepts the full canonical of the provider <code>ValidLocationReference</code> as <code>SafetyRequest.location</code>. The reference must be from <code>LocationSelected</code>, role is single or order-preserving A/B.<code>LocationAbsent</code>、<code>LocationSelectionRejected(invalidCoordinate/outsideMalaysia/sameComparisonPoint/scopeUnavailable)</code> And any self-constructed, expired or mutable map state must not trigger Geo, data reading, cache or Shell contributions.<code>displayName</code> Can be null and does not do region resolution or cache key.</p>
+<p><strong>Minimum usage:</strong> <code>SafetyRequest(location: selectedLocation, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend())</code>,in <code>selectedLocation</code> is canonical <code>LocationSelected.location</code>。<strong>Fake scene:</strong> fake <code>LocationCoordinator</code> Only delivers canonical single/A/B successful references or the canonical rejection above; Crime only delivers successful references.</p>
+<h3>Interface card:<code>GEO-001</code> — reporting state context</h3>
+<p><strong>Provider:</strong> Geographic Context；<strong>consumer:</strong> Crime &amp; Security；<strong>The only public import:</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code>；<strong>Full canonical statement and authoritative entry:</strong> <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context <code>GEO-001</code></a>。</p>
+<p>Crime can only call provider declared as is <code>GeographicContext.resolve(GeographicContextRequest)</code>, the request must be <code>location: selectedLocation</code>、<code>levels: {GeographicLevel.reportingState}</code>. only in <code>GeographicContextAvailable.results[GeographicLevel.reportingState]</code> yes <code>GeographicLevelResolved</code> when, use this <code>AdministrativeArea.reportingStateId</code> / <code>reportingStateName</code> with the same batch <code>BoundaryProvenance</code> Enter the official reading.<code>GeographicContextUnavailable</code>、<code>GeographicLevelUnresolved</code> and <code>GeographicLevelAmbiguous</code> All mapped to Safety's typed unavailable; retain reasons and known provenance, do not select candidates, do not guess names, do not fall back to boroughs, nearest states or police districts.</p>
+<p>Requests are public read-only and cannot change location, boundaries, accounts, or existing results. The dataset/version/hash of boundary provenance is the cache key,<code>SafetyProvenance.boundaryVersion</code> Input for comparability with A/B; different versions cannot be called comparable, and the old location/old version late result cannot overwrite the current end.</p>
+<p><strong>Minimal call:</strong> <code>await geographicContext.resolve(GeographicContextRequest(location: selectedLocation, levels: {GeographicLevel.reportingState}));</code>。<strong>Fake scene:</strong> fake implements complete canonical <code>GeographicContext</code>, covering resolved,<code>GeographicLevelUnresolved(noCoverage)</code>, complete candidate ambiguous,<code>GeographicContextUnavailable(scopeUnavailable)</code> different from <code>sourceVersion</code>;Only resolved enters <code>SAFETY-002</code>。</p>
+<h2>3. Required Interface</h2>
+<h3>Interface card:<code>SAFETY-001</code> — State-level safety results and trends</h3>
+<p><strong>Provider:</strong> Crime &amp; Security（B）；<strong>consumer:</strong> Application Shell、Property Inspection、Personalized Location Suitability；<strong>The only public import:</strong> <code>package:locatemy/features/crime_and_security/crime_and_security.dart</code>。</p>
+<p>Consumers can only import this entry. B should first incorporate the following declaration with the minimal fake; this is a collaboration form, not a committable implementation.</p>
 <pre><code class="language-dart">abstract interface class CrimeAndSecurity {
   Future&lt;SafetyLoadOutcome&gt; load(SafetyRequest request);
   Future&lt;SafetyComparisonOutcome&gt; compare(SafetyComparisonRequest request);
@@ -193,127 +193,127 @@ enum SafetyComparisonReason { sideUnavailable, yearMismatch, completenessMismatc
 <table>
 <thead>
 <tr>
-<th>输入约束</th>
-<th>输出 / typed failures</th>
-<th>状态与副作用</th>
-<th>顺序、权限与最小示例</th>
+<th>input constraints</th>
+<th>Output / typed failures</th>
+<th>Status and side effects</th>
+<th>Order, permissions, and minimal examples</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>location 必为 <code>LOCATION-001</code> immutable single/A/B；all 恒可请求，类别/type 仅可请求 snapshot 宣告可用项；refresh 绕过 cache。</td>
-<td>available、partial、unavailable(reason) 区分州、资料、完整年度与可重试失败；A/B 为 comparable 或 incomparable(reason)，不伪造差异。</td>
-<td>只读 <code>read_safety_inputs</code>，可读写无账户 <code>crime_public_cache</code>；不写地点、房产、账户、Hazard、图层/Shell。filter 只改 trend。</td>
-<td>先 <code>GEO-001</code> resolved，再读取/计算，再以原引用发布；仅 opened 过程呈现。<code>await safety.load(SafetyRequest(location: location, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend()));</code></td>
+<td>location is required <code>LOCATION-001</code> immutable single/A/B; all can always be requested, category/type can only request snapshot to declare available items; refresh bypasses cache.</td>
+<td>available, partial, unavailable(reason) differentiates between state, profile, full year and retryable failures; A/B is comparable or incomparable(reason), does not falsify differences.</td>
+<td>read only <code>read_safety_inputs</code>, can read and write without account <code>crime_public_cache</code>;Do not write location, property, account, Hazard, layer/Shell. filter only changes trend.</td>
+<td>First <code>GEO-001</code> resolved, then read/calculate, and then publish with the original reference; only the opened process is presented.<code>await safety.load(SafetyRequest(location: location, policy: SafetyLoadPolicy.cacheAllowed, filter: const AllCrimeTrend()));</code></td>
 </tr>
 </tbody></table>
-<p><strong>Fake 场景：</strong> Shell fake 消费 fresh complete、cached partial、unresolved、ambiguous、无有效类别、retryable，均不可显示为 0；Property fake 只接受同地点 complete available 且有来源/年份的 snapshot；Suitability fake 将 partial/unavailable 保持为安全维度缺失；A/B fake 证明年份/完整性/版本任一不同即不可比，交换仅改显示顺序。</p>
-<h3>Interface 卡：<code>SAFETY-002</code> — 官方资料读取 seam（仅 B）</h3>
-<p><strong>提供者/消费者：</strong> Crime &amp; Security（B）/ Crime &amp; Security（B）；非跨 Owner 入口。B 经 Catalog 的 <code>read_safety_inputs</code> 读取 <code>crime_district</code>，得到州、完整年、类别/type、已定罪案件或分类失败。仅可验证最新完整年度与有效类别可形成结果；网络、SDK、取消、超时、重试、cache 替换和错误映射由 B 封装。应用消费者不能 import Adapter、镜像表或原始行。</p>
-<h2>4. 固定业务语义、数据与流程</h2>
+<p><strong>Fake scene:</strong> Shell fake consumes fresh complete, cached partial, unresolved, ambiguous, no valid category, retryable, and cannot be displayed as 0; Property fake only accepts snapshots of the same location complete available and source/year; Suitability fake keeps partial/unavailable as security dimensions are missing; A/B fake proves that any difference in year/completeness/version is incomparable, and exchange only changes the display order.</p>
+<h3>Interface card:<code>SAFETY-002</code> — Official data reading seam (B only)</h3>
+<p><strong>Provider/Consumer:</strong> Crime &amp; Security (B) / Crime &amp; Security (B); non-cross-Owner entry. B via Catalog <code>read_safety_inputs</code> read <code>crime_district</code>, get state, complete year, category/type, convictions, or classification failures. Only the latest complete year with valid categories can be verified to form results; network, SDK, cancellation, timeout, retry, cache replacement and error mapping are encapsulated by B. Application consumers cannot import Adapters, mirror tables, or raw rows.</p>
+<h2>4. Fixed business semantics, data and processes</h2>
 <table>
 <thead>
 <tr>
-<th>目的</th>
-<th>权威来源 / 访问边界</th>
-<th>必须保持的语义</th>
+<th>Purpose</th>
+<th>Authoritative Source/Access Boundary</th>
+<th>Semantics that must be maintained</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>安全指数/案件数</td>
-<td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E5%AE%89%E5%85%A8%E6%8C%87%E6%95%B0">治安事实及公式</a>；<code>read_safety_inputs</code></td>
-<td>resolved reporting state 后聚合 <code>crime_district.state</code> 的警区原始行；最新完整年、同年同类别实际州基准、对数/百分位/60:40。排除 Malaysia，按事实源归并联邦直辖区；district 绝不作地理解析。</td>
+<td>Safety index/number of cases</td>
+<td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E5%AE%89%E5%85%A8%E6%8C%87%E6%95%B0">Policing Facts and Formulas</a>；<code>read_safety_inputs</code></td>
+<td>Post-aggregation of resolved reporting state <code>crime_district.state</code> Police district original row; latest complete year, actual state benchmark for same year, same category, log/percentile/60:40. Exclude Malaysia and merge federal territories according to the actual source; district will never be analyzed geographically.</td>
 </tr>
 <tr>
-<td>趋势/筛选</td>
-<td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E7%8A%AF%E7%BD%AA%E7%B1%BB%E5%88%AB">犯罪类别与趋势</a></td>
-<td>all 为两类总和；趋势 <code>Y-4…Y</code> 可用完整年。仅一主类按既定权重重归一化并 partial；两类无效则 unavailable。</td>
+<td>Trends/Filters</td>
+<td><a href="../knowledge_base/locatemy_product/features/crime_security.md#%E7%8A%AF%E7%BD%AA%E7%B1%BB%E5%88%AB">Crime categories and trends</a></td>
+<td>all is the sum of two categories; trend <code>Y-4…Y</code> Available full year. Only one main class is renormalized and partial according to the given weight; two classes are unavailable.</td>
 </tr>
 <tr>
-<td>地理/比较</td>
+<td>Geography/Comparison</td>
 <td><code>GEO-001</code>、<a href="../../CONTEXT.md#%E8%A1%8C%E6%94%BF%E5%8C%BA%E4%B8%8E%E7%BB%9F%E8%AE%A1%E5%B7%9E">CONTEXT</a></td>
-<td>保留 state、边界来源/版本、官方年、来源、完整性/模型版。未解析/歧义无回退；同一可解释口径才可比。</td>
+<td>Preserve state, boundary source/version, official year, provenance, completeness/model version. There is no fallback for unresolved/ambiguous cases; only the same interpretable caliber can be compared.</td>
 </tr>
 <tr>
-<td>公共缓存</td>
+<td>public cache</td>
 <td><code>crime_public_cache</code>（Catalog）</td>
-<td>key 含 reporting state、模型/边界版、资料事实；TTL 3 天；无账户字段，退出保留；cached/stale 不冒充 fresh，始终示原始官方年。</td>
+<td>The key contains reporting state, model/border version, and data facts; TTL is 3 days; there is no account field, and it is retained when exiting; cached/stale does not pretend to be fresh, and always shows the original official year.</td>
 </tr>
 <tr>
-<td>Hazard 隔离</td>
-<td>Hazard 产品事实、<code>HAZARD-001</code>/<code>HAZARD-002</code></td>
-<td>不读写报告、投票、计数、图层/状态；隐患不进指数、趋势、比较、cache、Suitability 安全维度。</td>
+<td>Hazard Isolation</td>
+<td>Hazard product facts,<code>HAZARD-001</code>/<code>HAZARD-002</code></td>
+<td>Cannot read and write reports, votes, counts, layers/statuses; hidden dangers cannot be entered into index, trend, comparison, cache, and Suitability security dimensions.</td>
 </tr>
 </tbody></table>
-<p>顺序：Map 在 <code>FLOW-02</code>/<code>FLOW-03</code> 先给每角色 immutable location；Crime 调 <code>GEO-001</code>，只对 resolved state 经 <code>SAFETY-002</code> 形成 <code>SAFETY-001</code>；Shell 组合但不重算/置零。<code>FLOW-06</code> 的 Property 只消费同地点完整结果并自行写风险快照；Crime 不读写 Property。返回地图/Portfolio/Add Property 均经本契约 Shell card。</p>
-<h2>5. 验收、Ready Gate 与变更</h2>
+<p>Order: Map in <code>FLOW-02</code>/<code>FLOW-03</code> First give each character an immutable location; Crime transfer <code>GEO-001</code>, only for resolved state <code>SAFETY-002</code> form <code>SAFETY-001</code>; Shell combines but does not recalculate/zero.<code>FLOW-06</code> The Property only consumes the complete result of the co-location and writes the risk snapshot itself; Crime does not read or write the Property. Return to Map/Portfolio/Add Property are subject to this contract Shell card.</p>
+<h2>5. Acceptance, Ready Gate and Changes</h2>
 <table>
 <thead>
 <tr>
 <th>Capability / canonical AT</th>
-<th>情景与操作</th>
-<th>可观察完成条件</th>
+<th>Scenarios and operations</th>
+<th>Observable completion conditions</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>SAFE-01</code> / <code>AT-ANALYSIS-01</code></td>
-<td>resolved 州、两类完整资料，打开单点</td>
-<td>州级 0–100、最新完整年案件、五年趋势及地点/州/年/来源/完整性/cache/口径；无警区或个人风险。</td>
+<td>resolved state, two types of complete information, open a single point</td>
+<td>State level 0–100, latest complete year of cases, five-year trends, and location/state/year/source/complete/cache/caliber; no police district or individual risk.</td>
 </tr>
 <tr>
 <td><code>SAFE-01</code> / <code>AT-ANALYSIS-01</code></td>
-<td>单类、两类无、空/缺年、刷新失败、cached/stale</td>
-<td>partial、unavailable、complete-empty、retryable/non-retryable、cached/stale 可区分，永无伪 0。</td>
+<td>Single category, two categories none, empty/missing year, refresh failure, cached/stale</td>
+<td>partial, unavailable, complete-empty, retryable/non-retryable, cached/stale distinguishable, never false 0.</td>
 </tr>
 <tr>
 <td><code>SAFE-01</code> / <code>AT-LOC-01</code>、<code>AT-LOC-02</code></td>
-<td>resolved/unresolved/ambiguous、边界版改变</td>
-<td>仅 resolved 读；无默认/邻近/行政区/警区回退。</td>
+<td>resolved/unresolved/ambiguous, border version changes</td>
+<td>Resolved read only; no default/neighbor/administrative district/police district fallback.</td>
 </tr>
 <tr>
 <td><code>SAFE-03</code> / <code>AT-ANALYSIS-01</code></td>
-<td>all、类别、type 切换</td>
-<td>仅趋势变化；指数/年/总案件不变，有文字说明。</td>
+<td>all, category, type switch</td>
+<td>Only the trend changes; the index/year/total cases remain unchanged, with text explanations.</td>
 </tr>
 <tr>
 <td><code>SAFE-01</code> / <code>AT-COMPARE-03</code></td>
-<td>A/B、单侧不可用、年/完整性/provenance 不同、交换</td>
-<td>并列原值；仅可比时显示差异；交换不改计算。</td>
+<td>A/B, one side unavailable, year/integrity/provenance different, exchange</td>
+<td>The original values ​​are juxtaposed; differences are displayed only when comparable; exchange does not change the calculation.</td>
 </tr>
 <tr>
 <td><code>SAFETY-001</code> / <code>AT-PROP-03</code>、<code>AT-SUIT-01</code></td>
-<td>Property/Suitability/Shell 消费，存在 Hazard</td>
-<td>带保存所需州/年/来源/可用性；Crime 不写房产、不出图层、不混 Hazard。</td>
+<td>Property/Suitability/Shell consumption, Hazard exists</td>
+<td>With required state/year/source/availability for saving; Crime does not write properties, does not create layers, and does not mix hazards.</td>
 </tr>
 <tr>
-<td>披露 / <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-03</code></td>
-<td>中文/English、动态字体、图表/颜色</td>
-<td>文字等价覆盖读数、趋势、筛选、状态、来源/cache/限制；说明州级而非警区/评级/个人概率。</td>
+<td>Disclosure / <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-03</code></td>
+<td>Chinese/English, dynamic fonts, charts/colors</td>
+<td>Literal equivalent covers readings, trends, filters, status, sources/cache/limits; states state level rather than police district/rating/individual probabilities.</td>
 </tr>
 </tbody></table>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> <code>SAFE-01</code>、<code>SAFE-03</code> 追踪到 Owner、<code>SAFETY-001</code>、<code>crime_district</code>、<code>read_safety_inputs</code>、<code>crime_public_cache</code>、事实源和 AT。</li>
-<li><input checked="" disabled="" type="checkbox"> 每个跨 Owner Interface 含唯一 import、声明/精确调用、约束、typed outcome、状态副作用、顺序/权限、最小示例和 fake。</li>
-<li><input checked="" disabled="" type="checkbox"> 无实现体、SQL、SDK 映射、缓存策略或内部测试组织。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>RISK-SCHEMA-01</code> 的官方 schema/键、导入行数、最大完整年、五年趋势和州聚合证据留实现/集成验收；不得用 <code>crime_stats</code> 或示例宣称完成。</li>
-<li><input checked="" disabled="" type="checkbox"> Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。</li>
+<li><input checked="" disabled="" type="checkbox"> <code>SAFE-01</code>、<code>SAFE-03</code> Trace to Owner,<code>SAFETY-001</code>、<code>crime_district</code>、<code>read_safety_inputs</code>、<code>crime_public_cache</code>, source of truth and AT.</li>
+<li><input checked="" disabled="" type="checkbox"> Each cross-Owner Interface contains unique imports, declarations/exact calls, constraints, typed outcomes, state side effects, ordering/permissions, minimal examples, and fakes.</li>
+<li><input checked="" disabled="" type="checkbox"> No implementations, SQL, SDK mappings, caching strategies, or internal testing organization.</li>
+<li><input checked="" disabled="" type="checkbox"> <code>RISK-SCHEMA-01</code> The official schema/key, number of imported rows, maximum complete year, five-year trend, and state aggregated evidence are reserved for implementation/integration acceptance; may not be used <code>crime_stats</code> Or example claims completion.</li>
+<li><input checked="" disabled="" type="checkbox"> Standards/Spec biaxial review passed; Design AI approved Ready per ADR 0013.</li>
 </ul>
-<p>公共 Interface 变更须由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新声明、本契约、同名 HTML 导出及受影响 fake/Adapter 测试。Git/PR 保存历史；不使用 PDF、文档版本、checksum、Manifest、Locked Source Set、Generation Gate、Development Release 或 Invalidated 生命周期。</p>
+<p>Public Interface changes must be explained by the provider and affected consumers, and confirmed by all affected consumers; the same PR update statement, this contract, HTML export with the same name, and affected fake/Adapter tests. Git/PR preserves history; does not use PDF, Document Version, Checksum, Manifest, Locked Source Set, Generation Gate, Development Release, or Invalidated lifecycles.</p>
 <table>
 <thead>
 <tr>
-<th>日期</th>
-<th>状态</th>
-<th>变更原因</th>
-<th>受影响对象</th>
-<th>批准者</th>
+<th>date</th>
+<th>state</th>
+<th>Reason for change</th>
+<th>Affected objects</th>
+<th>approver</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
-<td>Issue #23：改为单一 Development Contract 和同名 HTML 导出；移除旧 PDF/ADR 0014/handoff 发布流程引用，并令 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code> 消费卡只指向冻结 provider 的完整 canonical declaration；不改变公式、数据模型、权限、失败或验收语义</td>
-<td><code>SAFE-01</code>、<code>SAFE-03</code>、<code>SAFETY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>crime_public_cache</code>、同名 HTML</td>
-<td>设计 AI（项目负责人授权）</td>
+<td>Issue #23: Change to a single Development Contract and HTML export with the same name; remove the old PDF/ADR 0014/handoff publishing process reference and make <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code> The consumption card only points to the complete canonical declaration of the frozen provider; does not change formulas, data models, permissions, failure or acceptance semantics</td>
+<td><code>SAFE-01</code>、<code>SAFE-03</code>、<code>SAFETY-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>crime_public_cache</code>, HTML with the same name</td>
+<td>Design AI (authorized by project leader)</td>
 </tr>
 </tbody></table>
 </main>

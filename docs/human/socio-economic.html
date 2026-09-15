@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Socio-economic 开发协作契约</title>
+  <title>Socio-economic development collaboration contract</title>
   <style>
     :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
     body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
@@ -25,135 +25,135 @@
 </head>
 <body>
 <main>
-<h1>Socio-economic 开发协作契约</h1>
+<h1>Socio-economic development collaboration contract</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
-Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 6
-唯一公开入口：<code>package:locatemy/features/socio_economic/socio_economic.dart</code></p>
+<p>state:<code>Ready for Development</code>(2026-09-15; Design AI [authorized by the project leader], ADR 0013)
+Owner:<code>B</code>;System baseline:<code>Baselined — 5d11769</code>;Depends on wave: Wave 6
+The only public entrance:<code>package:locatemy/features/socio_economic/socio_economic.dart</code></p>
 </blockquote>
-<p>本文件是 Socio-economic 唯一的跨 Owner Development Contract；同名 HTML 是由它导出的供人阅读副本，不是独立规格。它固定公开 Dart seam、受控资料读取、结果语义、权限、次序和联验；<code>lib/features/socio_economic/</code> 内的 Widget、状态管理、查询、缓存、插值、图表、并发、取消、重试与测试组织均由 B 决定。公式正文只在产品知识库，字段、RLS 与 migration 只在 Schema Catalog。</p>
-<h2>0. 任务成果与完成定义</h2>
-<p><strong>完成定义（DoD）。</strong> B 已在唯一公开入口提供本节第 3 节完整的 <code>SOCIO-001</code> 声明；Shell 可只靠该入口的 fake 完成单点与 A/B 组合；真实 Adapter 经第 6 节情景证明：(a) 合法单点逐项显示收入中位数、收入结构、基尼、州级分布与可用的收入位置及其层级、年份、单位、来源和性质，(b) 缺失、行政区不可用、资料/权限失败与收入位置不可用均有可读恢复语义且不补零，(c) A/B 只为可比读数显示差异且没有赢家或推荐，(d) closing、换号、地点/资料/预案版本变化不发布旧结果。完成不包括 Widget、SDK、SQL 或测试实现。</p>
-<h2>1. 任务成果、责任与依赖顺序</h2>
-<p>用户在合法单点可看到收入中位数、收入结构、基尼、州级收入分布及可用时的家庭收入位置；每项都呈现实际层级、DOSM 年份、单位、来源及 official/reference/derived 性质。A/B 保留两端原值，只有同一口径且完整可用的单项显示差异。不会生成综合社会经济指数、推荐、CPI/购买力换算、预算预案写入或行政边界解析。</p>
+<p>This document is Socio-economic's only cross-Owner Development Contract; the HTML with the same name is a human-readable copy exported from it, not a stand-alone specification. It permanently exposes Dart seam, controlled data reading, result semantics, permissions, order and validation;<code>lib/features/socio_economic/</code> Widgets, state management, queries, caching, interpolation, charts, concurrency, cancellation, retry and test organization are all determined by B. The formula body is only in the product knowledge base, and the fields, RLS and migration are only in the Schema Catalog.</p>
+<h2>0. Task results and completion definition</h2>
+<p><strong>Definition of Done (DoD).</strong> B has provided the complete version of this section 3 at the only public access <code>SOCIO-001</code> Statement; Shell can only rely on the fake of this entry to complete the single point and A/B combination; the real Adapter is proved by the scenario in Section 6: (a) The legal single point displays the median income, income structure, Gini, state-level distribution and available income locations and their levels, years, units, sources and properties item by item, (b) Missing, administrative area is not available, data/permission failure and income location are not available, all have readable recovery semantics and no zero padding, (c) A/B Only differences are shown for comparable readings and no winner or recommendation, (d) closing, number change, location/material/plan version changes do not publish old results. Completion does not include Widgets, SDKs, SQL, or test implementations.</p>
+<h2>1. Task results, responsibilities and dependency sequence</h2>
+<p>Users can see median income, income structure, Gini, state-level income distribution, and household income position when available in a legal single point; each is presented with actual tier, DOSM year, unit, source, and official/reference/derived properties. A/B retains the original values ​​at both ends, and only single items of the same caliber that are fully available display the differences. Comprehensive socioeconomic indexes, recommendations, CPI/purchasing power conversions, budget plan writing, or administrative boundary analysis will not be generated.</p>
 <table>
 <thead>
 <tr>
 <th>Owner</th>
-<th>负责</th>
-<th>不负责</th>
-<th>协作</th>
+<th>Responsible</th>
+<th>irresponsible</th>
+<th>cooperation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Socio-economic（B）</td>
-<td><code>SOCIO-001</code>、收入/结构/基尼/分布、收入位置、层级回退、完整性、逐项可比性</td>
-<td>地点合法性、Geo 解析、预案 CRUD、导航、综合评分</td>
-<td>调用 Shell、Location、Geo、Cost；提供 <code>SOCIO-001</code></td>
+<td><code>SOCIO-001</code>, income/structure/gini/distribution, income position, hierarchical fallback, completeness, item-by-item comparability</td>
+<td>Location legality, Geo analysis, plan CRUD, navigation, comprehensive score</td>
+<td>Call Shell, Location, Geo, Cost; provide <code>SOCIO-001</code></td>
 </tr>
 <tr>
 <td>Application Shell</td>
-<td>opened 范围内导航、返回语境与结果组合</td>
-<td>Socio 资料选择、回退、完整性、可比性</td>
-<td>调用 <code>SOCIO-001</code></td>
+<td>opened Navigation within the scope, return context and result combination</td>
+<td>Socio data selection, rollback, completeness, comparability</td>
+<td>call <code>SOCIO-001</code></td>
 </tr>
 <tr>
 <td>Map / Location</td>
-<td>合法 immutable single/A/B 引用</td>
-<td>社会经济资料与解释</td>
-<td>提供 <code>LOCATION-001</code></td>
+<td>Legal immutable single/A/B reference</td>
+<td>Socioeconomic data and explanations</td>
+<td>supply <code>LOCATION-001</code></td>
 </tr>
 <tr>
 <td>Geographic Context</td>
-<td>state/district 的 resolved/unresolved/ambiguous 事实与版本</td>
-<td>Socio 回退或资料读取</td>
-<td>提供 <code>GEO-001</code></td>
+<td>resolved/unresolved/ambiguous facts and versions of state/district</td>
+<td>Socio rollback or data reading</td>
+<td>supply <code>GEO-001</code></td>
 </tr>
 <tr>
 <td>Cost of Living &amp; Budget</td>
-<td>同账户 current/no-current 的保存事实与版本</td>
-<td>社会经济位置计算</td>
-<td>提供 <code>COST-002</code></td>
+<td>Saved facts and versions of the same account current/no-current</td>
+<td>Socioeconomic location calculation</td>
+<td>supply <code>COST-002</code></td>
 </tr>
 </tbody></table>
-<p><strong>协作顺序。</strong> (1) 提供者已合入 Shell、Location、Geo、Cost 的声明级公共入口；(2) B 以它们的 fake 完成 Socio 并先合入本节的 <code>SOCIO-001</code> 声明；(3) Shell 以 Socio fake 组合页面；(4) 两位 Owner 用真实 Adapter 完成第 6 节的少量 joint flows。公开 seam 变化由提供者说明影响、消费者确认，并在同一 PR 更新声明、契约与受影响测试。</p>
-<h3>权威阅读顺序与四项 Readiness</h3>
-<p>实施和审查先确认上述结果，再按以下权威来源补充事实；后项不能改写前项：</p>
+<p><strong>Collaboration sequence.</strong> (1) The provider has merged the declarative public entrances of Shell, Location, Geo, and Cost; (2) B completes Socio with their fake and merges it into this section first. <code>SOCIO-001</code> Statement; (3) Shell combines pages with Socio fake; (4) Two Owners use real Adapter to complete a small number of joint flows in Section 6. Public seam changes are made by providers stating the impact, consumers confirming it, and updating the statement, contract, and impact testing in the same PR.</p>
+<h3>Authoritative reading order and four items of readiness</h3>
+<p>Implementation and review shall first confirm the above results, and then supplement the facts according to the following authoritative sources; the latter paragraph cannot overwrite the previous paragraph:</p>
 <ol>
-<li><a href="../knowledge_base/locatemy_product/features/socio_economic.md">社会经济</a>、<a href="../knowledge_base/locatemy_product/features/account.md">账户</a>、<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">生活成本与预算</a>；</li>
-<li><a href="../design/system/feature-map.md">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#%E5%85%AC%E5%85%B1%E6%94%BF%E5%BA%9C%E9%95%9C%E5%83%8F%E4%B8%8E%E8%BE%B9%E7%95%8C%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-cost-01"><code>RISK-COST-01</code></a>；</li>
-<li>本契约与其同名 HTML 导出。</li>
+<li><a href="../knowledge_base/locatemy_product/features/socio_economic.md">social economy</a>、<a href="../knowledge_base/locatemy_product/features/account.md">Account</a>、<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">Cost of living and budgeting</a>；</li>
+<li><a href="../design/system/feature-map.md">Feature map</a>、<a href="../design/system/interfaces.md">Interface registry</a>、<a href="../design/system/flows.md#flow-02%E5%8D%95%E7%82%B9%E9%80%89%E5%9D%80%E5%9C%B0%E7%82%B9%E6%91%98%E8%A6%81%E4%B8%8E%E5%85%AD%E7%B1%BB%E5%88%86%E6%9E%90">FLOW-02</a>、<a href="../design/system/flows.md#flow-03%E5%9C%B0%E7%82%B9-ab-%E6%AF%94%E8%BE%83">FLOW-03</a>、<a href="../design/system/flows.md#flow-07%E4%B8%AA%E4%BA%BA%E5%8C%96%E5%9C%B0%E7%82%B9%E9%80%82%E9%85%8D%E5%BA%A6">FLOW-07</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">Data ownership</a>、<a href="../design/data/schema-catalog.md#%E5%85%AC%E5%85%B1%E6%94%BF%E5%BA%9C%E9%95%9C%E5%83%8F%E4%B8%8E%E8%BE%B9%E7%95%8C%E5%AF%B9%E8%B1%A1">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-cost-01"><code>RISK-COST-01</code></a>；</li>
+<li>This contract is an HTML export of its namesake.</li>
 </ol>
 <table>
 <thead>
 <tr>
 <th>Readiness</th>
-<th>可核查证据</th>
-<th>结论</th>
+<th>verifiable evidence</th>
+<th>in conclusion</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>责任与依赖顺序</td>
-<td>B 唯一拥有 <code>SOCIO-01</code>–<code>03</code>；先有 Shell、Location、Geo、Cost 的公开声明，再由 B 合入 <code>SOCIO-001</code> 声明，Shell 随后接入</td>
-<td>已就绪</td>
+<td>Responsibility and dependency order</td>
+<td>B only owns <code>SOCIO-01</code>–<code>03</code>;There are public statements of Shell, Location, Geo, and Cost first, and then merged by B <code>SOCIO-001</code> statement, the shell then accesses</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>跨 Owner 契约</td>
-<td>第 2、3 节为 <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>COST-002</code> 和 <code>SOCIO-001</code> 给出唯一入口、声明、失败、顺序和 fake 场景</td>
-<td>已就绪</td>
+<td>Cross-Owner Contract</td>
+<td>Sections 2 and 3 are <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>COST-002</code> and <code>SOCIO-001</code> Give unique entry, declaration, failure, sequence and fake scenarios</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>数据与权限</td>
-<td>B 仅经 security-invoker <code>read_socio_inputs</code> 读取五个 DOSM 数据集；家庭收入仅从 <code>COST-002</code> 的同账户 current 快照取得</td>
-<td>已就绪</td>
+<td>Data and Permissions</td>
+<td>B only via security-invoker <code>read_socio_inputs</code> Five DOSM data sets are read; household income is obtained only from <code>COST-002</code> Get the current snapshot of the same account</td>
+<td>Ready</td>
 </tr>
 <tr>
-<td>联验与风险</td>
-<td>第 6 节覆盖 <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01/03</code>、<code>AT-SUIT-04</code>；<code>RISK-COST-01</code> 的两种收入分离不变</td>
-<td>已就绪</td>
+<td>Joint testing and risk</td>
+<td>Section 6 Coverage <code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01/03</code>、<code>AT-SUIT-04</code>；<code>RISK-COST-01</code> The separation of the two incomes remains unchanged</td>
+<td>Ready</td>
 </tr>
 </tbody></table>
-<h2>2. B 需要调用的 Interface</h2>
-<p>消费者只能 import 下列唯一入口，不能 import 对方 <code>src/</code>、私有 Widget、Repository 或 SDK。</p>
-<h3>应用导航与组合（<code>SHELL-001</code>）</h3>
-<p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> B
-<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code></p>
-<p><code>SHELL-001</code> 的<strong>完整 canonical 声明</strong>、所有输入约束、结果、权限、顺序与 fake 规则只在 <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell 开发协作契约</a> 定义；B 直接 import 该入口，绝不复制、缩窄或另造 Shell 类型。实际调用子集是同一 <code>ApplicationShell</code> 的 <code>submit(ShellIntent)</code> 与 <code>publish(ShellContribution)</code>，以及以下 canonical outcome：<code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>；<code>ShellContributionAccepted</code>、<code>ShellContributionAuthenticationRequired</code>、<code>ShellContributionRejected(ShellRejectionReason)</code>。<code>ShellRejectionReason</code> 仍为 <code>missingInput</code>、<code>staleInput</code>、<code>inapplicableDestination</code>、<code>scopeUnavailable</code>。</p>
-<p>B 在自己的唯一入口完整声明 <code>OpenSocioEconomicIntent</code>、<code>OpenSocioEconomicComparisonIntent</code> 与 <code>SocioEconomicContribution</code>（见第 3 节）：前两者带 <code>LOCATION-001</code> 的 immutable single 或原序 A/B 引用及返回语境，贡献带 Socio 产出的地点、层级、年份、单位、来源、状态和可比性。仅当前同账户 <code>opened</code> 可 <code>submit</code> 或 <code>publish</code>；上述 respective accepted 才导航/组合；任一 authentication-required 保持原页或保留结果不发布；rejected 只表示导航/组合被拒绝，不能改写成资料 unavailable。Shell 仅更新导航/组合呈现，不改变地点、Geo、预案或 Socio 结论；scope 关闭即丢弃待提交意图和晚到贡献。</p>
+<h2>2. B needs to call the Interface</h2>
+<p>Consumers can only import the following unique entries, but cannot import the other party. <code>src/</code>, Private Widget, Repository or SDK.</p>
+<h3>App Navigation and Portfolio (<code>SHELL-001</code>）</h3>
+<p><strong>Provider:</strong> Application Shell；<strong>consumer:</strong> B
+<strong>The only public import:</strong> <code>package:locatemy/app/application_shell.dart</code></p>
+<p><code>SHELL-001</code> of<strong>Full canonical statement</strong>, all input constraints, results, permissions, order and fake rules are only in <a href="../design/modules/application-shell.md#3-shell-%E5%BF%85%E9%A1%BB%E6%8F%90%E4%BE%9B%E7%9A%84-interface">Application Shell Development Collaboration Contract</a> Definition; B directly imports the entry and never copies, narrows or creates a new Shell type. The actual subset of calls is the same <code>ApplicationShell</code> of <code>submit(ShellIntent)</code> and <code>publish(ShellContribution)</code>, and the following canonical outcome:<code>ShellIntentAccepted</code>、<code>ShellAuthenticationRequired</code>、<code>ShellIntentRejected(ShellRejectionReason)</code>；<code>ShellContributionAccepted</code>、<code>ShellContributionAuthenticationRequired</code>、<code>ShellContributionRejected(ShellRejectionReason)</code>。<code>ShellRejectionReason</code> still <code>missingInput</code>、<code>staleInput</code>、<code>inapplicableDestination</code>、<code>scopeUnavailable</code>。</p>
+<p>B declares completely in its own only entrance <code>OpenSocioEconomicIntent</code>、<code>OpenSocioEconomicComparisonIntent</code> and <code>SocioEconomicContribution</code>(See Section 3): The first two bring <code>LOCATION-001</code> The immutable single or original A/B reference and return context, contribution takes the location, level, year, unit, source, status and comparability of Socio output. Only current same account <code>opened</code> Can <code>submit</code> or <code>publish</code>; Navigation/combination is only for the above respective accepted; Any authentication-required keeps the original page or keeps the results without publishing; rejected only means that the navigation/combination is rejected and cannot be rewritten as data unavailable. The Shell only updates the navigation/portfolio presentation and does not change the location, Geo, plan or Socio conclusion; closing the scope discards pending intents and late contributions.</p>
 <pre><code class="language-dart">final outcome = await applicationShell.submit(
   OpenSocioEconomicIntent(location: location, returnContext: returnContext),
 );
-// 只有 ShellIntentAccepted 才开始呈现该地点的 Socio 页面。
+// Render the Socio page for this location only after ShellIntentAccepted.
 </code></pre>
-<p><strong>fake 场景：</strong> fake Shell 分别返回 accepted、authenticationRequired、staleInput；验证 B 保留原地点与返回语境，拒绝不会显示为“暂无社会经济资料”，过期贡献不会覆盖新地点。</p>
-<h3>合法地点与行政地理（<code>LOCATION-001</code>、<code>GEO-001</code>）</h3>
-<p><strong>提供者：</strong> Map / Location、Geographic Context；<strong>消费者：</strong> B
-<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
-<p><code>LOCATION-001</code> 的完整 canonical 声明只在 <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a>，<code>GEO-001</code> 的完整 canonical 声明只在 <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context</a>。B 不复制或重塑任一类型；实际调用子集为 <code>LocationCoordinator.read(LocationRole)</code>、<code>GeographicContext.resolve(GeographicContextRequest)</code>，并使用 frozen <code>LocationRole</code>（<code>single</code>、<code>locationA</code>、<code>locationB</code>）、<code>LocationPresent</code> / <code>LocationAbsent</code>、<code>ValidLocationReference</code>、<code>GeographicLevel</code>（<code>district</code>、<code>reportingState</code>）及 Geo 的 <code>GeographicContextAvailable</code>、<code>GeographicContextUnavailable</code>、<code>GeographicLevelResolved</code>、<code>GeographicLevelUnresolved</code>、<code>GeographicLevelAmbiguous</code> 与其 canonical failure/provenance/candidates。</p>
-<p>输入只接受 <code>LocationPresent</code>：单点用 <code>single</code>，比较用不同的 <code>locationA</code>、<code>locationB</code> 原序引用。absent、非法、范围外或同点不会触发 Socio 读取，也不会写缓存。B 对每端以原引用一次请求 <code>district</code> 与 <code>reportingState</code>；<code>GeographicContextAvailable</code> 的每层独立处理：只有 <code>GeographicLevelResolved</code> 可进入所需层级资料读取；<code>GeographicLevelUnresolved</code> 或 <code>GeographicLevelAmbiguous</code> 保留 canonical reason、provenance 或完整 candidates。州 resolved 不代表行政区 resolved：每个指标仅在所需层级 resolved 时读资料，绝不按名称、附近或默认地区猜测。调用只读且不改变 Map/Geo 状态；地点或边界版本变化使晚到结果失效。</p>
+<p><strong>fake scenario:</strong> Fake Shell returns accepted, authenticationRequired, and staleInput respectively; Verification B retains the original location and return context. Rejection will not be displayed as "No socioeconomic data." Expired contributions will not cover the new location.</p>
+<h3>Legal location and administrative geography (<code>LOCATION-001</code>、<code>GEO-001</code>）</h3>
+<p><strong>Provider:</strong> Map / Location、Geographic Context；<strong>consumer:</strong> B
+<strong>The only public import:</strong> <code>package:locatemy/features/map_location/map_location.dart</code>；<code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
+<p><code>LOCATION-001</code> The complete canonical statement is only available in <a href="../design/features/map-and-location.md#location-001%E5%90%88%E6%B3%95%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">Map / Location</a>，<code>GEO-001</code> The complete canonical statement is only available in <a href="../design/modules/geographic-context.md#interface-%E5%8D%A1%E8%A1%8C%E6%94%BF%E7%BB%9F%E8%AE%A1%E5%9C%B0%E7%90%86%E8%AF%AD%E5%A2%83geo-001">Geographic Context</a>. B does not copy or reshape either type; the actual subset of calls is <code>LocationCoordinator.read(LocationRole)</code>、<code>GeographicContext.resolve(GeographicContextRequest)</code>, and use frozen <code>LocationRole</code>（<code>single</code>、<code>locationA</code>、<code>locationB</code>）、<code>LocationPresent</code> / <code>LocationAbsent</code>、<code>ValidLocationReference</code>、<code>GeographicLevel</code>（<code>district</code>、<code>reportingState</code>) and Geo’s <code>GeographicContextAvailable</code>、<code>GeographicContextUnavailable</code>、<code>GeographicLevelResolved</code>、<code>GeographicLevelUnresolved</code>、<code>GeographicLevelAmbiguous</code> Rather than canonical failure/provenance/candidates.</p>
+<p>Input only accepted <code>LocationPresent</code>：Single point use <code>single</code>, compare using different <code>locationA</code>、<code>locationB</code> Quoted in original order. Absent, illegal, out-of-range, or identical points will not trigger Socio reads, nor will they write to the cache. B makes one request to each end with the original reference <code>district</code> and <code>reportingState</code>；<code>GeographicContextAvailable</code> Each layer of is processed independently: only <code>GeographicLevelResolved</code> Can enter the required level data to read;<code>GeographicLevelUnresolved</code> or <code>GeographicLevelAmbiguous</code> Reserve canonical reason, provenance, or complete candidates. State resolved does not represent administrative region resolved: each indicator only reads data when resolved at the required level, never guessing by name, neighborhood or default region. Calls are read-only and do not change Map/Geo state; site or boundary version changes invalidate late results.</p>
 <pre><code class="language-dart">if (locations.read(LocationRole.single) case LocationPresent(:final location)) {
   final geo = await geographicContext.resolve(GeographicContextRequest(
     location: location, levels: {GeographicLevel.district, GeographicLevel.reportingState},
   ));
-  // 仅 GeographicLevelResolved 可用于对应层级的资料读取。
+  // Only GeographicLevelResolved may be used to read data for that level.
 }
 </code></pre>
-<p><strong>fake 场景：</strong> Location 给 absent、single、A/B 与同点；Geo 给 resolved、仅 state resolved、district unresolved、ambiguous。验证 absent 无读取；state 可成为授权的州级参考，行政区却不会伪装 resolved；交换 A/B 仅交换显示槽位。</p>
-<h3>当前预算预案的家庭收入（<code>COST-002</code>）</h3>
-<p><strong>提供者：</strong> Cost of Living &amp; Budget；<strong>消费者：</strong> B
-<strong>唯一公开 import：</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
-<p><code>COST-002</code> 的完整 canonical 声明只在 <a href="../design/features/cost-of-living-and-budget.md#cost-002%E9%A2%84%E7%AE%97%E9%A2%84%E6%A1%88%E4%B8%8E-current-%E5%8F%98%E5%8C%96">Cost of Living &amp; Budget</a>。B 不复制或缩窄该 entry point；实际调用子集为同一 <code>BudgetScenarioStore</code> 的 <code>read()</code>、<code>watch()</code>，以及 <code>BudgetScenariosAvailable</code>、<code>BudgetScenariosUnavailable</code>、<code>CurrentBudgetScenarioAvailable</code>、<code>NoCurrentBudgetScenario</code> 和 canonical <code>BudgetScenarioFailure</code>。不调用其 CRUD 成员。</p>
-<p>B 只读 <code>CurrentBudgetScenarioAvailable.scenario.householdMonthlyIncomeRm</code>（<code>double?</code>，名义 RM/月）及 <code>version</code>；它是 current、已保存、同账户快照。<code>NoCurrentBudgetScenario</code>、字段为 null、<code>BudgetScenariosUnavailable</code>、未保存编辑、不同账户或旧版本，都使<strong>收入位置</strong>单独 unavailable，绝不将月净收入、临时输入或 RM 0 替代；公共收入/基尼/结构/分布继续独立呈现。<code>watch</code> 中仅远端保存成功的新版本可触发 B 失效/重算位置；关闭开始即丢弃旧账户快照、位置与晚到响应。B 不读写 <code>user_budget_scenarios</code>，也不公开家庭收入至公共缓存/贡献。</p>
+<p><strong>fake scenario:</strong> Location is for absent, single, A/B and the same point; Geo is for resolved, only state resolved, district unresolved, and ambiguous. Verify that absent is not read; state can become an authorized state reference, but the administrative region will not pretend to be resolved; swapping A/B only swaps display slots.</p>
+<h3>Household income in the current budget plan (<code>COST-002</code>）</h3>
+<p><strong>Provider:</strong> Cost of Living &amp; Budget；<strong>consumer:</strong> B
+<strong>The only public import:</strong> <code>package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart</code></p>
+<p><code>COST-002</code> The complete canonical statement is only available in <a href="../design/features/cost-of-living-and-budget.md#cost-002%E9%A2%84%E7%AE%97%E9%A2%84%E6%A1%88%E4%B8%8E-current-%E5%8F%98%E5%8C%96">Cost of Living &amp; Budget</a>. B does not copy or narrow the entry point; the actual call subset is the same <code>BudgetScenarioStore</code> of <code>read()</code>、<code>watch()</code>,as well as <code>BudgetScenariosAvailable</code>、<code>BudgetScenariosUnavailable</code>、<code>CurrentBudgetScenarioAvailable</code>、<code>NoCurrentBudgetScenario</code> and canonical <code>BudgetScenarioFailure</code>. Its CRUD members are not called.</p>
+<p>B read only <code>CurrentBudgetScenarioAvailable.scenario.householdMonthlyIncomeRm</code>（<code>double?</code>, nominal RM/month) and <code>version</code>;It is the current, saved, same account snapshot.<code>NoCurrentBudgetScenario</code>, the field is null,<code>BudgetScenariosUnavailable</code>, unsaved edits, different accounts, or older versions, all use<strong>income position</strong>Individually unavailable, never replace monthly net income, temporary inputs or RM 0; public income/gini/structure/distribution continues to be presented independently.<code>watch</code> Only the new version successfully saved remotely can trigger B invalidation/recalculation of the position; the old account snapshot, position and late response will be discarded at the beginning of the shutdown. B cannot read or write <code>user_budget_scenarios</code>, nor does it disclose household income to a public cache/contribution.</p>
 <pre><code class="language-dart">final scenarios = await budgetScenarioStore.read();
-// 仅 CurrentBudgetScenarioAvailable 且 householdMonthlyIncomeRm != null 才可请求位置。
+// Request the position only when CurrentBudgetScenarioAvailable and householdMonthlyIncomeRm != null.
 </code></pre>
-<p><strong>fake 场景：</strong> fake 依次给有家庭收入、仅月净收入、no-current、retryable、A→closing→B。验证只有已保存的同账户家庭收入参与位置；公共结果不混入该金额，旧账户位置不会进入 B。</p>
-<h2>3. B 必须提供的 Interface</h2>
-<h3>社会经济分析与比较（<code>SOCIO-001</code>）</h3>
-<p><strong>提供者：</strong> B；<strong>消费者：</strong> Application Shell
-<strong>唯一公开 import：</strong> <code>package:locatemy/features/socio_economic/socio_economic.dart</code></p>
-<p>消费者只能 import 该入口，不能 import <code>src/</code>。下列是声明，不是实现、SQL、SDK 调用或公式正文。</p>
+<p><strong>fake scenario:</strong> fake is given in sequence with family income, monthly net income only, no-current, retryable, A→closing→B. Verify that only saved household income from the same account participates in the position; the public results are not mixed in with the amount, and the old account position does not go into B.</p>
+<h2>3. Interface that B must provide</h2>
+<h3>Socioeconomic Analysis and Comparison (<code>SOCIO-001</code>）</h3>
+<p><strong>Provider:</strong> B；<strong>consumer:</strong> Application Shell
+<strong>The only public import:</strong> <code>package:locatemy/features/socio_economic/socio_economic.dart</code></p>
+<p>Consumers can only import this entry, not import <code>src/</code>. The following is a statement, not implementation, SQL, SDK call, or formula text.</p>
 <pre><code class="language-dart">final class SocioReturnContext { final String destination; final String? stableItemId; }
 final class OpenSocioEconomicIntent extends ShellIntent {
   final ValidLocationReference location; final SocioReturnContext returnContext;
@@ -225,147 +225,147 @@ final class SocioAvailabilityGap { final SocioReadingKind kind; final SocioAvail
 <table>
 <thead>
 <tr>
-<th>调用</th>
-<th>输入约束</th>
-<th>成功/部分输出</th>
-<th>typed failure 与调用方处理</th>
+<th>call</th>
+<th>input constraints</th>
+<th>success/partial output</th>
+<th>typed failure and caller handling</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>analyse</code></td>
-<td>合法 immutable single；refresh 为 cacheAllowed 或显式 refresh</td>
-<td>每项独立的收入中位数、基尼/可用时同比、州级结构、州级 median 分布和可选收入位置；每项带地点、state/district 实际层级、DOSM <code>date</code>、单位、dataset/source、official/reference/derived、完整性与原因</td>
-<td>Shell 原样显示分类原因；不得把 unavailable/partial 变为 0、空或整个页面失败</td>
+<td>Legal immutable single; refresh is cacheAllowed or explicit refresh</td>
+<td>Each independent median income, Gini/YoY, state-level structure, state-level median distribution, and optional income location; each with location, state/district actual tier, DOSM <code>date</code>, unit, dataset/source, official/reference/derived, completeness and reason</td>
+<td>The shell displays the classification reason as is; unavailable/partial must not be changed to 0, empty, or the entire page fails</td>
 </tr>
 <tr>
 <td><code>compare</code></td>
-<td>合法且不同的 A/B；Map 的原始顺序</td>
-<td>两端逐项原值与元数据；仅两端均 available 且层级、年份、单位、资料集/来源、定义及完整性一致的读数含 difference</td>
-<td><code>sameComparisonPoint</code>、地理/资料/scope failure 分开处理；incomparable 不是 winner，保留双方值与具体属性差异</td>
+<td>Legal and distinct A/B; the original order of the Map</td>
+<td>Item-by-item original values ​​and metadata at both ends; only readings that are available at both ends and have the same level, year, unit, data set/source, definition, and completeness include difference</td>
+<td><code>sameComparisonPoint</code>, geography/data/scope failure are handled separately; incomparable is not a winner, and the differences between the values ​​​​and specific attributes of both parties are retained.</td>
 </tr>
 </tbody></table>
-<p>以上是 <code>SOCIO-001</code> 的完整公开声明：空字段只允许对应 unavailable/partial 的缺失事实，<code>sourceDate</code> 是 DOSM 原始统计日期，金额的 <code>unit</code> 为名义 RM/月，<code>SocioReadingValue.displayValue</code> 必须是可访问的原值/边界状态/文字摘要，不能以 0 代替缺失。每项读数保留 <code>availability</code>、<code>availabilityReason</code>、<code>statisticalLevel</code>、<code>sourceDate</code>、<code>unit</code>、<code>sourceDataset</code> 和 <code>provenance</code>；比较差异只属于对应读数，且只在两端均 available、层级、年份、单位、资料集/来源、定义及完整性相同才非 null。收入位置另保留 <code>scenarioVersion</code>，且从不作为地点间赢家或总体差异。</p>
-<p><strong>状态、权限与次序。</strong> B 先将 request 绑定 immutable 地点、Geo 版本与当前预案版本，再读取每端 Geo、公共资料和可选 current 快照；任一绑定值或 scope 在完成前变化，旧响应不可发布。读取只读：不写地点、边界、预案、偏好或适配度。公共缓存如建立，只含公共读数、地点/Geo 版本、资料日期和完整性；不含账户、家庭收入或 current 版本。收入/基尼行政区优先，仅该指标无行政区匹配才使用已 resolved state 的州级读数；结构、分布和位置始终是州级参考。完整性、年份、回退和可比性规则见第 4 节。</p>
+<p>The above is <code>SOCIO-001</code> Full disclosure statement: empty fields are only allowed for missing facts corresponding to unavailable/partial,<code>sourceDate</code> Is the DOSM original statistical date, amount <code>unit</code> is nominal RM/month,<code>SocioReadingValue.displayValue</code> Must be an accessible primitive value/boundary state/text summary, missing values ​​cannot be replaced with 0. Each reading is retained <code>availability</code>、<code>availabilityReason</code>、<code>statisticalLevel</code>、<code>sourceDate</code>、<code>unit</code>、<code>sourceDataset</code> and <code>provenance</code>; Comparative differences only belong to corresponding readings, and are non-null only if the availability, level, year, unit, data set/source, definition and completeness are the same on both ends. The income position will be reserved separately <code>scenarioVersion</code>, and never as the winner between locations or the overall difference.</p>
+<p><strong>Status, permissions and order.</strong> B first binds the request to the immutable location, Geo version and current plan version, and then reads each end's Geo, public data and optional current snapshot; if any binding value or scope changes before completion, the old response cannot be published. Read Read Only: No location, boundaries, scenarios, preferences, or compatibility are written. Public caches, if created, will only contain public readings, location/Geo version, data date, and completeness; not accounts, household income, or current version. Income/Gini boroughs take precedence, state-level readings from resolved state are used only if there is no borough match for this metric; structure, distribution, and location are always state-level references. Completeness, vintage, fallback and comparability rules are provided in Section 4.</p>
 <pre><code class="language-dart">final result = await socioEconomic.analyse(SocioEconomicAnalysisRequest(
   location: location, refreshPolicy: SocioRefreshPolicy.cacheAllowed,
 ));
-// Shell 仅组合 Socio 返回的元数据与 availability；不自行决定州级回退或比较差异。
+// Shell only composes metadata and availability returned by Socio; it does not decide state-level fallbacks or comparison differences.
 </code></pre>
-<p><strong>fake 场景：</strong> fake Socio 依次返回 district available、state reference、partial percentile、absentScenarioIncome、A/B incomparable、scopeUnavailable。Shell 验证每项元数据和恢复路径可见，部分/不可比不会被渲染为总分、赢家或全页空白。</p>
-<h2>4. B 直接使用的数据与确定性规则</h2>
-<h3><code>read_socio_inputs</code>：稳定公共读取对象（仅 B）</h3>
-<p><strong>精确对象：</strong> Schema Catalog 的 security-invoker View/RPC <code>read_socio_inputs</code>（<code>proposed</code>）。Flutter 不直接读取五个镜像表，也不读取 <code>hies_district</code>、<code>hies_state</code>、全国 percentile 或其他退役对象。</p>
+<p><strong>fake scenario:</strong> fake Socio returns district available, state reference, partial percentile, absentScenarioIncome, A/B incomparable, scopeUnavailable in order. The shell verifies that each metadata and recovery path is visible, and partial/incomparables are not rendered as totals, winners, or full page blanks.</p>
+<h2>4. B Directly used data and deterministic rules</h2>
+<h3><code>read_socio_inputs</code>: Stable public read object (B only)</h3>
+<p><strong>Exact object:</strong> Security-invoker View/RPC of Schema Catalog <code>read_socio_inputs</code>（<code>proposed</code>). Flutter does not directly read the five mirror tables, nor does it read <code>hies_district</code>、<code>hies_state</code>, national percentile or other decommissioned object.</p>
 <table>
 <thead>
 <tr>
-<th>读取对象 / 精确字段</th>
-<th>访问与权限</th>
-<th>B 的使用边界</th>
+<th>Read object/exact field</th>
+<th>Access and Permissions</th>
+<th>B's usage boundaries</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>hh_income_district(state, district, date, income_mean, income_median)</code>；<code>hh_income_state(state, date, income_mean, income_median)</code></td>
-<td><code>read_socio_inputs</code> 以调用者权限只读；仅 authenticated opened 主应用可读</td>
-<td><code>income_median</code> 为名义 RM/月；逐指标 district 优先，缺匹配才 state reference</td>
+<td><code>read_socio_inputs</code> Read-only with caller permissions; readable only by authenticated opened main application</td>
+<td><code>income_median</code> It is nominal RM/month; priority is given to district by indicator, if there is a missing match, state reference</td>
 </tr>
 <tr>
 <td><code>hh_inequality_district(state, district, date, gini)</code>；<code>hh_inequality_state(state, date, gini)</code></td>
-<td>同上</td>
-<td><code>gini</code> 原样 0–1；同比只比较同一实际层级、资料集且紧邻的 DOSM 年份</td>
+<td>Same as above</td>
+<td><code>gini</code> As is 0–1; year-on-year only compares DOSM years of the same actual level, data set, and immediately adjacent to each other</td>
 </tr>
 <tr>
 <td><code>hies_state_percentile(date, state, percentile, variable, income)</code></td>
-<td>同上</td>
-<td>仅同 state/date 的 P1–P100；<code>mean</code> + <code>maximum(P40/P80)</code> 生成 B40/M40/T20，<code>median</code> 生成曲线和收入位置</td>
+<td>Same as above</td>
+<td>Only the same as P1–P100 of state/date;<code>mean</code> + <code>maximum(P40/P80)</code> Generate B40/M40/T20,<code>median</code> Generate curves and income positions</td>
 </tr>
 </tbody></table>
-<p><code>read_socio_inputs</code> 的成功或部分读取必须向本 Feature 回带上述字段、资料集、原始 <code>date</code>、资料完整性和导入批次；partial 绝不等于零或完整。B 不写数据库；客户端无 service-role。公共读取 permission/source/version failure 通过 <code>SOCIO-001</code> 的 typed outcome 返回，不能伪装为无记录。</p>
-<p><strong>确定性应用规则。</strong> 每项优先采用当前单点可共享的最新完整 DOSM 日期；无共同日期时每项取自己层级/资料集/必需字段完整的最新日期，并呈现年份不同。<code>missingYear</code> 是允许层级没有日期，<code>missingLevel</code> 是 Geo 已解析而允许层级都无记录，<code>missingData</code> 是目标层级/日期存在但必需字段空或不可读，<code>unresolvedGeography</code> 是所需层级 unresolved/ambiguous。结构要求同州同 date 全部 <code>mean(P1…P100)</code> 和 <code>maximum(P40/P80)</code>；曲线/位置要求全部 <code>median(P1…P100)</code>。缺任一所需点就是 partial，不推导受影响结构、曲线或位置。相邻真实 <code>median</code> 点之间的线性插值仅适用于收入位置；低于 P1、高于 P100 分别呈现边界状态。金额一直标注“名义 RM/月、未按通胀调整”；官方统计与州级参考/推导估算分组显示。</p>
-<h2>5. 推荐实施顺序</h2>
+<p><code>read_socio_inputs</code> A successful or partial read must bring back the above fields, data set, original <code>date</code>, data integrity, and imported batches; partial is never equal to zero or complete. B does not write to the database; the client has no service-role. public read permission/source/version failure passed <code>SOCIO-001</code> The typed outcome returned cannot be disguised as unrecorded.</p>
+<p><strong>Deterministic application of rules.</strong> For each item, the latest complete DOSM date that can be shared by the current single point is given priority; if there is no common date, each item is used for the latest complete date of its own level/data set/required fields, and the years are different.<code>missingYear</code> is to allow levels without dates,<code>missingLevel</code> is Geo parsed and allows no records at all levels,<code>missingData</code> Yes the target level/date exists but the required fields are empty or unreadable,<code>unresolvedGeography</code> is the required level unresolved/ambiguous. Structural requirements: same state, same date, all <code>mean(P1…P100)</code> and <code>maximum(P40/P80)</code>;Curve/position requirements all <code>median(P1…P100)</code>. The absence of any required point is partial, and no affected structures, curves or locations are derived. Adjacent true <code>median</code> Linear interpolation between points only applies to income positions; below P1 and above P100 respectively represent borderline states. Amounts are always stated as "nominal RM/month, not adjusted for inflation"; official statistics are shown grouped with state-level reference/derived estimates.</p>
+<h2>5. Recommended implementation sequence</h2>
 <ol>
-<li>B 先在唯一入口提交 declaration-only <code>SocioEconomic</code>、公开请求/结果/failure/readings 模型；让 Shell 以 fake 编译与测试其组合行为。</li>
-<li>对 <code>LOCATION-001</code>/<code>GEO-001</code>/<code>COST-002</code> 建立 fake：覆盖 single/A-B、resolved/ambiguous、current/no-current/换号；先证明输入与失效边界，再接真实 provider。</li>
-<li>接 <code>read_socio_inputs</code>，验证五个 canonical 数据集的键、字段、单位、统计日期、P1–P100 完整性、security-invoker 权限与导入证据；资料或权限未就绪时保留 typed unavailable，而非 fixture。</li>
-<li>实现每项独立的层级回退、年份、partial 和 provenance；最后才组成单点/A-B 呈现贡献与收入位置。</li>
-<li>以真实 Adapter 证明其满足 <code>SOCIO-001</code>；Shell 保持 fake consumer 行为测试，双方仅增加第 6 节必要的跨模块测试。</li>
+<li>B first submit declaration-only at the only entrance <code>SocioEconomic</code>, expose the request/results/failure/readings model; let the shell compile and test its combined behavior with fake.</li>
+<li>right <code>LOCATION-001</code>/<code>GEO-001</code>/<code>COST-002</code> Create fake: cover single/A-B, resolved/ambiguous, current/no-current/number change; first prove the input and failure boundaries, and then connect to the real provider.</li>
+<li>catch <code>read_socio_inputs</code>, verify the keys, fields, units, statistical dates, P1–P100 integrity, security-invoker permissions and import evidence of five canonical data sets; retain typed unavailable when the data or permissions are not ready, rather than fixture.</li>
+<li>Implement each independent layer fallback, year, partial and provenance; finally form a single point/A-B to present the contribution and income position.</li>
+<li>Use a real Adapter to prove that it satisfies <code>SOCIO-001</code>; Shell maintains the fake consumer behavior test, and both parties only add necessary cross-module tests in Section 6.</li>
 </ol>
-<h2>6. 联调与验收情景</h2>
+<h2>6. Joint debugging and acceptance scenarios</h2>
 <table>
 <thead>
 <tr>
-<th>人类可读场景</th>
-<th>参与 Owner</th>
-<th>操作</th>
-<th>可观察完成条件</th>
+<th>human readable scene</th>
+<th>Participate Owner</th>
+<th>operate</th>
+<th>Observable completion conditions</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>行政区优先与诚实州级回退（<code>AT-ANALYSIS-01</code>）</td>
+<td>Borough Priority vs. Honest State Level Fallback (<code>AT-ANALYSIS-01</code>）</td>
 <td>Map、Geo、B、Shell</td>
-<td>打开有 district 数据的地点；再打开只有 state 数据的地点</td>
-<td>每个指标独立采用实际层级，显示年份/单位/来源；州级永远标 reference，不以邻近 district 补齐</td>
+<td>Open a location with district data; then open a location with only state data</td>
+<td>Each indicator adopts the actual level independently, showing the year/unit/source; the state level is always marked with reference and is not completed with neighboring districts.</td>
 </tr>
 <tr>
-<td>百分位完整性与收入位置（<code>AT-ANALYSIS-01</code>、<code>AT-SUIT-04</code>）</td>
+<td>Percentile Completeness vs. Income Position (<code>AT-ANALYSIS-01</code>、<code>AT-SUIT-04</code>）</td>
 <td>Geo、Cost、B、Shell</td>
-<td>完整 median P1–P100 与 current 家庭收入，随后移除一点、移除 current、仅保留月净收入</td>
-<td>完整时显示命中/插值/边界位置；其余只让位置 unavailable，公共读数保留，绝不以月净收入或 0 替代</td>
+<td>Full median P1–P100 and current household income, then remove one point, remove current, and keep only monthly net income</td>
+<td>Shows hit/interpolated/boundary positions when complete; otherwise just makes positions unavailable, public readings retained, never replaced by net monthly income or 0</td>
 </tr>
 <tr>
-<td>A/B 的逐项可比性与交换（<code>AT-COMPARE-01</code>、<code>AT-COMPARE-03</code>）</td>
+<td>A/B item-by-item comparability and exchange (<code>AT-COMPARE-01</code>、<code>AT-COMPARE-03</code>）</td>
 <td>Map、Geo、B、Shell</td>
-<td>比较同口径两点，再制造层级/年份/来源/定义/完整性不同并交换 A/B</td>
-<td>只有兼容且 available 的同项有差异；其他保留两端原值和原因；交换不重写地点或预案，也没有赢家/推荐</td>
+<td>Compare two points of the same caliber, but the remanufacturing level/year/source/definition/completeness is different and exchange A/B</td>
+<td>Only the same items that are compatible and available have differences; others retain the original values ​​and reasons at both ends; swapping does not rewrite the location or plan, and there is no winner/recommendation</td>
 </tr>
 <tr>
-<td>关闭范围与晚到响应（<code>AT-ANALYSIS-01</code>）</td>
+<td>Close scope and late response (<code>AT-ANALYSIS-01</code>）</td>
 <td>Shell、Cost、B</td>
-<td>A 的位置请求未完成时 closing，再打开 B 或变更 Geo/current 版本</td>
-<td>closing 起丢弃 A 的收入和晚到结果；公共读取不含私有收入，新版本才可发布</td>
+<td>Closing when A's location request is not completed, then open B or change the Geo/current version</td>
+<td>Discard A's income and late results starting from closing; public reading does not include private income, and a new version can be released</td>
 </tr>
 <tr>
-<td>可访问的完整、部分、不可用页</td>
+<td>Accessible complete, partial, and unavailable pages</td>
 <td>B、Shell</td>
-<td>在中文/English、长金额/日期、图表、估算和错误状态阅读</td>
-<td>层级、年份、单位、来源、官方/估算和错误均有文字/可访问名称；图表有文字摘要，状态不只靠颜色</td>
+<td>Read in Chinese/English, Long Amount/Date, Charts, Estimates and Error Status</td>
+<td>Tier, Year, Unit, Source, Official/Estimated and Error all have text/accessible names; charts have text summaries, status is not just color</td>
 </tr>
 </tbody></table>
-<h2>7. Owner 的内部实现自由</h2>
-<p>B 可在 <code>lib/features/socio_economic/</code> 内自行决定文件拆分、Widget、状态管理、查询/缓存键、Supabase SDK 映射、图表库、取消、并发、重试、Adapter 与测试组织。不得以这些内部选择改变本契约的唯一公开入口、typed outcomes、公共/私有边界、层级/年份/完整性或 A/B 可比性。Shell、Map、Geo、Cost 的内部文件与数据库 schema 均不属于 B 的实现边界。</p>
-<h2>8. 阻塞项与权威参考</h2>
-<p><strong>当前阻塞：无。</strong> 实现开始前必须取得 <code>read_socio_inputs</code> 及 <code>hh_income_state</code>、<code>hh_inequality_state</code>、<code>hies_state_percentile</code> 的 canonical 导入、字段/键、P1–P100 覆盖和 security-invoker 权限证据；这是实现/集成验证条件，不能由设计批准或 fixture 代替。若该资料 seam、任一公开 Interface 或家庭收入语义改变，停止受影响工作并由相关 Owner 在同一 PR 更新契约、声明、HTML 与测试。</p>
-<p>权威参考：<a href="../knowledge_base/locatemy_product/features/socio_economic.md">社会经济产品事实</a>、<a href="../knowledge_base/locatemy_product/features/account.md">账户事实</a>、<a href="../design/features/cost-of-living-and-budget.md">Cost 公开契约</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/flows.md">流程</a>、<a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/system/risks-and-decisions.md">风险与决定</a>、<a href="../adr/0011-human-coded-ai-designed-delivery-process.md">ADR 0011</a>、<a href="../adr/0012-high-level-design-coordination-boundaries.md">ADR 0012</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>。</p>
-<h2>9. Change Log 与完成核对</h2>
+<h2>7. Owner’s internal freedom of implementation</h2>
+<p>B can be found in <code>lib/features/socio_economic/</code> Make your own decisions about file splitting, widgets, state management, query/cache keys, Supabase SDK mappings, chart libraries, cancellation, concurrency, retries, adapters and test organization. These internal choices may not alter the sole public entry, typed outcomes, public/private boundaries, tier/vintage/completeness, or A/B comparability of this Compact. The internal files and database schema of Shell, Map, Geo, and Cost do not belong to the implementation boundary of B.</p>
+<h2>8. Blocking items and authoritative references</h2>
+<p><strong>Current blocking: None.</strong> Must be obtained before implementation can begin <code>read_socio_inputs</code> and <code>hh_income_state</code>、<code>hh_inequality_state</code>、<code>hies_state_percentile</code> Evidence of canonical imports, fields/keys, P1–P100 overrides, and security-invoker permissions; this is an implementation/integration verification condition and cannot be superseded by design approval or fixtures. If the data seam, any public interface, or household income semantics change, stop the affected work and have the relevant owners update the contract, declarations, HTML, and tests in the same PR.</p>
+<p>Authoritative reference:<a href="../knowledge_base/locatemy_product/features/socio_economic.md">socioeconomic product facts</a>、<a href="../knowledge_base/locatemy_product/features/account.md">Account Facts</a>、<a href="../design/features/cost-of-living-and-budget.md">Cost public contract</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/flows.md">process</a>、<a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">Data ownership</a>、<a href="../design/system/risks-and-decisions.md">Risks and Decisions</a>、<a href="../adr/0011-human-coded-ai-designed-delivery-process.md">ADR 0011</a>、<a href="../adr/0012-high-level-design-coordination-boundaries.md">ADR 0012</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>。</p>
+<h2>9. Change Log and Completion Verification</h2>
 <table>
 <thead>
 <tr>
-<th>日期</th>
-<th>状态</th>
-<th>变更原因</th>
-<th>受影响对象</th>
-<th>批准者</th>
+<th>date</th>
+<th>state</th>
+<th>Reason for change</th>
+<th>Affected objects</th>
+<th>approver</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>2026-09-14</td>
 <td><code>Ready for Development</code></td>
-<td>固定 Socio 范围、产品口径、资料边界与联验</td>
+<td>Fixed Socio range, product size, data boundaries and joint validation</td>
 <td><code>SOCIO-01</code>–<code>SOCIO-03</code>、<code>SOCIO-001</code></td>
-<td>项目负责人</td>
+<td>Project leader</td>
 </tr>
 <tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
-<td>Issue #23 返工为单一 Development Contract：首屏可观察 DoD；改为引用 Application Shell、Map / Location、Geographic Context、Cost 的完整 canonical 声明并只说明 Socio 实际调用子集；消除旧 publish outcome 变体，移除 PDF、ADR 0014 与 handoff 发布治理</td>
-<td><code>SOCIO-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>COST-002</code>、同名 HTML</td>
-<td>设计 AI〔项目负责人授权〕，ADR 0013</td>
+<td>Issue #23 Rework to a single Development Contract: DoD observable above the fold; instead reference the full canonical declaration of Application Shell, Map/Location, Geographic Context, Cost and only describe the subset of Socio actual calls; eliminate the old publish outcome variant, remove PDF, ADR 0014 and handoff release governance</td>
+<td><code>SOCIO-001</code>、<code>SHELL-001</code>、<code>LOCATION-001</code>、<code>GEO-001</code>、<code>COST-002</code>, HTML with the same name</td>
+<td>Design AI [authorization by project leader], ADR 0013</td>
 </tr>
 </tbody></table>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> 首屏给出任务成果、Owner、依赖和可观察 DoD。</li>
-<li><input checked="" disabled="" type="checkbox"> 每个跨 Owner seam 都有 frozen 的唯一公开入口；上游完整声明仍由其 Owner 唯一拥有，本 Feature 仅列实际调用子集。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>SOCIO-001</code> 声明、数据/权限边界、地区统计、家庭收入位置和 A/B 可比性均可追溯到事实源与验收情景。</li>
-<li><input checked="" disabled="" type="checkbox"> 同名 HTML 与本 Markdown 语义等价，且没有 PDF、ADR 0014 或 handoff 发布治理。</li>
+<li><input checked="" disabled="" type="checkbox"> The first screen shows the mission results, Owner, dependencies and observable DoD.</li>
+<li><input checked="" disabled="" type="checkbox"> Each cross-owner seam has a unique public entrance to the frozen; the complete upstream declaration is still uniquely owned by its owner, and this Feature only lists a subset of actual calls.</li>
+<li><input checked="" disabled="" type="checkbox"> <code>SOCIO-001</code> Claims, data/authority boundaries, regional statistics, household income location and A/B comparability are all traceable to source of fact and acceptance scenarios.</li>
+<li><input checked="" disabled="" type="checkbox"> HTML with the same name is semantically equivalent to this Markdown and has no PDF, ADR 0014, or handoff release management.</li>
 </ul>
 </main>
 </body>
