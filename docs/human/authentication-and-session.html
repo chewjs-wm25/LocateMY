@@ -461,9 +461,429 @@ switch (snapshot) {
 <ul>
 <li><input checked="" disabled="" type="checkbox"> 四项 Readiness 在第 0 节均有可核查证据。</li>
 <li><input checked="" disabled="" type="checkbox"> <code>AUTH-001</code> 和 <code>AUTH-002</code> 均有完整 Interface 卡；<code>AUTH-001</code> 只有一个公开 entry point。</li>
-<li><input checked="" disabled="" type="checkbox"> Dart 仅表达跨 Owner 的公开声明；不含方法实现、SDK 调用、SQL、测试实现或 Widget 结构。</li>
+<li><input checked="" disabled="" type="checkbox"> 第 3 节 Dart 表达跨 Owner 的公开声明；第 8 节是可由 AI 或 Owner 完成的实现工作表，当前示例仍保留 <code>TODO</code>，不代表已完成实现。</li>
 <li><input checked="" disabled="" type="checkbox"> fake 场景和联合验收覆盖恢复/门控、注册/验证、退出/清理和 A→B 换号。</li>
 </ul>
+<h2>8. MVVM 文件结构与 TODO 代码骨架</h2>
+<blockquote>
+<p>本节是项目负责人要求的 Owner A 实现工作表，不是已存在代码或新的跨 Owner Interface。当前仓库尚未创建下列认证文件。AI 或 Owner 实现时可在不改变第 3 节公开 seam、依赖方向和责任边界的前提下调整私有拆分。以下代码故意保留 <code>TODO</code> 并抛出 <code>UnimplementedError</code>，不可直接视为已完成实现。</p>
+</blockquote>
+<h3>8.1 文件树（MVVM）</h3>
+<pre><code class="language-text">lib/features/authentication_session/
+├── authentication_session.dart
+└── src/
+    ├── domain/
+    │   └── authentication_models.dart
+    ├── application/
+    │   ├── authentication_session.dart
+    │   └── authentication_use_case.dart
+    ├── data/
+    │   └── supabase_authentication_session_adapter.dart
+    └── presentation/
+        ├── authentication_view_state.dart
+        ├── authentication_view_model.dart
+        └── authentication_page.dart
+
+test/features/authentication_session/
+├── authentication_view_model_test.dart
+└── supabase_authentication_session_adapter_test.dart
+</code></pre>
+<p>MVVM 依赖方向为 <code>View → ViewModel → Application use case → Domain/Application seam ← Data Adapter</code>。<code>SupabaseClient</code> 只能出现在 Data Adapter；View 不直读 SDK，ViewModel 不返回 SDK payload。</p>
+<h3>8.2 每个代码文件的职责、Function 与 Variable</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>职责</th>
+<th>Functions / constructors</th>
+<th>Variables / fields</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>authentication_session.dart</code></td>
+<td>唯一公开 barrel；只导出 <code>AUTH-001</code> 声明和公开类型</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>src/domain/authentication_models.dart</code></td>
+<td>保存第 3 节的不可变账户、session、outcome、failure 类型</td>
+<td>各 <code>const</code> constructor</td>
+<td><code>accountId</code>、<code>email</code>、<code>confirmation</code>、<code>account</code>、<code>failure</code>、<code>profile</code></td>
+</tr>
+<tr>
+<td><code>src/application/authentication_session.dart</code></td>
+<td>声明供 use case 与消费者共用的 <code>AUTH-001</code> seam</td>
+<td><code>restoreSession</code>、<code>watchSession</code>、<code>signIn</code>、<code>register</code>、<code>signOut</code></td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>src/application/authentication_use_case.dart</code></td>
+<td>串联输入检查、调用 seam 和结果传递；不导航</td>
+<td>同上 5 个用例函数</td>
+<td><code>_session</code></td>
+</tr>
+<tr>
+<td><code>src/data/supabase_authentication_session_adapter.dart</code></td>
+<td>唯一调用 Supabase Auth/<code>profiles</code> 的 Adapter；把 SDK 结果和异常映射为公开类型</td>
+<td>5 个 seam 函数；<code>_mapSession</code>、<code>_mapAccount</code>、<code>_writeOptionalProfile</code>及失败映射 helpers</td>
+<td><code>_client</code></td>
+</tr>
+<tr>
+<td><code>src/presentation/authentication_view_state.dart</code></td>
+<td>表达登录/注册页可呈现状态，不保存密码</td>
+<td><code>initial</code>、<code>copyWith</code></td>
+<td><code>mode</code>、<code>actionStatus</code>、<code>session</code>、<code>messageKey</code>、<code>fieldErrorKey</code></td>
+</tr>
+<tr>
+<td><code>src/presentation/authentication_view_model.dart</code></td>
+<td>接收 UI intent，调用 use case，发布页面状态，管理 session stream 订阅</td>
+<td><code>initialize</code>、<code>showSignIn</code>、<code>showRegistration</code>、<code>signIn</code>、<code>register</code>、<code>clearFeedback</code>、<code>dispose</code></td>
+<td><code>_useCase</code>、<code>_state</code>、<code>_sessionSubscription</code>、<code>state</code> getter</td>
+</tr>
+<tr>
+<td><code>src/presentation/authentication_page.dart</code></td>
+<td>绑定控件与 ViewModel；管理表单/controller 生命周期；不直调 Supabase</td>
+<td><code>createState</code>、<code>initState</code>、<code>_submitSignIn</code>、<code>_submitRegistration</code>、<code>build</code>、<code>dispose</code></td>
+<td><code>viewModel</code>、<code>_formKey</code>、<code>_emailController</code>、<code>_passwordController</code>、<code>_confirmationController</code>、<code>_usernameController</code></td>
+</tr>
+<tr>
+<td><code>authentication_view_model_test.dart</code></td>
+<td>用 fake seam 验证状态转换，不连 Supabase</td>
+<td><code>main</code> 与各 <code>test</code> callback</td>
+<td><code>fakeSession</code>、<code>useCase</code>、<code>viewModel</code></td>
+</tr>
+<tr>
+<td><code>supabase_authentication_session_adapter_test.dart</code></td>
+<td>验证 SDK 结果/异常到 <code>AUTH-001</code> 的映射，不使用生产账户</td>
+<td><code>main</code> 与各 <code>test</code> callback</td>
+<td><code>fakeClient</code>、<code>adapter</code></td>
+</tr>
+</tbody></table>
+<h3>8.3 每个代码文件的 TODO 骨架</h3>
+<h4><code>lib/features/authentication_session/authentication_session.dart</code></h4>
+<pre><code class="language-dart">export &#39;src/application/authentication_session.dart&#39;;
+export &#39;src/domain/authentication_models.dart&#39;;
+</code></pre>
+<h4><code>lib/features/authentication_session/src/domain/authentication_models.dart</code></h4>
+<pre><code class="language-dart">// 本文件放置第 3 节从 SessionSnapshot 到 SignOutFailure 的全部公开类型。
+// Variables: accountId, email, confirmation, account, failure, profile。
+// Constructors: 使用第 3 节已固定的 const constructors。
+// TODO(Owner A): 原样放入第 3 节的类型；不加 SDK type、token、password 或 profile row。
+</code></pre>
+<h4><code>lib/features/authentication_session/src/application/authentication_session.dart</code></h4>
+<pre><code class="language-dart">import &#39;../domain/authentication_models.dart&#39;;
+
+abstract interface class AuthenticationSession {
+  Future&lt;SessionSnapshot&gt; restoreSession();
+  Stream&lt;SessionSnapshot&gt; watchSession();
+  Future&lt;SignInOutcome&gt; signIn({
+    required String email,
+    required String password,
+  });
+  Future&lt;RegistrationOutcome&gt; register({
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    String? username,
+  });
+  Future&lt;SignOutOutcome&gt; signOut();
+}
+</code></pre>
+<h4><code>lib/features/authentication_session/src/application/authentication_use_case.dart</code></h4>
+<pre><code class="language-dart">import &#39;authentication_session.dart&#39;;
+import &#39;../domain/authentication_models.dart&#39;;
+
+final class AuthenticationUseCase {
+  final AuthenticationSession _session;
+
+  const AuthenticationUseCase(this._session);
+
+  Future&lt;SessionSnapshot&gt; restoreSession() {
+    // TODO(Owner A): 请求 Adapter 恢复会话，原样传递类型化 snapshot。
+    throw UnimplementedError();
+  }
+
+  Stream&lt;SessionSnapshot&gt; watchSession() {
+    // TODO(Owner A): 转发会话流；不缓存过去的 authenticated snapshot 作为授权。
+    throw UnimplementedError();
+  }
+
+  Future&lt;SignInOutcome&gt; signIn({
+    required String email,
+    required String password,
+  }) {
+    // TODO(Owner A): 规范化邮箱、检查非空输入，否则返回 invalidInput；通过检查后才调 Adapter。
+    throw UnimplementedError();
+  }
+
+  Future&lt;RegistrationOutcome&gt; register({
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    String? username,
+  }) {
+    // TODO(Owner A): 检查必填值及两次密码一致；不记录或持久化密码。
+    throw UnimplementedError();
+  }
+
+  Future&lt;SignOutOutcome&gt; signOut() {
+    // TODO(Owner A): 只请求结束当前设备会话；不导航、不清理其他 Feature。
+    throw UnimplementedError();
+  }
+}
+</code></pre>
+<h4><code>lib/features/authentication_session/src/data/supabase_authentication_session_adapter.dart</code></h4>
+<pre><code class="language-dart">import &#39;package:supabase_flutter/supabase_flutter.dart&#39;;
+
+import &#39;../application/authentication_session.dart&#39;;
+import &#39;../domain/authentication_models.dart&#39;;
+
+final class SupabaseAuthenticationSessionAdapter
+    implements AuthenticationSession {
+  final SupabaseClient _client;
+
+  const SupabaseAuthenticationSessionAdapter(this._client);
+
+  @override
+  Future&lt;SessionSnapshot&gt; restoreSession() {
+    // TODO(Owner A): 检查 currentSession，必要时安全刷新；无法确认时返回 SessionUnavailable。
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream&lt;SessionSnapshot&gt; watchSession() {
+    // TODO(Owner A): 监听 onAuthStateChange，映射每个事件，并处理 onError 以避免未处理异常。
+    throw UnimplementedError();
+  }
+
+  @override
+  Future&lt;SignInOutcome&gt; signIn({
+    required String email,
+    required String password,
+  }) {
+    // TODO(Owner A): 调用 auth.signInWithPassword，把 session/user 映射为 SignInOutcome。
+    throw UnimplementedError();
+  }
+
+  @override
+  Future&lt;RegistrationOutcome&gt; register({
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    String? username,
+  }) {
+    // TODO(Owner A): 调用 auth.signUp；session 为 null 时返回 verification-required。
+    // TODO(Owner A): 有非空 username 时在认证结果后写 profiles，资料失败不覆盖认证结果。
+    throw UnimplementedError();
+  }
+
+  @override
+  Future&lt;SignOutOutcome&gt; signOut() {
+    // TODO(Owner A): 显式调用 auth.signOut(scope: SignOutScope.local)，再映射成 SignOutOutcome。
+    throw UnimplementedError();
+  }
+
+  SessionSnapshot _mapSession(Session? session) {
+    // TODO(Owner A): 只有明确有效 session 才建立 AuthenticatedSession；null 才是 UnauthenticatedSession。
+    throw UnimplementedError();
+  }
+
+  AuthenticatedAccount _mapAccount(User user) {
+    // TODO(Owner A): 只从 Auth user 读 id、email 和真实 email confirmation；不从 user metadata 做授权判断。
+    throw UnimplementedError();
+  }
+
+  Future&lt;ProfileRegistrationOutcome&gt; _writeOptionalProfile({
+    required String accountId,
+    required String? username,
+  }) {
+    // TODO(Owner A): username 为空时 skipped；否则依 Schema Catalog 写 owner-only profiles 并映射独立结果。
+    throw UnimplementedError();
+  }
+
+  // TODO(Owner A): 增加私有 helper，把 AuthException/网络/客户端不支持映射为第 3 节 enums；不向 UI 透传错误字符串。
+}
+</code></pre>
+<h4><code>lib/features/authentication_session/src/presentation/authentication_view_state.dart</code></h4>
+<pre><code class="language-dart">import &#39;../domain/authentication_models.dart&#39;;
+
+enum AuthenticationMode { signIn, register }
+enum AuthenticationActionStatus { idle, submitting, succeeded, failed }
+
+final class AuthenticationViewState {
+  final AuthenticationMode mode;
+  final AuthenticationActionStatus actionStatus;
+  final SessionSnapshot? session;
+  final String? messageKey;
+  final String? fieldErrorKey;
+
+  const AuthenticationViewState({
+    required this.mode,
+    required this.actionStatus,
+    required this.session,
+    required this.messageKey,
+    required this.fieldErrorKey,
+  });
+
+  factory AuthenticationViewState.initial() {
+    // TODO(Owner A): 返回 signIn + idle 的无会话呈现状态。
+    throw UnimplementedError();
+  }
+
+  AuthenticationViewState copyWith({
+    AuthenticationMode? mode,
+    AuthenticationActionStatus? actionStatus,
+    SessionSnapshot? session,
+    String? messageKey,
+    String? fieldErrorKey,
+  }) {
+    // TODO(Owner A): 返回新的不可变状态；需设计可显式清空 nullable 字段的参数方案。
+    throw UnimplementedError();
+  }
+}
+</code></pre>
+<h4><code>lib/features/authentication_session/src/presentation/authentication_view_model.dart</code></h4>
+<pre><code class="language-dart">import &#39;dart:async&#39;;
+import &#39;package:flutter/foundation.dart&#39;;
+
+import &#39;../application/authentication_use_case.dart&#39;;
+import &#39;../domain/authentication_models.dart&#39;;
+import &#39;authentication_view_state.dart&#39;;
+
+final class AuthenticationViewModel extends ChangeNotifier {
+  final AuthenticationUseCase _useCase;
+  AuthenticationViewState _state = AuthenticationViewState.initial();
+  StreamSubscription&lt;SessionSnapshot&gt;? _sessionSubscription;
+
+  AuthenticationViewModel(this._useCase);
+
+  AuthenticationViewState get state =&gt; _state;
+
+  Future&lt;void&gt; initialize() async {
+    // TODO(Owner A): 先发布恢复中状态，再恢复 snapshot，然后订阅 watchSession。
+    // TODO(Owner A): stream 必须有 onError；任何不可确认状态都保持门控。
+    throw UnimplementedError();
+  }
+
+  void showSignIn() {
+    // TODO(Owner A): 切换模式并清除旧表单反馈。
+    throw UnimplementedError();
+  }
+
+  void showRegistration() {
+    // TODO(Owner A): 切换模式并清除旧表单反馈。
+    throw UnimplementedError();
+  }
+
+  Future&lt;void&gt; signIn({required String email, required String password}) {
+    // TODO(Owner A): 防重复提交，调用 use case，将 typed outcome 映射为本地化 message key。
+    // TODO(Owner A): 函数返回前不保留 password。
+    throw UnimplementedError();
+  }
+
+  Future&lt;void&gt; register({
+    required String username,
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+  }) {
+    // TODO(Owner A): 防重复提交，调用 use case，分别呈现 authenticated/verification/profile outcome。
+    // TODO(Owner A): 函数返回前不保留 password 或 confirmation。
+    throw UnimplementedError();
+  }
+
+  void clearFeedback() {
+    // TODO(Owner A): 清除 messageKey/fieldErrorKey，不改变真实 session snapshot。
+    throw UnimplementedError();
+  }
+
+  @override
+  void dispose() {
+    // TODO(Owner A): 取消 _sessionSubscription，再调用 super.dispose()。
+    throw UnimplementedError();
+  }
+}
+</code></pre>
+<h4><code>lib/features/authentication_session/src/presentation/authentication_page.dart</code></h4>
+<pre><code class="language-dart">import &#39;package:flutter/material.dart&#39;;
+
+import &#39;authentication_view_model.dart&#39;;
+
+final class AuthenticationPage extends StatefulWidget {
+  final AuthenticationViewModel viewModel;
+
+  const AuthenticationPage({required this.viewModel, super.key});
+
+  @override
+  State&lt;AuthenticationPage&gt; createState() =&gt; _AuthenticationPageState();
+}
+
+final class _AuthenticationPageState extends State&lt;AuthenticationPage&gt; {
+  final _formKey = GlobalKey&lt;FormState&gt;();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmationController = TextEditingController();
+  final _usernameController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO(Owner A): 订阅 ViewModel 变化并触发 initialize；不在 View 直读 Supabase。
+    throw UnimplementedError();
+  }
+
+  Future&lt;void&gt; _submitSignIn() {
+    // TODO(Owner A): 先做表单校验，再把当次 email/password 传给 ViewModel，完成后清空密码。
+    throw UnimplementedError();
+  }
+
+  Future&lt;void&gt; _submitRegistration() {
+    // TODO(Owner A): 先做表单校验，再传递当次注册字段，完成后清空两个密码字段。
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO(Owner A): 用 AnimatedBuilder/ListenableBuilder 绑定 viewModel.state。
+    // TODO(Owner A): 呈现登录/注册字段、loading、typed error 文案和 verification-required；禁止重复提交。
+    throw UnimplementedError();
+  }
+
+  @override
+  void dispose() {
+    // TODO(Owner A): 移除 ViewModel listener，释放所有 controller，并确保密码不再留在页面内存。
+    throw UnimplementedError();
+  }
+}
+</code></pre>
+<h4><code>test/features/authentication_session/authentication_view_model_test.dart</code></h4>
+<pre><code class="language-dart">void main() {
+  // Variables to create in setUp: fakeSession, useCase, viewModel。
+  // TODO(Owner A): 测试 authenticated/unauthenticated/unavailable 恢复。
+  // TODO(Owner A): 测试 invalid input 不到 Adapter，且提交期间不可重入。
+  // TODO(Owner A): 测试注册已登录、待验证、profile 失败三类呈现。
+  // TODO(Owner A): 测试 stream error 不开放私有状态，dispose 取消订阅。
+}
+</code></pre>
+<h4><code>test/features/authentication_session/supabase_authentication_session_adapter_test.dart</code></h4>
+<pre><code class="language-dart">void main() {
+  // Variables to create in setUp: fakeClient, adapter。
+  // TODO(Owner A): 测试 currentSession、onAuthStateChange 及 onError 到 SessionSnapshot 的映射。
+  // TODO(Owner A): 测试 signInWithPassword 成功、错误凭据、网络错误和未知错误。
+  // TODO(Owner A): 测试 signUp 有 session、无 session 以及 profile 写入失败不覆盖认证结果。
+  // TODO(Owner A): 测试 signOut 显式使用 SignOutScope.local。
+  // TODO(Owner A): 所有断言只使用虚构账户，不含 token、真实邮箱或生产项目。
+}
+</code></pre>
+<h3>8.4 Supabase 实现时必须核对的当前事实</h3>
+<ul>
+<li><a href="https://supabase.com/docs/reference/dart/auth-signinwithpassword"><code>signInWithPassword</code></a> 是 Flutter 邮箱密码登录入口。</li>
+<li><a href="https://supabase.com/docs/reference/dart/auth-signup"><code>signUp</code></a> 在 Confirm email 开启时可返回 user 但 <code>session == null</code>；这是 <code>RegistrationVerificationRequired</code> 的主要映射分支。</li>
+<li><a href="https://supabase.com/docs/reference/dart/auth-onauthstatechange"><code>onAuthStateChange</code></a> 会把离线刷新等网络错误作为 stream error 发出，订阅必须提供 <code>onError</code>。</li>
+<li><a href="https://supabase.com/docs/reference/dart/auth-signout"><code>signOut</code></a> 在 Dart 默认是 local，但本 Feature 仍显式传 <code>SignOutScope.local</code> 来保护“只退出当前设备”的产品语义。</li>
+<li>依赖升级前重新检查 <a href="https://supabase.com/changelog?types=breaking-change">Supabase Changelog</a> 和 <code>RISK-SESSION-01</code>。</li>
+</ul>
+
 </main>
 </body>
 </html>

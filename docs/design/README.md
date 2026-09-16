@@ -18,9 +18,9 @@
 
 每个 owning Feature/shared module 的 Markdown 是唯一 Development Contract；`docs/human/` 中同 basename HTML 只是语义等价的阅读导出。Git 与 PR 保存历史，不建立 PDF、Manifest、checksum 或独立发布生命周期。
 
-设计 AI 可以固定跨 Owner 所必需的精确 `import`、公开 Dart declaration、调用方可见类型、结果、失败、生命周期、权限、副作用和联合情景；不得编写 Flutter 函数体、Widget、私有 helper、SDK 映射或应用测试实现。两名学生亲自编写和修改全部 Flutter 应用代码与应用测试。
+AI 可以固定跨 Owner 所必需的精确 `import`、公开 Dart declaration、调用方可见类型、结果、失败、生命周期、权限、副作用和联合情景，也可以编写、修改和测试 Flutter 函数体、Widget、私有 helper、SDK 映射及应用测试实现。
 
-经项目负责人明确授权，AI 可以建立和保护 Supabase 开发环境，包括 CLI/config、migration、RLS、导入支持及环境验证；其边界见 ADR 0016。Flutter 中的 Supabase client 装配仍由 Owner A 编写，并须使用运行时注入的项目 URL 与 publishable key，不能提交 service-role key 或继续依赖硬编码 legacy anon key。
+AI 可以建立和保护 Supabase 开发环境，包括 CLI/config、migration、RLS、导入支持及环境验证；其边界见 ADR 0016。Flutter 中的 Supabase client 装配可由 AI 或 Owner 编写，并须使用运行时注入的项目 URL 与 publishable key，不能提交 service-role key 或继续依赖硬编码 legacy anon key。
 
 公式正文只在产品知识库维护；字段、RLS 和 migration 只在 Schema Catalog 维护。Development Contract 引用它们并固定调用方必须遵守的口径。
 
@@ -28,7 +28,7 @@
 
 - **项目负责人 / Owner A**：产品与架构决策、shared file、composition root、migration 顺序和最终整合。
 - **Owner B**：实现分配给 B 的契约；与 A 共同确认所消费的公开 Interface 变更。
-- **设计 AI**：维护设计和 HTML，执行审查，并依 ADR 0013 批准 owning contract 的 `Ready for Development`；可按 ADR 0016 管理 Supabase 环境。
+- **AI**：可维护设计和 HTML、执行审查、编写及测试全部项目代码，并依 ADR 0013 批准 owning contract 的 `Ready for Development`。
 
 提供方先合并一个模块唯一的公开入口和契约 declarations，再实现真实 Adapter；消费方只依赖该入口并用 fake 开发。公开 Interface 变更由提供方说明原因和受影响消费者，全部消费者确认，并在同一 PR 更新 declarations、owning contract、同名 HTML 与受影响测试。
 
@@ -47,7 +47,7 @@
 
 1. 系统基线和全部 owning contract 已就绪；按依赖 DAG 从 Wave 1 开始。
 2. 每个 provider 先交付公开 seam 与 fake 所需 declaration，再并行开发 provider/consumer。
-3. 每名学生在独立短期分支实现自己的 Flutter 代码和测试；共享接线由 A 整合。
+3. Owner 或 AI 可在分支中实现 Flutter 代码和测试；共享接线由 A 整合。
 4. 每个 PR 运行格式检查、静态分析、测试和 debug APK 构建；仓库已有 [Flutter CI](../../.github/workflows/flutter.yml)。
 5. 实现者可声明 `Implemented`；项目负责人完成跨 Owner 验收后批准 `Integrated`。
 
@@ -65,7 +65,7 @@
 
 ## 设计索引
 
-系统设计为 `Baselined`（`5d11769`）。以下全部 owning contract 已达到 `Ready for Development`；波次表示依赖顺序，不表示两名学生的工期。
+系统设计为 `Baselined`（`5d11769`）。以下全部 owning contract 已达到 `Ready for Development`；波次表示依赖顺序，不表示人员工期。
 
 | 类型 | 名称 | Owner | 波次 | Development Contract |
 | --- | --- | --- | --- | --- |

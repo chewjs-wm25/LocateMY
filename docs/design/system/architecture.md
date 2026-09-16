@@ -32,7 +32,7 @@
 | `lib/app/` | composition root、Application Shell、认证/账户范围门控、全局导航、本地化、跨 Feature 工作流与前台同步触发 | `core` 与各 Feature 的公开 Interface；不读取 Feature 内部模型 |
 | `lib/core/` | 无产品归属的窄基础能力：结果/时钟/网络状态抽象、存储连接、国际化基础和清洗后的诊断事件 | Dart/Flutter 与外部包；不拥有业务规则、业务状态或 Feature 用例 |
 | `lib/features/<feature>/` | 一个 Feature 或 shared module 的 Presentation、Application、Domain 与 Data 实现 | `core` 和已冻结的上游公开 Interface；不导入其他 Feature 内部目录 |
-| `supabase/migrations/` | 学生编写的可执行远端 schema、RLS、View/RPC 和 Storage policy | 已批准 Schema Catalog；不反向定义产品行为 |
+| `supabase/migrations/` | 可由 AI 或 Owner 编写的可执行远端 schema、RLS、View/RPC 和 Storage policy | 已批准 Schema Catalog；不反向定义产品行为 |
 | `test/`、`supabase/tests/` | 通过公开 Interface 验证 Feature、组合流程、RLS allow/deny 和数据契约 | 与生产调用方相同的 seam |
 
 Application Shell 与 Account Privacy 是 [Feature map](feature-map.md) 中有独立 Interface 的 shared
@@ -103,5 +103,5 @@ Application Shell → Wave 4–7 Feature。配置失败停在不可重试启动�
 
 项目不引入后台同步框架、ORM/Drift、额外状态管理框架、原生桥接、Edge Function、Realtime、自动政府
 数据抓取或独立遥测平台。所需本机依赖限于产品事实规定的 `sqflite`、`path_provider`、
-`shared_preferences`，以及实现已批准地图、网络与本地化能力的最小 Flutter 包；具体版本由学生实现时
+`shared_preferences`，以及实现已批准地图、网络与本地化能力的最小 Flutter 包；具体版本由实施者
 查证并锁定。该限制不削弱收藏双向同步、照片待传、RLS、回收站或错误恢复。
