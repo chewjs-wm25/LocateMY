@@ -174,5 +174,4 @@ SHELL-001 唯一公开入口只含第 3 节声明。两个 sealed outcome 基类
 | --- | --- | --- | --- | --- |
 | 2026-09-14 | `Ready for Development` | Issue #9 冻结门控、导航、组合、语言与跨 Owner 工作流 | `NAV-01`–`NAV-03`、`SHELL-001` | 项目负责人 |
 | 2026-09-15 | `Ready for Development` | Issue #23 全审：冻结唯一 `application_shell.dart` 与 canonical `submit`/`publish` outcome，消除 submit-only、`ShellPublishOutcome` 和本地 contribution outcome 的不兼容副本；Markdown/HTML blocker 同步关闭 | `SHELL-001`、12 个消费者、`FLOW-01/02/03/05/06/07/08` | 设计 AI（项目负责人授权） |
-
 | 2026-09-16 | 实现验证已通过；独立审查中 | Wave 3 TDD、真实 Auth/Privacy/Shell、双语导航/返回、两设备重启/故障恢复及扫描 APK；const 基类修正；未来集成期限不变 | SHELL-001、AT-AUTH/OUT/SWITCH；公开成员/结果/行为及 Schema 不变 | 实现 AI（项目负责人授权） |

@@ -16,10 +16,10 @@
 | SHELL-W3-04 | IndexedStack 交互 count 保留；仅两 NavigationDestination；账户普通任务；Android 系统返回；设备首页/地图/账户实际 UI-tree tap |
 | SHELL-W3-05 | 原 A/B 顺序 marker 原对象传目标 builder；missing/stale intent 保持导航与返回语境；设备 typed input/return |
 | SHELL-W3-06 | public publish 保留原 marker、来源/日期/口径与 unavailable/partial；stale 不覆盖；任务与独立槽位 Widget；设备原贡献/过期响应 |
-| SHELL-W3-07 | 双 locale 小屏 200%/可读 tooltip/恢复；language_support_test.dart 持久化/失败/动态错误；设备 EN 跨退出/换号/重启 |
+| SHELL-W3-07 | 双 locale 小屏 200%/可读 tooltip/恢复；language_support_test.dart 持久化/动态错误；Shell Widget 注入保存 false/异常，验证两语言提示、选中语言保留及重试持久化；设备 EN 跨退出/换号/重启 |
 | SHELL-W3-08 | fake_application_shell.dart 只实现 canonical ApplicationShell；运行时 intent/contribution accepted/auth-required/rejected 三种结果；消费者实际恢复行为按 future Wave |
 
-验证命令：dart format --output=none --set-exit-if-changed .；flutter analyze；flutter test --reporter expanded；flutter build apk --debug。确定性全量 101 passed / 4 opt-in live skipped；Shell opt-in live 1 passed。两设备完整实际 Auth/Privacy/Shell 流程通过。
+验证命令：dart format --output=none --set-exit-if-changed .；flutter analyze；flutter test --reporter expanded；flutter build apk --debug。确定性全量 105 passed / 4 opt-in live skipped；Shell opt-in live 1 passed。两设备完整实际 Auth/Privacy/Shell 流程通过。
 
 临时测试命令：python3 tool/verify_application_shell_live.py --evidence-dir build/shell-wave3-final-evidence --devices emulator-5554 <Owner A wireless serial>。设备 transport 仅 host CONNECT 转发、限定 Supabase host、TLS 端到端；不替换 Auth/Privacy/Shell Adapter。Owner A 真实 Android 手机；Owner B Android Studio emulator。设备测试使用隔离偏好/屏障命名空间与临时 A/B 账户；未来六项证明有醒目标识，不是生产清理。
 
@@ -38,6 +38,6 @@ Auth 第 6.1 节截至 Wave 3 的启动/登录门控、退出屏障/当前设备
 
 待 Luna High 按开发规范第 3 节审核本模块证据，并按第 4 节审核截至 Wave 3 到期责任。不能把 future Owner 未开发自动判为当前阻塞，也不能把当前 Shell test proofs 当作 full Wave 7 已通过。
 
-## 证据入口
+## 5. 审查修复与补充证据
 
-本次设备/live/构建日志及 source.json：[证据目录](evidence/application-shell-wave3-2026-09-16/)。普通 debug APK 已扫描排除高权限密钥及测试/fixture 凭据；两设备均恢复普通 APK，临时用户及 CONNECT 隧道删除，fixture scope 关闭且 harness 偏好/目录清理。
+首轮 Luna 审查指出应用消费者测试越过 Auth 公开入口，以及语言保存失败缺少证据。已统一使用 createAuthenticationViewModel；平台存储故障注入复现保存立即失败时提示使用旧语言，随后修复为使用当前选中 locale。四项失败/恢复 Widget 测试通过；补充 review-language-red.txt、review-language-regression.txt、review-full-tests.txt、review-analyze.txt、review-format.txt。测试所需 shared_preferences_platform_interface 明确列为 dev dependency，锁定版本不变。新生产/live/设备证据将在复审前完成。

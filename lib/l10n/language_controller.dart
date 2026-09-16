@@ -63,7 +63,9 @@ final class LanguageButton extends StatelessWidget {
       if (!saved && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.languageSaveFailed),
+            content: Text(
+              lookupAppLocalizations(controller.locale).languageSaveFailed,
+            ),
           ),
         );
       }

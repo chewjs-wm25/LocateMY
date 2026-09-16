@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/method_channel_shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+import 'package:locatemy/l10n/language_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/app/app.dart';
 import 'package:locatemy/features/authentication_session/authentication_session.dart';
 import 'package:locatemy/features/account_privacy/account_privacy.dart';
-import 'package:locatemy/features/authentication_session/src/application/authentication_use_case.dart';
 
 import '../support/fake_authentication_session.dart';
 import 'application_shell_test.dart'
@@ -12,6 +16,104 @@ import 'application_shell_test.dart'
 import 'package:locatemy/app/application_shell.dart';
 
 void main() {
+  for (final throwsOnSave in [false, true]) {
+    for (final initialLanguage in ['zh', 'en']) {
+      testWidgets(
+        'Shell keeps chosen language after ${throwsOnSave ? 'throwing' : 'refused'} save from $initialLanguage and retries persistence',
+        (tester) async {
+          SharedPreferences.setMockInitialValues({});
+          SharedPreferencesStorePlatform.instance =
+              MethodChannelSharedPreferencesStore();
+          const channel = MethodChannel(
+            'plugins.flutter.io/shared_preferences',
+          );
+          final persisted = <String, Object>{
+            'flutter.${LanguageController.preferenceKey}': initialLanguage,
+          };
+          var failSave = true;
+          tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            channel,
+            (call) async {
+              if (call.method == 'getAll' ||
+                  call.method == 'getAllWithParameters') {
+                return Map<String, Object>.from(persisted);
+              }
+              if (call.method == 'setString') {
+                if (failSave) {
+                  if (throwsOnSave) {
+                    throw PlatformException(code: 'write_failed');
+                  }
+                  return false;
+                }
+                final args = call.arguments as Map;
+                persisted[args['key'] as String] = args['value'] as String;
+                return true;
+              }
+              throw UnsupportedError(call.method);
+            },
+          );
+          addTearDown(() {
+            tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+              channel,
+              null,
+            );
+            SharedPreferences.setMockInitialValues({});
+          });
+          final preferences = await SharedPreferences.getInstance();
+          final language = LanguageController(preferences: preferences);
+          final auth = FakeAuthenticationSession()
+            ..restored = const AuthenticatedSession(accountA);
+          final shell = ShellRuntime(
+            authentication: auth,
+            privacy: ControlledPrivacy(),
+          );
+          final vm = createAuthenticationViewModel(auth);
+          await tester.pumpWidget(
+            LocateMyApp(
+              authenticationViewModel: vm,
+              shellRuntime: shell,
+              languageController: language,
+            ),
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const ValueKey('language-switch')));
+          await tester.pumpAndSettle();
+          final chosen = initialLanguage == 'zh' ? 'en' : 'zh';
+          expect(find.text(chosen == 'en' ? 'Home' : '首页'), findsWidgets);
+          expect(
+            find.text(
+              chosen == 'en'
+                  ? 'Language preference could not be saved. Please retry.'
+                  : '语言偏好未保存，请重试。',
+            ),
+            findsOneWidget,
+          );
+          expect(find.byType(NavigationDestination), findsNWidgets(2));
+          await preferences.reload();
+          final afterFailure = LanguageController(preferences: preferences);
+          expect(afterFailure.locale.languageCode, initialLanguage);
+          afterFailure.dispose();
+          failSave = false;
+          // Return to the old choice, then select the failed choice again through UI.
+          await tester.tap(find.byKey(const ValueKey('language-switch')));
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const ValueKey('language-switch')));
+          await tester.pumpAndSettle();
+          await preferences.reload();
+          final afterRetry = LanguageController(preferences: preferences);
+          expect(afterRetry.locale.languageCode, chosen);
+          afterRetry.dispose();
+          await tester.pumpWidget(const SizedBox());
+          vm.dispose();
+          language.dispose();
+          await tester.runAsync(() async {
+            await shell.dispose();
+            await auth.changes.close();
+          });
+        },
+      );
+    }
+  }
   testWidgets(
     'opened Shell has two stateful tabs and a returning account task',
     (tester) async {
@@ -21,7 +123,7 @@ void main() {
         authentication: auth,
         privacy: ControlledPrivacy(),
       );
-      final vm = AuthenticationViewModel(AuthenticationUseCase(auth));
+      final vm = createAuthenticationViewModel(auth);
       await tester.pumpWidget(
         LocateMyApp(
           authenticationViewModel: vm,
@@ -65,7 +167,7 @@ void main() {
         authentication: auth,
         privacy: ControlledPrivacy(),
       );
-      final vm = AuthenticationViewModel(AuthenticationUseCase(auth));
+      final vm = createAuthenticationViewModel(auth);
       await tester.pumpWidget(
         LocateMyApp(authenticationViewModel: vm, shellRuntime: shell),
       );
@@ -115,7 +217,7 @@ void main() {
           ),
         ],
       );
-      final vm = AuthenticationViewModel(AuthenticationUseCase(auth));
+      final vm = createAuthenticationViewModel(auth);
       await tester.pumpWidget(
         LocateMyApp(
           authenticationViewModel: vm,
@@ -181,7 +283,7 @@ void main() {
           ..restored = const AuthenticatedSession(accountA);
         final privacy = ControlledPrivacy();
         final shell = ShellRuntime(authentication: auth, privacy: privacy);
-        final vm = AuthenticationViewModel(AuthenticationUseCase(auth));
+        final vm = createAuthenticationViewModel(auth);
         await tester.pumpWidget(
           LocateMyApp(authenticationViewModel: vm, shellRuntime: shell),
         );
@@ -228,7 +330,7 @@ void main() {
         authentication: auth,
         privacy: ControlledPrivacy(),
       );
-      final vm = AuthenticationViewModel(AuthenticationUseCase(auth));
+      final vm = createAuthenticationViewModel(auth);
       await tester.pumpWidget(
         LocateMyApp(authenticationViewModel: vm, shellRuntime: shell),
       );
