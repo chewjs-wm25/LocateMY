@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/authentication_session/authentication_session.dart';
 import 'package:locatemy/features/authentication_session/src/application/authentication_use_case.dart';
-import 'package:locatemy/features/authentication_session/src/presentation/authentication_view_model.dart';
 import 'package:locatemy/features/authentication_session/src/presentation/authentication_view_state.dart';
 
 import '../../support/fake_authentication_session.dart';

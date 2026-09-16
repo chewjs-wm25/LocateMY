@@ -198,4 +198,40 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get configurationMissing =>
       'LocateMY 尚未配置，请设置 Supabase 项目 URL 和 publishable key 后重启应用。';
+
+  @override
+  String get shellHome => '首页';
+
+  @override
+  String get shellMap => '地图';
+
+  @override
+  String get shellAccount => '账户';
+
+  @override
+  String get shellTask => '任务';
+
+  @override
+  String get shellPreparing => '正在准备应用，请稍候。';
+
+  @override
+  String get shellRecovery => '应用暂时不可用，请重试。';
+
+  @override
+  String get shellCleanupPending => '旧账户清理尚未完成，私有内容已关闭。请重试完成清理。';
+
+  @override
+  String get shellScopeUnavailable => '暂时无法确认账户范围，请重试。';
+
+  @override
+  String get shellFutureTask => '此功能将在后续开发阶段接入。';
+
+  @override
+  String get shellHomePending => '首页功能尚未接入。';
+
+  @override
+  String get shellMapPending => '地图功能尚未接入。当前没有选择地点。';
+
+  @override
+  String get shellAccountPending => '账户中心尚未接入。你可以在此退出当前设备。';
 }

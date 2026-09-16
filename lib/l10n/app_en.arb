@@ -62,5 +62,17 @@
   "brandTagline": "Find a location that suits your life",
   "language": "Language",
   "languageSaveFailed": "Language preference could not be saved. Please retry.",
-  "configurationMissing": "LocateMY is not configured. Set the Supabase project URL and publishable key, then restart the app."
+  "configurationMissing": "LocateMY is not configured. Set the Supabase project URL and publishable key, then restart the app.",
+  "shellHome": "Home",
+  "shellMap": "Map",
+  "shellAccount": "Account",
+  "shellTask": "Task",
+  "shellPreparing": "Preparing the app. Please wait.",
+  "shellRecovery": "The app is temporarily unavailable. Please retry.",
+  "shellCleanupPending": "Previous account cleanup is incomplete. Private content is closed. Retry to finish cleanup.",
+  "shellScopeUnavailable": "The account scope cannot be confirmed. Please retry.",
+  "shellFutureTask": "This feature will be connected in a later development wave.",
+  "shellHomePending": "Home features are not connected yet.",
+  "shellMapPending": "Map features are not connected yet. No location is selected.",
+  "shellAccountPending": "Account Center is not connected yet. You can sign out of this device here."
 }

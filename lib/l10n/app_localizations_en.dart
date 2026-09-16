@@ -217,4 +217,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get configurationMissing =>
       'LocateMY is not configured. Set the Supabase project URL and publishable key, then restart the app.';
+
+  @override
+  String get shellHome => 'Home';
+
+  @override
+  String get shellMap => 'Map';
+
+  @override
+  String get shellAccount => 'Account';
+
+  @override
+  String get shellTask => 'Task';
+
+  @override
+  String get shellPreparing => 'Preparing the app. Please wait.';
+
+  @override
+  String get shellRecovery =>
+      'The app is temporarily unavailable. Please retry.';
+
+  @override
+  String get shellCleanupPending =>
+      'Previous account cleanup is incomplete. Private content is closed. Retry to finish cleanup.';
+
+  @override
+  String get shellScopeUnavailable =>
+      'The account scope cannot be confirmed. Please retry.';
+
+  @override
+  String get shellFutureTask =>
+      'This feature will be connected in a later development wave.';
+
+  @override
+  String get shellHomePending => 'Home features are not connected yet.';
+
+  @override
+  String get shellMapPending =>
+      'Map features are not connected yet. No location is selected.';
+
+  @override
+  String get shellAccountPending =>
+      'Account Center is not connected yet. You can sign out of this device here.';
 }

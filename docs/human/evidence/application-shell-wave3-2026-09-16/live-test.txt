@@ -1,0 +1,5 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/application_shell_live_test.dart
+00:00 +0: live Shell, Auth and Privacy validate production barrier and scope restart
+Shell: PASS: real same-account gate; private barrier precedes current-device signOut/close; six missing owners; other session retained
+Shell: PASS: real durable closing restart; marked future proofs allow recovery; real second account gets fresh home scope
+00:00 +1: All tests passed!

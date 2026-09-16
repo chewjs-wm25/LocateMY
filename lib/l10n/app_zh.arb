@@ -62,5 +62,17 @@
   "brandTagline": "找到更适合生活的地点",
   "language": "语言",
   "languageSaveFailed": "语言偏好未保存，请重试。",
-  "configurationMissing": "LocateMY 尚未配置，请设置 Supabase 项目 URL 和 publishable key 后重启应用。"
+  "configurationMissing": "LocateMY 尚未配置，请设置 Supabase 项目 URL 和 publishable key 后重启应用。",
+  "shellHome": "首页",
+  "shellMap": "地图",
+  "shellAccount": "账户",
+  "shellTask": "任务",
+  "shellPreparing": "正在准备应用，请稍候。",
+  "shellRecovery": "应用暂时不可用，请重试。",
+  "shellCleanupPending": "旧账户清理尚未完成，私有内容已关闭。请重试完成清理。",
+  "shellScopeUnavailable": "暂时无法确认账户范围，请重试。",
+  "shellFutureTask": "此功能将在后续开发阶段接入。",
+  "shellHomePending": "首页功能尚未接入。",
+  "shellMapPending": "地图功能尚未接入。当前没有选择地点。",
+  "shellAccountPending": "账户中心尚未接入。你可以在此退出当前设备。"
 }

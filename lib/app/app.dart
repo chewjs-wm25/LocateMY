@@ -1,4 +1,15 @@
+export 'src/presentation/shell_host.dart'
+    show ShellViews, ShellTaskView, ShellContributionView;
+export 'src/domain/shell_routes.dart';
+export 'src/application/shell_runtime.dart';
+export 'src/domain/shell_state.dart';
+
 import 'package:flutter/material.dart';
+
+import 'src/application/shell_runtime.dart';
+import 'src/presentation/shell_view_model.dart';
+import 'src/presentation/shell_host.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,10 +17,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/supabase_config.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/language_controller.dart';
-import '../features/authentication_session/src/application/authentication_use_case.dart';
-import '../features/authentication_session/src/data/supabase_authentication_session_adapter.dart';
-import '../features/authentication_session/src/presentation/authentication_page.dart';
-import '../features/authentication_session/src/presentation/authentication_view_model.dart';
+
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+
+import '../features/authentication_session/authentication_session.dart';
+import '../features/account_privacy/account_privacy.dart';
 
 Future<void> startLocateMy() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,18 +69,31 @@ Future<void> startLocateMy() async {
     publishableKey: SupabaseConfig.publishableKey,
   );
 
-  final sessionAdapter = SupabaseAuthenticationSessionAdapter(
-    Supabase.instance.client,
+  final sessionAdapter = createAuthenticationSession(Supabase.instance.client);
+  final viewModel = createAuthenticationViewModel(sessionAdapter);
+  late final AccountPrivacy privacy;
+  final shell = ShellRuntime.compose(
+    authentication: sessionAdapter,
+    privacy: () => privacy,
   );
-  final viewModel = AuthenticationViewModel(
-    AuthenticationUseCase(sessionAdapter),
+  privacy = createAccountPrivacy(
+    authenticationSession: sessionAdapter,
+    participants: [
+      createAuthenticationPrivacyParticipant(sessionAdapter),
+      shell,
+    ],
+    stateDirectory: Directory(
+      '${(await getApplicationSupportDirectory()).path}/account-privacy',
+    ),
   );
   runApp(
     LocateMyApp(
       authenticationViewModel: viewModel,
+      shellRuntime: shell,
       languageController: languageController,
-      onRetryProfile: () =>
-          viewModel.retryProfile(sessionAdapter.retryOptionalProfile),
+      onRetryProfile: () => viewModel.retryProfile(
+        () => retryAuthenticationOptionalProfile(sessionAdapter),
+      ),
     ),
   );
 }
@@ -75,11 +102,15 @@ final class LocateMyApp extends StatefulWidget {
   final LanguageController? languageController;
   final AuthenticationViewModel authenticationViewModel;
   final Future<void> Function()? onRetryProfile;
+  final ShellRuntime? shellRuntime;
+  final ShellViews shellViews;
 
   const LocateMyApp({
     required this.authenticationViewModel,
     this.onRetryProfile,
     this.languageController,
+    this.shellRuntime,
+    this.shellViews = const ShellViews(),
     super.key,
   });
 
@@ -91,17 +122,34 @@ final class _LocateMyAppState extends State<LocateMyApp> {
   late final LanguageController _languageController =
       widget.languageController ?? LanguageController();
 
+  ShellViewModel? _shellViewModel;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.shellRuntime != null) {
+      _shellViewModel = ShellViewModel(widget.shellRuntime!);
+      _shellViewModel!.initialize();
+    }
+  }
+
   @override
   void dispose() {
+    _shellViewModel?.dispose();
     if (widget.languageController == null) _languageController.dispose();
     super.dispose();
   }
 
+  Widget _authenticationPage() => AuthenticationPage(
+    viewModel: widget.authenticationViewModel,
+    onSignOut:
+        _shellViewModel?.signOut ?? widget.authenticationViewModel.signOut,
+    onRetryProfile: widget.onRetryProfile,
+  );
   @override
   Widget build(BuildContext context) => LanguageScope(
     controller: _languageController,
     child: ListenableBuilder(
-      listenable: _languageController,
+      listenable: Listenable.merge([_languageController, ?_shellViewModel]),
       builder: (context, _) => MaterialApp(
         locale: _languageController.locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -155,11 +203,13 @@ final class _LocateMyAppState extends State<LocateMyApp> {
           ),
           useMaterial3: true,
         ),
-        home: AuthenticationPage(
-          viewModel: widget.authenticationViewModel,
-          onSignOut: widget.authenticationViewModel.signOut,
-          onRetryProfile: widget.onRetryProfile,
-        ),
+        home: _shellViewModel == null
+            ? _authenticationPage()
+            : ShellHost(
+                viewModel: _shellViewModel!,
+                authentication: _authenticationPage(),
+                views: widget.shellViews,
+              ),
       ),
     ),
   );
