@@ -1,12 +1,16 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:locatemy/modules/geographic_context/geographic_context.dart';
+
+import '../geographic_context.dart';
 
 class SupabaseGeoRepository {
   final SupabaseClient _supabase;
 
   SupabaseGeoRepository(this._supabase);
 
-  Future<List<Map<String, dynamic>>> fetchCandidates(double lat, double lng) async {
+  Future<List<Map<String, dynamic>>> fetchCandidates(
+    double lat,
+    double lng,
+  ) async {
     try {
       final response = await _supabase.rpc(
         'read_administrative_boundary_candidates',
