@@ -1,7 +1,7 @@
-# AI-managed Supabase development environment
+# AI-authorized project implementation
 
 > Status: Accepted — 2026-09-15
 
-The project owner exempts Supabase environment establishment from LocateMY's human-coded delivery boundary. AI may create, modify, verify and apply project-scoped Supabase CLI configuration, migration files, access hardening and data-import support needed to make the approved database design reproducible and secure; the project owner retains authority over product semantics and irreversible data decisions. The two students still write all Flutter application behavior, application tests and other executable product code.
+The project owner authorizes AI to create, modify, verify and apply all project code, including Flutter application behavior, application tests, project-scoped Supabase CLI configuration, migration files, access hardening and data-import support. The project owner retains authority over product semantics and irreversible data decisions.
 
-This exception was chosen because migration-history recovery and urgent platform security hardening are environment work, while reserving them for student authors would prevent the approved Flutter work from starting. It amends ADR 0011's human-coded boundary without changing any Capability, data ownership rule, RLS semantics or the students' responsibility for application implementation.
+This authorization removes the former human-coded delivery boundary while preserving approved Capabilities, data ownership rules and RLS semantics. AI-authored changes remain subject to the same contracts, review and verification requirements as any other project change.

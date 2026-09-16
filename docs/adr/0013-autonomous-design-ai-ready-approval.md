@@ -26,5 +26,5 @@ integration boundaries.
 
 - A completed design records `设计 AI（项目负责人授权）` as its Ready approver and links this ADR.
 - A GitHub Issue closes only after the design and its independent review are complete.
-- ADR 0011 is superseded only where it says the project owner alone approves `Ready for
-  Development`; all of its human-coded boundary remains in force.
+- ADR 0011 is superseded where it says the project owner alone approves `Ready for
+  Development`; AI's authority to implement and test code remains in force.

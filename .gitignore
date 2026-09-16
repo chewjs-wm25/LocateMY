@@ -57,3 +57,9 @@ app.*.map.json
 /android/key.properties
 *.jks
 *.keystore
+
+# Local client configuration. It is bundled into the app, so it must contain
+# only public values such as the Supabase URL and publishable key.
+.env
+.env.*
+!.env.example

@@ -1,7 +1,25 @@
-class SupabaseConfig {
-  static const url = 'https://ntlhjfljkjeefzzqutbc.supabase.co';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-  // Supabase Dashboard anon key
-  static const anonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50bGhqZmxqa2plZWZ6enF1dGJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDA1NDIsImV4cCI6MjEwMzcxNjU0Mn0.iPdZk84nW-hf9xF8wLLS52tlIFxkG_M9E_2n3wbvITA';
+final class SupabaseConfig {
+  static String get url =>
+      const String.fromEnvironment('SUPABASE_URL', defaultValue: '') != ''
+      ? const String.fromEnvironment('SUPABASE_URL')
+      : dotenv.maybeGet('SUPABASE_URL') ?? '';
+
+  static String get publishableKey =>
+      const String.fromEnvironment(
+            'SUPABASE_PUBLISHABLE_KEY',
+            defaultValue: '',
+          ) !=
+          ''
+      ? const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY')
+      : dotenv.maybeGet('SUPABASE_PUBLISHABLE_KEY') ?? '';
+
+  static void validate() {
+    if ((Uri.tryParse(url)?.host.isEmpty ?? true) ||
+        !(url.startsWith('https://') || url.startsWith('http://')) ||
+        !publishableKey.startsWith('sb_publishable_')) {
+      throw StateError('Missing SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY.');
+    }
+  }
 }

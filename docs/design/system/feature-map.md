@@ -7,7 +7,7 @@
 可观测成果仍以 [Capability Catalog](../../knowledge_base/locatemy_product/capability_catalog.md) 为准；
 跨 Feature 组合遵循[协作规范](../../knowledge_base/locatemy_product/cross_feature_collaboration.md)。
 
-这里的责任 Owner 是设计模块，不是学生分工。两名学生的实现分配继续由项目负责人另行决定。
+这里的责任 Owner 是设计模块，不是人员分工。实现分配由项目负责人另行决定，AI 可参与任一模块的代码编写与测试。
 设计波次表示 owning document 最早可以进入详细设计的波次，不等于开发工期或提交顺序。
 
 ## 划分规则
@@ -372,7 +372,7 @@ flowchart LR
 | 7 | Personalized Location Suitability | 五项分析输入、评估偏好、当前预案和地点契约已冻结 |
 
 所有 `D01`–`D46` 都从较小波次指向较大波次，因此不存在同波或反向边，图为 DAG。波次不表示
-同波节点必须由同一人实现；跨波也不授权 AI 生成可提交代码。
+同波节点可并行实现；跨波只表示依赖顺序，不限制 AI 生成可提交代码。
 
 ## 组合责任与非依赖
 

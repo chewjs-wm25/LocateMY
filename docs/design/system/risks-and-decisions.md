@@ -121,7 +121,7 @@ Adapter 策略冻结进 Feature 设计。实现验收须从用户可观察结果
   authenticated-only 受控 RPC 例外并于 2026-09-14 批准 Geographic Context 转为 `Ready for Development`。
 
 - Issue #4 已覆盖系统 Interface、数据 Owner、技术架构、非功能约束与跨 Feature 流程；跨 Owner
-  可观察语义在 owning design 完成，Adapter、migration 和测试实现仍由 Owner/学生实现。
+  可观察语义在 owning design 完成，Adapter、migration 和测试实现可由 Owner 或 AI 完成。
 - 离线写只授权收藏 create queue、房产草稿、`property_draft_photos` 与 `property_photo_upload_queue`；其他业务创建、编辑和删除保持在线，不能从
   通用 privacy barrier 或 SQLite 的存在推导离线能力。
 - Capability 全量追踪与独立系统审查已由 Issue #5 完成；项目负责人已于 2026-09-13 批准

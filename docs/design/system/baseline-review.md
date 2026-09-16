@@ -27,7 +27,7 @@
 | `BR-01` | Blocking | 全部 45 项 | 追踪表只有 Issue #2 的 8 行，37 项缺完整链 | 以同一列结构补齐 45 行并加入波次；逐 ID 核对目录、Interface、对象与 AT 定义 | Closed |
 | `BR-02` | Blocking | `ACCOUNT-07`、所有私有 Capability | privacy barrier 是否覆盖全部私有 Owner 尚未完成 Gate 审计 | 对照 Feature map、远端私有对象、本机表、文件和内存状态；8 个参与者覆盖全部私有持有者，无通用 payload Owner | Closed |
 | `BR-03` | Blocking | `FAC-01`、全部公共分析 | 公共缓存可能混入账户资料 | Schema Catalog 的 4 个具名公共缓存逐项限制为公共输入/结果/版本/日期/完整性；可选缓存继承同一约束，用户命名与账户 ID 只存在私有对象 | Closed |
-| `BR-04` | Blocking | Home、Crime、Socio、Infrastructure、Transit | canonical 镜像和读取对象尚有 `proposed` 项，缺 Baseline 所需迁移计划 | 采用下方按 Owner 分组的 add–migrate–remove 计划；实现仍由相应 Feature Ready Gate 和学生 migration 完成 | Closed for Baseline；Feature Ready open |
+| `BR-04` | Blocking | Home、Crime、Socio、Infrastructure、Transit | canonical 镜像和读取对象尚有 `proposed` 项，缺 Baseline 所需迁移计划 | 采用下方按 Owner 分组的 add–migrate–remove 计划；实现仍由相应 Feature Ready Gate 和 migration 完成 | Closed for Baseline；Feature Ready open |
 | `BR-05` | Major | `ACCOUNT-09` | 领域对象同时写“当前选择只在内存”和“账户保存当前预案” | 删除旧原型语义，保留 Supabase 权威、账户唯一 current 的已批准语义 | Closed |
 | `BR-06` | Major | `NAV-01`、`ACCOUNT-07` | 协作文档把会话变化发布者写成 Shell，与 `AUTH-001` Owner 冲突 | 明确 Authentication 发布会话事实，Shell 只协调门控/清理流程 | Closed |
 
