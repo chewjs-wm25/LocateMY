@@ -141,7 +141,11 @@ final class AuthenticationViewModel extends ChangeNotifier {
     );
     final actionRevision = _actionRevision;
     final outcome = await _useCase.signIn(email: email, password: password);
-    if (_disposed || actionRevision != _actionRevision) {
+    if (_disposed ||
+        actionRevision != _actionRevision ||
+        _hasDifferentEmail(email) ||
+        (outcome is SignInSucceeded &&
+            _hasDifferentAccount(outcome.account.accountId))) {
       _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
       return;
     }
@@ -194,7 +198,11 @@ final class AuthenticationViewModel extends ChangeNotifier {
       password: password,
       passwordConfirmation: passwordConfirmation,
     );
-    if (_disposed || actionRevision != _actionRevision) {
+    if (_disposed ||
+        actionRevision != _actionRevision ||
+        _hasDifferentEmail(email) ||
+        (outcome is RegistrationAuthenticated &&
+            _hasDifferentAccount(outcome.account.accountId))) {
       _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
       return;
     }
@@ -235,6 +243,9 @@ final class AuthenticationViewModel extends ChangeNotifier {
         _state.actionStatus == AuthenticationActionStatus.submitting) {
       return;
     }
+    if (_disposed) return;
+    final accountId =
+        (_state.session as AuthenticatedSession).account.accountId;
     final actionRevision = _actionRevision;
     _publish(
       _state.copyWith(actionStatus: AuthenticationActionStatus.submitting),
@@ -242,7 +253,9 @@ final class AuthenticationViewModel extends ChangeNotifier {
     final result = await retry();
     if (_disposed ||
         actionRevision != _actionRevision ||
-        _state.session is! AuthenticatedSession) {
+        _state.session is! AuthenticatedSession ||
+        _hasDifferentAccount(accountId)) {
+      _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
       return;
     }
     _publish(
@@ -297,6 +310,15 @@ final class AuthenticationViewModel extends ChangeNotifier {
         ProfileRegistrationFailed() =>
           'verification_email_sent_profile_retry_needed',
       };
+
+  bool _hasDifferentEmail(String email) =>
+      _state.session is AuthenticatedSession &&
+      (_state.session as AuthenticatedSession).account.email.toLowerCase() !=
+          email.trim().toLowerCase();
+
+  bool _hasDifferentAccount(String accountId) =>
+      _state.session is AuthenticatedSession &&
+      (_state.session as AuthenticatedSession).account.accountId != accountId;
 
   void _publish(AuthenticationViewState nextState) {
     if (_disposed) return;

@@ -1,31 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Account Privacy 开发协作契约</title>
-  <style>
-    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
-    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
-    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
-    h1 { margin-top: 0; }
-    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-    code { overflow-wrap: anywhere; }
-    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
-    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
-    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
-    th { background: #f3f4f6; }
-    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
-    @media (prefers-color-scheme: dark) {
-      pre, th { background: #1f2937; }
-      th, td { border-color: #4b5563; }
-      blockquote { background: #1f2937; }
-    }
-  </style>
-</head>
-<body>
-<main>
-<h1>Account Privacy 开发协作契约</h1>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Account Privacy 开发协作契约</title><style>body{font-family:system-ui,sans-serif;line-height:1.7;margin:0 auto;padding:24px;max-width:1100px;color:#202830}table{display:block;overflow-x:auto;border-collapse:collapse}th,td{border:1px solid #ccd3db;padding:8px;min-width:100px;vertical-align:top}pre{overflow-x:auto;padding:16px;background:#f3f5f7}code{font-family:monospace}a{color:#1466b8}</style></head><body><h1>Account Privacy 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 2
@@ -35,9 +9,9 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <p>本文件是 Account Privacy 唯一跨 Owner 开发协作契约和同名 HTML 的 Markdown 源。它冻结 <code>PRIVACY-001</code> 的公开 Dart seam：范围快照、Shell 发起的开关和八个 Owner 的 close-participant 合约。<code>lib/features/account_privacy/</code> 内的注册/注入、状态管理、SQLite/文件 Adapter、并发、取消、重试、私有文件和测试组织由 A 决定。它不拥有 Auth 会话、Shell UI、业务 payload、远端记录/Storage 删除、公共缓存或语言。</p>
 <h2>0. 固定阅读顺序与四项 Readiness</h2>
 <ol>
-<li><a href="../../CONTEXT.md#%E6%9C%AC%E5%9C%B0%E6%95%B0%E6%8D%AE%E5%BA%93">领域词汇</a>及<a href="../knowledge_base/locatemy_product/features/account.md">账户产品事实</a>；</li>
-<li><a href="../design/system/feature-map.md#fm-privacy">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-01%E5%90%AF%E5%8A%A8%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E9%80%80%E5%87%BA%E4%B8%8E%E8%B4%A6%E6%88%B7%E5%88%87%E6%8D%A2">FLOW-01</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md#privacy-barrier-%E5%8F%82%E4%B8%8E%E8%80%85%E6%B8%85%E5%8D%95">数据所有权参与者清单</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>及<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">privacy 风险</a>；</li>
+<li><a href="../../CONTEXT.md#本地数据库">领域词汇</a>及<a href="../knowledge_base/locatemy_product/features/account.md">账户产品事实</a>；</li>
+<li><a href="../design/system/feature-map.md#fm-privacy">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-01启动注册登录退出与账户切换">FLOW-01</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md#privacy-barrier-参与者清单">数据所有权参与者清单</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>及<a href="../design/system/risks-and-decisions.md#风险与关闭条件">privacy 风险</a>；</li>
 <li>本契约及同名 HTML；后项不能改写前项。</li>
 </ol>
 <table>
@@ -48,7 +22,8 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>结论</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>责任与依赖顺序</td>
 <td>A 只拥有 <code>STATE-ACCOUNT-SCOPE</code>、关闭协调/证明；Auth、Shell 和八类 payload 均保留原 Owner；第 4 节固定次序</td>
 <td>已就绪</td>
@@ -68,12 +43,13 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>第 5 节覆盖恢复、幂等、逐 Owner 失败/重试、强制退出和 A→B，且提供 fake 场景</td>
 <td>已就绪</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>1. 成果、责任与直接边界</h2>
 <ul>
 <li>只有 <code>AUTH-001</code> 明确认证的同一账户可为 <code>opened</code>；<code>closing</code> 从开始即不可访问，不是“仍可读的清理中”。</li>
 <li>Application Shell 是 lifecycle 唯一发起者；A 汇总基线固定八名 participant。participant 只处理/证明自己的旧账户分区，不能读、替代或汇总别人的 payload。</li>
-<li><code>AUTH-001</code> 是 account id 唯一来源；<code>UnauthenticatedSession</code>、<code>SessionUnavailable</code>、旧快照或 cache 都不能打开范围。完整 Auth 声明见 <a href="../design/features/authentication-and-session.md#interface-%E5%BD%93%E5%89%8D%E8%AE%BE%E5%A4%87%E4%BC%9A%E8%AF%9Dauth-001">AUTH-001</a>。</li>
+<li><code>AUTH-001</code> 是 account id 唯一来源；<code>UnauthenticatedSession</code>、<code>SessionUnavailable</code>、旧快照或 cache 都不能打开范围。完整 Auth 声明见 <a href="../design/features/authentication-and-session.md#interface-当前设备会话auth-001">AUTH-001</a>。</li>
 </ul>
 <table>
 <thead>
@@ -83,7 +59,8 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <th>保留 / 不做</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>STATE-ACCOUNT-SCOPE</code> / A</td>
 <td>本机 opened/closing/closed 事实；<code>accountId</code> 来自 Auth，非空且非空白</td>
 <td>不能从 profile/cache 推测 opened</td>
@@ -98,7 +75,8 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 <td>不属于 close payload</td>
 <td>不删除、不跨账户混入；公共缓存不得含 account ID、自由文字或用户命名</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>2. 需要调用的 Interface</h2>
 <h3><code>AUTH-001</code> — 明确认证的账户事实</h3>
 <p><strong>提供者：</strong> Authentication &amp; Session；<strong>消费者：</strong> Account Privacy（A）。
@@ -182,7 +160,8 @@ enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, qu
 <th>状态、副作用、权限与顺序</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>readScope()</code></td>
 <td>无</td>
 <td><code>Opened</code>、<code>Closing</code>、<code>Closed</code>、<code>Unavailable(failure)</code>；非 nullable/空字符串暗号</td>
@@ -206,7 +185,8 @@ enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, qu
 <td><code>Cleared</code> 或 <code>Incomplete</code>，均回带同一 id/scope</td>
 <td>不可 open/close、替换集合或代表他人；失败不恢复旧内容。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h3>八项关闭证明</h3>
 <table>
 <thead>
@@ -216,7 +196,8 @@ enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, qu
 <th>明确保留</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>authenticationSession</code> / Auth</td>
 <td>当前设备会话已结束</td>
 <td>其他设备会话、远端记录</td>
@@ -256,7 +237,8 @@ enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, qu
 <td>偏好内存/副本与账户组合状态</td>
 <td>远端偏好</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p><strong>最小调用（Shell）：</strong></p>
 <pre><code class="language-dart">final opened = await privacy.open(authenticatedAccount);
 if (opened case AccountScopeOpenedForAccount(:final scope)) {
@@ -284,7 +266,8 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 <th>追踪</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>恢复/登录开启</td>
 <td>无会话、明确 A、不可确认或身份不符</td>
 <td>只有明确 A + opened 建私有应用；其余无私有内容</td>
@@ -314,11 +297,100 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 <td>A 八类状态不可见/提交/重放；B 只见 B；公共 cache/语言保留</td>
 <td><code>AT-SWITCH-01</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p><code>RISK-PRIVACY-01</code> 的完整集合/证明和 <code>RISK-PRIVACY-02</code> 的先封锁/可恢复语义已关闭设计风险。SQLite/文件不可用、部分处理和进程重启的故障注入仍为实现后的集成证据，不能改变上述结果。</p>
+<h3>5.1 Wave 2 验收分配（2026-09-16）</h3>
+<p>本期开发范围是 Privacy 的真实账户范围状态机、固定八项 participant 登记、关闭协调、结果校验及幂等恢复。真实上游只消费 <code>AUTH-001</code>；Auth participant 验证当前设备会话已经结束，不代替 Shell 发起 signOut。Shell 是后续 Wave 3 lifecycle 调用方，本期使用开发 harness 经公开入口验证，不开放私有业务页面。</p>
+<p>尚未开发的七个 participant 使用明确标识的测试 fake 验证协调协议；生产登记缺项必须拒绝关闭完成，不能把占位 participant 的成功当作真实清理证明。各业务模块在自身 Wave 实现真实 participant 和本机 Adapter，并承担各自 payload、SQLite/文件清理证据。Privacy 不提前实现这些业务存储，也不为它们提供生产成功占位。</p>
+<table>
+<thead>
+<tr>
+<th>场景 ID / 可观察结果</th>
+<th>验证归属</th>
+<th>所需依赖及用途</th>
+<th>证据要求</th>
+<th>负责 Owner</th>
+<th>最迟 Wave</th>
+<th>本模块证据/状态</th>
+<th>联合证据/状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PRIV-W2-01 恢复/登录开启：只接受当前明确同账户；无会话、不可确认、空白身份和不匹配不打开</td>
+<td>两者</td>
+<td>本期真实 AUTH-001；Auth fake 注入过期/不可用事实；后续 Shell</td>
+<td>公开入口测试；真实 Auth 身份传入及拒绝路径；A 设备调用入口首屏/重启证据</td>
+<td>A（Privacy/Auth/Shell）</td>
+<td>本模块 2；Shell 联合 3</td>
+<td>待验证</td>
+<td>待 Wave 3 同账户 opened 门控</td>
+</tr>
+<tr>
+<td>PRIV-W2-02 同 scope 幂等：重复 open/close 不重置内容、不重复冒充完成</td>
+<td>两者</td>
+<td>测试完整八项 participant fake；后续真实 participant</td>
+<td>公开入口重复调用、并发 open/close、closing 时 open 拒绝、晚到结果测试</td>
+<td>A；业务 participant 各 Owner 参与</td>
+<td>本模块 2；Shell 3；全员 7</td>
+<td>待验证</td>
+<td>待 Wave 3/7</td>
+</tr>
+<tr>
+<td>PRIV-W2-03 逐 Owner 失败/重试：先 closing，精确 incomplete，已清项不恢复，全八项才 closed</td>
+<td>两者</td>
+<td>本期真实协调器；八项 fake 逐一注入所有适用失败、异常、缺项、重复 ID、错 scope</td>
+<td>公开入口故障/恢复测试；结果非空且 ID 唯一；调用开始即不可访问；失败后仅同旧 scope 可恢复；不得误报 closed</td>
+<td>A 主责；真实清理由各业务 Owner 承担</td>
+<td>本模块 2；Auth/Shell 3；Map 4；Cost/Hazard 5；Infrastructure/Property/Account Center 6；全员 7</td>
+<td>待验证</td>
+<td>待各 owning Wave 的真实 Adapter 故障证据及 Wave 7 全员联合</td>
+</tr>
+<tr>
+<td>PRIV-W2-04 强制退出/身份不符：A 关闭恢复期间 B 不得打开</td>
+<td>两者</td>
+<td>本期 AUTH-001 真实类型/调用；Auth fake 注入失效/换号；后续 Shell</td>
+<td>不匹配/过期 open 拒绝；旧 scope 保持不可访问；Auth 真实当前设备退出与 participant 证明；Shell 先屏蔽→signOut→close 另行联验</td>
+<td>A</td>
+<td>本模块 2；Shell 联合 3</td>
+<td>待验证</td>
+<td>待 Wave 3 强制退出及顺序验证</td>
+</tr>
+<tr>
+<td>PRIV-W2-05 A→B：关闭 A 全部证明前禁止 B，完成后 B 使用新范围</td>
+<td>两者</td>
+<td>本期双账户 Auth 与 participant fake；后续全部真实 Owner</td>
+<td>状态机双账户、失败重试、过期结果测试；真实 Auth A/B 调用；逐 Owner 旧内容不可读/提交/重放、公共缓存/语言/远端保留另行联验</td>
+<td>A 主责；B 负责 Cost/Infrastructure/Property</td>
+<td>本模块 2；范围切换 3；全员隔离 7</td>
+<td>待验证</td>
+<td>待 Wave 3/7</td>
+</tr>
+<tr>
+<td>PRIV-W2-06 清理中进程重启：不重新开放未完成旧范围，可恢复关闭</td>
+<td>两者</td>
+<td>本期协调器重建/harness；后续 Shell 启动恢复及业务持久存储</td>
+<td>重建后非 opened；可恢复同旧范围、不接受晚到证明；真实文件/SQLite 不可写与部分处理后重启由持久存储 Owner 验证</td>
+<td>A 主责；Map A、Property B 负责存储故障</td>
+<td>本模块 2；Shell 3；Map 4；Property 6；全员 7</td>
+<td>待验证</td>
+<td>待 Wave 3/4/6/7；不得以纯内存重建替代持久存储证据</td>
+</tr>
+</tbody>
+</table>
+<p>Wave 1 分配没有截至 Wave 2 到期的联合事项。本期真实 Auth 消费及 Auth participant 的公开调用证据归本模块验收；完整 Shell 工作流最迟 Wave 3。八项集合从 Wave 2 起固定，fake 只证明协调器行为，不证明未来业务清理。各真实 participant 在自身 owning Wave 接入并验证，完整八项退出/切换联合场景最迟 Wave 7，由 A 主责、B 参与。</p>
+<h3>5.2 开发顺序与当期完成要求</h3>
+<ol>
+<li>建立唯一公开入口及契约全部 declarations、消费者测试 fake，验证调用方只依赖公开入口。</li>
+<li>实现真实范围状态机、身份校验、八项登记与结果校验、关闭协调和同 scope 并发/重试；通过第 5.1 节本模块测试。</li>
+<li>接入真实 AUTH-001 和 Auth participant，经无私有业务内容的开发 harness 完成真实调用与 A 目标设备故障/恢复/重启验证。</li>
+<li>运行格式检查、静态分析、测试和 debug APK 构建；记录命令、环境、结果和代码版本，证据不得包含凭据。</li>
+<li>按开发规范报告模块实现、本期集成、后续集成和当前阻塞。第 5.1 节本模块全部通过才可声明 <code>Implemented</code>；未来 participant 或 Shell 未到期不阻塞本模块，但不能宣告完整联合验收通过或 <code>Integrated</code>。</li>
+</ol>
 <h2>6. 实现自由、阻塞项与变更</h2>
 <p>A 可决定 <code>src/</code>、participant 注入、内部状态机、Adapter、并发、取消、重试、日志和测试组织。变更唯一 import、公开声明/result variant、八人集合、隔离/顺序/保留项，须说明影响、由提供方和受影响 Owner 确认，并在同一 PR 更新声明、本契约、HTML 与相关 fake/Adapter 测试。</p>
-<p>当前阻塞项：无。参考：<a href="../design/system/flows.md#flow-01%E5%90%AF%E5%8A%A8%E6%B3%A8%E5%86%8C%E7%99%BB%E5%BD%95%E9%80%80%E5%87%BA%E4%B8%8E%E8%B4%A6%E6%88%B7%E5%88%87%E6%8D%A2">FLOW-01</a>、<a href="../design/system/data-ownership.md#privacy-barrier-%E5%8F%82%E4%B8%8E%E8%80%85%E6%B8%85%E5%8D%95">数据所有权</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>。</p>
+<p>当前阻塞项：无。参考：<a href="../design/system/flows.md#flow-01启动注册登录退出与账户切换">FLOW-01</a>、<a href="../design/system/data-ownership.md#privacy-barrier-参与者清单">数据所有权</a>、<a href="../design/system/risks-and-decisions.md#风险与关闭条件">风险登记</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>。</p>
 <h2>Change Log</h2>
 <table>
 <thead>
@@ -329,13 +401,18 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 <th>受影响对象</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
 <td>Issue #23 全审返工：唯一 import、声明级 seam、typed results、participant、顺序、fake 和四项 Readiness；不改产品/Schema/payload Owner</td>
 <td><code>PRIVACY-001</code>、<code>STATE-ACCOUNT-SCOPE</code>、八位 participant、<code>ACCOUNT-07</code></td>
 </tr>
-</tbody></table>
-</main>
-</body>
-</html>
+<tr>
+<td>2026-09-16</td>
+<td><code>Ready for Development</code>；尚未实现</td>
+<td>Wave 2 开发准备：按开发规范分配全部场景、本期真实 Auth 与未来 participant、证据责任及最迟 Wave</td>
+<td>PRIVACY-001、Auth participant、Wave 3–7 联合接入；公开声明及产品/Schema 不变</td>
+</tr>
+</tbody>
+</table></body></html>

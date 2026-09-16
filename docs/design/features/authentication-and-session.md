@@ -2,6 +2,7 @@
 
 > 状态：`Ready for Development`（2026-09-14；设计 AI〔项目负责人授权〕，ADR 0013）<br>
 > Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 1<br>
+> 实现：`Implemented`（2026-09-16；[Wave 1 验收证据](../../human/authentication-session-wave1-acceptance-2026-09-16.md)）；联合集成按第 5.1 节后续执行<br>
 > 唯一公开入口：`package:locatemy/features/authentication_session/authentication_session.dart`<br>
 > 定义完成：消费者可仅凭本文件的公开 seam 区分真实会话、确认状态和失败，并安全完成登录、退出和换号协作。
 
@@ -252,6 +253,21 @@ Shell 用 fake `AuthenticationSession` 分别返回 `AuthenticatedSession(accoun
 | 当前设备退出 | A、Shell、Privacy | 确认退出；注入 Auth/清理失败 | 成功到普通登录；失败仍无私有 UI、可重试；远端/其他设备不变 | `ACCOUNT-07`；`AT-OUT-01`、`AT-OUT-02` |
 | 从 A 换到 B | A、Shell、Privacy、私有 Owner | A 已打开后退出并登录 B | B scope opened 前 A 数据不可读；随后只呈现 B 数据 | `ACCOUNT-07`；`AT-SWITCH-01` |
 
+### 5.1 Wave 1 验收分配（2026-09-16）
+
+本期生产依赖为 Supabase Auth 与 `profiles`；确定性测试使用 SDK + HTTP mock，页面测试使用公开 `AuthenticationSession` fake。Wave 1 运行入口只呈现认证页面和真实身份状态，不建立任何私有业务 scope；Shell、Privacy 和 Account Center 为后续槽位。以下分配不修改第 3 节 Interface。
+
+| 场景 / 当前模块子项 | 验证归属 | 依赖及用途 | 证据要求 | Owner | 最迟 Wave（本模块 / 联合） | 本模块证据 / 状态 | 联合证据 / 状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 冷启动恢复：无会话、有效身份、不可确认及晚到响应 | 两者 | 本期真实 Auth；测试 HTTP mock/fake；后续 Privacy/Shell | Adapter、VM、页面测试；真实恢复；设备首屏/重启 | A；联合 A（Shell/Privacy） | 1 / 3 | 已通过；[本次验收报告](../../human/authentication-session-wave1-acceptance-2026-09-16.md) | 待 Wave 3 同账户 open 门控 |
+| 登录：输入、凭据、网络、客户端失败及恢复、防重复提交 | 两者 | 本期真实 Auth；测试 HTTP mock/fake；后续 Shell | 类型化失败、恢复与过期响应测试；真实登录；双语设备失败流程 | A；联合 A（Shell） | 1 / 3 | 已通过；[本次验收报告](../../human/authentication-session-wave1-acceptance-2026-09-16.md) | 待 Wave 3 无 scope 失败流程 |
+| 注册：authenticated、verification-required、资料独立失败/重试及真实确认 | 两者 | 本期真实 Auth/profiles；测试 HTTP mock/fake；后续 Shell/Account Center | Adapter/VM/页面测试；真实注册/确认/资料写入；profiles owner allow、跨账户和匿名 deny | A；联合 A（Shell/Account Center） | 1 / 6 | 已通过；[本次验收报告](../../human/authentication-session-wave1-acceptance-2026-09-16.md) | Shell 门控 Wave 3；Account Center 真邮箱与三态 Wave 6 |
+| 当前设备退出：local、失败阻断、重试、其他设备与远端资料保留 | 两者 | 本期真实 Auth；测试 HTTP mock/fake；后续 Shell/Privacy | local 请求测试；页面确认/取消/失败重试；真实双 session 与远端资料保留 | A；联合 A（Shell/Privacy） | 1 / 3 | 已通过；[本次验收报告](../../human/authentication-session-wave1-acceptance-2026-09-16.md) | 待 Wave 3 屏蔽 → signOut → close 联合流程 |
+| A→B：当前 session 变化及晚到认证/资料反馈隔离 | 两者 | 本期真实 Auth；测试 fake；后续 Shell/Privacy/私有 Owner | 双账户真实认证；晚到操作结果不覆盖新身份；完整私有数据隔离联合验证 | A；联合 A 主责、B 参与 | 1 / 7 | 已通过；[本次验收报告](../../human/authentication-session-wave1-acceptance-2026-09-16.md) | scope 切换 Wave 3；全部私有 Owner 隔离 Wave 7 |
+| 页面可访问性与双语 | 本模块 | 本期设备语言偏好；测试 fake | 360–430dp、200% 字体、首个错误焦点、屏幕阅读器字段标签；中英文认证状态与语言跨退出/重启 | A | 1 / 不适用 | 已通过；[本次验收报告](../../human/authentication-session-wave1-acceptance-2026-09-16.md) | 不适用 |
+
+Wave 1 没有到期的跨模块联合场景；以上后续事项按表执行，不能用 fake 宣告联合通过。模块 `Implemented` 状态另按开发规范第 3 节证据判断，不由设计 Ready 状态推导。
+
 ## 6. 实现自由、阻塞项与参考
 
 AI 或 Owner 可决定 `src/` 内的拆分、Widget、状态管理、SDK Adapter、刷新/重试/取消、局部校验和测试组织。以下情况必须暂停协商：变更唯一公开入口、公共声明/结果/次序/权限；需变更 `profiles` schema/RLS；或 Supabase 版本使 `RISK-SESSION-01` 的锁定结论失效。
@@ -264,12 +280,12 @@ AI 或 Owner 可决定 `src/` 内的拆分、Widget、状态管理、SDK Adapter
 
 - [x] 四项 Readiness 在第 0 节均有可核查证据。
 - [x] `AUTH-001` 和 `AUTH-002` 均有完整 Interface 卡；`AUTH-001` 只有一个公开 entry point。
-- [x] 第 3 节 Dart 表达跨 Owner 的公开声明；第 8 节是可由 AI 或 Owner 完成的实现工作表，当前示例仍保留 `TODO`，不代表已完成实现。
+- [x] 第 3 节 Dart 表达跨 Owner 的公开声明；第 8 节记录当前实现结构与证据入口。
 - [x] fake 场景和联合验收覆盖恢复/门控、注册/验证、退出/清理和 A→B 换号。
 
-## 8. MVVM 文件结构与 TODO 代码骨架
+## 8. MVVM 实现结构与职责
 
-> 本节是项目负责人要求的 Owner A 实现工作表，不是已存在代码或新的跨 Owner Interface。当前仓库尚未创建下列认证文件。AI 或 Owner 实现时可在不改变第 3 节公开 seam、依赖方向和责任边界的前提下调整私有拆分。以下代码故意保留 `TODO` 并抛出 `UnimplementedError`，不可直接视为已完成实现。
+> 下列认证文件已实现。私有拆分可调整，验收以第 3 节公开 seam、第 5.1 节分配、真实代码及本次证据为准。原始 TODO 骨架已由实现入口替代，避免与当前生产状态混淆。
 
 ### 8.1 文件树（MVVM）
 
@@ -311,351 +327,13 @@ MVVM 依赖方向为 `View → ViewModel → Application use case → Domain/App
 | `authentication_view_model_test.dart` | 用 fake seam 验证状态转换，不连 Supabase | `main` 与各 `test` callback | `fakeSession`、`useCase`、`viewModel` |
 | `supabase_authentication_session_adapter_test.dart` | 验证 SDK 结果/异常到 `AUTH-001` 的映射，不使用生产账户 | `main` 与各 `test` callback | `fakeClient`、`adapter` |
 
-### 8.3 每个代码文件的 TODO 骨架
-
-#### `lib/features/authentication_session/authentication_session.dart`
-
-```dart
-export 'src/application/authentication_session.dart';
-export 'src/domain/authentication_models.dart';
-```
-
-#### `lib/features/authentication_session/src/domain/authentication_models.dart`
-
-```dart
-// 本文件放置第 3 节从 SessionSnapshot 到 SignOutFailure 的全部公开类型。
-// Variables: accountId, email, confirmation, account, failure, profile。
-// Constructors: 使用第 3 节已固定的 const constructors。
-// TODO(Owner A): 原样放入第 3 节的类型；不加 SDK type、token、password 或 profile row。
-```
-
-#### `lib/features/authentication_session/src/application/authentication_session.dart`
-
-```dart
-import '../domain/authentication_models.dart';
-
-abstract interface class AuthenticationSession {
-  Future<SessionSnapshot> restoreSession();
-  Stream<SessionSnapshot> watchSession();
-  Future<SignInOutcome> signIn({
-    required String email,
-    required String password,
-  });
-  Future<RegistrationOutcome> register({
-    required String email,
-    required String password,
-    required String passwordConfirmation,
-    String? username,
-  });
-  Future<SignOutOutcome> signOut();
-}
-```
-
-#### `lib/features/authentication_session/src/application/authentication_use_case.dart`
-
-```dart
-import 'authentication_session.dart';
-import '../domain/authentication_models.dart';
-
-final class AuthenticationUseCase {
-  final AuthenticationSession _session;
-
-  const AuthenticationUseCase(this._session);
-
-  Future<SessionSnapshot> restoreSession() {
-    // TODO(Owner A): 请求 Adapter 恢复会话，原样传递类型化 snapshot。
-    throw UnimplementedError();
-  }
-
-  Stream<SessionSnapshot> watchSession() {
-    // TODO(Owner A): 转发会话流；不缓存过去的 authenticated snapshot 作为授权。
-    throw UnimplementedError();
-  }
-
-  Future<SignInOutcome> signIn({
-    required String email,
-    required String password,
-  }) {
-    // TODO(Owner A): 规范化邮箱、检查非空输入，否则返回 invalidInput；通过检查后才调 Adapter。
-    throw UnimplementedError();
-  }
-
-  Future<RegistrationOutcome> register({
-    required String email,
-    required String password,
-    required String passwordConfirmation,
-    String? username,
-  }) {
-    // TODO(Owner A): 检查必填值及两次密码一致；不记录或持久化密码。
-    throw UnimplementedError();
-  }
-
-  Future<SignOutOutcome> signOut() {
-    // TODO(Owner A): 只请求结束当前设备会话；不导航、不清理其他 Feature。
-    throw UnimplementedError();
-  }
-}
-```
-
-#### `lib/features/authentication_session/src/data/supabase_authentication_session_adapter.dart`
-
-```dart
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../application/authentication_session.dart';
-import '../domain/authentication_models.dart';
-
-final class SupabaseAuthenticationSessionAdapter
-    implements AuthenticationSession {
-  final SupabaseClient _client;
-
-  const SupabaseAuthenticationSessionAdapter(this._client);
-
-  @override
-  Future<SessionSnapshot> restoreSession() {
-    // TODO(Owner A): 检查 currentSession，必要时安全刷新；无法确认时返回 SessionUnavailable。
-    throw UnimplementedError();
-  }
-
-  @override
-  Stream<SessionSnapshot> watchSession() {
-    // TODO(Owner A): 监听 onAuthStateChange，映射每个事件，并处理 onError 以避免未处理异常。
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<SignInOutcome> signIn({
-    required String email,
-    required String password,
-  }) {
-    // TODO(Owner A): 调用 auth.signInWithPassword，把 session/user 映射为 SignInOutcome。
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<RegistrationOutcome> register({
-    required String email,
-    required String password,
-    required String passwordConfirmation,
-    String? username,
-  }) {
-    // TODO(Owner A): 调用 auth.signUp；session 为 null 时返回 verification-required。
-    // TODO(Owner A): 有非空 username 时在认证结果后写 profiles，资料失败不覆盖认证结果。
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<SignOutOutcome> signOut() {
-    // TODO(Owner A): 显式调用 auth.signOut(scope: SignOutScope.local)，再映射成 SignOutOutcome。
-    throw UnimplementedError();
-  }
-
-  SessionSnapshot _mapSession(Session? session) {
-    // TODO(Owner A): 只有明确有效 session 才建立 AuthenticatedSession；null 才是 UnauthenticatedSession。
-    throw UnimplementedError();
-  }
-
-  AuthenticatedAccount _mapAccount(User user) {
-    // TODO(Owner A): 只从 Auth user 读 id、email 和真实 email confirmation；不从 user metadata 做授权判断。
-    throw UnimplementedError();
-  }
-
-  Future<ProfileRegistrationOutcome> _writeOptionalProfile({
-    required String accountId,
-    required String? username,
-  }) {
-    // TODO(Owner A): username 为空时 skipped；否则依 Schema Catalog 写 owner-only profiles 并映射独立结果。
-    throw UnimplementedError();
-  }
-
-  // TODO(Owner A): 增加私有 helper，把 AuthException/网络/客户端不支持映射为第 3 节 enums；不向 UI 透传错误字符串。
-}
-```
-
-#### `lib/features/authentication_session/src/presentation/authentication_view_state.dart`
-
-```dart
-import '../domain/authentication_models.dart';
-
-enum AuthenticationMode { signIn, register }
-enum AuthenticationActionStatus { idle, submitting, succeeded, failed }
-
-final class AuthenticationViewState {
-  final AuthenticationMode mode;
-  final AuthenticationActionStatus actionStatus;
-  final SessionSnapshot? session;
-  final String? messageKey;
-  final String? fieldErrorKey;
-
-  const AuthenticationViewState({
-    required this.mode,
-    required this.actionStatus,
-    required this.session,
-    required this.messageKey,
-    required this.fieldErrorKey,
-  });
-
-  factory AuthenticationViewState.initial() {
-    // TODO(Owner A): 返回 signIn + idle 的无会话呈现状态。
-    throw UnimplementedError();
-  }
-
-  AuthenticationViewState copyWith({
-    AuthenticationMode? mode,
-    AuthenticationActionStatus? actionStatus,
-    SessionSnapshot? session,
-    String? messageKey,
-    String? fieldErrorKey,
-  }) {
-    // TODO(Owner A): 返回新的不可变状态；需设计可显式清空 nullable 字段的参数方案。
-    throw UnimplementedError();
-  }
-}
-```
-
-#### `lib/features/authentication_session/src/presentation/authentication_view_model.dart`
-
-```dart
-import 'dart:async';
-import 'package:flutter/foundation.dart';
-
-import '../application/authentication_use_case.dart';
-import '../domain/authentication_models.dart';
-import 'authentication_view_state.dart';
-
-final class AuthenticationViewModel extends ChangeNotifier {
-  final AuthenticationUseCase _useCase;
-  AuthenticationViewState _state = AuthenticationViewState.initial();
-  StreamSubscription<SessionSnapshot>? _sessionSubscription;
-
-  AuthenticationViewModel(this._useCase);
-
-  AuthenticationViewState get state => _state;
-
-  Future<void> initialize() async {
-    // TODO(Owner A): 先发布恢复中状态，再恢复 snapshot，然后订阅 watchSession。
-    // TODO(Owner A): stream 必须有 onError；任何不可确认状态都保持门控。
-    throw UnimplementedError();
-  }
-
-  void showSignIn() {
-    // TODO(Owner A): 切换模式并清除旧表单反馈。
-    throw UnimplementedError();
-  }
-
-  void showRegistration() {
-    // TODO(Owner A): 切换模式并清除旧表单反馈。
-    throw UnimplementedError();
-  }
-
-  Future<void> signIn({required String email, required String password}) {
-    // TODO(Owner A): 防重复提交，调用 use case，将 typed outcome 映射为本地化 message key。
-    // TODO(Owner A): 函数返回前不保留 password。
-    throw UnimplementedError();
-  }
-
-  Future<void> register({
-    required String username,
-    required String email,
-    required String password,
-    required String passwordConfirmation,
-  }) {
-    // TODO(Owner A): 防重复提交，调用 use case，分别呈现 authenticated/verification/profile outcome。
-    // TODO(Owner A): 函数返回前不保留 password 或 confirmation。
-    throw UnimplementedError();
-  }
-
-  void clearFeedback() {
-    // TODO(Owner A): 清除 messageKey/fieldErrorKey，不改变真实 session snapshot。
-    throw UnimplementedError();
-  }
-
-  @override
-  void dispose() {
-    // TODO(Owner A): 取消 _sessionSubscription，再调用 super.dispose()。
-    throw UnimplementedError();
-  }
-}
-```
-
-#### `lib/features/authentication_session/src/presentation/authentication_page.dart`
-
-```dart
-import 'package:flutter/material.dart';
-
-import 'authentication_view_model.dart';
-
-final class AuthenticationPage extends StatefulWidget {
-  final AuthenticationViewModel viewModel;
-
-  const AuthenticationPage({required this.viewModel, super.key});
-
-  @override
-  State<AuthenticationPage> createState() => _AuthenticationPageState();
-}
-
-final class _AuthenticationPageState extends State<AuthenticationPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmationController = TextEditingController();
-  final _usernameController = TextEditingController();
-
-  @override
-  void initState() {
-    // TODO(Owner A): 订阅 ViewModel 变化并触发 initialize；不在 View 直读 Supabase。
-    throw UnimplementedError();
-  }
-
-  Future<void> _submitSignIn() {
-    // TODO(Owner A): 先做表单校验，再把当次 email/password 传给 ViewModel，完成后清空密码。
-    throw UnimplementedError();
-  }
-
-  Future<void> _submitRegistration() {
-    // TODO(Owner A): 先做表单校验，再传递当次注册字段，完成后清空两个密码字段。
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO(Owner A): 用 AnimatedBuilder/ListenableBuilder 绑定 viewModel.state。
-    // TODO(Owner A): 呈现登录/注册字段、loading、typed error 文案和 verification-required；禁止重复提交。
-    throw UnimplementedError();
-  }
-
-  @override
-  void dispose() {
-    // TODO(Owner A): 移除 ViewModel listener，释放所有 controller，并确保密码不再留在页面内存。
-    throw UnimplementedError();
-  }
-}
-```
-
-#### `test/features/authentication_session/authentication_view_model_test.dart`
-
-```dart
-void main() {
-  // Variables to create in setUp: fakeSession, useCase, viewModel。
-  // TODO(Owner A): 测试 authenticated/unauthenticated/unavailable 恢复。
-  // TODO(Owner A): 测试 invalid input 不到 Adapter，且提交期间不可重入。
-  // TODO(Owner A): 测试注册已登录、待验证、profile 失败三类呈现。
-  // TODO(Owner A): 测试 stream error 不开放私有状态，dispose 取消订阅。
-}
-```
-
-#### `test/features/authentication_session/supabase_authentication_session_adapter_test.dart`
-
-```dart
-void main() {
-  // Variables to create in setUp: fakeClient, adapter。
-  // TODO(Owner A): 测试 currentSession、onAuthStateChange 及 onError 到 SessionSnapshot 的映射。
-  // TODO(Owner A): 测试 signInWithPassword 成功、错误凭据、网络错误和未知错误。
-  // TODO(Owner A): 测试 signUp 有 session、无 session 以及 profile 写入失败不覆盖认证结果。
-  // TODO(Owner A): 测试 signOut 显式使用 SignOutScope.local。
-  // TODO(Owner A): 所有断言只使用虚构账户，不含 token、真实邮箱或生产项目。
-}
-```
+### 8.3 实现与验证入口
+
+- 生产实现：[`lib/features/authentication_session/`](../../../lib/features/authentication_session/)。公开入口只导出 `AUTH-001` 声明与领域类型。
+- 启动与注入：[`lib/main.dart`](../../../lib/main.dart) → [`lib/app/app.dart`](../../../lib/app/app.dart)；本期仅运行认证与身份状态页面。私有 scope、主导航和账户业务页面按第 5.1 节后续接入。
+- 确定性 Adapter 与 ViewModel 测试：[`test/features/authentication_session/`](../../../test/features/authentication_session/)；页面与双语验证见 [`test/widget_test.dart`](../../../test/widget_test.dart)、[`test/language_support_test.dart`](../../../test/language_support_test.dart)。
+- 真实开发环境测试：[`test/live/authentication_session_live_test.dart`](../../../test/live/authentication_session_live_test.dart)，通过 `python3 tool/verify_authentication_live.py` 单独启用；普通测试默认跳过。secret key 仅用于创建、确认与清理本次专用账户，认证和 profiles 权限断言使用客户端 publishable key 与真实用户会话。
+- 当期验收报告及设备证据：[`authentication-session-wave1-acceptance-2026-09-16.md`](../../human/authentication-session-wave1-acceptance-2026-09-16.md)。本模块状态、当前阻塞和后续联合责任分别记录。
 
 ### 8.4 Supabase 实现时必须核对的当前事实
 

@@ -197,13 +197,19 @@ final class SupabaseAuthenticationSessionAdapter
             RegistrationFailure.unsupportedClient,
           );
         }
-        final profile = username == null
+        final profile = (username?.trim().isEmpty ?? true)
             ? const ProfileRegistrationSkipped()
             : const ProfileRegistrationFailed(ProfileFailure.permissionDenied);
-        return RegistrationVerificationRequired(email, profile);
+        return RegistrationVerificationRequired(email.trim(), profile);
       }
+      if (_isExpired(session)) {
+        return const RegistrationRejected(
+          RegistrationFailure.retryableUnavailable,
+        );
+      }
+      final account = _mapAccount(session.user);
       final profile = await _writeOptionalProfile(
-        accountId: session.user.id,
+        accountId: account.accountId,
         username: username,
       );
       if (profile is ProfileRegistered ||
@@ -211,7 +217,12 @@ final class SupabaseAuthenticationSessionAdapter
         _pendingProfileEmail = null;
         _pendingUsername = null;
       }
-      return RegistrationAuthenticated(_mapAccount(session.user), profile);
+      if (_client.auth.currentSession?.user.id != account.accountId) {
+        return const RegistrationRejected(
+          RegistrationFailure.retryableUnavailable,
+        );
+      }
+      return RegistrationAuthenticated(account, profile);
     } on SocketException {
       return const RegistrationRejected(
         RegistrationFailure.retryableUnavailable,

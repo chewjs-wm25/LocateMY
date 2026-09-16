@@ -1,29 +1,66 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../geographic_context.dart';
+import 'geographic_context_models.dart';
+import 'geographic_context_repository.dart';
 
-class SupabaseGeoRepository {
+class SupabaseGeoRepository implements GeographicContextRepository {
   final SupabaseClient _supabase;
 
   SupabaseGeoRepository(this._supabase);
 
+  @override
   Future<List<Map<String, dynamic>>> fetchCandidates(
     double lat,
     double lng,
   ) async {
+    final session = _supabase.auth.currentSession;
+    if (session == null ||
+        session.user.emailConfirmedAt == null ||
+        session.user.isAnonymous) {
+      throw GeographicContextFailure.scopeUnavailable;
+    }
     try {
       final response = await _supabase.rpc(
         'read_administrative_boundary_candidates',
         params: {'latitude': lat, 'longitude': lng},
       );
-      return List<Map<String, dynamic>>.from(response as List);
+      if (!identical(session, _supabase.auth.currentSession)) {
+        throw GeographicContextFailure.scopeUnavailable;
+      }
+      if (response is! List ||
+          response.any((row) => row is! Map<String, dynamic>)) {
+        throw GeographicContextFailure.versionUnverifiable;
+      }
+      return response.cast<Map<String, dynamic>>();
     } on PostgrestException catch (e) {
-      if (e.code == '42501' || e.code == 'PGRST301') {
+      // Postgrest wraps a malformed 2xx JSON body using its HTTP status code.
+      final status = int.tryParse(e.code ?? '');
+      if (status != null && status >= 200 && status < 300) {
+        throw GeographicContextFailure.versionUnverifiable;
+      }
+      if (status == 401 ||
+          status == 403 ||
+          e.code == '42501' ||
+          e.code == 'PGRST301' ||
+          e.code == 'PGRST302' ||
+          e.code == 'PGRST303') {
         throw GeographicContextFailure.scopeUnavailable;
       }
       throw GeographicContextFailure.sourceUnavailable;
-    } catch (_) {
+    } on AuthException {
+      throw GeographicContextFailure.scopeUnavailable;
+    } on http.ClientException {
       throw GeographicContextFailure.sourceUnavailable;
+    } on IOException {
+      throw GeographicContextFailure.sourceUnavailable;
+    } on TimeoutException {
+      throw GeographicContextFailure.sourceUnavailable;
+    } on FormatException {
+      throw GeographicContextFailure.versionUnverifiable;
     }
   }
 }

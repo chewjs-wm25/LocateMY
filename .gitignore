@@ -63,3 +63,6 @@ app.*.map.json
 .env
 .env.*
 !.env.example
+
+# Local live-test credentials. Keep this file on the developer machine only.
+/test_credentials.local.md

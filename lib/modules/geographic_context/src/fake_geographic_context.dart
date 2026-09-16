@@ -1,4 +1,4 @@
-import '../geographic_context.dart';
+import 'geographic_context_models.dart';
 
 class FakeGeographicContext implements GeographicContext {
   final GeographicContextOutcome? presetOutcome;
@@ -9,7 +9,28 @@ class FakeGeographicContext implements GeographicContext {
   Future<GeographicContextOutcome> resolve(
     GeographicContextRequest request,
   ) async {
-    if (presetOutcome != null) return presetOutcome!;
+    final levels = Set<GeographicLevel>.unmodifiable(request.levels);
+    if (levels.isEmpty) {
+      throw ArgumentError.value(levels, 'levels', 'must not be empty');
+    }
+    final preset = presetOutcome;
+    if (preset is GeographicContextAvailable) {
+      final results = <GeographicLevel, GeographicLevelOutcome>{};
+      for (final level in levels) {
+        final outcome = preset.results[level];
+        if (outcome == null) {
+          throw StateError('Fake preset is missing requested level');
+        }
+        results[level] = outcome is GeographicLevelAmbiguous
+            ? GeographicLevelAmbiguous(
+                List.unmodifiable(outcome.candidates),
+                outcome.provenance,
+              )
+            : outcome;
+      }
+      return GeographicContextAvailable(Map.unmodifiable(results));
+    }
+    if (preset != null) return preset;
 
     final sampleProvenance = BoundaryProvenance(
       datasetId: 'dosm_admin_2026',
@@ -50,6 +71,6 @@ class FakeGeographicContext implements GeographicContext {
       );
     }
 
-    return GeographicContextAvailable(results);
+    return GeographicContextAvailable(Map.unmodifiable(results));
   }
 }

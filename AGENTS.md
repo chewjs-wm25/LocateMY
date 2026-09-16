@@ -39,3 +39,10 @@ This is a single-context repo. See `docs/agents/domain.md`.
 ### Design docs
 
 涉及系统设计、Development Contract、跨 Owner Interface、设计审查或 HTML 交接时，先读 `docs/design/README.md`。
+
+开发 Feature/shared module、审查实现完成度或验收 Wave 时，先读 `docs/design/development-standard.md`。
+
+## 本地真实测试凭据
+
+- 需要登录的真实、live 或设备测试开始前，读取根目录的 `test_credentials.local.md`，并按其中的变量名注入测试环境。
+- 该文件只存在于本地，内容按敏感信息处理；不要在回复、日志、截图、提交或其他版本控制内容中暴露账号和密码。

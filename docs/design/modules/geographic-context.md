@@ -1,6 +1,7 @@
 # Geographic Context 开发协作契约
 
 > 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+> 实现：`Implemented`（2026-09-16；本期证据与后续联合项见第 5.1 节）
 > Owner：`B`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 1
 > 唯一公开入口：`package:locatemy/modules/geographic_context/geographic_context.dart`
 > 定义完成：四个消费者可只经一个 Dart seam，以同一合法地点取得逐层、可追溯且不猜测的行政区/统计州事实；fake 与生产 Adapter 的结果语义相同。
@@ -178,11 +179,33 @@ switch (outcome) {
 
 追踪：`D09`、`D13`、`D23`、`D27`；`AT-ANALYSIS-01`、`AT-COMPARE-01`、`AT-COMPARE-03`。
 
+### 5.1 Wave 1 验收分配（2026-09-16）
+
+实现门槛依 [开发与完成判定规范](../development-standard.md) 第 3 节。
+设计 Ready 与实现状态分别记录；本模块无页面，通过 `GEO-001.resolve` 验证。
+本期真实依赖为 Supabase Auth 和 `GEO-002`；`LOCATION-001` 使用已合入公开类型的合法固定样本，
+Map 的真实选点及四个消费者属于后续 Wave 槽位。测试 HTTP Adapter 只提供确定性错误、边界和并发证据，
+不能替代真实开发环境调用。设备 harness 只访问公共地理资料，先验证真实确认会话；
+不创建私有 Feature、缓存或队列。Privacy/Shell 的真实 `opened` 门控仍由 A 在 Wave 3 接入验证。
+
+| 场景 ID / 可观察结果 | 验证归属 | 所需依赖及用途 | 证据要求 | 负责 Owner | 最迟 Wave | 本模块证据/状态 | 联合证据/状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GEO-W1-01 单一行政区：请求键恰好一致、地区/州和同批来源正确、结果不可变 | 两者 | 本期真实 Auth/RPC；测试合法 LOCATION 固定样本；后续四个消费者 | 公开入口 Adapter 测试、真实 RPC、A 真机/B 模拟器；消费者仅用 resolved 读指标 | B；联合 Cost 主责 B、Crime 主责 A，B 参与；Socio/Infrastructure 主责 B | 本模块 1；Cost/Crime 5；Socio/Infrastructure 6 | 已通过；见 Wave 1 报告 GEO-W1-01 | 待接入，Wave 5/6 |
+| GEO-W1-02 州成功、行政区 noCoverage：逐层模型保留部分成功 | 两者 | 测试公开 seam 的可表达结果；真实 RPC 无 district 候选时两层均 noCoverage；后续 Socio/Cost/Infrastructure fake 与真实消费 | 模型不折叠部分结果；同州多区真实分类保留州成功；消费者验证自身回退/不补零 | B；Cost/Infrastructure/Socio 主责 B | 本模块 1；Cost 5；Socio/Infrastructure 6 | 已通过；见 GEO-W1-02；state resolved + district noCoverage 是 seam fake 场景，不声称真实 RPC 可产生该组合 | 待接入，Wave 5/6 |
+| GEO-W1-03 边界/重叠：完整 district 多候选，state 去重分类且稳定 | 两者 | 本期真实 RPC 边界点/离岛；HTTP 多州及重复州候选；后续消费者 | 完整候选、无任选答案、稳定 boundary_id 顺序和不可变列表；消费者 ambiguous 不读指标 | B；Cost 主责 B、Crime 主责 A；Socio/Infrastructure 主责 B | 本模块 1；Cost/Crime 5；Socio/Infrastructure 6 | 已通过；见 GEO-W1-03 | 待接入，Wave 5/6 |
+| GEO-W1-04 来源/权限/版本故障、离线与恢复：四种失败可区分 | 两者 | 本期真实 Auth/RPC/底表权限；HTTP 故障/缺字段/错类型/混批；后续 Shell/Privacy 和消费者 | 未确认/匿名/无会话不调用 RPC；真实 anon RPC deny、底表客户端读写 deny；每行 provenance 校验；离线 sourceUnavailable；重试恢复 | B；opened 门控主责 A，B 参与；指标消费按各 owning contract | 本模块 1；门控 3；Cost/Crime 5；Socio/Infrastructure 6 | 已通过；见 GEO-W1-04 | 待接入，Wave 3/5/6 |
+| GEO-W1-05 A/B、请求和版本变化：每次响应保留自身输入和来源，不缓存旧结果；退出后晚到响应拒绝 | 两者 | HTTP 延迟/并行/新版本；真实退出重登；后续 Map/A-B 与消费者 | 调用开始固定 levels；并行地点/同点结果相互独立；每次读当前批次；已失效会话不发布成功；消费方丢弃旧端/旧版本 | B；Map/A-B 主责 A，B 参与；各消费者主责同上 | 本模块 1；Map 4；Cost/Crime 5；Socio/Infrastructure 6 | 已通过；见 GEO-W1-05 | 待接入，Wave 4/5/6 |
+| GEO-W1-06 工程门槛与无页面设备入口 | 本模块 | 全仓格式、分析、测试、debug APK；真实设备/模拟器公开入口 harness | 命令、环境、版本及成功/失败/重启证据；APK 不含高权限密钥 | B；A 提供真机目标 | 1 | 已通过；见 GEO-W1-06 | 不适用 |
+
+上述“已通过”以 [Wave 1 实现验收报告](../../human/geographic-context-wave1-acceptance-2026-09-16.md)
+中的最终验证证据为准。Wave 1 没有到期的跨模块联合场景；以后到期项不可用本期 HTTP/fixed-location
+证据代替真实模块联验。`Integrated` 仍由项目负责人批准。
+
 ## 6. 实现自由、阻塞项与完成检查
 
 B 可决定内部 Adapter、缓存、空间匹配库、状态管理、并发/取消/重试及真实/fake 测试组织。以下情况必须暂停协商：变更唯一公开入口、任何公开声明/失败/顺序/权限，修改 RPC 行形状或 authenticated-only 例外，或资料版本使 `RISK-GEO-02` 结论失效。
 
-当前阻塞项：无。边界资料、导入审计、固定空间样本和权限证据已关闭 `RISK-GEO-02`；来源/依赖版本变化时重新打开。
+设计阻塞项：无。实现验收状态与证据见第 5.1 节及 Wave 1 报告。边界资料、导入审计、固定空间样本和权限证据已关闭 `RISK-GEO-02`；来源/依赖版本变化时重新打开。
 
 - [x] 四项 Readiness 在第 0 节均有可核查证据，Owner 始终为 `B`。
 - [x] `GEO-001` 有一个公开 entry point、声明、精确输入/nullability/约束、typed 结果/失败、状态/权限/顺序、最小调用与 fake 场景。
@@ -195,3 +218,4 @@ B 可决定内部 Adapter、缓存、空间匹配库、状态管理、并发/取
 | --- | --- | --- | --- |
 | 2026-09-14 | `Ready for Development` | 固定边界资料、导入、空间验证及 authenticated-only 例外 | `GEO-001`、`GEO-002`、四个消费者 | 项目负责人 |
 | 2026-09-15 | `Ready for Development` | Issue #23 将 owning design 返工为单一开发协作契约；冻结唯一公开 Dart seam 与 fakeable 结果模型 | `GEO-001`、`GEO-002`、Cost、Crime、Socio、Infrastructure | 设计 AI〔项目负责人授权〕，ADR 0013 |
+| 2026-09-16 | `Ready for Development`；实现验收见第 5.1 节 | 按 Wave 开发规范补齐当期验收分配及后续联合 Owner/期限；不改变公开声明、产品范围或数据模型 | Wave 1 Geographic Context、后续 Wave 3–6 门控/地点/四个消费者 | 实现 AI〔当前任务授权〕 |

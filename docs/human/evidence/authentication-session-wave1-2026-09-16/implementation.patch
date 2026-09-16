@@ -1,0 +1,1236 @@
+diff --git a/lib/features/authentication_session/src/data/supabase_authentication_session_adapter.dart b/lib/features/authentication_session/src/data/supabase_authentication_session_adapter.dart
+index 69a70ca..bfd5219 100644
+--- a/lib/features/authentication_session/src/data/supabase_authentication_session_adapter.dart
++++ b/lib/features/authentication_session/src/data/supabase_authentication_session_adapter.dart
+@@ -197,13 +197,19 @@ final class SupabaseAuthenticationSessionAdapter
+             RegistrationFailure.unsupportedClient,
+           );
+         }
+-        final profile = username == null
++        final profile = (username?.trim().isEmpty ?? true)
+             ? const ProfileRegistrationSkipped()
+             : const ProfileRegistrationFailed(ProfileFailure.permissionDenied);
+-        return RegistrationVerificationRequired(email, profile);
++        return RegistrationVerificationRequired(email.trim(), profile);
+       }
++      if (_isExpired(session)) {
++        return const RegistrationRejected(
++          RegistrationFailure.retryableUnavailable,
++        );
++      }
++      final account = _mapAccount(session.user);
+       final profile = await _writeOptionalProfile(
+-        accountId: session.user.id,
++        accountId: account.accountId,
+         username: username,
+       );
+       if (profile is ProfileRegistered ||
+@@ -211,7 +217,12 @@ final class SupabaseAuthenticationSessionAdapter
+         _pendingProfileEmail = null;
+         _pendingUsername = null;
+       }
+-      return RegistrationAuthenticated(_mapAccount(session.user), profile);
++      if (_client.auth.currentSession?.user.id != account.accountId) {
++        return const RegistrationRejected(
++          RegistrationFailure.retryableUnavailable,
++        );
++      }
++      return RegistrationAuthenticated(account, profile);
+     } on SocketException {
+       return const RegistrationRejected(
+         RegistrationFailure.retryableUnavailable,
+diff --git a/lib/features/authentication_session/src/presentation/authentication_page.dart b/lib/features/authentication_session/src/presentation/authentication_page.dart
+index 5835c5c..5e9029a 100644
+--- a/lib/features/authentication_session/src/presentation/authentication_page.dart
++++ b/lib/features/authentication_session/src/presentation/authentication_page.dart
+@@ -27,6 +27,29 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
+   bool _showPassword = false;
+   bool _showConfirmation = false;
+   final _formKey = GlobalKey<FormState>();
++  final _emailFocus = FocusNode();
++  final _passwordFocus = FocusNode();
++  final _confirmationFocus = FocusNode();
++
++  bool _validate() {
++    final errors = _formKey.currentState!.validateGranularly();
++    if (errors.isEmpty) return true;
++    final first = errors.first;
++    first.context.visitChildElements((element) {
++      void focusEditable(Element child) {
++        if (child.widget is EditableText) {
++          (child.widget as EditableText).focusNode.requestFocus();
++        } else {
++          child.visitChildElements(focusEditable);
++        }
++      }
++
++      focusEditable(element);
++    });
++    Scrollable.ensureVisible(first.context);
++    return false;
++  }
++
+   final _emailController = TextEditingController();
+   final _passwordController = TextEditingController();
+   final _confirmationController = TextEditingController();
+@@ -52,7 +75,7 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
+ 
+   Future<void> _submitSignIn() async {
+     _hasValidated = true;
+-    if (!_formKey.currentState!.validate()) return;
++    if (!_validate()) return;
+     await widget.viewModel.signIn(
+       email: _emailController.text,
+       password: _passwordController.text,
+@@ -63,7 +86,7 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
+ 
+   Future<void> _submitRegistration() async {
+     _hasValidated = true;
+-    if (!_formKey.currentState!.validate()) return;
++    if (!_validate()) return;
+     await widget.viewModel.register(
+       username: _usernameController.text,
+       email: _emailController.text,
+@@ -207,103 +230,119 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
+                         _FieldLabel(
+                           AppLocalizations.of(context)!.optionalUsername,
+                         ),
+-                        TextFormField(
+-                          controller: _usernameController,
+-                          enabled: !isSubmitting,
+-                          decoration: InputDecoration(
+-                            hintText: AppLocalizations.of(context)!
+-                                .usernameHint,
++                        Semantics(
++                          label: AppLocalizations.of(context)!.optionalUsername,
++                          child: TextFormField(
++                            controller: _usernameController,
++                            enabled: !isSubmitting,
++                            decoration: InputDecoration(
++                              hintText: AppLocalizations.of(context)!
++                                  .usernameHint,
++                            ),
+                           ),
+                         ),
+                         const SizedBox(height: 24),
+                       ],
+                       _FieldLabel(AppLocalizations.of(context)!.email),
+-                      TextFormField(
+-                        controller: _emailController,
+-                        enabled: !isSubmitting,
+-                        keyboardType: TextInputType.emailAddress,
+-                        autofillHints: const [AutofillHints.email],
+-                        decoration: const InputDecoration(
+-                          hintText: 'name@example.com',
++                      Semantics(
++                        label: AppLocalizations.of(context)!.email,
++                        child: TextFormField(
++                          controller: _emailController,
++                          focusNode: _emailFocus,
++                          enabled: !isSubmitting,
++                          keyboardType: TextInputType.emailAddress,
++                          autofillHints: const [AutofillHints.email],
++                          decoration: InputDecoration(
++                            hintText: 'name@example.com',
++                          ),
++                          textInputAction: TextInputAction.next,
++                          validator: (value) =>
++                              value == null || value.trim().isEmpty
++                              ? AppLocalizations.of(context)!.emailRequired
++                              : !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
++                                    .hasMatch(value.trim())
++                              ? AppLocalizations.of(context)!.emailInvalid
++                              : null,
+                         ),
+-                        textInputAction: TextInputAction.next,
+-                        validator: (value) =>
+-                            value == null || value.trim().isEmpty
+-                            ? AppLocalizations.of(context)!.emailRequired
+-                            : !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+-                                  .hasMatch(value.trim())
+-                            ? AppLocalizations.of(context)!.emailInvalid
+-                            : null,
+                       ),
+                       const SizedBox(height: 24),
+                       _FieldLabel(AppLocalizations.of(context)!.password),
+-                      TextFormField(
+-                        controller: _passwordController,
+-                        enabled: !isSubmitting,
+-                        obscureText: !_showPassword,
+-                        autofillHints: isRegister
+-                            ? const [AutofillHints.newPassword]
+-                            : const [AutofillHints.password],
+-                        decoration: InputDecoration(
+-                          hintText: AppLocalizations.of(context)!.passwordHint,
+-                          suffixIcon: TextButton(
+-                            onPressed: isSubmitting
+-                                ? null
+-                                : () => setState(
+-                                    () => _showPassword = !_showPassword,
+-                                  ),
+-                            child: Text(
+-                              _showPassword
+-                                  ? AppLocalizations.of(context)!.hide
+-                                  : AppLocalizations.of(context)!.show,
+-                            ),
+-                          ),
+-                        ),
+-                        textInputAction: isRegister
+-                            ? TextInputAction.next
+-                            : TextInputAction.done,
+-                        onFieldSubmitted: isSubmitting || isRegister
+-                            ? null
+-                            : (_) => _submitSignIn(),
+-                        validator: (value) => value == null || value.isEmpty
+-                            ? AppLocalizations.of(context)!.passwordRequired
+-                            : null,
+-                      ),
+-                      if (isRegister) ...[
+-                        const SizedBox(height: 24),
+-                        _FieldLabel(
+-                          AppLocalizations.of(context)!.confirmPassword,
+-                        ),
+-                        TextFormField(
+-                          controller: _confirmationController,
++                      Semantics(
++                        label: AppLocalizations.of(context)!.password,
++                        child: TextFormField(
++                          controller: _passwordController,
++                          focusNode: _passwordFocus,
+                           enabled: !isSubmitting,
+-                          obscureText: !_showConfirmation,
++                          obscureText: !_showPassword,
++                          autofillHints: isRegister
++                              ? const [AutofillHints.newPassword]
++                              : const [AutofillHints.password],
+                           decoration: InputDecoration(
+                             hintText: AppLocalizations.of(context)!
+-                                .confirmPasswordHint,
++                                .passwordHint,
+                             suffixIcon: TextButton(
+                               onPressed: isSubmitting
+                                   ? null
+                                   : () => setState(
+-                                      () => _showConfirmation =
+-                                          !_showConfirmation,
++                                      () => _showPassword = !_showPassword,
+                                     ),
+                               child: Text(
+-                                _showConfirmation
++                                _showPassword
+                                     ? AppLocalizations.of(context)!.hide
+                                     : AppLocalizations.of(context)!.show,
+                               ),
+                             ),
+                           ),
+-                          textInputAction: TextInputAction.done,
+-                          onFieldSubmitted: isSubmitting
++                          textInputAction: isRegister
++                              ? TextInputAction.next
++                              : TextInputAction.done,
++                          onFieldSubmitted: isSubmitting || isRegister
+                               ? null
+-                              : (_) => _submitRegistration(),
+-                          validator: (value) =>
+-                              value != _passwordController.text
+-                              ? AppLocalizations.of(context)!.passwordMismatch
++                              : (_) => _submitSignIn(),
++                          validator: (value) => value == null || value.isEmpty
++                              ? AppLocalizations.of(context)!.passwordRequired
+                               : null,
+                         ),
++                      ),
++                      if (isRegister) ...[
++                        const SizedBox(height: 24),
++                        _FieldLabel(
++                          AppLocalizations.of(context)!.confirmPassword,
++                        ),
++                        Semantics(
++                          label: AppLocalizations.of(context)!.confirmPassword,
++                          child: TextFormField(
++                            controller: _confirmationController,
++                            focusNode: _confirmationFocus,
++                            enabled: !isSubmitting,
++                            obscureText: !_showConfirmation,
++                            decoration: InputDecoration(
++                              hintText: AppLocalizations.of(context)!
++                                  .confirmPasswordHint,
++                              suffixIcon: TextButton(
++                                onPressed: isSubmitting
++                                    ? null
++                                    : () => setState(
++                                        () => _showConfirmation =
++                                            !_showConfirmation,
++                                      ),
++                                child: Text(
++                                  _showConfirmation
++                                      ? AppLocalizations.of(context)!.hide
++                                      : AppLocalizations.of(context)!.show,
++                                ),
++                              ),
++                            ),
++                            textInputAction: TextInputAction.done,
++                            onFieldSubmitted: isSubmitting
++                                ? null
++                                : (_) => _submitRegistration(),
++                            validator: (value) =>
++                                value != _passwordController.text
++                                ? AppLocalizations.of(context)!.passwordMismatch
++                                : null,
++                          ),
++                        ),
+                       ],
+                       const SizedBox(height: 28),
+                       if (state.messageKey != null)
+@@ -431,6 +470,9 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
+ 
+   @override
+   void dispose() {
++    _emailFocus.dispose();
++    _passwordFocus.dispose();
++    _confirmationFocus.dispose();
+     _emailController.dispose();
+     _passwordController.dispose();
+     _confirmationController.dispose();
+diff --git a/lib/features/authentication_session/src/presentation/authentication_view_model.dart b/lib/features/authentication_session/src/presentation/authentication_view_model.dart
+index af916d0..156a501 100644
+--- a/lib/features/authentication_session/src/presentation/authentication_view_model.dart
++++ b/lib/features/authentication_session/src/presentation/authentication_view_model.dart
+@@ -141,7 +141,11 @@ final class AuthenticationViewModel extends ChangeNotifier {
+     );
+     final actionRevision = _actionRevision;
+     final outcome = await _useCase.signIn(email: email, password: password);
+-    if (_disposed || actionRevision != _actionRevision) {
++    if (_disposed ||
++        actionRevision != _actionRevision ||
++        _hasDifferentEmail(email) ||
++        (outcome is SignInSucceeded &&
++            _hasDifferentAccount(outcome.account.accountId))) {
+       _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
+       return;
+     }
+@@ -194,7 +198,11 @@ final class AuthenticationViewModel extends ChangeNotifier {
+       password: password,
+       passwordConfirmation: passwordConfirmation,
+     );
+-    if (_disposed || actionRevision != _actionRevision) {
++    if (_disposed ||
++        actionRevision != _actionRevision ||
++        _hasDifferentEmail(email) ||
++        (outcome is RegistrationAuthenticated &&
++            _hasDifferentAccount(outcome.account.accountId))) {
+       _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
+       return;
+     }
+@@ -235,6 +243,9 @@ final class AuthenticationViewModel extends ChangeNotifier {
+         _state.actionStatus == AuthenticationActionStatus.submitting) {
+       return;
+     }
++    if (_disposed) return;
++    final accountId =
++        (_state.session as AuthenticatedSession).account.accountId;
+     final actionRevision = _actionRevision;
+     _publish(
+       _state.copyWith(actionStatus: AuthenticationActionStatus.submitting),
+@@ -242,7 +253,9 @@ final class AuthenticationViewModel extends ChangeNotifier {
+     final result = await retry();
+     if (_disposed ||
+         actionRevision != _actionRevision ||
+-        _state.session is! AuthenticatedSession) {
++        _state.session is! AuthenticatedSession ||
++        _hasDifferentAccount(accountId)) {
++      _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
+       return;
+     }
+     _publish(
+@@ -298,6 +311,15 @@ final class AuthenticationViewModel extends ChangeNotifier {
+           'verification_email_sent_profile_retry_needed',
+       };
+ 
++  bool _hasDifferentEmail(String email) =>
++      _state.session is AuthenticatedSession &&
++      (_state.session as AuthenticatedSession).account.email.toLowerCase() !=
++          email.trim().toLowerCase();
++
++  bool _hasDifferentAccount(String accountId) =>
++      _state.session is AuthenticatedSession &&
++      (_state.session as AuthenticatedSession).account.accountId != accountId;
++
+   void _publish(AuthenticationViewState nextState) {
+     if (_disposed) return;
+     _state = nextState;
+diff --git a/lib/main.dart b/lib/main.dart
+index c8cc3f7..6d57b50 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -1,166 +1,5 @@
+-import 'package:flutter/material.dart';
+-import 'package:flutter_dotenv/flutter_dotenv.dart';
+-import 'package:supabase_flutter/supabase_flutter.dart';
+-import 'package:shared_preferences/shared_preferences.dart';
++import 'app/app.dart';
+ 
+-import 'config/supabase_config.dart';
+-import 'l10n/app_localizations.dart';
+-import 'l10n/language_controller.dart';
+-import 'features/authentication_session/src/application/authentication_use_case.dart';
+-import 'features/authentication_session/src/data/supabase_authentication_session_adapter.dart';
+-import 'features/authentication_session/src/presentation/authentication_page.dart';
+-import 'features/authentication_session/src/presentation/authentication_view_model.dart';
++export 'app/app.dart' show LocateMyApp;
+ 
+-Future<void> main() async {
+-  WidgetsFlutterBinding.ensureInitialized();
+-  await dotenv.load(fileName: '.env', isOptional: true);
+-  final languageController = LanguageController(
+-    preferences: await SharedPreferences.getInstance(),
+-  );
+-  try {
+-    SupabaseConfig.validate();
+-  } on StateError {
+-    runApp(
+-      LanguageScope(
+-        controller: languageController,
+-        child: ListenableBuilder(
+-          listenable: languageController,
+-          builder: (context, _) => MaterialApp(
+-            locale: languageController.locale,
+-            localizationsDelegates: AppLocalizations.localizationsDelegates,
+-            supportedLocales: AppLocalizations.supportedLocales,
+-            home: Builder(
+-              builder: (context) => Scaffold(
+-                appBar: AppBar(actions: const [LanguageButton()]),
+-                body: SafeArea(
+-                  child: Center(
+-                    child: Padding(
+-                      padding: const EdgeInsets.all(24),
+-                      child: Text(
+-                        AppLocalizations.of(context)!.configurationMissing,
+-                      ),
+-                    ),
+-                  ),
+-                ),
+-              ),
+-            ),
+-          ),
+-        ),
+-      ),
+-    );
+-    return;
+-  }
+-  await Supabase.initialize(
+-    url: SupabaseConfig.url,
+-    publishableKey: SupabaseConfig.publishableKey,
+-  );
+-
+-  final sessionAdapter = SupabaseAuthenticationSessionAdapter(
+-    Supabase.instance.client,
+-  );
+-  final viewModel = AuthenticationViewModel(
+-    AuthenticationUseCase(sessionAdapter),
+-  );
+-  runApp(
+-    LocateMyApp(
+-      authenticationViewModel: viewModel,
+-      languageController: languageController,
+-      onRetryProfile: () =>
+-          viewModel.retryProfile(sessionAdapter.retryOptionalProfile),
+-    ),
+-  );
+-}
+-
+-final class LocateMyApp extends StatefulWidget {
+-  final LanguageController? languageController;
+-  final AuthenticationViewModel authenticationViewModel;
+-  final Future<void> Function()? onRetryProfile;
+-
+-  const LocateMyApp({
+-    required this.authenticationViewModel,
+-    this.onRetryProfile,
+-    this.languageController,
+-    super.key,
+-  });
+-
+-  @override
+-  State<LocateMyApp> createState() => _LocateMyAppState();
+-}
+-
+-final class _LocateMyAppState extends State<LocateMyApp> {
+-  late final LanguageController _languageController =
+-      widget.languageController ?? LanguageController();
+-
+-  @override
+-  void dispose() {
+-    if (widget.languageController == null) _languageController.dispose();
+-    super.dispose();
+-  }
+-
+-  @override
+-  Widget build(BuildContext context) => LanguageScope(
+-    controller: _languageController,
+-    child: ListenableBuilder(
+-      listenable: _languageController,
+-      builder: (context, _) => MaterialApp(
+-        locale: _languageController.locale,
+-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+-        supportedLocales: AppLocalizations.supportedLocales,
+-        title: 'LocateMY',
+-        debugShowCheckedModeBanner: false,
+-        theme: ThemeData(
+-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF155EEF))
+-              .copyWith(
+-                primary: const Color(0xFF155EEF),
+-                onPrimary: Colors.white,
+-                surface: Colors.white,
+-                error: const Color(0xFFC9362B),
+-                onSurface: const Color(0xFF172033),
+-              ),
+-          scaffoldBackgroundColor: const Color(0xFFF6F8FB),
+-          textTheme: ThemeData.light().textTheme.apply(
+-            bodyColor: const Color(0xFF172033),
+-            displayColor: const Color(0xFF172033),
+-          ),
+-          inputDecorationTheme: InputDecorationTheme(
+-            filled: true,
+-            fillColor: Colors.white,
+-            contentPadding: const EdgeInsets.symmetric(
+-              horizontal: 14,
+-              vertical: 16,
+-            ),
+-            hintStyle: const TextStyle(fontSize: 15, color: Color(0xFF667085)),
+-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+-            enabledBorder: OutlineInputBorder(
+-              borderRadius: BorderRadius.circular(12),
+-              borderSide: const BorderSide(color: Color(0xFFD9E0EA)),
+-            ),
+-            focusedBorder: OutlineInputBorder(
+-              borderRadius: BorderRadius.circular(12),
+-              borderSide: const BorderSide(color: Color(0xFF155EEF), width: 2),
+-            ),
+-            errorMaxLines: 3,
+-          ),
+-          filledButtonTheme: FilledButtonThemeData(
+-            style: FilledButton.styleFrom(
+-              minimumSize: const Size.fromHeight(52),
+-              shape: RoundedRectangleBorder(
+-                borderRadius: BorderRadius.circular(12),
+-              ),
+-              textStyle: const TextStyle(
+-                fontSize: 15,
+-                fontWeight: FontWeight.w600,
+-              ),
+-            ),
+-          ),
+-          useMaterial3: true,
+-        ),
+-        home: AuthenticationPage(
+-          viewModel: widget.authenticationViewModel,
+-          onSignOut: widget.authenticationViewModel.signOut,
+-          onRetryProfile: widget.onRetryProfile,
+-        ),
+-      ),
+-    ),
+-  );
+-}
++Future<void> main() => startLocateMy();
+diff --git a/test/features/authentication_session/authentication_view_model_test.dart b/test/features/authentication_session/authentication_view_model_test.dart
+index 55f14ed..29c5cc4 100644
+--- a/test/features/authentication_session/authentication_view_model_test.dart
++++ b/test/features/authentication_session/authentication_view_model_test.dart
+@@ -146,4 +146,49 @@ void main() {
+     expect(vm.state.session, isA<SessionUnavailable>());
+     expect(vm.state.actionStatus, AuthenticationActionStatus.idle);
+   });
++  test('late login cannot replace a newer authenticated account', () async {
++    await vm.initialize();
++    final response = Completer<SignInOutcome>();
++    fake.pendingSignIn = response.future;
++    final signingIn = vm.signIn(email: 'a@example.com', password: 'password');
++    fake.changes.add(const AuthenticatedSession(accountB));
++    response.complete(const SignInSucceeded(accountA));
++    await signingIn;
++    expect((vm.state.session as AuthenticatedSession).account.accountId, 'b');
++  });
++
++  test('profile retry feedback cannot cross account boundaries', () async {
++    fake.restored = const AuthenticatedSession(accountA);
++    await vm.initialize();
++    final response = Completer<ProfileRegistrationOutcome>();
++    final retrying = vm.retryProfile(() => response.future);
++    fake.changes.add(const AuthenticatedSession(accountB));
++    response.complete(const ProfileRegistered());
++    await retrying;
++    expect(vm.state.messageKey, isNull);
++    expect(vm.state.actionStatus, AuthenticationActionStatus.idle);
++  });
++  test(
++    'late rejected login feedback cannot cross to another account',
++    () async {
++      await vm.initialize();
++      final response = Completer<SignInOutcome>();
++      fake.pendingSignIn = response.future;
++      final signingIn = vm.signIn(email: 'a@example.com', password: 'password');
++      fake.changes.add(const AuthenticatedSession(accountB));
++      response.complete(const SignInRejected(SignInFailure.invalidCredentials));
++      await signingIn;
++      expect(vm.state.messageKey, isNull);
++      expect((vm.state.session as AuthenticatedSession).account.accountId, 'b');
++    },
++  );
++
++  test('stream errors keep gate closed and can recover', () async {
++    fake.restored = const AuthenticatedSession(accountA);
++    await vm.initialize();
++    fake.changes.addError(StateError('unavailable'));
++    expect(vm.state.session, isA<SessionUnavailable>());
++    fake.changes.add(const AuthenticatedSession(accountB));
++    expect((vm.state.session as AuthenticatedSession).account.accountId, 'b');
++  });
+ }
+diff --git a/test/features/authentication_session/supabase_authentication_session_adapter_test.dart b/test/features/authentication_session/supabase_authentication_session_adapter_test.dart
+index 9e5f824..2f942df 100644
+--- a/test/features/authentication_session/supabase_authentication_session_adapter_test.dart
++++ b/test/features/authentication_session/supabase_authentication_session_adapter_test.dart
+@@ -274,4 +274,94 @@ void main() {
+     ) as RegistrationRejected;
+     expect(registration.failure, RegistrationFailure.invalidInput);
+   });
++  test(
++    'expired registration cannot establish authenticated result or profile',
++    () async {
++      respond = (_) async =>
++          jsonResponse(jsonEncode(session(expired: true)), 200);
++      final result = await adapter.register(
++        email: 'a@example.com',
++        password: 'password123',
++        passwordConfirmation: 'password123',
++        username: 'Test User',
++      );
++      expect(result, isA<RegistrationRejected>());
++      expect(requests.where((r) => r.url.path.contains('profiles')), isEmpty);
++    },
++  );
++
++  test(
++    'blank optional username is skipped when verification is required',
++    () async {
++      respond = (_) async =>
++          jsonResponse(jsonEncode(user(confirmed: false)), 200);
++      final result = await adapter.register(
++        email: 'a@example.com',
++        password: 'password123',
++        passwordConfirmation: 'password123',
++        username: ' ',
++      ) as RegistrationVerificationRequired;
++      expect(result.profile, isA<ProfileRegistrationSkipped>());
++    },
++  );
++  for (final failure in [
++    ('validation_failed', 422, SignInFailure.invalidInput),
++    ('unexpected_error', 400, SignInFailure.unsupportedClient),
++  ]) {
++    test('sign in maps ${failure.$1}', () async {
++      respond = (_) async => jsonResponse(
++        jsonEncode({'code': failure.$1, 'message': 'Rejected'}),
++        failure.$2,
++      );
++      final result = await adapter.signIn(
++        email: 'a@example.com',
++        password: 'password',
++      ) as SignInRejected;
++      expect(result.failure, failure.$3);
++    });
++  }
++  for (final failure in [
++    ('user_already_exists', 422, RegistrationFailure.accountAlreadyExists),
++    ('unexpected_error', 400, RegistrationFailure.unsupportedClient),
++  ]) {
++    test('registration maps ${failure.$1}', () async {
++      respond = (_) async => jsonResponse(
++        jsonEncode({'code': failure.$1, 'message': 'Rejected'}),
++        failure.$2,
++      );
++      final result = await adapter.register(
++        email: 'a@example.com',
++        password: 'password',
++        passwordConfirmation: 'password',
++      ) as RegistrationRejected;
++      expect(result.failure, failure.$3);
++    });
++  }
++  test(
++    'network sign out failure preserves rejection and retry recovery',
++    () async {
++      await seed();
++      respond = (_) async => throw TimeoutException('offline');
++      final result = await adapter.signOut() as SignOutRejected;
++      expect(result.failure, SignOutFailure.retryableUnavailable);
++      respond = (_) async => jsonResponse('', 204);
++      expect(await adapter.signOut(), isA<SignOutSucceeded>());
++    },
++  );
++  test(
++    'missing Auth email never establishes successful registration',
++    () async {
++      final payload = session();
++      (payload['user'] as Map).remove('email');
++      respond = (_) async => jsonResponse(jsonEncode(payload), 200);
++      final result = await adapter.register(
++        email: 'a@example.com',
++        password: 'password',
++        passwordConfirmation: 'password',
++        username: 'User',
++      );
++      expect(result, isA<RegistrationRejected>());
++      expect(requests.where((r) => r.url.path.contains('profiles')), isEmpty);
++    },
++  );
+ }
+diff --git a/test/widget_test.dart b/test/widget_test.dart
+index abee03d..78c7c80 100644
+--- a/test/widget_test.dart
++++ b/test/widget_test.dart
+@@ -30,6 +30,13 @@ void main() {
+     await tester.tap(find.widgetWithText(FilledButton, '登录'));
+     await tester.pump();
+     expect(find.text('请输入邮箱。'), findsOneWidget);
++    expect(
++      tester
++          .widget<EditableText>(find.byType(EditableText).first)
++          .focusNode
++          .hasFocus,
++      isTrue,
++    );
+     expect(find.text('请输入密码。'), findsOneWidget);
+     await tester.enterText(find.byType(TextFormField).at(0), 'invalid');
+     await tester.enterText(find.byType(TextFormField).at(1), 'password');
+@@ -131,14 +138,9 @@ void main() {
+       tester.view.devicePixelRatio = 1;
+       addTearDown(tester.view.resetPhysicalSize);
+       addTearDown(tester.view.resetDevicePixelRatio);
+-      await tester.pumpWidget(
+-        MaterialApp(
+-          home: MediaQuery(
+-            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+-            child: LocateMyApp(authenticationViewModel: vm),
+-          ),
+-        ),
+-      );
++      tester.platformDispatcher.textScaleFactorTestValue = 2;
++      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
++      await tester.pumpWidget(LocateMyApp(authenticationViewModel: vm));
+       await tester.pumpAndSettle();
+       await tester.ensureVisible(find.text('还没有账户？创建账户'));
+       await tester.tap(find.text('还没有账户？创建账户'));
+@@ -147,4 +149,20 @@ void main() {
+       expect(tester.takeException(), isNull);
+     },
+   );
++  testWidgets('screen reader labels are associated with editable fields', (
++    tester,
++  ) async {
++    final semantics = tester.ensureSemantics();
++
++    await launch(tester);
++    expect(
++      tester.getSemantics(find.byType(TextField).first).label,
++      contains('邮箱'),
++    );
++    expect(
++      tester.getSemantics(find.byType(TextField).last).label,
++      contains('密码'),
++    );
++    semantics.dispose();
++  });
+ }
+diff --git a/lib/app/app.dart b/lib/app/app.dart
+new file mode 100644
+index 0000000..942acb4
+--- /dev/null
++++ b/lib/app/app.dart
+@@ -0,0 +1,166 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_dotenv/flutter_dotenv.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++import 'package:shared_preferences/shared_preferences.dart';
++
++import '../config/supabase_config.dart';
++import '../l10n/app_localizations.dart';
++import '../l10n/language_controller.dart';
++import '../features/authentication_session/src/application/authentication_use_case.dart';
++import '../features/authentication_session/src/data/supabase_authentication_session_adapter.dart';
++import '../features/authentication_session/src/presentation/authentication_page.dart';
++import '../features/authentication_session/src/presentation/authentication_view_model.dart';
++
++Future<void> startLocateMy() async {
++  WidgetsFlutterBinding.ensureInitialized();
++  await dotenv.load(fileName: '.env', isOptional: true);
++  final languageController = LanguageController(
++    preferences: await SharedPreferences.getInstance(),
++  );
++  try {
++    SupabaseConfig.validate();
++  } on StateError {
++    runApp(
++      LanguageScope(
++        controller: languageController,
++        child: ListenableBuilder(
++          listenable: languageController,
++          builder: (context, _) => MaterialApp(
++            locale: languageController.locale,
++            localizationsDelegates: AppLocalizations.localizationsDelegates,
++            supportedLocales: AppLocalizations.supportedLocales,
++            home: Builder(
++              builder: (context) => Scaffold(
++                appBar: AppBar(actions: const [LanguageButton()]),
++                body: SafeArea(
++                  child: Center(
++                    child: Padding(
++                      padding: const EdgeInsets.all(24),
++                      child: Text(
++                        AppLocalizations.of(context)!.configurationMissing,
++                      ),
++                    ),
++                  ),
++                ),
++              ),
++            ),
++          ),
++        ),
++      ),
++    );
++    return;
++  }
++  await Supabase.initialize(
++    url: SupabaseConfig.url,
++    publishableKey: SupabaseConfig.publishableKey,
++  );
++
++  final sessionAdapter = SupabaseAuthenticationSessionAdapter(
++    Supabase.instance.client,
++  );
++  final viewModel = AuthenticationViewModel(
++    AuthenticationUseCase(sessionAdapter),
++  );
++  runApp(
++    LocateMyApp(
++      authenticationViewModel: viewModel,
++      languageController: languageController,
++      onRetryProfile: () =>
++          viewModel.retryProfile(sessionAdapter.retryOptionalProfile),
++    ),
++  );
++}
++
++final class LocateMyApp extends StatefulWidget {
++  final LanguageController? languageController;
++  final AuthenticationViewModel authenticationViewModel;
++  final Future<void> Function()? onRetryProfile;
++
++  const LocateMyApp({
++    required this.authenticationViewModel,
++    this.onRetryProfile,
++    this.languageController,
++    super.key,
++  });
++
++  @override
++  State<LocateMyApp> createState() => _LocateMyAppState();
++}
++
++final class _LocateMyAppState extends State<LocateMyApp> {
++  late final LanguageController _languageController =
++      widget.languageController ?? LanguageController();
++
++  @override
++  void dispose() {
++    if (widget.languageController == null) _languageController.dispose();
++    super.dispose();
++  }
++
++  @override
++  Widget build(BuildContext context) => LanguageScope(
++    controller: _languageController,
++    child: ListenableBuilder(
++      listenable: _languageController,
++      builder: (context, _) => MaterialApp(
++        locale: _languageController.locale,
++        localizationsDelegates: AppLocalizations.localizationsDelegates,
++        supportedLocales: AppLocalizations.supportedLocales,
++        title: 'LocateMY',
++        debugShowCheckedModeBanner: false,
++        theme: ThemeData(
++          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF155EEF))
++              .copyWith(
++                primary: const Color(0xFF155EEF),
++                onPrimary: Colors.white,
++                surface: Colors.white,
++                error: const Color(0xFFC9362B),
++                onSurface: const Color(0xFF172033),
++              ),
++          scaffoldBackgroundColor: const Color(0xFFF6F8FB),
++          textTheme: ThemeData.light().textTheme.apply(
++            bodyColor: const Color(0xFF172033),
++            displayColor: const Color(0xFF172033),
++          ),
++          inputDecorationTheme: InputDecorationTheme(
++            filled: true,
++            fillColor: Colors.white,
++            contentPadding: const EdgeInsets.symmetric(
++              horizontal: 14,
++              vertical: 16,
++            ),
++            hintStyle: const TextStyle(fontSize: 15, color: Color(0xFF667085)),
++            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
++            enabledBorder: OutlineInputBorder(
++              borderRadius: BorderRadius.circular(12),
++              borderSide: const BorderSide(color: Color(0xFFD9E0EA)),
++            ),
++            focusedBorder: OutlineInputBorder(
++              borderRadius: BorderRadius.circular(12),
++              borderSide: const BorderSide(color: Color(0xFF155EEF), width: 2),
++            ),
++            errorMaxLines: 3,
++          ),
++          filledButtonTheme: FilledButtonThemeData(
++            style: FilledButton.styleFrom(
++              minimumSize: const Size.fromHeight(52),
++              shape: RoundedRectangleBorder(
++                borderRadius: BorderRadius.circular(12),
++              ),
++              textStyle: const TextStyle(
++                fontSize: 15,
++                fontWeight: FontWeight.w600,
++              ),
++            ),
++          ),
++          useMaterial3: true,
++        ),
++        home: AuthenticationPage(
++          viewModel: widget.authenticationViewModel,
++          onSignOut: widget.authenticationViewModel.signOut,
++          onRetryProfile: widget.onRetryProfile,
++        ),
++      ),
++    ),
++  );
++}
+diff --git a/test/live/authentication_session_live_test.dart b/test/live/authentication_session_live_test.dart
+new file mode 100644
+index 0000000..742b4c2
+--- /dev/null
++++ b/test/live/authentication_session_live_test.dart
+@@ -0,0 +1,251 @@
++import 'dart:convert';
++import 'dart:io';
++import 'dart:math';
++
++import 'package:flutter_test/flutter_test.dart';
++import 'package:http/http.dart' as http;
++import 'package:locatemy/features/authentication_session/authentication_session.dart';
++import 'package:locatemy/features/authentication_session/src/data/supabase_authentication_session_adapter.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
++
++final class EvidenceClient extends http.BaseClient {
++  final _inner = http.Client();
++  @override
++  Future<http.StreamedResponse> send(http.BaseRequest request) async {
++    final response = await http.Response.fromStream(await _inner.send(request));
++    if (response.statusCode >= 300) {
++      String? code;
++      try {
++        code = (jsonDecode(response.body) as Map)['code'] as String?;
++      } catch (_) {}
++      stdout.writeln(
++        'Live HTTP ${request.method} ${request.url.path}: ${response.statusCode}, code=$code',
++      );
++    }
++    return http.StreamedResponse(
++      Stream.value(response.bodyBytes),
++      response.statusCode,
++      headers: response.headers,
++      request: request,
++    );
++  }
++
++  @override
++  void close() => _inner.close();
++}
++
++void main() {
++  test(
++    'live Auth lifecycle and profiles owner isolation',
++    () async {
++      HttpOverrides.global = null;
++      final env = Platform.environment;
++      final url = env['SUPABASE_URL']!;
++      final key = env['SUPABASE_PUBLISHABLE_KEY']!;
++      final secret = env['SUPABASE_SECRET_KEY']!;
++      final nonce = DateTime.now().microsecondsSinceEpoch;
++      final password =
++          'Qa!${List.generate(32, (_) => Random.secure().nextInt(10)).join()}';
++      final clients = List.generate(
++        3,
++        (_) => SupabaseClient(
++          url,
++          key,
++          authOptions: const AuthClientOptions(
++            autoRefreshToken: false,
++            authFlowType: AuthFlowType.implicit,
++          ),
++          httpClient: EvidenceClient(),
++        ),
++      );
++      final a = SupabaseAuthenticationSessionAdapter(clients[0]);
++      final b = SupabaseAuthenticationSessionAdapter(clients[1]);
++      final otherDevice = SupabaseAuthenticationSessionAdapter(clients[2]);
++      final createdIds = <String>[];
++      final admin = http.Client();
++      Future<Map<String, dynamic>> adminRequest(
++        String path,
++        String method, [
++        Map<String, dynamic>? body,
++      ]) async {
++        final request = http.Request(
++          method,
++          Uri.parse('$url/auth/v1/admin/$path'),
++        );
++        request.headers.addAll({
++          'apikey': secret,
++          'Authorization': 'Bearer $secret',
++          'Content-Type': 'application/json',
++        });
++        if (body != null) request.body = jsonEncode(body);
++        final response = await http.Response.fromStream(
++          await admin.send(request),
++        );
++        if (response.statusCode >= 300) {
++          throw StateError(
++            'Admin operation failed (${response.statusCode}); response redacted',
++          );
++        }
++        return response.body.isEmpty
++            ? {}
++            : jsonDecode(response.body) as Map<String, dynamic>;
++      }
++
++      try {
++        expect(await a.restoreSession(), isA<UnauthenticatedSession>());
++        final emailA = 'locatemy.qa.$nonce.a@gmail.com';
++        final emailB = 'locatemy.qa.$nonce.b@gmail.com';
++        final registration = await a.register(
++          email: emailA,
++          password: password,
++          passwordConfirmation: password,
++          username: 'Wave1 QA',
++        );
++        final userA = clients[0].auth.currentUser;
++        // Confirm-email signUp returns no session; create isolated admin fixtures
++        // when outbound email is limited, without changing project settings.
++        String idA;
++        if (registration is RegistrationVerificationRequired) {
++          final users = await adminRequest('users?page=1&per_page=1000', 'GET');
++          final found = (users['users'] as List)
++              .cast<Map<String, dynamic>>()
++              .where((u) => u['email'] == emailA)
++              .single;
++          idA = found['id'] as String;
++          createdIds.add(idA);
++          await adminRequest('users/$idA', 'PUT', {'email_confirm': true});
++        } else if (registration is RegistrationAuthenticated && userA != null) {
++          idA = userA.id;
++          createdIds.add(idA);
++        } else if (registration is RegistrationRejected &&
++            registration.failure == RegistrationFailure.retryableUnavailable) {
++          stdout.writeln(
++            'Registration temporarily unavailable; remaining checks use isolated admin fixture',
++          );
++          final fixtureA = await adminRequest('users', 'POST', {
++            'email': emailA,
++            'password': password,
++            'email_confirm': true,
++          });
++          idA = fixtureA['id'] as String;
++          createdIds.add(idA);
++        } else {
++          throw StateError(
++            'Real registration did not succeed; result: ${registration.runtimeType}, failure: ${registration is RegistrationRejected ? registration.failure : 'none'}',
++          );
++        }
++        final fixtureB = await adminRequest('users', 'POST', {
++          'email': emailB,
++          'password': password,
++          'email_confirm': true,
++        });
++        final idB = fixtureB['id'] as String;
++        createdIds.add(idB);
++        expect(
++          await a.signIn(email: emailA, password: password),
++          isA<SignInSucceeded>(),
++        );
++        expect(
++          await b.signIn(email: emailB, password: password),
++          isA<SignInSucceeded>(),
++        );
++        expect(
++          await otherDevice.signIn(email: emailA, password: password),
++          isA<SignInSucceeded>(),
++        );
++        final restored = await a.restoreSession();
++        expect(restored, isA<AuthenticatedSession>());
++        expect(
++          (restored as AuthenticatedSession).account.confirmation,
++          EmailConfirmation.confirmed,
++        );
++        if (registration is RegistrationVerificationRequired) {
++          expect(await a.retryOptionalProfile(), isA<ProfileRegistered>());
++        }
++        final profiles = clients[0].from('profiles');
++        await profiles.upsert({'id': idA, 'username': 'Wave1 QA'});
++        expect((await profiles.select().eq('id', idA)).length, 1);
++        await profiles.update({'username': 'Wave1 updated'}).eq('id', idA);
++        expect(
++          (await profiles.select('username').eq('id', idA)).single['username'],
++          'Wave1 updated',
++        );
++        final foreign = clients[1].from('profiles');
++        expect(await foreign.select().eq('id', idA), isEmpty);
++        expect(
++          await foreign
++              .update({'username': 'forbidden'})
++              .eq('id', idA)
++              .select(),
++          isEmpty,
++        );
++        expect(await foreign.delete().eq('id', idA).select(), isEmpty);
++        await expectLater(
++          foreign.upsert({'id': idA, 'username': 'forbidden'}),
++          throwsA(isA<PostgrestException>()),
++        );
++        await expectLater(
++          profiles.update({'id': idB}).eq('id', idA),
++          throwsA(isA<PostgrestException>()),
++        );
++        final anonymous = SupabaseClient(
++          url,
++          key,
++          httpClient: EvidenceClient(),
++        );
++        Future<void> expectAnonymousDenied(Future<dynamic> operation) async {
++          try {
++            expect(await operation, isEmpty);
++          } on PostgrestException catch (error) {
++            expect(error.code, '42501');
++          }
++        }
++
++        try {
++          await expectAnonymousDenied(
++            anonymous.from('profiles').select().eq('id', idA),
++          );
++          await expectLater(
++            anonymous.from('profiles').insert({'id': idA}),
++            throwsA(isA<PostgrestException>()),
++          );
++          await expectAnonymousDenied(
++            anonymous
++                .from('profiles')
++                .update({'username': 'forbidden'})
++                .eq('id', idA)
++                .select(),
++          );
++          await expectAnonymousDenied(
++            anonymous.from('profiles').delete().eq('id', idA).select(),
++          );
++        } finally {
++          await anonymous.dispose();
++        }
++        expect(await a.signOut(), isA<SignOutSucceeded>());
++        expect(await a.restoreSession(), isA<UnauthenticatedSession>());
++        expect(await otherDevice.restoreSession(), isA<AuthenticatedSession>());
++        expect(
++          (await clients[2].from('profiles').select().eq('id', idA)).length,
++          1,
++        );
++        await clients[2].from('profiles').delete().eq('id', idA);
++        expect(
++          await clients[2].from('profiles').select().eq('id', idA),
++          isEmpty,
++        );
++        expect(await b.restoreSession(), isA<AuthenticatedSession>());
++      } finally {
++        for (final client in clients) {
++          await client.dispose();
++        }
++        for (final id in createdIds) {
++          await adminRequest('users/$id', 'DELETE');
++        }
++        admin.close();
++      }
++    },
++    skip: Platform.environment['LOCATEMY_AUTH_LIVE'] != '1',
++    timeout: const Timeout(Duration(minutes: 3)),
++  );
++}
+diff --git a/tool/verify_authentication_live.py b/tool/verify_authentication_live.py
+new file mode 100644
+index 0000000..42ce575
+--- /dev/null
++++ b/tool/verify_authentication_live.py
+@@ -0,0 +1,28 @@
++#!/usr/bin/env python3
++"""Run opt-in live Auth acceptance without putting credentials in shell arguments."""
++import os
++from pathlib import Path
++import subprocess
++
++values = {}
++for line in Path('.env').read_text().splitlines():
++    if '=' in line and not line.lstrip().startswith('#'):
++        key, value = line.split('=', 1)
++        values[key.strip()] = value.strip().strip('\"\'')
++required = ('SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_SECRET_KEY')
++if not all(values.get(key) for key in required):
++    raise SystemExit('Missing live test configuration in .env')
++result = subprocess.run(['flutter', 'test', 'test/live/authentication_session_live_test.dart',
++                         '--reporter', 'expanded'],
++                        env={**os.environ, **values, 'LOCATEMY_AUTH_LIVE': '1'},
++                        capture_output=True, text=True)
++output = result.stdout + result.stderr
++for value in values.values():
++    if value:
++        output = output.replace(value, '<REDACTED>')
++# SDK debug messages must not expose tokens or fixture identities.
++import re
++output = re.sub(r'locatemy[.-]qa[.-][^\s\"\']+@(?:example|gmail)\.com', '<TEST_EMAIL>', output)
++output = re.sub(r'eyJ[A-Za-z0-9_.-]+', '<TOKEN>', output)
++print(output)
++raise SystemExit(result.returncode)
+diff --git a/tool/build_authentication_verification.py b/tool/build_authentication_verification.py
+new file mode 100644
+index 0000000..4e6d397
+--- /dev/null
++++ b/tool/build_authentication_verification.py
+@@ -0,0 +1,22 @@
++#!/usr/bin/env python3
++"""Build an Auth verification APK with only public .env values; restore .env afterward."""
++from pathlib import Path
++import subprocess
++import zipfile
++p=Path('.env'); original=p.read_bytes()
++values={}
++for line in original.decode().splitlines():
++ if '=' in line and not line.lstrip().startswith('#'):
++  k,v=line.split('=',1); values[k.strip()]=v.strip().strip('\"\'')
++try:
++ p.write_text('\n'.join(k+'='+values[k] for k in ['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY'])+'\n')
++ result=subprocess.run(['flutter','build','apk','--debug'])
++ if result.returncode: raise SystemExit(result.returncode)
++ apk=Path('build/app/outputs/flutter-apk/app-debug.apk')
++ with zipfile.ZipFile(apk) as z:
++  for name in z.namelist():
++   if values.get('SUPABASE_SECRET_KEY') and values['SUPABASE_SECRET_KEY'].encode() in z.read(name):
++    raise SystemExit('FAIL: secret key in APK')
++ print('PASS: APK does not contain the local secret key')
++finally:
++ p.write_bytes(original)

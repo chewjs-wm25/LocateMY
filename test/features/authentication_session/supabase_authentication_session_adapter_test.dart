@@ -274,4 +274,94 @@ void main() {
     ) as RegistrationRejected;
     expect(registration.failure, RegistrationFailure.invalidInput);
   });
+  test(
+    'expired registration cannot establish authenticated result or profile',
+    () async {
+      respond = (_) async =>
+          jsonResponse(jsonEncode(session(expired: true)), 200);
+      final result = await adapter.register(
+        email: 'a@example.com',
+        password: 'password123',
+        passwordConfirmation: 'password123',
+        username: 'Test User',
+      );
+      expect(result, isA<RegistrationRejected>());
+      expect(requests.where((r) => r.url.path.contains('profiles')), isEmpty);
+    },
+  );
+
+  test(
+    'blank optional username is skipped when verification is required',
+    () async {
+      respond = (_) async =>
+          jsonResponse(jsonEncode(user(confirmed: false)), 200);
+      final result = await adapter.register(
+        email: 'a@example.com',
+        password: 'password123',
+        passwordConfirmation: 'password123',
+        username: ' ',
+      ) as RegistrationVerificationRequired;
+      expect(result.profile, isA<ProfileRegistrationSkipped>());
+    },
+  );
+  for (final failure in [
+    ('validation_failed', 422, SignInFailure.invalidInput),
+    ('unexpected_error', 400, SignInFailure.unsupportedClient),
+  ]) {
+    test('sign in maps ${failure.$1}', () async {
+      respond = (_) async => jsonResponse(
+        jsonEncode({'code': failure.$1, 'message': 'Rejected'}),
+        failure.$2,
+      );
+      final result = await adapter.signIn(
+        email: 'a@example.com',
+        password: 'password',
+      ) as SignInRejected;
+      expect(result.failure, failure.$3);
+    });
+  }
+  for (final failure in [
+    ('user_already_exists', 422, RegistrationFailure.accountAlreadyExists),
+    ('unexpected_error', 400, RegistrationFailure.unsupportedClient),
+  ]) {
+    test('registration maps ${failure.$1}', () async {
+      respond = (_) async => jsonResponse(
+        jsonEncode({'code': failure.$1, 'message': 'Rejected'}),
+        failure.$2,
+      );
+      final result = await adapter.register(
+        email: 'a@example.com',
+        password: 'password',
+        passwordConfirmation: 'password',
+      ) as RegistrationRejected;
+      expect(result.failure, failure.$3);
+    });
+  }
+  test(
+    'network sign out failure preserves rejection and retry recovery',
+    () async {
+      await seed();
+      respond = (_) async => throw TimeoutException('offline');
+      final result = await adapter.signOut() as SignOutRejected;
+      expect(result.failure, SignOutFailure.retryableUnavailable);
+      respond = (_) async => jsonResponse('', 204);
+      expect(await adapter.signOut(), isA<SignOutSucceeded>());
+    },
+  );
+  test(
+    'missing Auth email never establishes successful registration',
+    () async {
+      final payload = session();
+      (payload['user'] as Map).remove('email');
+      respond = (_) async => jsonResponse(jsonEncode(payload), 200);
+      final result = await adapter.register(
+        email: 'a@example.com',
+        password: 'password',
+        passwordConfirmation: 'password',
+        username: 'User',
+      );
+      expect(result, isA<RegistrationRejected>());
+      expect(requests.where((r) => r.url.path.contains('profiles')), isEmpty);
+    },
+  );
 }

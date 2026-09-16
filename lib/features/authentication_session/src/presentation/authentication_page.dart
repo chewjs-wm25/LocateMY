@@ -27,6 +27,29 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
   bool _showPassword = false;
   bool _showConfirmation = false;
   final _formKey = GlobalKey<FormState>();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmationFocus = FocusNode();
+
+  bool _validate() {
+    final errors = _formKey.currentState!.validateGranularly();
+    if (errors.isEmpty) return true;
+    final first = errors.first;
+    first.context.visitChildElements((element) {
+      void focusEditable(Element child) {
+        if (child.widget is EditableText) {
+          (child.widget as EditableText).focusNode.requestFocus();
+        } else {
+          child.visitChildElements(focusEditable);
+        }
+      }
+
+      focusEditable(element);
+    });
+    Scrollable.ensureVisible(first.context);
+    return false;
+  }
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmationController = TextEditingController();
@@ -52,7 +75,7 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
 
   Future<void> _submitSignIn() async {
     _hasValidated = true;
-    if (!_formKey.currentState!.validate()) return;
+    if (!_validate()) return;
     await widget.viewModel.signIn(
       email: _emailController.text,
       password: _passwordController.text,
@@ -63,7 +86,7 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
 
   Future<void> _submitRegistration() async {
     _hasValidated = true;
-    if (!_formKey.currentState!.validate()) return;
+    if (!_validate()) return;
     await widget.viewModel.register(
       username: _usernameController.text,
       email: _emailController.text,
@@ -207,102 +230,118 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
                         _FieldLabel(
                           AppLocalizations.of(context)!.optionalUsername,
                         ),
-                        TextFormField(
-                          controller: _usernameController,
-                          enabled: !isSubmitting,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context)!
-                                .usernameHint,
+                        Semantics(
+                          label: AppLocalizations.of(context)!.optionalUsername,
+                          child: TextFormField(
+                            controller: _usernameController,
+                            enabled: !isSubmitting,
+                            decoration: InputDecoration(
+                              hintText: AppLocalizations.of(context)!
+                                  .usernameHint,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
                       ],
                       _FieldLabel(AppLocalizations.of(context)!.email),
-                      TextFormField(
-                        controller: _emailController,
-                        enabled: !isSubmitting,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        decoration: const InputDecoration(
-                          hintText: 'name@example.com',
+                      Semantics(
+                        label: AppLocalizations.of(context)!.email,
+                        child: TextFormField(
+                          controller: _emailController,
+                          focusNode: _emailFocus,
+                          enabled: !isSubmitting,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          decoration: InputDecoration(
+                            hintText: 'name@example.com',
+                          ),
+                          textInputAction: TextInputAction.next,
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                              ? AppLocalizations.of(context)!.emailRequired
+                              : !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+                                    .hasMatch(value.trim())
+                              ? AppLocalizations.of(context)!.emailInvalid
+                              : null,
                         ),
-                        textInputAction: TextInputAction.next,
-                        validator: (value) =>
-                            value == null || value.trim().isEmpty
-                            ? AppLocalizations.of(context)!.emailRequired
-                            : !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                                  .hasMatch(value.trim())
-                            ? AppLocalizations.of(context)!.emailInvalid
-                            : null,
                       ),
                       const SizedBox(height: 24),
                       _FieldLabel(AppLocalizations.of(context)!.password),
-                      TextFormField(
-                        controller: _passwordController,
-                        enabled: !isSubmitting,
-                        obscureText: !_showPassword,
-                        autofillHints: isRegister
-                            ? const [AutofillHints.newPassword]
-                            : const [AutofillHints.password],
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!.passwordHint,
-                          suffixIcon: TextButton(
-                            onPressed: isSubmitting
-                                ? null
-                                : () => setState(
-                                    () => _showPassword = !_showPassword,
-                                  ),
-                            child: Text(
-                              _showPassword
-                                  ? AppLocalizations.of(context)!.hide
-                                  : AppLocalizations.of(context)!.show,
+                      Semantics(
+                        label: AppLocalizations.of(context)!.password,
+                        child: TextFormField(
+                          controller: _passwordController,
+                          focusNode: _passwordFocus,
+                          enabled: !isSubmitting,
+                          obscureText: !_showPassword,
+                          autofillHints: isRegister
+                              ? const [AutofillHints.newPassword]
+                              : const [AutofillHints.password],
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(context)!
+                                .passwordHint,
+                            suffixIcon: TextButton(
+                              onPressed: isSubmitting
+                                  ? null
+                                  : () => setState(
+                                      () => _showPassword = !_showPassword,
+                                    ),
+                              child: Text(
+                                _showPassword
+                                    ? AppLocalizations.of(context)!.hide
+                                    : AppLocalizations.of(context)!.show,
+                              ),
                             ),
                           ),
+                          textInputAction: isRegister
+                              ? TextInputAction.next
+                              : TextInputAction.done,
+                          onFieldSubmitted: isSubmitting || isRegister
+                              ? null
+                              : (_) => _submitSignIn(),
+                          validator: (value) => value == null || value.isEmpty
+                              ? AppLocalizations.of(context)!.passwordRequired
+                              : null,
                         ),
-                        textInputAction: isRegister
-                            ? TextInputAction.next
-                            : TextInputAction.done,
-                        onFieldSubmitted: isSubmitting || isRegister
-                            ? null
-                            : (_) => _submitSignIn(),
-                        validator: (value) => value == null || value.isEmpty
-                            ? AppLocalizations.of(context)!.passwordRequired
-                            : null,
                       ),
                       if (isRegister) ...[
                         const SizedBox(height: 24),
                         _FieldLabel(
                           AppLocalizations.of(context)!.confirmPassword,
                         ),
-                        TextFormField(
-                          controller: _confirmationController,
-                          enabled: !isSubmitting,
-                          obscureText: !_showConfirmation,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context)!
-                                .confirmPasswordHint,
-                            suffixIcon: TextButton(
-                              onPressed: isSubmitting
-                                  ? null
-                                  : () => setState(
-                                      () => _showConfirmation =
-                                          !_showConfirmation,
-                                    ),
-                              child: Text(
-                                _showConfirmation
-                                    ? AppLocalizations.of(context)!.hide
-                                    : AppLocalizations.of(context)!.show,
+                        Semantics(
+                          label: AppLocalizations.of(context)!.confirmPassword,
+                          child: TextFormField(
+                            controller: _confirmationController,
+                            focusNode: _confirmationFocus,
+                            enabled: !isSubmitting,
+                            obscureText: !_showConfirmation,
+                            decoration: InputDecoration(
+                              hintText: AppLocalizations.of(context)!
+                                  .confirmPasswordHint,
+                              suffixIcon: TextButton(
+                                onPressed: isSubmitting
+                                    ? null
+                                    : () => setState(
+                                        () => _showConfirmation =
+                                            !_showConfirmation,
+                                      ),
+                                child: Text(
+                                  _showConfirmation
+                                      ? AppLocalizations.of(context)!.hide
+                                      : AppLocalizations.of(context)!.show,
+                                ),
                               ),
                             ),
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: isSubmitting
+                                ? null
+                                : (_) => _submitRegistration(),
+                            validator: (value) =>
+                                value != _passwordController.text
+                                ? AppLocalizations.of(context)!.passwordMismatch
+                                : null,
                           ),
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: isSubmitting
-                              ? null
-                              : (_) => _submitRegistration(),
-                          validator: (value) =>
-                              value != _passwordController.text
-                              ? AppLocalizations.of(context)!.passwordMismatch
-                              : null,
                         ),
                       ],
                       const SizedBox(height: 28),
@@ -431,6 +470,9 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
 
   @override
   void dispose() {
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmationFocus.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmationController.dispose();
