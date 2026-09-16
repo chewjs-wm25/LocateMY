@@ -146,4 +146,49 @@ void main() {
     expect(vm.state.session, isA<SessionUnavailable>());
     expect(vm.state.actionStatus, AuthenticationActionStatus.idle);
   });
+  test('late login cannot replace a newer authenticated account', () async {
+    await vm.initialize();
+    final response = Completer<SignInOutcome>();
+    fake.pendingSignIn = response.future;
+    final signingIn = vm.signIn(email: 'a@example.com', password: 'password');
+    fake.changes.add(const AuthenticatedSession(accountB));
+    response.complete(const SignInSucceeded(accountA));
+    await signingIn;
+    expect((vm.state.session as AuthenticatedSession).account.accountId, 'b');
+  });
+
+  test('profile retry feedback cannot cross account boundaries', () async {
+    fake.restored = const AuthenticatedSession(accountA);
+    await vm.initialize();
+    final response = Completer<ProfileRegistrationOutcome>();
+    final retrying = vm.retryProfile(() => response.future);
+    fake.changes.add(const AuthenticatedSession(accountB));
+    response.complete(const ProfileRegistered());
+    await retrying;
+    expect(vm.state.messageKey, isNull);
+    expect(vm.state.actionStatus, AuthenticationActionStatus.idle);
+  });
+  test(
+    'late rejected login feedback cannot cross to another account',
+    () async {
+      await vm.initialize();
+      final response = Completer<SignInOutcome>();
+      fake.pendingSignIn = response.future;
+      final signingIn = vm.signIn(email: 'a@example.com', password: 'password');
+      fake.changes.add(const AuthenticatedSession(accountB));
+      response.complete(const SignInRejected(SignInFailure.invalidCredentials));
+      await signingIn;
+      expect(vm.state.messageKey, isNull);
+      expect((vm.state.session as AuthenticatedSession).account.accountId, 'b');
+    },
+  );
+
+  test('stream errors keep gate closed and can recover', () async {
+    fake.restored = const AuthenticatedSession(accountA);
+    await vm.initialize();
+    fake.changes.addError(StateError('unavailable'));
+    expect(vm.state.session, isA<SessionUnavailable>());
+    fake.changes.add(const AuthenticatedSession(accountB));
+    expect((vm.state.session as AuthenticatedSession).account.accountId, 'b');
+  });
 }

@@ -30,6 +30,13 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, '登录'));
     await tester.pump();
     expect(find.text('请输入邮箱。'), findsOneWidget);
+    expect(
+      tester
+          .widget<EditableText>(find.byType(EditableText).first)
+          .focusNode
+          .hasFocus,
+      isTrue,
+    );
     expect(find.text('请输入密码。'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).at(0), 'invalid');
     await tester.enterText(find.byType(TextFormField).at(1), 'password');
@@ -131,14 +138,9 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: LocateMyApp(authenticationViewModel: vm),
-          ),
-        ),
-      );
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(LocateMyApp(authenticationViewModel: vm));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('还没有账户？创建账户'));
       await tester.tap(find.text('还没有账户？创建账户'));
@@ -147,4 +149,20 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('screen reader labels are associated with editable fields', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+
+    await launch(tester);
+    expect(
+      tester.getSemantics(find.byType(TextField).first).label,
+      contains('邮箱'),
+    );
+    expect(
+      tester.getSemantics(find.byType(TextField).last).label,
+      contains('密码'),
+    );
+    semantics.dispose();
+  });
 }

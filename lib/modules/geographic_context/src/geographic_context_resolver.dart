@@ -1,4 +1,4 @@
-import '../geographic_context.dart';
+import 'geographic_context_models.dart';
 
 class GeographicContextResolver {
   GeographicContextOutcome processCandidates({
@@ -12,27 +12,41 @@ class GeographicContextResolver {
           GeographicContextFailure.noCoverage,
         );
       }
-      return GeographicContextAvailable(outcomes);
+      return GeographicContextAvailable(Map.unmodifiable(outcomes));
     }
 
-    final first = rawRows.first;
-
-    if (!_isValidString(first['source_dataset']) ||
-        !_isValidString(first['source_url']) ||
-        !_isValidString(first['source_version']) ||
-        !_isValidString(first['source_sha256']) ||
-        !_isValidString(first['derived_geometry_sha256']) ||
-        !_isValidString(first['imported_at'])) {
-      return const GeographicContextUnavailable(
-        GeographicContextFailure.versionUnverifiable,
-      );
+    final rows = List<Map<String, dynamic>>.of(rawRows)
+      ..sort((a, b) => '${a['boundary_id']}'.compareTo('${b['boundary_id']}'));
+    const provenanceFields = [
+      'source_dataset',
+      'source_url',
+      'source_version',
+      'source_sha256',
+      'geometry_transform',
+      'derived_geometry_sha256',
+      'imported_at',
+    ];
+    final first = rows.first;
+    for (final row in rows) {
+      if ([
+        'boundary_id',
+        'state',
+        'district',
+        ...provenanceFields,
+      ].any((key) => !_isValidString(row[key]))) {
+        return const GeographicContextUnavailable(
+          GeographicContextFailure.versionUnverifiable,
+        );
+      }
+      if (provenanceFields.any((key) => row[key] != first[key])) {
+        return const GeographicContextUnavailable(
+          GeographicContextFailure.versionUnverifiable,
+        );
+      }
     }
-
-    final Uri? sourceUri = Uri.tryParse(first['source_url'] as String);
-    final DateTime? importedAt = DateTime.tryParse(
-      first['imported_at'] as String,
-    );
-
+    final sourceUri = Uri.tryParse(first['source_url'] as String);
+    final timestamp = first['imported_at'] as String;
+    final importedAt = _parseImportedAt(timestamp);
     if (sourceUri == null || !sourceUri.isAbsolute || importedAt == null) {
       return const GeographicContextUnavailable(
         GeographicContextFailure.versionUnverifiable,
@@ -51,21 +65,23 @@ class GeographicContextResolver {
     final outcomes = <GeographicLevel, GeographicLevelOutcome>{};
 
     if (requestedLevels.contains(GeographicLevel.district)) {
-      if (rawRows.length == 1) {
+      if (rows.length == 1) {
         outcomes[GeographicLevel.district] = GeographicLevelResolved(
-          _mapToArea(rawRows.first, GeographicLevel.district),
+          _mapToArea(rows.first, GeographicLevel.district),
           provenance,
         );
       } else {
         outcomes[GeographicLevel.district] = GeographicLevelAmbiguous(
-          rawRows.map((r) => _mapToArea(r, GeographicLevel.district)).toList(),
+          List.unmodifiable(
+            rows.map((r) => _mapToArea(r, GeographicLevel.district)),
+          ),
           provenance,
         );
       }
     }
 
     if (requestedLevels.contains(GeographicLevel.reportingState)) {
-      final uniqueStateNames = rawRows
+      final uniqueStateNames = rows
           .map((r) => r['state'])
           .whereType<String>()
           .where((s) => s.trim().isNotEmpty)
@@ -78,20 +94,45 @@ class GeographicContextResolver {
             );
       } else if (uniqueStateNames.length == 1) {
         outcomes[GeographicLevel.reportingState] = GeographicLevelResolved(
-          _mapToArea(rawRows.first, GeographicLevel.reportingState),
+          _mapToArea(rows.first, GeographicLevel.reportingState),
           provenance,
         );
       } else {
         outcomes[GeographicLevel.reportingState] = GeographicLevelAmbiguous(
-          rawRows
-              .map((r) => _mapToArea(r, GeographicLevel.reportingState))
-              .toList(),
+          List.unmodifiable(
+            uniqueStateNames.map(
+              (state) => _mapToArea(
+                rows.firstWhere((row) => row['state'] == state),
+                GeographicLevel.reportingState,
+              ),
+            ),
+          ),
           provenance,
         );
       }
     }
 
-    return GeographicContextAvailable(outcomes);
+    return GeographicContextAvailable(Map.unmodifiable(outcomes));
+  }
+
+  DateTime? _parseImportedAt(String value) {
+    final match = RegExp(
+      r'^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):?[0-5]\d)$',
+    ).firstMatch(value);
+    if (match == null) {
+      return null;
+    }
+    final parts = [for (var i = 1; i <= 6; i++) int.parse(match.group(i)!)];
+    final date = DateTime.utc(parts[0], parts[1], parts[2]);
+    if (date.year != parts[0] ||
+        date.month != parts[1] ||
+        date.day != parts[2] ||
+        parts[3] > 23 ||
+        parts[4] > 59 ||
+        parts[5] > 59) {
+      return null;
+    }
+    return DateTime.tryParse(value)?.toUtc();
   }
 
   bool _isValidString(dynamic val) {

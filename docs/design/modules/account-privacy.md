@@ -177,6 +177,31 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 
 `RISK-PRIVACY-01` 的完整集合/证明和 `RISK-PRIVACY-02` 的先封锁/可恢复语义已关闭设计风险。SQLite/文件不可用、部分处理和进程重启的故障注入仍为实现后的集成证据，不能改变上述结果。
 
+### 5.1 Wave 2 验收分配（2026-09-16）
+
+本期开发范围是 Privacy 的真实账户范围状态机、固定八项 participant 登记、关闭协调、结果校验及幂等恢复。真实上游只消费 `AUTH-001`；Auth participant 验证当前设备会话已经结束，不代替 Shell 发起 signOut。Shell 是后续 Wave 3 lifecycle 调用方，本期使用开发 harness 经公开入口验证，不开放私有业务页面。
+
+尚未开发的七个 participant 使用明确标识的测试 fake 验证协调协议；生产登记缺项必须拒绝关闭完成，不能把占位 participant 的成功当作真实清理证明。各业务模块在自身 Wave 实现真实 participant 和本机 Adapter，并承担各自 payload、SQLite/文件清理证据。Privacy 不提前实现这些业务存储，也不为它们提供生产成功占位。
+
+| 场景 ID / 可观察结果 | 验证归属 | 所需依赖及用途 | 证据要求 | 负责 Owner | 最迟 Wave | 本模块证据/状态 | 联合证据/状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| PRIV-W2-01 恢复/登录开启：只接受当前明确同账户；无会话、不可确认、空白身份和不匹配不打开 | 两者 | 本期真实 AUTH-001；Auth fake 注入过期/不可用事实；后续 Shell | 公开入口测试；真实 Auth 身份传入及拒绝路径；A 设备调用入口首屏/重启证据 | A（Privacy/Auth/Shell） | 本模块 2；Shell 联合 3 | 待验证 | 待 Wave 3 同账户 opened 门控 |
+| PRIV-W2-02 同 scope 幂等：重复 open/close 不重置内容、不重复冒充完成 | 两者 | 测试完整八项 participant fake；后续真实 participant | 公开入口重复调用、并发 open/close、closing 时 open 拒绝、晚到结果测试 | A；业务 participant 各 Owner 参与 | 本模块 2；Shell 3；全员 7 | 待验证 | 待 Wave 3/7 |
+| PRIV-W2-03 逐 Owner 失败/重试：先 closing，精确 incomplete，已清项不恢复，全八项才 closed | 两者 | 本期真实协调器；八项 fake 逐一注入所有适用失败、异常、缺项、重复 ID、错 scope | 公开入口故障/恢复测试；结果非空且 ID 唯一；调用开始即不可访问；失败后仅同旧 scope 可恢复；不得误报 closed | A 主责；真实清理由各业务 Owner 承担 | 本模块 2；Auth/Shell 3；Map 4；Cost/Hazard 5；Infrastructure/Property/Account Center 6；全员 7 | 待验证 | 待各 owning Wave 的真实 Adapter 故障证据及 Wave 7 全员联合 |
+| PRIV-W2-04 强制退出/身份不符：A 关闭恢复期间 B 不得打开 | 两者 | 本期 AUTH-001 真实类型/调用；Auth fake 注入失效/换号；后续 Shell | 不匹配/过期 open 拒绝；旧 scope 保持不可访问；Auth 真实当前设备退出与 participant 证明；Shell 先屏蔽→signOut→close 另行联验 | A | 本模块 2；Shell 联合 3 | 待验证 | 待 Wave 3 强制退出及顺序验证 |
+| PRIV-W2-05 A→B：关闭 A 全部证明前禁止 B，完成后 B 使用新范围 | 两者 | 本期双账户 Auth 与 participant fake；后续全部真实 Owner | 状态机双账户、失败重试、过期结果测试；真实 Auth A/B 调用；逐 Owner 旧内容不可读/提交/重放、公共缓存/语言/远端保留另行联验 | A 主责；B 负责 Cost/Infrastructure/Property | 本模块 2；范围切换 3；全员隔离 7 | 待验证 | 待 Wave 3/7 |
+| PRIV-W2-06 清理中进程重启：不重新开放未完成旧范围，可恢复关闭 | 两者 | 本期协调器重建/harness；后续 Shell 启动恢复及业务持久存储 | 重建后非 opened；可恢复同旧范围、不接受晚到证明；真实文件/SQLite 不可写与部分处理后重启由持久存储 Owner 验证 | A 主责；Map A、Property B 负责存储故障 | 本模块 2；Shell 3；Map 4；Property 6；全员 7 | 待验证 | 待 Wave 3/4/6/7；不得以纯内存重建替代持久存储证据 |
+
+Wave 1 分配没有截至 Wave 2 到期的联合事项。本期真实 Auth 消费及 Auth participant 的公开调用证据归本模块验收；完整 Shell 工作流最迟 Wave 3。八项集合从 Wave 2 起固定，fake 只证明协调器行为，不证明未来业务清理。各真实 participant 在自身 owning Wave 接入并验证，完整八项退出/切换联合场景最迟 Wave 7，由 A 主责、B 参与。
+
+### 5.2 开发顺序与当期完成要求
+
+1. 建立唯一公开入口及契约全部 declarations、消费者测试 fake，验证调用方只依赖公开入口。
+2. 实现真实范围状态机、身份校验、八项登记与结果校验、关闭协调和同 scope 并发/重试；通过第 5.1 节本模块测试。
+3. 接入真实 AUTH-001 和 Auth participant，经无私有业务内容的开发 harness 完成真实调用与 A 目标设备故障/恢复/重启验证。
+4. 运行格式检查、静态分析、测试和 debug APK 构建；记录命令、环境、结果和代码版本，证据不得包含凭据。
+5. 按开发规范报告模块实现、本期集成、后续集成和当前阻塞。第 5.1 节本模块全部通过才可声明 `Implemented`；未来 participant 或 Shell 未到期不阻塞本模块，但不能宣告完整联合验收通过或 `Integrated`。
+
 ## 6. 实现自由、阻塞项与变更
 
 A 可决定 `src/`、participant 注入、内部状态机、Adapter、并发、取消、重试、日志和测试组织。变更唯一 import、公开声明/result variant、八人集合、隔离/顺序/保留项，须说明影响、由提供方和受影响 Owner 确认，并在同一 PR 更新声明、本契约、HTML 与相关 fake/Adapter 测试。
@@ -188,3 +213,4 @@ A 可决定 `src/`、participant 注入、内部状态机、Adapter、并发、�
 | 日期 | 状态 | 变更原因 | 受影响对象 |
 | --- | --- | --- | --- |
 | 2026-09-15 | `Ready for Development` | Issue #23 全审返工：唯一 import、声明级 seam、typed results、participant、顺序、fake 和四项 Readiness；不改产品/Schema/payload Owner | `PRIVACY-001`、`STATE-ACCOUNT-SCOPE`、八位 participant、`ACCOUNT-07` |
+| 2026-09-16 | `Ready for Development`；尚未实现 | Wave 2 开发准备：按开发规范分配全部场景、本期真实 Auth 与未来 participant、证据责任及最迟 Wave | PRIVACY-001、Auth participant、Wave 3–7 联合接入；公开声明及产品/Schema 不变 |

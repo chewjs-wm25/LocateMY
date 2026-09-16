@@ -1,12 +1,10 @@
-import '../geographic_context.dart';
+import 'geographic_context_models.dart';
+import 'geographic_context_repository.dart';
 import 'geographic_context_resolver.dart';
-import 'supabase_geo_repository.dart';
 
 class GeographicContextServiceImpl implements GeographicContext {
-  final SupabaseGeoRepository _repository;
+  final GeographicContextRepository _repository;
   final GeographicContextResolver _resolver;
-
-  final Map<String, GeographicContextOutcome> _cache = {};
 
   GeographicContextServiceImpl(
     this._repository, {
@@ -17,29 +15,21 @@ class GeographicContextServiceImpl implements GeographicContext {
   Future<GeographicContextOutcome> resolve(
     GeographicContextRequest request,
   ) async {
-    final lat = request.location.point.latitude;
-    final lng = request.location.point.longitude;
-
-    final cacheKey = '$lat,$lng:${request.levels.map((e) => e.name).join(',')}';
-    if (_cache.containsKey(cacheKey)) {
-      return _cache[cacheKey]!;
+    final levels = Set<GeographicLevel>.unmodifiable(request.levels);
+    if (levels.isEmpty) {
+      throw ArgumentError.value(levels, 'levels', 'must not be empty');
     }
-
     try {
-      final rows = await _repository.fetchCandidates(lat, lng);
-      final outcome = _resolver.processCandidates(
-        rawRows: rows,
-        requestedLevels: request.levels,
+      final rows = await _repository.fetchCandidates(
+        request.location.point.latitude,
+        request.location.point.longitude,
       );
-
-      _cache[cacheKey] = outcome;
-      return outcome;
+      return _resolver.processCandidates(
+        rawRows: rows,
+        requestedLevels: levels,
+      );
     } on GeographicContextFailure catch (failure) {
       return GeographicContextUnavailable(failure);
-    } catch (_) {
-      return const GeographicContextUnavailable(
-        GeographicContextFailure.versionUnverifiable,
-      );
     }
   }
 }

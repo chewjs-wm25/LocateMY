@@ -1,0 +1,13 @@
+Flutter 3.47.2 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision d3b14c8769 (3 weeks ago) • 2026-08-26 16:07:51 -0700
+Engine • hash 1cf1c4773fb941c4c74a7f8bb144a8837596c0f4 (revision a804b26164) (20 days ago) • 2026-08-26 18:46:13.000Z
+Tools • Dart 3.13.2 • DevTools 2.60.0
+openjdk version "26.0.1" 2026-04-21
+OpenJDK Runtime Environment (build 26.0.1)
+OpenJDK 64-Bit Server VM (build 26.0.1, mixed mode, sharing)
+owner-a ro.product.model: SM-A528B
+owner-a ro.build.version.release: 14
+owner-a ro.build.version.sdk: 34
+owner-b ro.product.model: sdk_gphone64_x86_64
+owner-b ro.build.version.release: 16
+owner-b ro.build.version.sdk: 36

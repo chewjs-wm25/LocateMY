@@ -45,6 +45,9 @@ AI 可以建立和保护 Supabase 开发环境，包括 CLI/config、migration�
 
 ## 开发节奏
 
+开发前的验收分配、`Implemented` 门槛、Wave 完成条件和审查报告格式统一遵循
+[各 Wave 开发与完成判定规范](development-standard.md)。开发、实现审查和 Wave 验收时必须读取。
+
 1. 系统基线和全部 owning contract 已就绪；按依赖 DAG 从 Wave 1 开始。
 2. 每个 provider 先交付公开 seam 与 fake 所需 declaration，再并行开发 provider/consumer。
 3. Owner 或 AI 可在分支中实现 Flutter 代码和测试；共享接线由 A 整合。

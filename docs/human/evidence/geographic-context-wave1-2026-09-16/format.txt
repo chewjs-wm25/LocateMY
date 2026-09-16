@@ -1,0 +1,2 @@
+Command: dart format --output=none --set-exit-if-changed .
+Formatted 34 files (0 changed) in 0.39 seconds.
