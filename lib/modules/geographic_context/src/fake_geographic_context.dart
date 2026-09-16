@@ -1,7 +1,5 @@
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
 
-import '../geographic_context.dart';
-
 class FakeGeographicContext implements GeographicContext {
   final GeographicContextOutcome? presetOutcome;
 
