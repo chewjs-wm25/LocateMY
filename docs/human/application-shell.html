@@ -1,6 +1,8 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Application Shell 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Application Shell 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>
+实现：<code>Implemented</code>（Wave 3；未批准 <code>Integrated</code>）
+实现验收：<a href="application-shell-wave3-acceptance-2026-09-16.md">Wave 3 验收记录</a>；<a href="application-shell-wave3-luna-review-2026-09-16.md">GPT-5.6 Luna High 双轴复审</a>
 Owner：<code>A</code>
 系统基线：<code>5d11769</code>
 消费者：Home &amp; Relocation Outlook、Map / Location、Cost of Living &amp; Budget、Crime &amp; Security、Nearby Facilities、Public Transportation、Hazard Reporting、Socio-economic、Infrastructure Coverage、Property Inspection、Account Center、Personalized Location Suitability
@@ -360,6 +362,12 @@ enum ShellRejectionReason {
 <td><code>SHELL-001</code>、12 个消费者、<code>FLOW-01/02/03/05/06/07/08</code></td>
 <td>设计 AI（项目负责人授权）</td>
 </tr>
+<tr>
+<td>2026-09-16</td>
+<td><code>Implemented</code></td>
+<td>Wave 3 TDD、真实 Auth/Privacy/Shell、双语导航/返回、两设备重启/故障恢复及扫描 APK；const 基类修正；Luna High 双轴复审及语言故障注入修复通过；未来集成期限不变</td>
+<td>SHELL-001、AT-AUTH/OUT/SWITCH；公开成员/结果/行为及 Schema 不变</td>
+<td>实现 AI（项目负责人授权）</td>
+</tr>
 </tbody>
-</table>
-<p>| 2026-09-16 | 实现验证已通过；独立审查中 | Wave 3 TDD、真实 Auth/Privacy/Shell、双语导航/返回、两设备重启/故障恢复及扫描 APK；const 基类修正；未来集成期限不变 | SHELL-001、AT-AUTH/OUT/SWITCH；公开成员/结果/行为及 Schema 不变 | 实现 AI（项目负责人授权） |</p></body></html>
+</table></body></html>

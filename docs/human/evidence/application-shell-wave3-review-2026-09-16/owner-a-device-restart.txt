@@ -1,0 +1,6 @@
+09-16 23:43:43.506 32326 32326 I flutter : SHELL_DEVICE: PASS process restart recovers closing journal
+09-16 23:43:43.534 32326 32326 I flutter : SHELL_DEVICE: PASS old scope closes before login after restart
+09-16 23:43:46.020 32326 32326 I flutter : SHELL_DEVICE: PASS real fixture sign-in
+09-16 23:43:46.361 32326 32326 I flutter : SHELL_DEVICE: PASS device language persists across process restart
+09-16 23:43:46.515 32326 32326 I flutter : SHELL_DEVICE: PASS final fixture scope closed
+09-16 23:43:46.597 32326 32326 I flutter : SHELL_DEVICE: ALL PASS

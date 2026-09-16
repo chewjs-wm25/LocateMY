@@ -1,12 +1,12 @@
 # Application Shell — Wave 3 验收记录
 
-> 模块验证已通过；GPT-5.6 Luna High 独立审查中。未批准 Integrated。
+> 实现状态：Implemented；GPT-5.6 Luna High Standards / Spec 双轴复审通过。未批准 Integrated。
 > 范围：docs/design/modules/application-shell.md 第 6.1 节。
 > 代码基线：81ebb9bc7d6313c3229cfb4f0ad3d4e9df6f9a8b；工作树 source SHA-256 以 live/device/production 的 source.json 为准。
 
 ## 1. 模块实现
 
-当前证据：SHELL-001 canonical declarations、scope 门控/失效屏障、导航/返回与渐进组合、真实 Shell privacy participant、Auth/Privacy 接线和双语设备偏好均已实现。Implementation use case 不依赖 Flutter/SDK/文件 API；呈现由 ShellViewModel/Host 绑定。Feature 只消费 application_shell.dart；组合根通过 app.dart 装配辅助注册提供方 marker 投影与原输入 builder。
+Implemented。当前证据：SHELL-001 canonical declarations、scope 门控/失效屏障、导航/返回与渐进组合、真实 Shell privacy participant、Auth/Privacy 接线和双语设备偏好均已实现。Implementation use case 不依赖 Flutter/SDK/文件 API；呈现由 ShellViewModel/Host 绑定。Feature 只消费 application_shell.dart；组合根通过 app.dart 装配辅助注册提供方 marker 投影与原输入 builder。
 
 | 分配 | 验证证据 |
 | --- | --- |
@@ -36,8 +36,8 @@ Auth 第 6.1 节截至 Wave 3 的启动/登录门控、退出屏障/当前设备
 
 ## 4. 当前阻塞
 
-待 Luna High 按开发规范第 3 节审核本模块证据，并按第 4 节审核截至 Wave 3 到期责任。不能把 future Owner 未开发自动判为当前阻塞，也不能把当前 Shell test proofs 当作 full Wave 7 已通过。
+无。首轮 Auth 内部测试 import 与语言保存失败证据两项阻塞已关闭；[Luna High 双轴复审](application-shell-wave3-luna-review-2026-09-16.md) 确认本模块达到 Implemented。截至 Wave 3 到期接线与联合验证通过，Wave 3 达到完成门槛。后续 Feature/participant 接入不等于 full Wave 7 已通过。
 
 ## 5. 审查修复与补充证据
 
-首轮 Luna 审查指出应用消费者测试越过 Auth 公开入口，以及语言保存失败缺少证据。已统一使用 createAuthenticationViewModel；平台存储故障注入复现保存立即失败时提示使用旧语言，随后修复为使用当前选中 locale。四项失败/恢复 Widget 测试通过；补充 review-language-red.txt、review-language-regression.txt、review-full-tests.txt、review-analyze.txt、review-format.txt。测试所需 shared_preferences_platform_interface 明确列为 dev dependency，锁定版本不变。新生产/live/设备证据将在复审前完成。
+首轮 Luna 审查指出应用消费者测试越过 Auth 公开入口，以及语言保存失败缺少证据。已统一使用 createAuthenticationViewModel；平台存储故障注入复现保存立即失败时提示使用旧语言，随后修复为使用当前选中 locale。四项失败/恢复 Widget 测试通过；补充 review-language-red.txt、review-language-regression.txt、review-full-tests.txt、review-analyze.txt、review-format.txt。测试所需 shared_preferences_platform_interface 明确列为 dev dependency，锁定版本不变。新生产/live/两设备全流程重跑已通过，证据归档于 [复审版本证据](evidence/application-shell-wave3-review-2026-09-16/final-audit.txt)。代码修复版本 b14b57b；源码 SHA-256 为 01947439d2ad3907f495ea9a9bba9f19c8808913bd3f18051846d89e6ccccefa；三个 source.json 均匹配当前源码且 exit 0。普通 APK 已通过凭据扫描并恢复两设备；隔离测试目录/临时账户/隧道已删除。
