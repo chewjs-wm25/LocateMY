@@ -82,6 +82,13 @@ Future<void> startLocateMy() async {
       createAuthenticationPrivacyParticipant(sessionAdapter),
       shell,
     ],
+    // Only these owners can create private state in the current app. Add each
+    // future feature here when wiring its views/storage, even if its participant
+    // is missing, so a registration defect still blocks logout.
+    requiredParticipants: const {
+      AccountPrivacyParticipantId.authenticationSession,
+      AccountPrivacyParticipantId.applicationShell,
+    },
     stateDirectory: Directory(
       '${(await getApplicationSupportDirectory()).path}/account-privacy',
     ),

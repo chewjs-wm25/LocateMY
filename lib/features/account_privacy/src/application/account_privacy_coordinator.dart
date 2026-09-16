@@ -10,6 +10,7 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
   final AuthenticationSession _auth;
   final Map<AccountPrivacyParticipantId, List<AccountPrivacyParticipant>>
   _participants = {};
+  final Set<AccountPrivacyParticipantId> _requiredParticipants;
   bool _registrationUnavailable = false;
   AccountScopeSnapshot _snapshot = const AccountScopeUnavailable(
     AccountScopeFailure.scopeNotOpen,
@@ -25,11 +26,18 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
     this._auth,
     List<AccountPrivacyParticipant> participants,
     this._journal,
-    this._participantTimeout,
-  ) {
+    this._participantTimeout, {
+    Set<AccountPrivacyParticipantId> requiredParticipants = const {
+      ...AccountPrivacyParticipantId.values,
+    },
+  }) : _requiredParticipants = Set.of(requiredParticipants)
+         ..add(AccountPrivacyParticipantId.authenticationSession)
+         ..add(AccountPrivacyParticipantId.applicationShell) {
     try {
       for (final participant in participants) {
-        (_participants[participant.participantId] ??= []).add(participant);
+        final id = participant.participantId;
+        _requiredParticipants.add(id);
+        (_participants[id] ??= []).add(participant);
       }
     } catch (_) {
       _registrationUnavailable = true;
@@ -229,7 +237,7 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
 
   Future<CloseAccountScopeOutcome> _clear(AccountScope scope) async {
     final incomplete = <PrivateStateClearIncomplete>[];
-    for (final id in AccountPrivacyParticipantId.values) {
+    for (final id in _requiredParticipants) {
       if (_cleared.contains(id)) continue;
       if (_disposed) {
         incomplete.add(
