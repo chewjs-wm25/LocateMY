@@ -2,6 +2,7 @@
 
 > 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 > Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 2
+> 实现：`Implemented`（2026-09-16；[Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md)、[GPT-5.6 Luna High 独立审查](../../human/account-privacy-wave2-luna-review-2026-09-16.md)）；后续联合按第 5.1 节执行，未宣告 `Integrated`
 > 唯一公开入口：`package:locatemy/features/account_privacy/account_privacy.dart`
 > 完成定义：Shell 仅凭本契约可在真实同账户认证后打开范围；退出、强制退出或换号时立即封锁旧账户，八个具名 Owner 都证明其本机私有状态已处理后才 closed。身份不符、不完整或不可用时绝不显示旧/新账户私有内容，且可恢复关闭同一旧范围。
 
@@ -185,12 +186,12 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 
 | 场景 ID / 可观察结果 | 验证归属 | 所需依赖及用途 | 证据要求 | 负责 Owner | 最迟 Wave | 本模块证据/状态 | 联合证据/状态 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| PRIV-W2-01 恢复/登录开启：只接受当前明确同账户；无会话、不可确认、空白身份和不匹配不打开 | 两者 | 本期真实 AUTH-001；Auth fake 注入过期/不可用事实；后续 Shell | 公开入口测试；真实 Auth 身份传入及拒绝路径；A 设备调用入口首屏/重启证据 | A（Privacy/Auth/Shell） | 本模块 2；Shell 联合 3 | 待验证 | 待 Wave 3 同账户 opened 门控 |
-| PRIV-W2-02 同 scope 幂等：重复 open/close 不重置内容、不重复冒充完成 | 两者 | 测试完整八项 participant fake；后续真实 participant | 公开入口重复调用、并发 open/close、closing 时 open 拒绝、晚到结果测试 | A；业务 participant 各 Owner 参与 | 本模块 2；Shell 3；全员 7 | 待验证 | 待 Wave 3/7 |
-| PRIV-W2-03 逐 Owner 失败/重试：先 closing，精确 incomplete，已清项不恢复，全八项才 closed | 两者 | 本期真实协调器；八项 fake 逐一注入所有适用失败、异常、缺项、重复 ID、错 scope | 公开入口故障/恢复测试；结果非空且 ID 唯一；调用开始即不可访问；失败后仅同旧 scope 可恢复；不得误报 closed | A 主责；真实清理由各业务 Owner 承担 | 本模块 2；Auth/Shell 3；Map 4；Cost/Hazard 5；Infrastructure/Property/Account Center 6；全员 7 | 待验证 | 待各 owning Wave 的真实 Adapter 故障证据及 Wave 7 全员联合 |
-| PRIV-W2-04 强制退出/身份不符：A 关闭恢复期间 B 不得打开 | 两者 | 本期 AUTH-001 真实类型/调用；Auth fake 注入失效/换号；后续 Shell | 不匹配/过期 open 拒绝；旧 scope 保持不可访问；Auth 真实当前设备退出与 participant 证明；Shell 先屏蔽→signOut→close 另行联验 | A | 本模块 2；Shell 联合 3 | 待验证 | 待 Wave 3 强制退出及顺序验证 |
-| PRIV-W2-05 A→B：关闭 A 全部证明前禁止 B，完成后 B 使用新范围 | 两者 | 本期双账户 Auth 与 participant fake；后续全部真实 Owner | 状态机双账户、失败重试、过期结果测试；真实 Auth A/B 调用；逐 Owner 旧内容不可读/提交/重放、公共缓存/语言/远端保留另行联验 | A 主责；B 负责 Cost/Infrastructure/Property | 本模块 2；范围切换 3；全员隔离 7 | 待验证 | 待 Wave 3/7 |
-| PRIV-W2-06 清理中进程重启：不重新开放未完成旧范围，可恢复关闭 | 两者 | 本期协调器重建/harness；后续 Shell 启动恢复及业务持久存储 | 重建后非 opened；可恢复同旧范围、不接受晚到证明；真实文件/SQLite 不可写与部分处理后重启由持久存储 Owner 验证 | A 主责；Map A、Property B 负责存储故障 | 本模块 2；Shell 3；Map 4；Property 6；全员 7 | 待验证 | 待 Wave 3/4/6/7；不得以纯内存重建替代持久存储证据 |
+| PRIV-W2-01 恢复/登录开启：只接受当前明确同账户；无会话、不可确认、空白身份和不匹配不打开 | 两者 | 本期真实 AUTH-001；Auth fake 注入过期/不可用事实；后续 Shell | 公开入口测试；真实 Auth 身份传入及拒绝路径；A 设备调用入口首屏/重启证据 | A（Privacy/Auth/Shell） | 本模块 2；Shell 联合 3 | 已通过：公开入口测试；真实 Auth、设备及代码版本证据见 [Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md) | 待 Wave 3 同账户 opened 门控 |
+| PRIV-W2-02 同 scope 幂等：重复 open/close 不重置内容、不重复冒充完成 | 两者 | 测试完整八项 participant fake；后续真实 participant | 公开入口重复调用、并发 open/close、closing 时 open 拒绝、晚到结果测试 | A；业务 participant 各 Owner 参与 | 本模块 2；Shell 3；全员 7 | 已通过：公开入口测试；真实 Auth、设备及代码版本证据见 [Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md) | 待 Wave 3/7 |
+| PRIV-W2-03 逐 Owner 失败/重试：先 closing，精确 incomplete，已清项不恢复，全八项才 closed | 两者 | 本期真实协调器；八项 fake 逐一注入所有适用失败、异常、缺项、重复 ID、错 scope | 公开入口故障/恢复测试；结果非空且 ID 唯一；调用开始即不可访问；失败后仅同旧 scope 可恢复；不得误报 closed | A 主责；真实清理由各业务 Owner 承担 | 本模块 2；Auth/Shell 3；Map 4；Cost/Hazard 5；Infrastructure/Property/Account Center 6；全员 7 | 已通过：公开入口测试；真实 Auth、设备及代码版本证据见 [Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md) | 待各 owning Wave 的真实 Adapter 故障证据及 Wave 7 全员联合 |
+| PRIV-W2-04 强制退出/身份不符：A 关闭恢复期间 B 不得打开 | 两者 | 本期 AUTH-001 真实类型/调用；Auth fake 注入失效/换号；后续 Shell | 不匹配/过期 open 拒绝；旧 scope 保持不可访问；Auth 真实当前设备退出与 participant 证明；Shell 先屏蔽→signOut→close 另行联验 | A | 本模块 2；Shell 联合 3 | 已通过：公开入口测试；真实 Auth、设备及代码版本证据见 [Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md) | 待 Wave 3 强制退出及顺序验证 |
+| PRIV-W2-05 A→B：关闭 A 全部证明前禁止 B，完成后 B 使用新范围 | 两者 | 本期双账户 Auth 与 participant fake；后续全部真实 Owner | 状态机双账户、失败重试、过期结果测试；真实 Auth A/B 调用；逐 Owner 旧内容不可读/提交/重放、公共缓存/语言/远端保留另行联验 | A 主责；B 负责 Cost/Infrastructure/Property | 本模块 2；范围切换 3；全员隔离 7 | 已通过：公开入口测试；真实 Auth、设备及代码版本证据见 [Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md) | 待 Wave 3/7 |
+| PRIV-W2-06 清理中进程重启：不重新开放未完成旧范围，可恢复关闭 | 两者 | 本期协调器重建/harness；后续 Shell 启动恢复及业务持久存储 | 重建后非 opened；可恢复同旧范围、不接受晚到证明；真实文件/SQLite 不可写与部分处理后重启由持久存储 Owner 验证 | A 主责；Map A、Property B 负责存储故障 | 本模块 2；Shell 3；Map 4；Property 6；全员 7 | 已通过：公开入口测试；真实 Auth、设备及代码版本证据见 [Wave 2 验收记录](../../human/account-privacy-wave2-acceptance-2026-09-16.md) | 待 Wave 3/4/6/7；不得以纯内存重建替代持久存储证据 |
 
 Wave 1 分配没有截至 Wave 2 到期的联合事项。本期真实 Auth 消费及 Auth participant 的公开调用证据归本模块验收；完整 Shell 工作流最迟 Wave 3。八项集合从 Wave 2 起固定，fake 只证明协调器行为，不证明未来业务清理。各真实 participant 在自身 owning Wave 接入并验证，完整八项退出/切换联合场景最迟 Wave 7，由 A 主责、B 参与。
 
@@ -201,6 +202,18 @@ Wave 1 分配没有截至 Wave 2 到期的联合事项。本期真实 Auth 消�
 3. 接入真实 AUTH-001 和 Auth participant，经无私有业务内容的开发 harness 完成真实调用与 A 目标设备故障/恢复/重启验证。
 4. 运行格式检查、静态分析、测试和 debug APK 构建；记录命令、环境、结果和代码版本，证据不得包含凭据。
 5. 按开发规范报告模块实现、本期集成、后续集成和当前阻塞。第 5.1 节本模块全部通过才可声明 `Implemented`；未来 participant 或 Shell 未到期不阻塞本模块，但不能宣告完整联合验收通过或 `Integrated`。
+
+### 5.3 Wave 2 实现接线与恢复
+
+composition root 经唯一公开入口调用 `createAccountPrivacy(authenticationSession: ..., participants: ..., stateDirectory: ...)`。`stateDirectory` 使用应用私有 support 目录且由单个进程级 Privacy 实例独占；生产仅登记已真实实现的 participant，本期 Auth 提供 `createAuthenticationPrivacyParticipant(auth)`，其余七项不登记生产成功占位。`test/support/fake_account_privacy.dart` 是消费者开发用脚本 fake，不在生产导出或接线中。
+
+公开 `AccountPrivacy`、结果、八个 ID 及 participant declarations 保持第 3 节不变。factory 和 `disposeAccountPrivacy` 是实例装配/释放辅助入口；Shell 仍是 open/close 唯一 lifecycle 发起者。Privacy 订阅公开 Auth 事实，仅封锁失效范围，不登录、退出或发起业务清理；Shell 随后关闭 snapshot 中的同一旧 scope。close 只接受当前快照/成功 open 发出的同一范围对象，不能用同名新构造对象冒充，也不能用旧生命周期 scope 关闭新账户。
+
+范围快照仍在内存；Data Adapter 在授权 opened 前以 flush + rename 写入只含账户身份及 opened/closing 阶段的屏障文件，不含 token、业务 payload、队列或照片。全八项证明完成且屏障文件删除成功后才 closed。close 开始前持久化单字节 closing 标记，保留原身份；closing 记录在重启后只恢复 closing，旧进程证明不继承，重新要求八项幂等清理。普通 opened 记录在重新验证当前 Auth 为同账户后可恢复 opened，不清理需跨重启保留的草稿；无会话、不可确认或不同账户则封锁并关闭原账户，不能覆盖为新身份。读写/删除故障保持非 opened，可恢复时重读旧记录或重试同范围；记录损坏/身份未知时继续 unavailable，须修复记录后重试，不能用新 Auth 身份覆盖未知屏障。
+
+固定登记在装配时冻结 ID；缺项、重复或登记不可用都不能冒充关闭完成。校验结果的 ID 和原 scope，异常/超时映射为该 Owner 的 incomplete；已完成 Owner 在当前进程不重复清理。默认每项证明等待 15 秒，晚到的超时结果不发布完成；teardown 取消 Auth 订阅且不能删除待完成屏障。Privacy 自身文件删除失败返回 `CloseRejected(retryableUnavailable)` 并保持 closing，不虚构某个已清 Owner 的失败。
+
+设备 harness 为 `tool/account_privacy_device.dart`，没有私有业务页面，使用真实 AUTH-001 + Auth participant 和七个明确标识的测试 participant。`tool/verify_account_privacy_live.py` 从本地凭据读取并按原变量名注入 live 环境，设备只使用临时账户；记录版本、日志、截图及 APK 扫描，结束后恢复普通 APK、设备熄屏设置并删除临时账户及测试隧道。完整业务 payload 保留/隔离及 SQLite/照片故障仍按第 5.1 节由未来 Owner 验收。
 
 ## 6. 实现自由、阻塞项与变更
 
@@ -214,3 +227,5 @@ A 可决定 `src/`、participant 注入、内部状态机、Adapter、并发、�
 | --- | --- | --- | --- |
 | 2026-09-15 | `Ready for Development` | Issue #23 全审返工：唯一 import、声明级 seam、typed results、participant、顺序、fake 和四项 Readiness；不改产品/Schema/payload Owner | `PRIVACY-001`、`STATE-ACCOUNT-SCOPE`、八位 participant、`ACCOUNT-07` |
 | 2026-09-16 | `Ready for Development`；尚未实现 | Wave 2 开发准备：按开发规范分配全部场景、本期真实 Auth 与未来 participant、证据责任及最迟 Wave | PRIVACY-001、Auth participant、Wave 3–7 联合接入；公开声明及产品/Schema 不变 |
+| 2026-09-16 | 实现验证已通过；独立审查中 | Wave 2 真实状态机、固定八项证明、真实 Auth participant、持久恢复及公开入口/设备/live/APK 证据；后续联合期限不变 | PRIVACY-001、STATE-ACCOUNT-SCOPE；公开 declarations/Schema/产品范围不变 |
+| 2026-09-16 | `Implemented`；未 `Integrated` | 第 5.1 节本模块证据全部通过；GPT-5.6 Luna High 独立审查通过，无当前阻塞；后续真实七项 participant/Shell 仍依 owning Wave 联验 | PRIV-W2-01–06；公开 declarations/Schema/产品范围不变 |
