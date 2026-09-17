@@ -89,7 +89,7 @@ void main() {
   });
 
   testWidgets(
-    'main map action carries the current analysis location and property entries are honest Wave 6 routes',
+    'main map action carries the current analysis location and property entry forwards current location to the composed production route',
     (WidgetTester tester) async {
       final Database db = await databaseFactoryFfiNoIsolate.openDatabase(
         inMemoryDatabasePath,
@@ -100,6 +100,7 @@ void main() {
         database: db,
       );
       ValidLocationReference? returned;
+      ValidLocationReference? propertyLocation;
       await tester.pumpWidget(
         MaterialApp(
           locale: const Locale('en'),
@@ -110,6 +111,9 @@ void main() {
             location: sunway,
             onShowMap: (ValidLocationReference location) {
               returned = location;
+            },
+            onAddProperty: (ValidLocationReference location) {
+              propertyLocation = location;
             },
           ),
         ),
@@ -123,9 +127,7 @@ void main() {
       );
       await tester.tap(find.text('Add property inspection'));
       await tester.pumpAndSettle();
-      expect(find.text('Add property inspection'), findsWidgets);
-      expect(find.text('Sunway Mentari'), findsOneWidget);
-      await tester.pageBack();
+      expect(propertyLocation, sunway);
       await tester.pumpAndSettle();
       expect(find.byType(CrimeSecurityPage), findsOneWidget);
       await tester.pumpWidget(const SizedBox());

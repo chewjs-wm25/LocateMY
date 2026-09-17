@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
-import 'package:locatemy/features/property_inspection/property_inspection.dart';
 
 import '../domain/safety_models.dart';
 import 'safety_strings.dart';
@@ -433,21 +432,14 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
   }
 
   void _propertySlot(bool add) {
-    if (add) {
-      Navigator.of(context).push<PropertyInspectionRecord>(
-        MaterialPageRoute<PropertyInspectionRecord>(
-          builder: (BuildContext context) {
-            return PropertyInspectionFormPage(location: widget.location);
-          },
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          SafetyStrings(context).text(
+            'Property inspection is unavailable in this harness.',
+            '此测试入口未接入房产实勘。',
+          ),
         ),
-      );
-      return;
-    }
-    Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return PropertyInspectionPortfolioPage(location: widget.location);
-        },
       ),
     );
   }

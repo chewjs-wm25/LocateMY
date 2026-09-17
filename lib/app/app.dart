@@ -22,6 +22,7 @@ import '../features/crime_security/crime_security.dart';
 import '../features/socio_economic/socio_economic.dart';
 import '../features/infrastructure_coverage/infrastructure_coverage.dart';
 import '../features/cost_of_living_budget/cost_of_living_budget.dart';
+import '../features/property_inspection/property_inspection.dart';
 import '../modules/geographic_context/geographic_context.dart';
 
 Future<void> startLocateMy() async {
@@ -343,6 +344,20 @@ final class _ProductionPagesState extends State<_ProductionPages> {
         weightsStore: SupabaseInfrastructureWeightsStore(widget.client),
         database: widget.database,
       );
+  late final PropertyInspectionService _property = PropertyInspectionService(
+    store: SupabasePropertyStore(widget.client),
+    risk: PropertyBusinessRiskReader(
+      geo: createGeographicContext(widget.client),
+      crime: _crime,
+      hazards: createHazardRiskCounter(
+        store: createSupabaseHazardStore(widget.client),
+        currentAccountId: () {
+          return widget.client.auth.currentUser?.id;
+        },
+      ),
+    ),
+  );
+  late final PropertyPhotoPicker _photoPicker = DevicePropertyPhotoPicker();
   late final HomeRelocationOutlook _home = createHomeRelocationOutlook(
     widget.client,
   );
@@ -368,6 +383,8 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       budgetStore: _budget,
       currentBudget: _currentBudget,
       budgetFiles: _budgetFiles,
+      property: _property,
+      photoPicker: _photoPicker,
     );
   }
 }
@@ -387,6 +404,10 @@ final class LocateMyPages extends StatefulWidget {
   final BudgetScenarioStore? budgetStore;
   final CurrentBudgetReader? currentBudget;
   final BudgetJsonFiles? budgetFiles;
+  final PropertyInspectionService? property;
+  final PropertyPhotoPicker? photoPicker;
+  final Future<ValidLocationReference?> Function(BuildContext)?
+  choosePropertyLocation;
   final bool showTiles;
   const LocateMyPages({
     required LocationCoordinator locations,
@@ -402,6 +423,10 @@ final class LocateMyPages extends StatefulWidget {
     BudgetScenarioStore? budgetStore,
     CurrentBudgetReader? currentBudget,
     BudgetJsonFiles? budgetFiles,
+    PropertyInspectionService? property,
+    PropertyPhotoPicker? photoPicker,
+    Future<ValidLocationReference?> Function(BuildContext)?
+    choosePropertyLocation,
     bool showTiles = true,
     super.key,
   }) : locations = locations,
@@ -417,6 +442,9 @@ final class LocateMyPages extends StatefulWidget {
        budgetStore = budgetStore,
        currentBudget = currentBudget,
        budgetFiles = budgetFiles,
+       property = property,
+       photoPicker = photoPicker,
+       choosePropertyLocation = choosePropertyLocation,
        showTiles = showTiles;
   @override
   State<LocateMyPages> createState() {
@@ -590,6 +618,53 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
     });
   }
 
+  Future<ValidLocationReference?> _choosePropertyLocation(
+    BuildContext context,
+  ) {
+    return Navigator.of(context).push<ValidLocationReference>(
+      MaterialPageRoute<ValidLocationReference>(
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(_text('Choose property location', '选择实勘地点')),
+            ),
+            body: MapLocationPage(
+              locations: widget.locations,
+              layerHost: locationLayerHost(widget.locations),
+              workspace: locationWorkspace(widget.locations),
+              search: widget.search,
+              showTiles: widget.showTiles,
+              onAnalysis: (ValidLocationReference location) {
+                Navigator.pop(context, location);
+              },
+              onComparison: (
+                ValidLocationReference a,
+                ValidLocationReference b,
+              ) {},
+              onLayerSelected: (MapLayerIntent intent) {},
+              detailAction: StreamBuilder<void>(
+                stream: locationWorkspace(widget.locations).changes,
+                builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                  final LocationRoleSnapshot selected = widget.locations.read(
+                    LocationRole.single,
+                  );
+                  return FilledButton(
+                    onPressed: selected is LocationPresent
+                        ? () {
+                            Navigator.pop(context, selected.location);
+                          }
+                        : null,
+                    child: Text(_text('Use selected location', '使用所选地点')),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   void _analysis(ValidLocationReference a, [ValidLocationReference? b]) {
     _push(
       LocationAnalysisMenu(
@@ -604,6 +679,9 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         budgetStore: widget.budgetStore,
         currentBudget: widget.currentBudget,
         budgetFiles: widget.budgetFiles,
+        property: widget.property,
+        photoPicker: widget.photoPicker,
+        choosePropertyLocation: _choosePropertyLocation,
         onShowMap: _showCrimeLocation,
       ),
     );
@@ -718,9 +796,41 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
                     reader: widget.currentBudget,
                     store: widget.budgetStore,
                     files: widget.budgetFiles,
-                    child: AuthenticationPage(
-                      viewModel: InheritedAuthentication.of(context),
-                      onSignOut: InheritedAuthentication.of(context).signOut,
+                    child: Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: AuthenticationPage(
+                            viewModel: InheritedAuthentication.of(context),
+                            onSignOut: InheritedAuthentication.of(context)
+                                .signOut,
+                          ),
+                        ),
+                        if (widget.property != null)
+                          SafeArea(
+                            top: false,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: OutlinedButton.icon(
+                                key: const ValueKey<String>(
+                                  'account-property-portfolio',
+                                ),
+                                onPressed: () {
+                                  _push(
+                                    PropertyInspectionPortfolioPage(
+                                      service: widget.property!,
+                                      photoPicker: widget.photoPicker,
+                                      chooseLocation: _choosePropertyLocation,
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.home_work_outlined),
+                                label: Text(
+                                  _text('Property inspections', '房产实勘'),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 );
@@ -798,6 +908,10 @@ final class LocationAnalysisMenu extends StatelessWidget {
   final BudgetScenarioStore? budgetStore;
   final CurrentBudgetReader? currentBudget;
   final BudgetJsonFiles? budgetFiles;
+  final PropertyInspectionService? property;
+  final PropertyPhotoPicker? photoPicker;
+  final Future<ValidLocationReference?> Function(BuildContext)?
+  choosePropertyLocation;
   final void Function(ValidLocationReference)? onShowMap;
   const LocationAnalysisMenu({
     required ValidLocationReference location,
@@ -811,6 +925,10 @@ final class LocationAnalysisMenu extends StatelessWidget {
     BudgetScenarioStore? budgetStore,
     CurrentBudgetReader? currentBudget,
     BudgetJsonFiles? budgetFiles,
+    PropertyInspectionService? property,
+    PropertyPhotoPicker? photoPicker,
+    Future<ValidLocationReference?> Function(BuildContext)?
+    choosePropertyLocation,
     void Function(ValidLocationReference)? onShowMap,
     super.key,
   }) : location = location,
@@ -824,6 +942,9 @@ final class LocationAnalysisMenu extends StatelessWidget {
        budgetStore = budgetStore,
        currentBudget = currentBudget,
        budgetFiles = budgetFiles,
+       property = property,
+       photoPicker = photoPicker,
+       choosePropertyLocation = choosePropertyLocation,
        onShowMap = onShowMap;
   @override
   Widget build(BuildContext context) {
@@ -888,6 +1009,29 @@ final class LocationAnalysisMenu extends StatelessWidget {
                     location: location,
                     locationB: second,
                     onShowMap: onShowMap,
+                    onPortfolio: property == null
+                        ? null
+                        : () {
+                            open(
+                              PropertyInspectionPortfolioPage(
+                                service: property!,
+                                photoPicker: photoPicker,
+                                chooseLocation: choosePropertyLocation,
+                              ),
+                            );
+                          },
+                    onAddProperty: property == null
+                        ? null
+                        : (ValidLocationReference point) {
+                            open(
+                              PropertyInspectionFormPage(
+                                service: property!,
+                                photoPicker: photoPicker,
+                                chooseLocation: choosePropertyLocation,
+                                location: point,
+                              ),
+                            );
+                          },
                   ),
                 );
               },

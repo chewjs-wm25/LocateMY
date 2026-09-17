@@ -1,6 +1,6 @@
 # Property Inspection 开发契约
 
-> Owner B；Wave 6；Draft — Issue #31 精简设计，生产 Feature 尚未实现。
+> Owner B；Wave 6；实现已写完，验收进行中 — Issue #31 精简设计；设备照片证据仍待补齐。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。
@@ -51,7 +51,11 @@ Storage 部分失败时保留未完成项对应元数据与父实勘，不能先
 已完成删除与未完成项明确区分；在线重试容忍文件已经不存在，不把部分失败称全成功。
 对比仅选择本人活动记录 2–3 份，并列价格／现场平均／封面／水灾／持久化风险，不保存对比结果。
 
-## 后续验收分配
+## 本期固定公开 seam 与验收分配
+
+Issue #25 Q2 已确认最高公开入口；本任务授权自主决策。测试固定为 `PropertyInspectionService` 的保存/读取/照片/回收站行为和应用页面可观察动作；外部数据库、Storage、相机/相册为系统边界。生产消费 Geo、CrimeSecurity、HazardRiskCounter 与 Supabase，不跨其他 Feature src。以下所有场景本模块 B、最迟 Wave 6；Account/Map/风险依赖为本期真实接入，测试 fake 只替代外部边界，联合责任 A/B，证据初始待验证。
+
+## 验收分配
 
 | 外部行为 | 责任／证据 | 最迟 |
 | --- | --- | --- |
