@@ -74,6 +74,7 @@ final class InfrastructureViewModel extends ChangeNotifier {
     _location = location;
     _analysisDate = date;
     _outcome = null;
+    retainedPreviousResult = false;
     _revision++;
     if (!_closed) notifyListeners();
     await load(InfrastructureLoadPolicy.cacheAllowed);
