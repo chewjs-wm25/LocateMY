@@ -17,6 +17,7 @@ import '../features/home_relocation_outlook/home_relocation_outlook.dart';
 import '../features/map_location/map_location.dart';
 import '../features/nearby_facilities/nearby_facilities.dart';
 import '../features/hazard_reporting/hazard_reporting.dart';
+import '../features/infrastructure_coverage/infrastructure_coverage.dart';
 import '../features/public_transportation/public_transportation.dart';
 import '../features/socio_economic/socio_economic.dart';
 
