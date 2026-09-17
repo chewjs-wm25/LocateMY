@@ -169,6 +169,21 @@
     .doc-card p { margin: 7px 0 0; color: var(--muted); font-size: .9rem; }
 
     .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .card-tags { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .owner {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: .75rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .owner-a { background: #eef2ff; color: #4338ca; }
+    .owner-b { background: #ecfeff; color: #0e7490; }
+    .owner-none { background: var(--gray-soft); color: var(--gray); }
+
     .status {
       display: inline-flex;
       align-items: center;
@@ -259,49 +274,49 @@
       <section class="group" data-group>
         <div class="group-heading"><h2>产品能力</h2><span>分析与用户功能</span></div>
         <div class="grid">
-          <article class="doc-card" data-search="personalized location suitability 个性化地点适配 排除">
+          <article class="doc-card" data-search="personalized location suitability 个性化地点适配 排除 owner">
             <div><h3><a href="personalized-location-suitability.html">Personalized Location Suitability</a></h3><p>个性化地点适配，当前不纳入实现范围。</p></div>
-            <div class="card-footer"><span class="status closed">已排除</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status closed">已排除</span><span class="owner owner-none">Owner —</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="public transportation 公共交通 transit">
+          <article class="doc-card" data-search="public transportation 公共交通 transit owner a">
             <div><h3><a href="public-transportation.html">Public Transportation</a></h3><p>公共交通分析与开发契约。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现重构</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="crime security 治安 crime">
+          <article class="doc-card" data-search="crime security 治安 crime owner b">
             <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>治安数据、展示范围与协作边界。</p></div>
-            <div class="card-footer"><span class="status draft">Draft</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="socio economic 社会经济 socioeconomic">
+          <article class="doc-card" data-search="socio economic 社会经济 socioeconomic owner b">
             <div><h3><a href="socio-economic.html">Socio-economic</a></h3><p>社会经济指标与分析页面契约。</p></div>
-            <div class="card-footer"><span class="status draft">Draft</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="nearby facilities 周边设施">
+          <article class="doc-card" data-search="nearby facilities 周边设施 owner a">
             <div><h3><a href="nearby-facilities.html">Nearby Facilities</a></h3><p>周边设施搜索、分类与评分入口。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现重构</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="infrastructure coverage 基础设施">
+          <article class="doc-card" data-search="infrastructure coverage 基础设施 owner b">
             <div><h3><a href="infrastructure-coverage.html">Infrastructure Coverage</a></h3><p>基础设施覆盖与数据解释契约。</p></div>
-            <div class="card-footer"><span class="status draft">Draft</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="cost living budget 生活成本 预算">
+          <article class="doc-card" data-search="cost living budget 生活成本 预算 owner b">
             <div><h3><a href="cost-of-living-and-budget.html">Cost of Living &amp; Budget</a></h3><p>生活成本、预算篮子与 JSON 边界。</p></div>
-            <div class="card-footer"><span class="status draft">Draft</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="map location 地图 位置 收藏">
+          <article class="doc-card" data-search="map location 地图 位置 收藏 owner a">
             <div><h3><a href="map-and-location.html">Map / Location</a></h3><p>地图、地点选择与收藏流程。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现重构</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="home relocation outlook 首页 搬迁 趋势">
+          <article class="doc-card" data-search="home relocation outlook 首页 搬迁 趋势 owner a">
             <div><h3><a href="home-and-relocation-outlook.html">Home &amp; Relocation Outlook</a></h3><p>首页与搬迁趋势分析入口。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="hazard reporting 隐患 报告">
+          <article class="doc-card" data-search="hazard reporting 隐患 报告 owner a">
             <div><h3><a href="hazard-reporting.html">Hazard Reporting</a></h3><p>隐患上报、状态流转与展示契约。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现重构</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="property inspection 房产 检查">
+          <article class="doc-card" data-search="property inspection 房产 检查 owner b">
             <div><h3><a href="property-inspection.html">Property Inspection</a></h3><p>房产检查相关能力与协作边界。</p></div>
-            <div class="card-footer"><span class="status draft">Draft</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
         </div>
       </section>
@@ -309,21 +324,21 @@
       <section class="group" data-group>
         <div class="group-heading"><h2>应用基础</h2><span>账号、导航与上下文</span></div>
         <div class="grid">
-          <article class="doc-card" data-search="authentication session 认证 会话 登录">
+          <article class="doc-card" data-search="authentication session 认证 会话 登录 owner a">
             <div><h3><a href="authentication-and-session.html">Authentication &amp; Session</a></h3><p>最小账号、登录状态与会话恢复。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现重构</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="account center 账户 账号">
+          <article class="doc-card" data-search="account center 账户 账号 owner a">
             <div><h3><a href="account-center.html">Account Center</a></h3><p>账户中心的最小页与后续入口。</p></div>
-            <div class="card-footer"><span class="status minimum">最小页已接线</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status minimum">最小页已接线</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="geographic context 地理 语境">
+          <article class="doc-card" data-search="geographic context 地理 语境 owner b">
             <div><h3><a href="geographic-context.html">Geographic Context</a></h3><p>地理语境、区域边界与共享服务。</p></div>
-            <div class="card-footer"><span class="status ready">保留业务服务</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">保留业务服务</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
-          <article class="doc-card" data-search="application shell 应用 装配 导航">
+          <article class="doc-card" data-search="application shell 应用 装配 导航 owner a">
             <div><h3><a href="application-shell.html">Application Shell</a></h3><p>普通 Flutter 导航与最小应用装配。</p></div>
-            <div class="card-footer"><span class="status ready">已有实现重构</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
         </div>
       </section>
@@ -331,9 +346,9 @@
       <section class="group" data-group>
         <div class="group-heading"><h2>已停止范围</h2><span>保留记录，便于追溯</span></div>
         <div class="grid">
-          <article class="doc-card" data-search="account privacy 账户隐私 取消">
+          <article class="doc-card" data-search="account privacy 账户隐私 取消 owner">
             <div><h3><a href="account-privacy.html">Account Privacy</a></h3><p>已取消，不作为当前实现入口。</p></div>
-            <div class="card-footer"><span class="status closed">已取消</span><span class="arrow" aria-hidden="true">→</span></div>
+            <div class="card-footer"><div class="card-tags"><span class="status closed">已取消</span><span class="owner owner-none">Owner —</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
         </div>
       </section>
