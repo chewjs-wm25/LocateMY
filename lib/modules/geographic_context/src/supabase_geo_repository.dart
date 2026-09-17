@@ -7,38 +7,37 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'geographic_context_models.dart';
 import 'geographic_context_repository.dart';
 
-class SupabaseGeoRepository implements GeographicContextRepository {
+final class SupabaseGeoRepository implements GeographicContextRepository {
   final SupabaseClient _supabase;
 
-  SupabaseGeoRepository(this._supabase);
+  SupabaseGeoRepository(SupabaseClient supabase) : _supabase = supabase;
 
   @override
   Future<List<Map<String, dynamic>>> fetchCandidates(
     double lat,
     double lng,
   ) async {
-    final session = _supabase.auth.currentSession;
+    final Session? session = _supabase.auth.currentSession;
     if (session == null ||
         session.user.emailConfirmedAt == null ||
         session.user.isAnonymous) {
       throw GeographicContextFailure.scopeUnavailable;
     }
     try {
-      final response = await _supabase.rpc(
+      final dynamic response = await _supabase.rpc(
         'read_administrative_boundary_candidates',
         params: {'latitude': lat, 'longitude': lng},
       );
       if (!identical(session, _supabase.auth.currentSession)) {
         throw GeographicContextFailure.scopeUnavailable;
       }
-      if (response is! List ||
-          response.any((row) => row is! Map<String, dynamic>)) {
+      if (response is! List || _containsInvalidRow(response)) {
         throw GeographicContextFailure.versionUnverifiable;
       }
       return response.cast<Map<String, dynamic>>();
     } on PostgrestException catch (e) {
       // Postgrest wraps a malformed 2xx JSON body using its HTTP status code.
-      final status = int.tryParse(e.code ?? '');
+      final int? status = int.tryParse(e.code ?? '');
       if (status != null && status >= 200 && status < 300) {
         throw GeographicContextFailure.versionUnverifiable;
       }
@@ -62,5 +61,14 @@ class SupabaseGeoRepository implements GeographicContextRepository {
     } on FormatException {
       throw GeographicContextFailure.versionUnverifiable;
     }
+  }
+
+  bool _containsInvalidRow(List<dynamic> rows) {
+    for (final dynamic row in rows) {
+      if (row is! Map<String, dynamic>) {
+        return true;
+      }
+    }
+    return false;
   }
 }

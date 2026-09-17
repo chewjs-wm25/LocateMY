@@ -7,5 +7,8 @@ import 'src/supabase_geo_repository.dart';
 export 'src/geographic_context_models.dart';
 
 GeographicContext createGeographicContext(SupabaseClient supabaseClient) {
-  return GeographicContextServiceImpl(SupabaseGeoRepository(supabaseClient));
+  final SupabaseGeoRepository repository = SupabaseGeoRepository(
+    supabaseClient,
+  );
+  return GeographicContextServiceImpl(repository);
 }

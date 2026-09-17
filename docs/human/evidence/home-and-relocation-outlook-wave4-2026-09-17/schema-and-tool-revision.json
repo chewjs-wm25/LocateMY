@@ -1,0 +1,15 @@
+{
+  "base_head": "66f4ffc1e9392a1cdf9e01b054cbd81b713e82b9",
+  "files": {
+    "supabase/migrations/20260917010944_add_home_metrics_read_rpc.sql": "a4bb40e99856ce7aa2bc997443ca77b3743ec5b0bbaf2a1be7a4387e5e2bc1c4",
+    "supabase/migrations/20260917011441_grant_home_dataset_maintenance.sql": "f125d4590b951885b79ec81c6bb9ed10b4498c290f8f6bc458cc0cb959a7ff56",
+    "supabase/migrations/20260917011508_allow_maintenance_data_api_guard.sql": "dc3be0070c2f9868b1b41c23fd22ab1cc8b8429e1a5eec09d5489cc99a50231f",
+    "supabase/migrations/20260917012440_harden_home_mirror_readonly.sql": "e654484b0418774e10adf4342ce4b0c3249a5ed58b65d6c3f7ea6663c0c8c228",
+    "supabase/migrations/20260917013056_align_official_lfs_mirror.sql": "01773da205c53c963c8892b9fbc95ceaa4614816577c2dbd569e62caa4422572",
+    "tool/import_home_datasets.py": "ca8111e0f449d91385af05e9489f1b7d4050dd696eb94b36041f5b2cb1330673",
+    "tool/verify_home_devices.py": "1c3f6af76ec8223c75a90deb8fc58dc1670ba4ee95ea26eba854c894d3c26baf",
+    "tool/verify_home_live.py": "4a3c4a7a5780d804cf189eeb767ad382fafbd8fbace3848858bb0ef56e494985"
+  },
+  "schema_application": "Five listed Home forward migrations applied to configured development project; live allow/deny verifies resulting schema",
+  "tool_application": "Listed Python files are the runners used for final import/live/device verification; device run includes literal pull gesture"
+}

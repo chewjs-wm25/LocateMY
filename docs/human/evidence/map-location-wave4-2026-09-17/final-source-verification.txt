@@ -1,0 +1,10 @@
+PASS: tests, both device builds/verifications and production build match frozen source.
+{
+  "test-source.json": "62569034a5d83a55a7d276d47b43324b5297221e277cb7f07ed2bb61e5f0092c",
+  "owner-b-emulator-build.source.json": "62569034a5d83a55a7d276d47b43324b5297221e277cb7f07ed2bb61e5f0092c",
+  "owner-b-emulator-verification.source.json": "62569034a5d83a55a7d276d47b43324b5297221e277cb7f07ed2bb61e5f0092c",
+  "owner-a-device-build.source.json": "62569034a5d83a55a7d276d47b43324b5297221e277cb7f07ed2bb61e5f0092c",
+  "owner-a-device-verification.source.json": "62569034a5d83a55a7d276d47b43324b5297221e277cb7f07ed2bb61e5f0092c",
+  "production-build.source.json": "62569034a5d83a55a7d276d47b43324b5297221e277cb7f07ed2bb61e5f0092c"
+}
+Both target device full flows and English/Chinese 200% screenshots passed.

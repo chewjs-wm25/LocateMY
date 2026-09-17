@@ -138,10 +138,18 @@ void main() {
       expect(find.byType(NavigationDestination), findsNWidgets(2));
       await tester.tap(find.text('count 0'));
       await tester.pump();
-      await tester.tap(find.text('地图'));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) => widget is NavigationDestination && widget.label == '地图',
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('map fixture'), findsOneWidget);
-      await tester.tap(find.text('首页'));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) => widget is NavigationDestination && widget.label == '首页',
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('count 1'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('shell-account')));

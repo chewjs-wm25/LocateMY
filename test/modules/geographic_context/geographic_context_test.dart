@@ -9,40 +9,45 @@ import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-Map<String, dynamic> row({String id = 'b1', String state = 'Selangor'}) => {
-  'boundary_id': id,
-  'district': 'Petaling',
-  'state': state,
-  'source_dataset': 'dosm',
-  'source_url': 'https://example.com/boundaries',
-  'source_version': 'v1',
-  'source_sha256': 'source-hash',
-  'geometry_transform': 'make-valid',
-  'derived_geometry_sha256': 'geometry-hash',
-  'imported_at': '2026-09-14T08:00:00Z',
-};
+Map<String, dynamic> row({String id = 'b1', String state = 'Selangor'}) {
+  return <String, dynamic>{
+    'boundary_id': id,
+    'district': 'Petaling',
+    'state': state,
+    'source_dataset': 'dosm',
+    'source_url': 'https://example.com/boundaries',
+    'source_version': 'v1',
+    'source_sha256': 'source-hash',
+    'geometry_transform': 'make-valid',
+    'derived_geometry_sha256': 'geometry-hash',
+    'imported_at': '2026-09-14T08:00:00Z',
+  };
+}
 
 const location = ValidLocationReference(
   locationId: 'valid-map-fixture',
   point: GeographicPoint(latitude: 3.1, longitude: 101.6),
   displayName: 'Private name never sent',
 );
-GeographicContextRequest request([Set<GeographicLevel>? levels]) =>
-    GeographicContextRequest(
-      location: location,
-      levels: levels ?? GeographicLevel.values.toSet(),
-    );
+GeographicContextRequest request([Set<GeographicLevel>? levels]) {
+  final Set<GeographicLevel> requestedLevels =
+      levels ?? GeographicLevel.values.toSet();
+  return GeographicContextRequest(location: location, levels: requestedLevels);
+}
 
 void main() {
   late SupabaseClient client;
   late GeographicContext geo;
   late Future<http.Response> Function(http.Request) respond;
   late List<http.Request> calls;
-  http.Response json(Object data, [int status = 200]) => http.Response(
-    jsonEncode(data),
-    status,
-    headers: {'content-type': 'application/json'},
-  );
+  http.Response json(Object data, [int status = 200]) {
+    return http.Response(
+      jsonEncode(data),
+      status,
+      headers: <String, String>{'content-type': 'application/json'},
+    );
+  }
+
   Future<void> seed({bool confirmed = true, bool anonymous = false}) async {
     await client.auth.setInitialSession(
       jsonEncode({
@@ -65,7 +70,9 @@ void main() {
 
   setUp(() {
     calls = [];
-    respond = (_) async => json([row()]);
+    respond = (_) async {
+      return json(<Map<String, dynamic>>[row()]);
+    };
     client = SupabaseClient(
       'https://geo.example.com',
       'sb_publishable_test',
@@ -73,24 +80,26 @@ void main() {
         autoRefreshToken: false,
         authFlowType: AuthFlowType.implicit,
       ),
-      httpClient: MockClient((r) {
-        calls.add(r);
-        if (r.url.path.contains('/auth/')) {
+      httpClient: MockClient((http.Request request) {
+        calls.add(request);
+        if (request.url.path.contains('/auth/')) {
           return Future.value(json(<String, dynamic>{}));
         }
-        return respond(r).then(
-          (response) => http.Response.bytes(
+        return respond(request).then((http.Response response) {
+          return http.Response.bytes(
             response.bodyBytes,
             response.statusCode,
             headers: response.headers,
-            request: r,
-          ),
-        );
+            request: request,
+          );
+        });
       }),
     );
     geo = createGeographicContext(client);
   });
-  tearDown(() => client.dispose());
+  tearDown(() {
+    client.dispose();
+  });
 
   test('confirmed authenticated RPC resolves only requested levels with immutable results', () async {
     await seed();

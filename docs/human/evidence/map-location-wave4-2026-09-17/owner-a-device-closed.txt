@@ -1,0 +1,11 @@
+09-17 12:09:21.081   910   910 I flutter : MAP_DEVICE: PASS real confirmed sign-in
+09-17 12:09:21.407   910   910 I flutter : MAP_DEVICE: PASS production privacy gate
+09-17 12:09:21.693   910   910 I flutter : MAP_DEVICE: PASS offline replay reports unavailable
+09-17 12:09:21.693   910   910 I flutter : MAP_DEVICE: RESTART_QUEUED_READY
+09-17 12:09:52.994   910   910 I flutter : MAP_DEVICE: SYNC_STATE SavedLocationsAvailable synchronized
+09-17 12:09:52.995   910   910 I flutter : MAP_DEVICE: PASS durable replay synchronized
+09-17 12:09:52.995   910   910 I flutter : MAP_DEVICE: RECOVERED_READY
+09-17 12:10:02.163   910   910 I flutter : MAP_DEVICE: PASS scope closed
+09-17 12:10:02.163   910   910 I flutter : MAP_DEVICE: PASS private selections cleared
+09-17 12:10:02.164   910   910 I flutter : MAP_DEVICE: PASS old scope intent denied
+09-17 12:10:02.164   910   910 I flutter : MAP_DEVICE: CLOSED_READY

@@ -13,13 +13,16 @@ final class FakeAccountPrivacy implements AccountPrivacy {
   FakeAccountPrivacy({
     Iterable<OpenAccountScopeOutcome> opens = const [],
     Iterable<CloseAccountScopeOutcome> closes = const [],
-  }) : opens = Queue.of(opens),
-       closes = Queue.of(closes);
+  }) : opens = Queue<OpenAccountScopeOutcome>.of(opens),
+       closes = Queue<CloseAccountScopeOutcome>.of(closes);
   @override
-  AccountScopeSnapshot readScope() => snapshot;
+  AccountScopeSnapshot readScope() {
+    return snapshot;
+  }
+
   @override
   Future<OpenAccountScopeOutcome> open(AuthenticatedAccount account) async {
-    final result = opens.removeFirst();
+    final OpenAccountScopeOutcome result = opens.removeFirst();
     if (result is AccountScopeOpenedForAccount) {
       snapshot = AccountScopeOpened(result.scope);
     }
@@ -32,8 +35,8 @@ final class FakeAccountPrivacy implements AccountPrivacy {
     AccountScopeCloseReason reason,
   ) {
     snapshot = AccountScopeClosing(scope);
-    final result = closes.removeFirst();
-    return Future(() {
+    final CloseAccountScopeOutcome result = closes.removeFirst();
+    return Future<CloseAccountScopeOutcome>(() {
       if (result is AccountScopeClosedForAccount) {
         snapshot = AccountScopeClosed(result.scope);
       }

@@ -6,15 +6,16 @@ import '../../support/fake_authentication_session.dart';
 
 void main() {
   test('Auth proves only a known ended current device session without signing out for Shell', () async {
-    final auth = FakeAuthenticationSession();
-    final participant = createAuthenticationPrivacyParticipant(auth);
+    final FakeAuthenticationSession auth = FakeAuthenticationSession();
+    final AccountPrivacyParticipant participant =
+        createAuthenticationPrivacyParticipant(auth);
     const scope = AccountScope('a');
     auth.restored = const AuthenticatedSession(accountA);
     expect(
       await participant.clearPrivateState(scope),
       isA<PrivateStateClearIncomplete>(),
     );
-    for (final failure in SessionFailure.values) {
+    for (final SessionFailure failure in SessionFailure.values) {
       auth.restored = SessionUnavailable(failure);
       expect(
         await participant.clearPrivateState(scope),
@@ -22,7 +23,7 @@ void main() {
       );
     }
     auth.restored = const UnauthenticatedSession();
-    final result =
+    final PrivateStateCleared result =
         await participant.clearPrivateState(scope) as PrivateStateCleared;
     expect(
       result.participantId,

@@ -1,0 +1,23 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart
+00:00 +0: closing rejects long press as scope unavailable
+00:00 +0 -1: closing rejects long press as scope unavailable [E]
+  Expected: MapLayerFailure:<MapLayerFailure.scopeUnavailable>
+    Actual: MapLayerFailure:<MapLayerFailure.unauthenticated>
+  
+  package:matcher                                      expect
+  package:flutter_test/src/widget_tester.dart 473:18   expect
+  test/features/map_location/map_layer_test.dart 12:5  main.<fn>
+  
+00:00 +0 -1: boundary outage returns typed failures without mutating roles
+00:00 +0 -2: boundary outage returns typed failures without mutating roles [E]
+  Bad state: boundary unavailable
+  test/features/map_location/map_layer_test.dart 18:35                                main.<fn>.<fn>
+  package:locatemy/features/map_location/src/application/location_service.dart 98:29  LocationService.select
+  test/features/map_location/map_layer_test.dart 20:22                                main.<fn>
+  
+00:00 +0 -2: visible/hidden contributions and long press preserve selection roles
+00:00 +1 -2: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: boundary outage returns typed failures without mutating roles
+  /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: closing rejects long press as scope unavailable

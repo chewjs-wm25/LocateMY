@@ -1,6 +1,7 @@
 # Home & Relocation Outlook 开发协作契约
 
 > Owner：`A`<br>
+> 模块实现：`Implemented`（2026-09-17）；集成状态：Home/Shell 当期子项通过，真实 Map 联验待 Owner A 于 Wave 4 完成，尚未批准 `Integrated`。<br>
 > 依赖顺序：Wave 4；消费已冻结的 Application Shell `SHELL-001`，并向 Shell 提供 `HOME-001` 公共入口与 fake。<br>
 > 定义完成：Shell 能只凭本文件读取、呈现和刷新全国首页结果，并安全提交“探索地图”意图；不需要 Home 的内部文件、Supabase Adapter 或缓存实现。
 
@@ -237,13 +238,61 @@ switch (outcome) {
 | 双入口刷新与冷却 | A、Shell | 依次使用按钮、下拉、进行中重复动作、60 秒内 refresh、刷新失败。 | 两入口调用相同 request；成功后显示剩余秒数，重复强刷被阻止；失败保留既有结果并不报告成功。 | `HOME-03`；`AT-HOME-02`、`FLOW-08` |
 | 门控、范围关闭与探索地图 | A、Shell | 在 opened、未认证、scope 关闭时进入首页；再选择探索地图并注入 Shell 拒绝。 | 仅 opened 时读取/呈现；关闭后旧结果不进入后续账户；accepted 只切地图 Tab、不设地点；拒绝仍在首页且可读原因。 | `HOME-01`–`HOME-03`；`AT-HOME-03`、`D04`、`FLOW-08` |
 
+### 7.1 Wave 4 验收分配
+
+项目负责人于 2026-09-17 确认四个 TDD seam：HOME-001 load、首页公开页面、Home/真实 Shell 公开组合入口、通过 HOME-001 真实 RPC 及数据库权限。仅在这些边界观察行为；外部 HTTP、SQLite 和时钟可使用确定性 Adapter。
+
+| 场景 / 可观察结果 | 验证归属 | 依赖分类 | 证据要求 | Owner | 最迟 Wave | 本模块状态 | 联合状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| HOME-W4-01 完整首页、独立数据日期/来源/单位、模型与原因 | 两者 | 本期真实 RPC/Home/Shell；HTTP 测试边界 | load 已知例、页面、live 与设备 | A | 4 | 已通过；见 7.3 | Home/Shell 当期子项已通过；见 7.3 |
+| HOME-W4-02 缺失/字段变化/历史不足、60% 门槛、收入独立 | 两者 | 本期真实计算；HTTP 确定性数据 | load 与页面保留可用卡、未知不置零 | A | 4 | 已通过；见 7.3 | Home/Shell 当期子项已通过；见 7.3 |
+| HOME-W4-03 cached/stale/无缓存、较新替换、进程重启 | 两者 | 本期真实 SQLite；网络故障测试边界 | 持久缓存/失败恢复、离线设备 | A | 4 | 已通过；见 7.3 | Home/Shell 当期子项已通过；见 7.3 |
+| HOME-W4-04 双入口刷新、进行中去重、仅成功60秒冷却 | 两者 | 本期真实 Home/Shell；测试时钟/网络 | load、按钮/下拉、失败保留、设备 | A | 4 | 已通过；见 7.3 | Home/Shell 当期子项已通过；见 7.3 |
+| HOME-W4-05 opened门控、关闭丢弃响应、无地点探索/拒绝 | 两者 | 本期真实 Auth/Privacy/Shell/Home；Map 后续槽位 | 公开组合测试与设备关闭/重启；真实 Map 联验 | A | Home/Shell 4；Map 4 | 已通过；见 7.3 | Home/Shell 已通过；真实 Map 待接入，A / Wave 4 |
+| HOME-W4-06 中英日期/动态状态、小屏200%、文字可读性 | 本模块 | 本期真实本地化 | Widget与两目标设备 | A；B模拟器 | 4 | 已通过；见 7.3 | 不适用 |
+| HOME-W4-07 外部映射和RPC读权限、镜像写入/匿名deny | 本模块 | 本期真实开发环境；HTTP确定性错误 | 官方schema/键/行数/日期审计、live allow/deny | A | 4 | 已通过；见 7.3 | 不适用 |
+
+Map 的地图状态和真实页面不在本任务开发范围；其 Wave 4 联合责任仍由 A 承担，Home 不制造地点或成功占位。
+
+### 7.2 Wave 4 实现接线
+
+Feature 分层实现 HOME-001：Domain 管理百分位、历史、权重和卡片规则；Application use case 管理读取、去重、缓存替换、降级与成功冷却；Data Adapter 隔离 Supabase/SQLite；HomeViewModel 管理呈现和用户动作，公开 HomeOutlookPage 提供 Shell 首页槽位。
+唯一公开入口补充生产装配 factory 和页面 helper；HOME-001/SHELL-001 的成员和结果不变。
+测试 fake 仅位于 test/support，不接入生产。SQLite TTL 为 24 小时，成功冷却仅内存保存。
+
+组合根在每个 opened scope 创建独立 Home provider/ViewModel，以弱 scope key 复用当前页面；只共享无账户字段的持久公共缓存，旧账户请求不与新账户合并。探索 marker 由组合根精确投影为 Map Tab，不构造地点、分析语境或默认坐标。
+页面中英文同等呈现各自数据日期、来源/单位、方向、原因与 fresh/cached/stale/partial/typed failure；指数有文字和读屏摘要，不只靠颜色。三个宏观图按各自最后六个月的有效观测重算，明确标示 currentObservationsApproximation，逐期日期/分数可供读屏；缺失月不复制前值，缓存重启缺少序列时显示趋势不可用和方向摘要。
+
+当前官方 GDP CSV 只有 abs，RPC 不将其作为 growth_qoq；经济动能使用其余可用 70% 原权重归一化。这是可用输入的如实处理，不改变模型、数据或公共结果。
+
+### 7.3 Implemented 验收记录（2026-09-17）
+
+四个已确认测试边界均通过：HOME-001 公开 load（26 项）、公开页面（6 项）、真实 Shell 组合（2 项）、真实 Supabase RPC/权限（1 项 live）；另有真实 provider 的趋势页面测试 2 项。共 36 项定向测试、145 项全量通过（5 项显式 opt-in 跳过）；Home live 单独启用通过。格式、静态分析、diff 检查和普通 debug APK 构建通过。
+
+Owner A 真机及 Owner B 目标模拟器均通过：首页双语、实际下拉刷新/冷却、离线 stale、过期公共缓存进程重启、在线恢复、无地点 Map Tab/返回、关闭 scope 后旧意图拒绝。正常 APK 已恢复、测试账户已清理；凭据扫描通过。
+
+历史月/季窗口回退、GDP schema/data 异常不成功冷却、缓存分数/日期损坏拒绝、SQLite 临时失败恢复和跨 scope 晚到写入回退防护均有公开 TDD 证据。稳定诊断事件仅含固定分类、耗时桶和生成关联号，敏感字段 deny-list 测试通过。
+
+基线 HEAD `66f4ffc1e9392a1cdf9e01b054cbd81b713e82b9`；测试/live/两设备及 APK 的 App source SHA-256 为 `931fc6856e6301ea59975c2ca7ceee2ecf918c559d54f909ca8a8d449424ac1a`，迁移和 Python runner 另有 revision 清单。
+证据：[验收报告](../../human/home-and-relocation-outlook-wave4-acceptance-2026-09-17.md)、[GPT-5.6 Luna High 两轴审查](../../human/home-and-relocation-outlook-wave4-review-2026-09-17.md)、[命令与版本](../../human/evidence/home-and-relocation-outlook-wave4-2026-09-17/checks.source.json)、[设备与清理](../../human/evidence/home-and-relocation-outlook-wave4-2026-09-17/device-verification-summary.json)、[迁移/工具版本](../../human/evidence/home-and-relocation-outlook-wave4-2026-09-17/schema-and-tool-revision.json)。
+
+Home 模块当前阻塞：无。整个 Wave 4 尚未完成：真实 Map 页面及 HOME-W4-05 完整联合场景仍由 Owner A 在 Wave 4 交付，不能把 Tab 槽位证据当作真实 Map 联验或 Integrated 批准。
+
+### 7.4 Penpot 首页风格对照（2026-09-17）
+
+通过 Penpot MCP 读取 `LocateMY Mobile UI` / `02 · 首页`（board `f8bc3597-5a95-809e-8008-a3e627fc0313`），实现 Source Sans Pro、蓝色/深蓝色与浅灰底、评分卡 20 圆角、指标卡 14 圆角、探索按钮前置和 Shell 品牌/账户/导航样式。真实指标、独立日期、收入与趋势继续遵守合同；200% 字号采用自适应布局。
+
+UI 更新后全量 146 项通过、5 项 opt-in 跳过，live 1 项通过；静态分析与格式检查通过。Owner A 真机和 Owner B 模拟器均通过双语、实际下拉/冷却、离线/重启/恢复、探索与 scope 关闭；普通 APK 恢复、临时凭据清理及扫描通过。GPT-5.6 Luna High 的 Spec/Standards 两轴均通过；Home 维持 Implemented，真实 Map 联验责任不变。
+
+当前含字体 App SHA-256：`aa0ebdfff9b062e5c0c499d5f6f9ff732b78a37605cc99e1f9e91df8af183825`；7.3 为此前核心实现记录。[UI 对照报告与截图](../../human/home-penpot-alignment-2026-09-17.md)、[最终设备记录](../../human/evidence/home-penpot-alignment-2026-09-17/penpot-device-summary.json)。
+
 ## 8. 内部自由
 
 A 可决定 Feature 内的文件拆分、Widget、状态管理、Adapter、缓存序列化、TTL、请求调度、取消、重试、去重、局部验证和测试组织。Shell 可决定其槽位布局、日期本地化和导航 UI。以下事项须先协商：唯一公开 import、公开声明/结果变体、60 秒成功冷却、三主分项/收入的可用性边界、来源元数据、探索地图的无地点约束、`read_home_metrics`/`home_public_cache` 的 schema 或权限。
 
 ## 9. 阻塞与权威参考
 
-**当前阻塞项：无。** `read_home_metrics` 与 `home_public_cache` 仍是 `proposed`：实现前须以 Schema Catalog 的 add–migrate–validate 证据确认官方 schema/键/行数、最大日期和完整/部分/空导入。运行时依赖、离线与可访问性证据由 `RISK-NFR-01` 在实现/集成验收关闭；它们不改变本契约。
+**当前阻塞项：无。** `read_home_metrics` 与 `home_public_cache` 已实现：官方 schema/键/行数、最大日期与完整/部分/空输入由 Schema Catalog 的 Home Wave 4 条目及验收证据追踪。运行时依赖、离线与可访问性证据由 `RISK-NFR-01` 在实现/集成验收关闭；它们不改变本契约。
 
 权威参考：[Application Shell](../modules/application-shell.md#shell-001--application-coordination)、[系统 Interface 注册表](../system/interfaces.md)、[FLOW-08](../system/flows.md#flow-08首页刷新与探索地图)、[Capability 追踪](../system/capability-traceability.md)、[数据所有权](../system/data-ownership.md)、[Schema Catalog](../data/schema-catalog.md#稳定公共读取对象)、[风险与决定](../system/risks-and-decisions.md)、[首页产品事实](../../knowledge_base/locatemy_product/features/home.md)、[指数事实](../../knowledge_base/locatemy_product/home_index_scoring.md)。
 

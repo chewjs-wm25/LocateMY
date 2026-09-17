@@ -14,23 +14,30 @@ final class TestParticipant implements AccountPrivacyParticipant {
   Future<PrivateStateClearOutcome> Function(AccountScope)? response;
   TestParticipant(this.participantId);
   @override
-  Future<PrivateStateClearOutcome> clearPrivateState(
-    AccountScope scope,
-  ) async => response != null
-      ? await response!(scope)
-      : failure == null
-      ? PrivateStateCleared(participantId, scope)
-      : PrivateStateClearIncomplete(participantId, scope, failure!);
+  Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope) async {
+    final Future<PrivateStateClearOutcome> Function(AccountScope)? handler =
+        response;
+    if (handler != null) {
+      return await handler(scope);
+    }
+    final PrivateStateClearFailure? currentFailure = failure;
+    if (currentFailure == null) {
+      return PrivateStateCleared(participantId, scope);
+    }
+    return PrivateStateClearIncomplete(participantId, scope, currentFailure);
+  }
 }
 
 final class UnavailableRegistration implements AccountPrivacyParticipant {
   @override
-  AccountPrivacyParticipantId get participantId =>
-      throw StateError('registration unavailable');
+  AccountPrivacyParticipantId get participantId {
+    throw StateError('registration unavailable');
+  }
+
   @override
-  Future<PrivateStateClearOutcome> clearPrivateState(
-    AccountScope scope,
-  ) async => throw StateError('unregistered owner');
+  Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope) async {
+    throw StateError('unregistered owner');
+  }
 }
 
 void main() {
@@ -497,8 +504,12 @@ void main() {
       await auth.changes.close();
     },
   );
-  setUp(() => directory = Directory.systemTemp.createTempSync('privacy-test-'));
-  tearDown(() => directory.deleteSync(recursive: true));
+  setUp(() {
+    directory = Directory.systemTemp.createTempSync('privacy-test-');
+  });
+  tearDown(() {
+    directory.deleteSync(recursive: true);
+  });
   test('restarting a coordinator restores closing and requires the old scope cleanup', () async {
     final auth = FakeAuthenticationSession()
       ..restored = const AuthenticatedSession(accountA);

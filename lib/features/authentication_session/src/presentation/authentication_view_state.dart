@@ -27,14 +27,16 @@ final class AuthenticationViewState {
     this.signOutBlocked = false,
   });
 
-  factory AuthenticationViewState.initial() => const AuthenticationViewState(
-    mode: AuthenticationMode.signIn,
-    actionStatus: AuthenticationActionStatus.idle,
-    session: null,
-    isRestoring: true,
-    messageKey: null,
-    fieldErrorKey: null,
-  );
+  factory AuthenticationViewState.initial() {
+    return const AuthenticationViewState(
+      mode: AuthenticationMode.signIn,
+      actionStatus: AuthenticationActionStatus.idle,
+      session: null,
+      isRestoring: true,
+      messageKey: null,
+      fieldErrorKey: null,
+    );
+  }
 
   AuthenticationViewState copyWith({
     bool? isRestoring,
@@ -45,20 +47,34 @@ final class AuthenticationViewState {
     Object? session = _unset,
     Object? messageKey = _unset,
     Object? fieldErrorKey = _unset,
-  }) => AuthenticationViewState(
-    isRestoring: isRestoring ?? this.isRestoring,
-    isSigningOut: isSigningOut ?? this.isSigningOut,
-    signOutBlocked: signOutBlocked ?? this.signOutBlocked,
-    mode: mode ?? this.mode,
-    actionStatus: actionStatus ?? this.actionStatus,
-    session: identical(session, _unset)
-        ? this.session
-        : session as SessionSnapshot?,
-    messageKey: identical(messageKey, _unset)
-        ? this.messageKey
-        : messageKey as String?,
-    fieldErrorKey: identical(fieldErrorKey, _unset)
-        ? this.fieldErrorKey
-        : fieldErrorKey as String?,
-  );
+  }) {
+    final SessionSnapshot? nextSession;
+    if (identical(session, _unset)) {
+      nextSession = this.session;
+    } else {
+      nextSession = session as SessionSnapshot?;
+    }
+    final String? nextMessageKey;
+    if (identical(messageKey, _unset)) {
+      nextMessageKey = this.messageKey;
+    } else {
+      nextMessageKey = messageKey as String?;
+    }
+    final String? nextFieldErrorKey;
+    if (identical(fieldErrorKey, _unset)) {
+      nextFieldErrorKey = this.fieldErrorKey;
+    } else {
+      nextFieldErrorKey = fieldErrorKey as String?;
+    }
+    return AuthenticationViewState(
+      isRestoring: isRestoring ?? this.isRestoring,
+      isSigningOut: isSigningOut ?? this.isSigningOut,
+      signOutBlocked: signOutBlocked ?? this.signOutBlocked,
+      mode: mode ?? this.mode,
+      actionStatus: actionStatus ?? this.actionStatus,
+      session: nextSession,
+      messageKey: nextMessageKey,
+      fieldErrorKey: nextFieldErrorKey,
+    );
+  }
 }

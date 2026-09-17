@@ -22,7 +22,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | `auth.users` | Supabase Auth | `external` | Authentication & Session | account id、email、email confirmed state；认证凭据不复制到 public | SDK 当前会话；Authentication & Session | Supabase 托管；其他消费者只消费 `AUTH-001` |
 | `profiles` | Supabase table | `implemented` | Authentication & Session | `id`=auth account id；可选 username/avatar/bio；updated at | owner-only CRUD；Authentication & Session 写注册资料 | 现有 migration；真实邮箱/确认状态仍读 Auth，Account Center 不直读本表 |
-| `user_saved_locations` | Supabase table | `proposed` | Map / Location | id、user id、每次 create 的客户端幂等键（同账户唯一）、非空名称 ≤120、WGS84 point、created/updated at、删除标记及删除版本 | owner-only 同步读取与 CRUD；Map | Supabase 是权威；删除保留可同步的墓碑，待所有客户端已观察后再由受控维护操作清理。现有对象缺少幂等/删除传播契约，migration 须 add–migrate–validate |
+| `user_saved_locations` | Supabase table | `implemented` | Map / Location | id、user id（外键指向 auth.users，不依赖可选 profiles）、每次 create 的客户端幂等键（同账户唯一）、非空名称 ≤120、WGS84 point、created/updated at、删除标记及删除版本 | owner-only 同步读取与 CRUD；Map | Supabase 是权威；删除保留可同步的墓碑，待所有客户端已观察后再由受控维护操作清理。`20260917025814_map_saved_locations_sync.sql` 已增加同账户 `client_key` 唯一键、`version` 和 `deleted_at`；更新须匹配旧版本，墓碑不可再改，客户端无物理 DELETE grant。 |
 | `user_budget_scenarios` | Supabase table | `proposed` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负的额外生活开销/住房/交通/月净收入/家庭月度总收入、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost of Living & Budget | Account、Socio-economic 与 Suitability 只消费 `COST-002`，不直接读取本表；月净收入只用于个人预算压力，家庭月度总收入只用于 Socio 收入位置，均不可互代；额外生活开销为空表示无额外开销；migration 须 additive 地加入家庭月度总收入，旧预案保持缺失而不猜测；旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
 | `user_assessment_preferences` | Supabase table | `proposed` | Account Center | user id 主键；safety/cost/daily convenience/transit accessibility/infrastructure 均为整数 1–10；nullable `configured_at`、updated at | owner-only CRUD；Account Center | `configured_at is null` 是未配置，五项默认 `5` 仅可作表单预填；一次成功确认完整五项才写入时间并发布 `ACCOUNT-001` complete snapshot，后续有效修改保留它。Suitability 只消费该 Interface，不直接读取本表。migration 须 add `configured_at`，既有行保持 null，不猜测升级；字段/RLS 实现完成后才可改回 implemented。 |
 | `user_ici_preferences` | Supabase table | `proposed` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 仅保存跨设备的 last saved 权重；合法未保存 preview 是 Feature 页面内存，不写表且不发布给其他设备。已有同名表是五个 0–1 权重，不能作为本契约的 implemented 证据；migration 需迁移或替换 |
@@ -39,10 +39,10 @@
 
 | 对象 / 官方数据集 | 状态 | Owner | 业务键与字段 | 消费者 / 当前实现说明 |
 | --- | --- | --- | --- | --- |
-| `cpi_headline_inflation` | `proposed` | Home | `(date, division)`；inflation yoy/mom | Home；现有 `cpi_core` 只有 index，不能替代 |
-| `lfs_month_sa` | `proposed` | Home | `date`；employed、unemployment rate、participation rate | Home；现有 `lfs_month` 未证明为季调资料 |
-| `economic_indicators` | `proposed` | Home | `date`；leading、leading diffusion | Home；当前缺失 |
-| `gdp_qtr_real_sa` | `proposed` | Home | `(series, date)`；value | Home；现有年度 GDP/GNI 表不能替代季度季调序列 |
+| `cpi_headline_inflation` | `implemented` | Home | `(date, division)`；inflation yoy/mom | Home；现有 `cpi_core` 只有 index，不能替代 |
+| `lfs_month_sa` | `implemented` | Home | `date`；employed、unemployment rate、participation rate | Home；官方六列 canonical mirror；原扩展列完整保留在客户端无访问权的 `lfs_month_sa_legacy`，不参与读取 |
+| `economic_indicators` | `implemented` | Home | `date`；leading、leading diffusion | Home；当前缺失 |
+| `gdp_qtr_real_sa` | `implemented` | Home | `(series, date)`；value | Home；现有年度 GDP/GNI 表不能替代季度季调序列 |
 | `hh_income` | `implemented` | Home | `date`；income mean/median | Home |
 | `price_catcher` / `pricecatcher` | `implemented` | Cost | `(date, premise_code, item_code)`；price | Cost；物理名可保留，来源 ID 仍为 `pricecatcher` |
 | `lookup_item` | `implemented` | Cost | `item_code`；item、unit、group、category | Cost |
@@ -84,7 +84,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 
 | 对象 | 类型/状态 | Owner | 覆盖数据 | 消费者 |
 | --- | --- | --- | --- | --- |
-| `read_home_metrics` | security-invoker View/RPC / `proposed` | Home | 五个 Home 数据集 | Home |
+| `read_home_metrics` | security-invoker RPC / `implemented` | Home | 五个 Home 数据集 | Home |
 | `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、行政区收入，以及地点所属州与全国的 Headline/Overall CPI 同月输入 | Cost |
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
@@ -96,12 +96,12 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 
 | 对象 | 类型/状态 | Owner | 字段契约 | 寿命/访问 |
 | --- | --- | --- | --- | --- |
-| `home_public_cache` | SQLite / `proposed` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
+| `home_public_cache` | SQLite / `implemented` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
 | `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
 | `crime_public_cache` | SQLite / `proposed` | Crime | reporting state、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
 | `facility_public_cache` | SQLite / `proposed` | Facilities | coordinate key、2,000 m、mapping version、完整结果/归因/query time、24-hour expiry | 只保存完整成功；无收藏名称/账户 id |
-| `saved_location_cache` | SQLite / `proposed` | Map | account id、remote id、name、point、remote version/timestamps、删除标记、sync state | 同账户 opened scope；退出清除；墓碑仅用于同步，不作为用户可见收藏 |
-| `saved_location_create_queue` | SQLite / `proposed` | Map | account id、client id/idempotency key、name、point、created at、attempt/retry state/error class | 只排队 create；成功变 cache 行；退出清除未同步项 |
+| `saved_location_cache` | SQLite logical partition / `implemented` | Map | account id、remote id、name、point、remote version/timestamps、删除标记、sync state | 同账户 opened scope；退出清除；墓碑仅用于同步，不作为用户可见收藏 |
+| `saved_location_create_queue` | SQLite logical partition / `implemented` | Map | account id、client id/idempotency key、name、point、created at、attempt/retry state/error class | 只排队 create；成功变 cache 行；退出清除未同步项 |
 | `property_drafts` | SQLite / `proposed` | Property | account id、draft id、全部表单字段、location、updated at | 同账户 scope；远端记录创建成功后按流程清除；草稿照片由独立对象拥有 |
 | `property_draft_photos` | SQLite / `proposed` | Property | account id、draft id、本机照片副本引用、说明、cover 标记、created at | 仅同账户 opened scope 可读写；跨重启保留。远端 inspection 成功创建后才分配正式 photo/inspection 标识并转入 `property_photo_upload_queue`；全部转换成功前保留草稿照片记录和本机副本，转换失败保留重试；退出/换号清除。本机 schema migration 须新增此对象，不从旧 mock/相册原件猜测照片资料 |
 | `property_photo_upload_queue` | SQLite / `proposed` | Property | account/inspection/photo id、local file ref、target path、attempt/retry/error/upload state | 只接收已有同账户远端 inspection 的正式照片待传项；与应用数据文件同生；成功后删本机文件/queue；退出清除 |
@@ -126,3 +126,38 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 6. 示例只用清洗数据；迁移、测试和日志不得记录凭据、token、service-role key、真实邮箱、自由文字、照片或可识别精确地点。
 7. 本地 Supabase 使用仓库锁定的 CLI `2.117.0`，`config.toml` 设置 `auto_expose_new_tables = false`；远端只接受与 migration history 一致的 forward migration，不修改已应用历史或执行 history repair。
 8. 遗留 `public` PostGIS 的 Data API 补偿控制由 `RISK-DATA-API-01` 定义：当前应用禁用 GraphQL，并拒绝 `spatial_ref_sys` / `st_estimatedextent` 路径。新增表/View/RPC 仍须自行满足第 1–3 条，不能依赖 pre-request hook 代替 RLS。
+
+## Home Wave 4 实现与校验证据（2026-09-17）
+
+`read_home_metrics()` 是无参数、stable、security-invoker、空 search_path 的只读 RPC。
+结果固定为 `{"version":1,"datasets":{...}}`，五个 dataset ID 始终存在并映射到数组；空导入返回空数组。
+CPI 投影 `date/division/inflation_yoy/inflation_mom`，仅四个模型 division；
+劳动力投影 `date/lf_employed/u_rate/p_rate`；经济指标投影 `date/leading/leading_diffusion`；
+GDP 投影 `date/series/value`，仅 `growth_qoq`；收入投影 `date/income_median`。
+日期为原统计日期，RPC 不加入账户、地点或导入日期。authenticated 有 execute/源表 select；
+PUBLIC/anon 无 execute，anon/authenticated 无源表写 grant；受控导入的 service_role 权限不进入 Flutter。
+
+SQLite `home_public_cache` migration 在 Data Adapter 懒初始化，字段为
+`cache_key`（national 主键）、`payload_version`、`result_payload`（仅公开快照）、
+`source_dates`、`fetched_at`、`expires_at`、`completeness`。版本 1；TTL 24 小时；
+无账户、地点或队列字段；退出保留，冷却不序列化。
+
+Forward migrations：`add_home_metrics_read_rpc`、`grant_home_dataset_maintenance`、
+`allow_maintenance_data_api_guard`、`harden_home_mirror_readonly`、`align_official_lfs_mirror`。
+维护者与客户端均运行既有 private pre-request guard；无新的 security-definer 路径。
+劳动力对齐是 add–migrate，原八列表及数据完整保留在 legacy 对象，不执行 remove。
+
+官方 CSV 的 schema、业务键、行数、最大日期与 SHA-256 审计见 Home Wave 4 验收证据。
+四个本期镜像分别导入 7812 / 198 / 426 / 46 行；最大日期分别为
+2026-07-01 / 2026-06-01 / 2026-06-01 / 2026-04-01；收入已有 22 行，最大日期 2024-01-01。
+当前官方 GDP 文件只有 abs，故 RPC 的 growth_qoq 数组为空；这是缺少评分输入，
+不能从 abs 制造增长。经济动能剩余 70% 原权重按模型归一化；完整/部分/空数组由确定性测试验证。
+
+## Map / Location 运行时读取契约（Wave 4）
+
+- `read_saved_locations()`：`security invoker`，仅 authenticated EXECUTE；底层 owner-only SELECT RLS。返回 `id` UUID、`client_key` text、`name` text、`latitude`/`longitude` float8、`created_at`/`deleted_at` timestamptz、`version` bigint。包含墓碑；客户端只向用户展示非墓碑项。
+- create 使用 `user_saved_locations` 的 `user_id,client_key` ignore-duplicates upsert，`location` 为 SRID=4326 的 Point。既有幂等键不会更新或复活墓碑；删除通过匹配 `id,version,deleted_at is null` 更新 `deleted_at`。
+- Map 的最终范围验证只读取 `read_administrative_boundary_candidates(latitude, longitude)` 并检查导入版本/hash；以是否存在 ST_Covers 候选判断联合范围，不选择或返回行政区事实。
+- SQLite 当前存储 Adapter 将 cache 与 create queue 合并到独占物理表 `map_saved_records(account_id,client_key,payload)`；payload 保存收藏字段、远端版本、墓碑、sync state，以及持久化 attempts / last_failure（重试次数与类型化错误类别）。`saved_location_cache`、`saved_location_create_queue` 为该表的两类逻辑记录，分别按 synchronized 与 queued/retryableFailure 区分。读、替换和清理均按 account_id，替换在单个 SQLite transaction 完成。
+
+- `20260917031216_saved_locations_optional_profile.sql` 先增设并验证 auth.users 外键，再移除 profiles 外键；已有记录不重写，账户权限不变。无可选 profile 的已确认账户已通过真实收藏创建验收。

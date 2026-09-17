@@ -1,7 +1,7 @@
 # 系统 Interface 注册表
 
 > 状态：`Baselined — 5d11769`
-> 最后更新：2026-09-14
+> 最后更新：2026-09-17
 
 本表是跨 Feature Interface 摘要与外部 seam 的唯一真相。完整协调语义留给 owning Feature/shared module 设计；数据字段只在 [Schema Catalog](../data/schema-catalog.md) 定义。
 
@@ -12,10 +12,10 @@
 | `AUTH-001` | Authentication & Session | Account Privacy；Application Shell；Account Center | 当前设备会话与真实邮箱确认 | `Ready for Development` | [Authentication & Session](../features/authentication-and-session.md) |
 | `PRIVACY-001` | Account Privacy | Application Shell；所有私有状态 Owner | 账户范围开启、关闭与本机清理证明 | `Ready for Development` | [Account Privacy](../modules/account-privacy.md) |
 | `SHELL-001` | Application Shell | 所有 Feature/shared module | 门控导航、组合槽位与跨 Feature 工作流 | `Ready for Development` | [Application Shell](../modules/application-shell.md) |
-| `LOCATION-001` | Map / Location | Application Shell；Cost；Crime；Facilities；Transit；Hazard；Socio；Infrastructure；Property；Suitability | 合法、不可变的单点/A-B/房产地点引用 | `Ready for Development` | [Map / Location](../features/map-and-location.md) |
-| `LOCATION-002` | Map / Location | Hazard Reporting；Nearby Facilities；Public Transportation | 声明式地图图层与点击/长按意图 | `Ready for Development` | [Map / Location](../features/map-and-location.md) |
+| `LOCATION-001` | Map / Location | Application Shell；Cost；Crime；Facilities；Transit；Hazard；Socio；Infrastructure；Property；Suitability | 合法、不可变的单点/A-B/房产地点引用 | `Implemented` | [Map / Location](../features/map-and-location.md) |
+| `LOCATION-002` | Map / Location | Hazard Reporting；Nearby Facilities；Public Transportation | 声明式地图图层与点击/长按意图 | `Implemented` | [Map / Location](../features/map-and-location.md) |
 | `GEO-001` | Geographic Context | Cost；Crime；Socio-economic；Infrastructure | 行政区与统计州地理语境 | `Ready for Development` | [Geographic Context](../modules/geographic-context.md) |
-| `HOME-001` | Home & Relocation Outlook | Application Shell | 全国搬家时机、宏观卡与刷新状态 | `Ready for Development` | [Home & Relocation Outlook](../features/home-and-relocation-outlook.md) |
+| `HOME-001` | Home & Relocation Outlook | Application Shell | 全国搬家时机、宏观卡与刷新状态 | `Implemented` | [Home & Relocation Outlook](../features/home-and-relocation-outlook.md) |
 | `COST-001` | Cost of Living & Budget | Application Shell；Personalized Location Suitability | 地点成本、个人预算压力与临时 CPI 等效换算 | `Ready for Development` | [Cost of Living & Budget](../features/cost-of-living-and-budget.md) |
 | `COST-002` | Cost of Living & Budget | Account Center；Socio-economic；Personalized Location Suitability；Application Shell | 预算预案及 current/无 current 的变化事实 | `Ready for Development` | [Cost of Living & Budget](../features/cost-of-living-and-budget.md) |
 | `SAFETY-001` | Crime & Security | Application Shell；Property Inspection；Personalized Location Suitability | 州级安全结果与趋势 | `Ready for Development` | [Crime & Security](../features/crime-and-security.md) |
@@ -34,7 +34,7 @@
 | ID | Owner | 消费者 | 用途 | 状态 | Owning document |
 | --- | --- | --- | --- | --- | --- |
 | `AUTH-002` | Authentication & Session | Authentication & Session | 对接 Supabase Auth 的会话与邮箱确认 | `Ready for Development` | [Authentication & Session](../features/authentication-and-session.md) |
-| `LOCATION-003` | Map / Location | Map / Location | 对接 Geoapify 的马来西亚地点候选 | `Ready for Development` | [Map / Location](../features/map-and-location.md) |
+| `LOCATION-003` | Map / Location | Map / Location | 对接 Geoapify 的马来西亚地点候选 | `Implemented` | [Map / Location](../features/map-and-location.md) |
 | `GEO-002` | Geographic Context | Geographic Context | 对接版本化行政边界读取对象 | `Ready for Development` | [Geographic Context](../modules/geographic-context.md) |
 | `FACILITY-002` | Nearby Facilities | Nearby Facilities | 对接 Overpass 设施来源 | `Ready for Development` | [Nearby Facilities](../features/nearby-facilities.md) |
 

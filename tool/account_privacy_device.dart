@@ -15,21 +15,31 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final class HarnessHttpClient extends http.BaseClient {
   static const _proxyPort = int.fromEnvironment('LOCATEMY_PRIVACY_PROXY_PORT');
-  final _inner = IOClient(
-    HttpClient()
-      ..findProxy = (_) =>
-          _proxyPort == 0 ? 'DIRECT' : 'PROXY 127.0.0.1:$_proxyPort',
-  );
+  final IOClient _inner;
+
+  HarnessHttpClient() : _inner = IOClient(_createHttpClient());
+
+  static HttpClient _createHttpClient() {
+    final HttpClient client = HttpClient();
+    client.findProxy = (Uri _) {
+      if (_proxyPort == 0) {
+        return 'DIRECT';
+      }
+      return 'PROXY 127.0.0.1:$_proxyPort';
+    };
+    return client;
+  }
+
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     try {
-      final response = await http.Response.fromStream(
+      final http.Response response = await http.Response.fromStream(
         await _inner.send(request),
       );
       if (response.statusCode >= 400) {
         String code = 'redacted';
         try {
-          final value = (jsonDecode(response.body) as Map)['code'];
+          final Object? value = (jsonDecode(response.body) as Map)['code'];
           if (value is String && RegExp(r'^[a-z_]{1,64}$').hasMatch(value)) {
             code = value;
           }
@@ -49,7 +59,9 @@ final class HarnessHttpClient extends http.BaseClient {
   }
 
   @override
-  void close() => _inner.close();
+  void close() {
+    _inner.close();
+  }
 }
 
 void main() {
@@ -63,32 +75,41 @@ final class HarnessTestParticipant implements AccountPrivacyParticipant {
   bool fail = false;
   HarnessTestParticipant(this.participantId);
   @override
-  Future<PrivateStateClearOutcome> clearPrivateState(
-    AccountScope scope,
-  ) async => fail
-      ? PrivateStateClearIncomplete(
-          participantId,
-          scope,
-          PrivateStateClearFailure.fileCleanupIncomplete,
-        )
-      : PrivateStateCleared(participantId, scope);
+  Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope) async {
+    if (fail) {
+      return PrivateStateClearIncomplete(
+        participantId,
+        scope,
+        PrivateStateClearFailure.fileCleanupIncomplete,
+      );
+    }
+    return PrivateStateCleared(participantId, scope);
+  }
 }
 
 class PrivacyVerification extends StatefulWidget {
   const PrivacyVerification({super.key});
   @override
-  State<PrivacyVerification> createState() => _PrivacyVerificationState();
+  State<PrivacyVerification> createState() {
+    return _PrivacyVerificationState();
+  }
 }
 
 class _PrivacyVerificationState extends State<PrivacyVerification> {
-  final lines = <String>[];
+  final List<String> lines = <String>[];
   void record(String message) {
     debugPrint('PRIVACY_DEVICE: $message');
-    if (mounted) setState(() => lines.add(message));
+    if (mounted) {
+      setState(() {
+        lines.add(message);
+      });
+    }
   }
 
   void require(bool condition, String name) {
-    if (!condition) throw StateError(name);
+    if (!condition) {
+      throw StateError(name);
+    }
     record('PASS: $name');
   }
 
@@ -99,22 +120,25 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
   }
 
   Future<void> verify() async {
-    final client = SupabaseClient(
+    final SupabaseClient client = SupabaseClient(
       const String.fromEnvironment('SUPABASE_URL'),
       const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
       authOptions: const AuthClientOptions(autoRefreshToken: false),
       httpClient: HarnessHttpClient(),
     );
-    final auth = createAuthenticationSession(client);
+    final AuthenticationSession auth = createAuthenticationSession(client);
     AccountPrivacy? privacy;
     try {
-      final directory = Directory(
+      final Directory directory = Directory(
         '${(await getApplicationSupportDirectory()).path}/privacy-wave2-harness',
       );
-      final fakes = AccountPrivacyParticipantId.values
-          .where(
-            (id) => id != AccountPrivacyParticipantId.authenticationSession,
-          )
+      final Iterable<AccountPrivacyParticipantId> nonAuthenticationIds =
+          AccountPrivacyParticipantId.values.where((
+            AccountPrivacyParticipantId id,
+          ) {
+            return id != AccountPrivacyParticipantId.authenticationSession;
+          });
+      final List<HarnessTestParticipant> fakes = nonAuthenticationIds
           .map(HarnessTestParticipant.new)
           .toList();
       privacy = createAccountPrivacy(
@@ -123,8 +147,8 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         stateDirectory: directory,
       );
       record('START: real AUTH-001; seven TEST FAKE owners; no private pages');
-      final initial = privacy.readScope();
-      final restarting = initial is AccountScopeClosing;
+      final AccountScopeSnapshot initial = privacy.readScope();
+      final bool restarting = initial is AccountScopeClosing;
       if (initial is AccountScopeClosing) {
         require(
           await privacy.open(
@@ -143,7 +167,7 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         );
       }
       Future<AuthenticatedAccount> login(bool b) async {
-        final result = await auth.signIn(
+        final SignInOutcome result = await auth.signIn(
           email: b
               ? const String.fromEnvironment('LOCATEMY_PRIVACY_B_EMAIL')
               : const String.fromEnvironment('LOCATEMY_EMAIL'),
@@ -157,7 +181,7 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
           );
           throw StateError('fixture login');
         }
-        final current = await auth.restoreSession();
+        final SessionSnapshot current = await auth.restoreSession();
         if (current is! AuthenticatedSession) {
           record(
             'FAIL DETAIL: restore ${current is SessionUnavailable ? current.failure.name : current.runtimeType}',
@@ -167,13 +191,13 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         return current.account;
       }
 
-      final a = await login(false);
-      final opened = await privacy.open(a);
+      final AuthenticatedAccount a = await login(false);
+      final OpenAccountScopeOutcome opened = await privacy.open(a);
       require(
         opened is AccountScopeOpenedForAccount,
         'real A identity opens scope',
       );
-      var oldScope = (opened as AccountScopeOpenedForAccount).scope;
+      AccountScope oldScope = (opened as AccountScopeOpenedForAccount).scope;
       require(
         (await privacy.open(a) as AccountScopeOpenedForAccount).scope ==
             oldScope,
@@ -189,13 +213,14 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         privacy.readScope() is! AccountScopeOpened,
         'ordinary rebuild requires fresh Auth before private access',
       );
-      final restoredOpen = await privacy.open(a);
+      final OpenAccountScopeOutcome restoredOpen = await privacy.open(a);
       require(
         restoredOpen is AccountScopeOpenedForAccount,
         'ordinary same-account rebuild preserves open scope without cleanup',
       );
       oldScope = (restoredOpen as AccountScopeOpenedForAccount).scope;
-      final authParticipant = createAuthenticationPrivacyParticipant(auth);
+      final AccountPrivacyParticipant authParticipant =
+          createAuthenticationPrivacyParticipant(auth);
       require(
         await authParticipant.clearPrivateState(oldScope)
             is PrivateStateClearIncomplete,
@@ -211,7 +236,7 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         'real Auth participant exit proof',
       );
       fakes.last.fail = true;
-      final pending = privacy.close(
+      final Future<CloseAccountScopeOutcome> pending = privacy.close(
         oldScope,
         AccountScopeCloseReason.accountSwitch,
       );
@@ -219,14 +244,14 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         privacy.readScope() is AccountScopeClosing,
         'close immediately blocks private access',
       );
-      final incomplete = await pending;
+      final CloseAccountScopeOutcome incomplete = await pending;
       require(
         incomplete is AccountScopeCloseIncomplete &&
             incomplete.incomplete.single.participantId ==
                 AccountPrivacyParticipantId.accountCenter,
         'exact owner cleanup failure',
       );
-      final b = await login(true);
+      final AuthenticatedAccount b = await login(true);
       require(
         a.accountId != b.accountId &&
             await privacy.open(b) is AccountScopeOpenRejected,
@@ -242,8 +267,8 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
             is AccountScopeClosedForAccount,
         'same old scope retry completes',
       );
-      final bAgain = await login(true);
-      final bOpened = await privacy.open(bAgain);
+      final AuthenticatedAccount bAgain = await login(true);
+      final OpenAccountScopeOutcome bOpened = await privacy.open(bAgain);
       require(
         bOpened is AccountScopeOpenedForAccount &&
             !identical((bOpened).scope, oldScope),
@@ -258,8 +283,8 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
         'B closes',
       );
       if (!restarting) {
-        final again = await login(false);
-        final againScope =
+        final AuthenticatedAccount again = await login(false);
+        final AccountScope againScope =
             (await privacy.open(again) as AccountScopeOpenedForAccount).scope;
         await auth.signOut();
         fakes.last.fail = true;
@@ -284,18 +309,16 @@ class _PrivacyVerificationState extends State<PrivacyVerification> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Account Privacy · Wave 2')),
-    body: ListView(
-      padding: const EdgeInsets.all(20),
-      children: lines
-          .map(
-            (line) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(line),
-            ),
-          )
-          .toList(),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final List<Widget> entries = <Widget>[];
+    for (final String line in lines) {
+      entries.add(
+        Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(line)),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Account Privacy · Wave 2')),
+      body: ListView(padding: const EdgeInsets.all(20), children: entries),
+    );
+  }
 }

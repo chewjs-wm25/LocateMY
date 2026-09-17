@@ -19,13 +19,19 @@ final class AccountScopeJournal implements AccountScopeStore {
       rethrow;
     }
     if (content.isEmpty) throw const FormatException('Invalid privacy barrier');
-    final phase = content[0];
+    final String phase = content[0];
     // Legacy development checkpoints are conservatively unfinished closing.
-    final legacy = phase == '{';
+    final bool legacy = phase == '{';
     if (!legacy && phase != 'O' && phase != 'C') {
       throw const FormatException('Invalid privacy phase');
     }
-    final data = jsonDecode(legacy ? content : content.substring(1));
+    final String encodedData;
+    if (legacy) {
+      encodedData = content;
+    } else {
+      encodedData = content.substring(1);
+    }
+    final Object? data = jsonDecode(encodedData);
     if (data is! Map ||
         data['version'] != 1 ||
         data['accountId'] is! String ||
@@ -33,7 +39,7 @@ final class AccountScopeJournal implements AccountScopeStore {
       throw const FormatException('Invalid privacy barrier');
     }
     return AccountScopeCheckpoint(
-      data['accountId'] as String,
+      accountId: data['accountId'] as String,
       closing: legacy || phase == 'C',
     );
   }
@@ -41,7 +47,7 @@ final class AccountScopeJournal implements AccountScopeStore {
   @override
   void recordOpened(String accountId) {
     _file.parent.createSync(recursive: true);
-    final temporary = File('${_file.path}.tmp');
+    final File temporary = File('${_file.path}.tmp');
     temporary.writeAsStringSync(
       'O${jsonEncode({'version': 1, 'accountId': accountId})}',
       flush: true,
@@ -51,14 +57,14 @@ final class AccountScopeJournal implements AccountScopeStore {
 
   @override
   void recordClosing(String accountId) {
-    final current = readPending();
+    final AccountScopeCheckpoint? current = readPending();
     if (current == null || current.accountId != accountId) {
       throw const FormatException('Privacy checkpoint identity mismatch');
     }
     if (current.closing) return;
     // Change only the phase byte, retaining identity even if the process dies.
     // Seeking append-mode handles is supported by Dart IO on Android/Linux.
-    final handle = _file.openSync(mode: FileMode.append);
+    final RandomAccessFile handle = _file.openSync(mode: FileMode.append);
     try {
       handle.setPositionSync(0);
       handle.writeByteSync(67); // C

@@ -32,7 +32,7 @@ void main() {
   }
 
   test('returns GeographicLevelUnresolved(noCoverage) on empty candidates', () {
-    final outcome = resolver.processCandidates(
+    final GeographicContextOutcome outcome = resolver.processCandidates(
       rawRows: [],
       requestedLevels: {
         GeographicLevel.district,
@@ -41,7 +41,8 @@ void main() {
     );
 
     expect(outcome, isA<GeographicContextAvailable>());
-    final available = outcome as GeographicContextAvailable;
+    final GeographicContextAvailable available =
+        outcome as GeographicContextAvailable;
 
     expect(
       available.results[GeographicLevel.district],
@@ -54,9 +55,11 @@ void main() {
   });
 
   test('resolves single candidate flat RPC row successfully', () {
-    final rawRows = [createSampleRow()];
+    final List<Map<String, dynamic>> rawRows = <Map<String, dynamic>>[
+      createSampleRow(),
+    ];
 
-    final outcome = resolver.processCandidates(
+    final GeographicContextOutcome outcome = resolver.processCandidates(
       rawRows: rawRows,
       requestedLevels: {
         GeographicLevel.district,
@@ -65,26 +68,27 @@ void main() {
     );
 
     expect(outcome, isA<GeographicContextAvailable>());
-    final available = outcome as GeographicContextAvailable;
+    final GeographicContextAvailable available =
+        outcome as GeographicContextAvailable;
 
-    final districtRes =
+    final GeographicLevelResolved districtRes =
         available.results[GeographicLevel.district] as GeographicLevelResolved;
     expect(districtRes.area.name, 'Petaling');
     expect(districtRes.area.reportingStateName, 'Selangor');
 
-    final stateRes =
+    final GeographicLevelResolved stateRes =
         available.results[GeographicLevel.reportingState]
             as GeographicLevelResolved;
     expect(stateRes.area.name, 'Selangor');
   });
 
   test('handles multi-district candidates in same state', () {
-    final rawRows = [
+    final List<Map<String, dynamic>> rawRows = <Map<String, dynamic>>[
       createSampleRow(boundaryId: 'bnd_001', district: 'Petaling'),
       createSampleRow(boundaryId: 'bnd_002', district: 'Klang'),
     ];
 
-    final outcome = resolver.processCandidates(
+    final GeographicContextOutcome outcome = resolver.processCandidates(
       rawRows: rawRows,
       requestedLevels: {
         GeographicLevel.district,
@@ -92,7 +96,8 @@ void main() {
       },
     );
 
-    final available = outcome as GeographicContextAvailable;
+    final GeographicContextAvailable available =
+        outcome as GeographicContextAvailable;
 
     expect(
       available.results[GeographicLevel.district],
@@ -105,7 +110,7 @@ void main() {
   });
 
   test('handles multi-state candidates as ambiguous reportingState', () {
-    final rawRows = [
+    final List<Map<String, dynamic>> rawRows = <Map<String, dynamic>>[
       createSampleRow(
         boundaryId: 'bnd_001',
         state: 'Selangor',
@@ -118,7 +123,7 @@ void main() {
       ),
     ];
 
-    final outcome = resolver.processCandidates(
+    final GeographicContextOutcome outcome = resolver.processCandidates(
       rawRows: rawRows,
       requestedLevels: {
         GeographicLevel.district,
@@ -126,7 +131,8 @@ void main() {
       },
     );
 
-    final available = outcome as GeographicContextAvailable;
+    final GeographicContextAvailable available =
+        outcome as GeographicContextAvailable;
 
     expect(
       available.results[GeographicLevel.district],
@@ -141,34 +147,39 @@ void main() {
   test(
     'returns GeographicContextUnavailable when provenance fields are missing',
     () {
-      final invalidRow = createSampleRow();
+      final Map<String, dynamic> invalidRow = createSampleRow();
       invalidRow.remove('source_version');
 
-      final outcome = resolver.processCandidates(
+      final GeographicContextOutcome outcome = resolver.processCandidates(
         rawRows: [invalidRow],
         requestedLevels: {GeographicLevel.district},
       );
 
       expect(outcome, isA<GeographicContextUnavailable>());
-      final unavailable = outcome as GeographicContextUnavailable;
+      final GeographicContextUnavailable unavailable =
+          outcome as GeographicContextUnavailable;
       expect(unavailable.failure, GeographicContextFailure.versionUnverifiable);
     },
   );
   test('provider fake preserves partial results, exact levels and immutable candidates via resolve', () async {
-    final production = resolver.processCandidates(
+    final GeographicContextAvailable production = resolver.processCandidates(
       rawRows: [createSampleRow()],
       requestedLevels: GeographicLevel.values.toSet(),
     ) as GeographicContextAvailable;
-    final state =
+    final GeographicLevelResolved state =
         production.results[GeographicLevel.reportingState]
             as GeographicLevelResolved;
-    final candidates = [state.area, state.area];
-    final preset = <GeographicLevel, GeographicLevelOutcome>{
-      GeographicLevel.district: const GeographicLevelUnresolved(
-        GeographicContextFailure.noCoverage,
-      ),
-      GeographicLevel.reportingState: state,
-    };
+    final List<AdministrativeArea> candidates = <AdministrativeArea>[
+      state.area,
+      state.area,
+    ];
+    final Map<GeographicLevel, GeographicLevelOutcome> preset =
+        <GeographicLevel, GeographicLevelOutcome>{
+          GeographicLevel.district: const GeographicLevelUnresolved(
+            GeographicContextFailure.noCoverage,
+          ),
+          GeographicLevel.reportingState: state,
+        };
     final GeographicContext fake = FakeGeographicContext(
       presetOutcome: GeographicContextAvailable(preset),
     );
@@ -176,7 +187,7 @@ void main() {
       locationId: 'map-fixture',
       point: GeographicPoint(latitude: 3.1, longitude: 101.6),
     );
-    final result = await fake.resolve(
+    final GeographicContextAvailable result = await fake.resolve(
       GeographicContextRequest(
         location: selected,
         levels: GeographicLevel.values.toSet(),
@@ -204,7 +215,7 @@ void main() {
         ),
       }),
     );
-    final ambiguous = await ambiguousFake.resolve(
+    final GeographicContextAvailable ambiguous = await ambiguousFake.resolve(
       const GeographicContextRequest(
         location: selected,
         levels: {GeographicLevel.reportingState},
@@ -212,7 +223,7 @@ void main() {
     ) as GeographicContextAvailable;
     candidates.clear();
     expect(ambiguous.results.keys, [GeographicLevel.reportingState]);
-    final snapshot =
+    final GeographicLevelAmbiguous snapshot =
         ambiguous.results.values.single as GeographicLevelAmbiguous;
     expect(snapshot.candidates.length, 2);
     expect(() => snapshot.candidates.clear(), throwsUnsupportedError);

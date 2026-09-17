@@ -42,6 +42,8 @@ This is a single-context repo. See `docs/agents/domain.md`.
 
 开发 Feature/shared module、审查实现完成度或验收 Wave 时，先读 `docs/design/development-standard.md`。
 
+编写、修改或审查手写 Dart 代码，以及设计新的公开 Dart declaration 时，先读 `docs/design/development-standard.md` 第 7 节的 Java 阅读习惯约束。
+
 ## 本地真实测试凭据
 
 - 需要登录的真实、live 或设备测试开始前，读取根目录的 `test_credentials.local.md`，并按其中的变量名注入测试环境。

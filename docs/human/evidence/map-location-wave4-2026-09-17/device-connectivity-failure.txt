@@ -1,0 +1,40 @@
+PASS: device-build; no high privilege key or local login credentials in APK
+owner-b-emulator READY
+owner-b-emulator SELECTED_READY
+owner-b-emulator REJECTED_READY
+owner-b-emulator QUEUED_READY
+owner-b-emulator RESTART_QUEUED_READY
+owner-b-emulator RECOVERED_READY
+owner-b-emulator CLOSED_READY
+Restoring production APK and cleaning disposable fixtures
+PASS: production-build; no high privilege key or local login credentials in APK
+Traceback (most recent call last):
+  File "/home/AC79/Desktop/LocateMY/tool/verify_map_devices.py", line 49, in <module>
+    timeouts[device]=run(adb+['shell','settings','get','system','screen_off_timeout']).strip();run(adb+['shell','settings','put','system','screen_off_timeout','600000']);run(adb+['reverse','tcp:'+port,'tcp:'+port]);run(adb+['install','-r','build/app/outputs/flutter-apk/app-debug.apk']);run(adb+['shell','run-as','com.locatemy.app','rm','-rf','files/map-wave4-harness'])
+                     ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AC79/Desktop/LocateMY/tool/verify_map_devices.py", line 18, in run
+    if result.returncode:raise RuntimeError('Device command failed: '+command[0])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Device command failed: adb
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/AC79/Desktop/LocateMY/tool/verify_map_devices.py", line 103, in <module>
+    run(['adb','-s',device,'install','-r','build/app/outputs/flutter-apk/app-debug.apk']);run(['adb','-s',device,'shell','run-as','com.locatemy.app','rm','-rf','files/map-wave4-harness'])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AC79/Desktop/LocateMY/tool/verify_map_devices.py", line 18, in run
+    if result.returncode:raise RuntimeError('Device command failed: '+command[0])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Device command failed: adb
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/AC79/Desktop/LocateMY/tool/verify_map_devices.py", line 107, in <module>
+    run(['adb','-s',device,'reverse','--remove','tcp:'+port]);run(['adb','-s',device,'shell','settings','put','system','screen_off_timeout',timeouts[device]])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AC79/Desktop/LocateMY/tool/verify_map_devices.py", line 18, in run
+    if result.returncode:raise RuntimeError('Device command failed: '+command[0])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Device command failed: adb

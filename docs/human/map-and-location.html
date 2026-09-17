@@ -1,9 +1,9 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Map / Location 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Map / Location 开发协作契约</h1>
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Map / Location 开发协作契约</title><style>body{font-family:system-ui,sans-serif;line-height:1.65;color:#172033;margin:32px auto;padding:0 20px;max-width:1100px}a{color:#155eef}pre{padding:16px;background:#f6f8fb;overflow:auto;border-radius:12px}code{font-family:monospace}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #d9e0ea;padding:8px;text-align:left}h1,h2,h3{line-height:1.3}</style><main><h1>Map / Location 开发协作契约</h1>
 <blockquote>
 <p>Owner：<code>A</code>
 依赖顺序：Wave 4。A 先合并唯一公开入口及本文件冻结的完整 <code>LOCATION-001</code>/<code>LOCATION-002</code> 声明；Application Shell、分析 Feature 和图层提供方随后以同一声明的 fake 并行开发。
 完成定义：消费者仅凭本文件即可安全地区分合法地点、拒绝、收藏同步状态及图层意图；不读取 Map 内部状态、缓存或 SDK 对象。
-状态：<code>Ready for Development</code>；系统基线：<code>5d11769</code>；最后复核：<code>2026-09-15</code></p>
+状态：<code>Implemented</code>；系统基线：<code>5d11769</code>；最后复核：<code>2026-09-17</code></p>
 </blockquote>
 <p>这是 Map / Location 唯一的跨 Owner Development Contract；本 Markdown 为权威来源，<code>docs/human/map-and-location.html</code> 是同名、语义等价的人类可读导出。它冻结公开 Dart 声明、合法地点与账户隔离语义、收藏同步可观察结果及联合验收。<code>lib/features/map_location/</code> 内部的 Widget、地图/空间 SDK、状态管理、SQLite/Supabase/Geoapify Adapter、取消/重试/去重策略、缓存键、文件拆分和测试组织均由 Owner 决定。</p>
 <h2>1. 任务成果</h2>
@@ -394,6 +394,13 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 </thead>
 <tbody>
 <tr>
+<td>2026-09-17</td>
+<td><code>Implemented</code></td>
+<td>完成 Map / Location 生产能力、TDD、真实 Adapter/权限、最终双目标设备及 Luna High 可读性/规格复审；登记后续联合责任。</td>
+<td><code>MAP-01</code>–<code>MAP-06</code>、<code>LOCATION-001</code>–<code>LOCATION-003</code>、收藏同步/清理、Map 页面；冻结公开接口与领域语义保持不变。</td>
+<td>Owner A 实现验收；GPT-5.6 Luna High 审查</td>
+</tr>
+<tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
 <td>依 Issue #23 收束为单一 Development Contract 与同名 HTML 语义等价导出；移除旧式多文件发布治理，并明确冻结两份接口的单一公开入口和完整 canonical 声明。</td>
@@ -409,4 +416,77 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <li>[x] <code>MAP-01</code>–<code>MAP-06</code>、<code>D05/D06</code> 与下游 Map 边可追溯；<code>MAP-07</code> 明确不由本 Owner 重算。</li>
 <li>[x] 范围、账户隔离、同步权威/墓碑、分析快照、A/B 中性、图层不改地点均有唯一权威；不复制 Schema、RLS、公式或可提交实现。</li>
 <li>[x] 同名 HTML 与本 Markdown 在任务成果、依赖顺序、两份 canonical 声明、表格、链接、联合验收与 Change Log 上语义等价；无旧式多文件发布治理要求。</li>
-</ul></body></html>
+</ul>
+<h2>11. Wave 4 验收分配（2026-09-17）</h2>
+<p>用户已确认 TDD seams：LOCATION-001、LOCATION-002、Map 页面及外部 Adapter 行为。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>归属</th>
+<th>依赖</th>
+<th>证据要求</th>
+<th>Owner / 最迟 Wave</th>
+<th>本模块 / 联合状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AT-LOC-01/02、AT-RACE-01 选点搜索</td>
+<td>两者</td>
+<td>真实边界 RPC、Geoapify、OSM、Shell</td>
+<td>seam、页面、真实调用、设备</td>
+<td>A / 4</td>
+<td>已通过：seam、页面、live / 已通过：真实 Shell、Privacy 及最终双目标设备</td>
+</tr>
+<tr>
+<td>AT-ANALYSIS-01 单点快照</td>
+<td>两者</td>
+<td>真实 Shell；六类分析后续槽位</td>
+<td>导航同一引用；摘要元数据</td>
+<td>A / 5（Infrastructure 6）</td>
+<td>已通过：不可变引用、Shell 导航 / 待接入分析提供方</td>
+</tr>
+<tr>
+<td>AT-COMPARE-01–03</td>
+<td>两者</td>
+<td>Shell；分析 fake/后续槽位</td>
+<td>缺端、同点、交换、快照</td>
+<td>A、分析 Owners / 5–6</td>
+<td>已通过：缺端、同点、交换、快照 / 待接入分析提供方</td>
+</tr>
+<tr>
+<td>AT-SAVED-01–03</td>
+<td>本模块</td>
+<td>真实 Supabase、SQLite</td>
+<td>create/delete、重启重放、双客户端、冲突、RLS</td>
+<td>A / 4</td>
+<td>已通过：测试、live 与最终双目标设备 / 不适用</td>
+</tr>
+<tr>
+<td>AT-SAVED-04、AT-RACE-01 关闭换号</td>
+<td>两者</td>
+<td>真实 Privacy、Shell</td>
+<td>晚到丢弃、清理失败恢复、A→B</td>
+<td>A / 4</td>
+<td>已通过：seam、页面、live / 已通过：真实 Shell、Privacy 及最终双目标设备</td>
+</tr>
+<tr>
+<td>LOCATION-002、AT-HAZARD-01 图层长按</td>
+<td>两者</td>
+<td>provider fake；真实 Shell；Wave 5 provider</td>
+<td>视口、hidden、原意图、角色不变</td>
+<td>A / 5</td>
+<td>已通过：seam、fake 页面、Shell / Wave 5 provider 待接入</td>
+</tr>
+<tr>
+<td>页面、本地化、可访问性</td>
+<td>本模块</td>
+<td>真实 Map 页面</td>
+<td>中/英、360dp、200%、地图文字替代、目标设备</td>
+<td>A / 4</td>
+<td>已通过：测试、live 与最终双目标设备 / 不适用</td>
+</tr>
+</tbody>
+</table>
+<p>实现进度与证据见 <a href="map-and-location-wave4-acceptance-2026-09-17.md">Wave 4 验收报告</a>。代码、本模块场景及 Wave 4 到期联合项已通过；最终双目标设备与测试/构建 source hash 一致。当前模块为 <code>Implemented</code>，无实现验收阻塞。完整分析/provider/Suitability 联合接入仍按 Wave 5–7 责任表执行；<code>Integrated</code> 待项目负责人跨 Owner 验收批准。</p></main></html>

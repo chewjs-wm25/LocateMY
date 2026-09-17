@@ -1,0 +1,125 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: saved name length follows SQL Unicode characters
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.save.completed","feature":"map_location","result":"invalidName","duration_bucket":"under100ms","correlation_id":"map-2"}
+00:00 +0 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +0 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: saved name length follows SQL Unicode characters [E]
+  Expected: <Instance of 'SavedLocationSaved'>
+    Actual: <Instance of 'SavedLocationRejected'>
+     Which: is not an instance of 'SavedLocationSaved'
+  
+  package:matcher                                                 expect
+  package:flutter_test/src/widget_tester.dart 473:18              expect
+  test/features/map_location/location_coordinator_test.dart 12:5  main.<fn>
+  
+00:00 +0 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: validated selection updates only the requested role
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+00:00 +1 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +1 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: invalid coordinates preserve the previous validated point
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.select.completed","feature":"map_location","result":"invalidCoordinate","duration_bucket":"under100ms","correlation_id":"map-5"}
+00:00 +2 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +2 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: comparison rejects identical points and swaps immutable references only
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"map.select.completed","feature":"map_location","result":"sameComparisonPoint","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.swap.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-9"}
+00:00 +3 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +3 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: late selection cannot overwrite newer selection or reopen closed scope
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-10"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-11"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-12"}
+00:00 +4 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +4 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline create is durable queued and replay becomes synchronized
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-13"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-14"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-15"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-16"}
+00:00 +5 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +5 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline delete keeps item and remote tombstone prevents resurrection
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-17"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-18"}
+{"event":"map.delete.completed","feature":"map_location","result":"offlineDeleteUnsupported","duration_bucket":"under100ms","correlation_id":"map-19"}
+{"event":"map.delete.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-20"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-21"}
+00:00 +6 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +6 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: privacy participant clears queue and roles without deleting remote
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-22"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-23"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-24"}
+00:00 +7 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +7 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: concurrent saves retain both records through the public saved snapshot
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-25"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-26"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-27"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-28"}
+00:00 +8 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +8 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: an issued immutable reference stays saveable after another point is selected
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-29"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-30"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-31"}
+00:00 +9 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +9 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline restart exposes queued records while reporting synchronization failure
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-32"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-33"}
+{"event":"map.cache.completed","feature":"map_location","result":"cached","duration_bucket":"under100ms","correlation_id":"map-34"}
+{"event":"map.sync.completed","feature":"map_location","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"map-35"}
+00:00 +10 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+00:00 +10 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: privacy recovery clears the immutable account id even with a restored scope token
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-36"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-37"}
+00:00 +11 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-2"}
+{"event":"map.save.completed","feature":"map_location","result":"invalidName","duration_bucket":"under100ms","correlation_id":"map-3"}
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TypeWidgetFinder:<Found 0 widgets with type "AlertDialog": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart:21:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart line 21
+The test description was:
+  invalid saved name keeps dialog open and focuses name
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +11 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name [E]
+  Test failed. See exception logs above.
+  The test description was: invalid saved name keeps dialog open and focuses name
+  
+Warning: At least one test in this suite creates an HttpClient. When running a test suite that uses
+TestWidgetsFlutterBinding, all HTTP requests will return status code 400, and no network request
+will actually be made. Any test expecting a real network connection and status code will fail.
+To test code that needs an HttpClient, provide your own HttpClient implementation to the code under
+test, so that your test can consistently provide a testable response to the code under test.
+00:01 +11 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: page uses injected layer host and exposes localized map alternative
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-4"}
+00:01 +12 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: map has no default analysis and supports accessible coordinate selection
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:01 +13 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: comparison requires explicit A/B and search empty is readable
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-7"}
+00:01 +14 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in en
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-9"}
+00:01 +15 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in zh
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-10"}
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-11"}
+00:01 +16 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid coordinate keeps dialog open and focuses the invalid field
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-12"}
+00:01 +17 -2: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: saved name length follows SQL Unicode characters
+  /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name

@@ -1,10 +1,15 @@
+// ignore_for_file: prefer_initializing_formals
+
+// Explicit constructor parameter types and initialization lists are intentional:
+// this public model is read alongside Java-oriented collaboration contracts.
+
 sealed class SessionSnapshot {
   const SessionSnapshot();
 }
 
 final class AuthenticatedSession extends SessionSnapshot {
   final AuthenticatedAccount account;
-  const AuthenticatedSession(this.account);
+  const AuthenticatedSession(AuthenticatedAccount account) : account = account;
 }
 
 final class UnauthenticatedSession extends SessionSnapshot {
@@ -13,7 +18,7 @@ final class UnauthenticatedSession extends SessionSnapshot {
 
 final class SessionUnavailable extends SessionSnapshot {
   final SessionFailure failure;
-  const SessionUnavailable(this.failure);
+  const SessionUnavailable(SessionFailure failure) : failure = failure;
 }
 
 final class AuthenticatedAccount {
@@ -21,10 +26,12 @@ final class AuthenticatedAccount {
   final String email;
   final EmailConfirmation confirmation;
   const AuthenticatedAccount({
-    required this.accountId,
-    required this.email,
-    required this.confirmation,
-  });
+    required String accountId,
+    required String email,
+    required EmailConfirmation confirmation,
+  }) : accountId = accountId,
+       email = email,
+       confirmation = confirmation;
 }
 
 enum EmailConfirmation { confirmed, verificationRequired, unavailable }
@@ -35,12 +42,12 @@ sealed class SignInOutcome {
 
 final class SignInSucceeded extends SignInOutcome {
   final AuthenticatedAccount account;
-  const SignInSucceeded(this.account);
+  const SignInSucceeded(AuthenticatedAccount account) : account = account;
 }
 
 final class SignInRejected extends SignInOutcome {
   final SignInFailure failure;
-  const SignInRejected(this.failure);
+  const SignInRejected(SignInFailure failure) : failure = failure;
 }
 
 sealed class RegistrationOutcome {
@@ -50,18 +57,26 @@ sealed class RegistrationOutcome {
 final class RegistrationAuthenticated extends RegistrationOutcome {
   final AuthenticatedAccount account;
   final ProfileRegistrationOutcome profile;
-  const RegistrationAuthenticated(this.account, this.profile);
+  const RegistrationAuthenticated(
+    AuthenticatedAccount account,
+    ProfileRegistrationOutcome profile,
+  ) : account = account,
+      profile = profile;
 }
 
 final class RegistrationVerificationRequired extends RegistrationOutcome {
   final String email;
   final ProfileRegistrationOutcome profile;
-  const RegistrationVerificationRequired(this.email, this.profile);
+  const RegistrationVerificationRequired(
+    String email,
+    ProfileRegistrationOutcome profile,
+  ) : email = email,
+      profile = profile;
 }
 
 final class RegistrationRejected extends RegistrationOutcome {
   final RegistrationFailure failure;
-  const RegistrationRejected(this.failure);
+  const RegistrationRejected(RegistrationFailure failure) : failure = failure;
 }
 
 sealed class ProfileRegistrationOutcome {
@@ -78,7 +93,7 @@ final class ProfileRegistrationSkipped extends ProfileRegistrationOutcome {
 
 final class ProfileRegistrationFailed extends ProfileRegistrationOutcome {
   final ProfileFailure failure;
-  const ProfileRegistrationFailed(this.failure);
+  const ProfileRegistrationFailed(ProfileFailure failure) : failure = failure;
 }
 
 sealed class SignOutOutcome {
@@ -91,7 +106,7 @@ final class SignOutSucceeded extends SignOutOutcome {
 
 final class SignOutRejected extends SignOutOutcome {
   final SignOutFailure failure;
-  const SignOutRejected(this.failure);
+  const SignOutRejected(SignOutFailure failure) : failure = failure;
 }
 
 enum SessionFailure { retryableUnavailable, unsupportedClient, remoteRejected }

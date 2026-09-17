@@ -9,13 +9,18 @@ final class FakeApplicationShell implements ApplicationShell {
   FakeApplicationShell({
     Iterable<ShellIntentOutcome> intents = const [],
     Iterable<ShellContributionOutcome> contributions = const [],
-  }) : intents = Queue.of(intents),
-       contributions = Queue.of(contributions);
+  }) : intents = Queue<ShellIntentOutcome>.of(intents),
+       contributions = Queue<ShellContributionOutcome>.of(contributions);
+
   @override
-  Future<ShellIntentOutcome> submit(ShellIntent intent) async =>
-      intents.removeFirst();
+  Future<ShellIntentOutcome> submit(ShellIntent intent) async {
+    return intents.removeFirst();
+  }
+
   @override
   Future<ShellContributionOutcome> publish(
     ShellContribution contribution,
-  ) async => contributions.removeFirst();
+  ) async {
+    return contributions.removeFirst();
+  }
 }

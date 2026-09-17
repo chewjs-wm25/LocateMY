@@ -74,5 +74,171 @@
   "shellFutureTask": "此功能将在后续开发阶段接入。",
   "shellHomePending": "首页功能尚未接入。",
   "shellMapPending": "地图功能尚未接入。当前没有选择地点。",
-  "shellAccountPending": "账户中心尚未接入。你可以在此退出当前设备。"
+  "shellAccountPending": "账户中心尚未接入。你可以在此退出当前设备。",
+  "homeTiming": "搬家时机",
+  "homeCost": "成本压力",
+  "homeEmployment": "就业稳定度",
+  "homeEconomy": "经济动能",
+  "homeIncome": "家庭收入中位数",
+  "homeNational": "马来西亚 · 全国搬迁环境",
+  "homeDisclaimer": "相对近期历史的指数，不是政府评级或对未来的保证。",
+  "homeRefresh": "刷新",
+  "homeExplore": "探索地图",
+  "homeLoading": "正在读取全国搬迁环境…",
+  "homeNominal": "按当年价格，未按通胀调整",
+  "homeCostDirection": "分数越高，表示相对成本压力越低。",
+  "homeLaborCaveat": "人口普查基准变化可能影响比较。",
+  "homePartial": "部分指标暂不可用；保留其他可用结果。",
+  "homeUnavailable": "暂不可用",
+  "homeObservedUnknown": "观测日期不可用",
+  "homeCooling": "{seconds} 秒后可再次刷新",
+  "@homeCooling": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFetched": "上次成功读取：{date}",
+  "@homeFetched": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeIncomeAmount": "RM {amount} / 月 · {year} 年调查",
+  "@homeIncomeAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSource": "来源：DOSM / data.gov.my · {dataset} · {date}",
+  "@homeSource": {
+    "placeholders": {
+      "dataset": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNavigation": "暂不能进入地图：{reason}",
+  "@homeNavigation": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDirection": "{code, select, timing_favorable {较适合} timing_wait {建议观望} timing_defer {暂缓较好} cost_easing {成本压力正在缓解} cost_worsening {成本压力正在加剧} cost_stable {成本压力大致稳定} cost_lowerIsBetter {分数越高，相对压力越低} employment_improving {就业稳定度改善} employment_weakening {就业稳定度转弱} employment_stable {就业稳定度大致稳定} employment_comparisonUnavailable {就业趋势比较暂不可用} economy_expanding {近期经济趋势：扩张} economy_weakening {近期经济趋势：转弱} economy_stable {近期经济趋势：大致稳定} other {暂不可用}}",
+  "@homeDirection": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeReason": "{code, select, sourceMissing {来源资料缺失} sourceSchemaChanged {来源字段已变化} insufficientHistory {有效历史样本不足} sourceDataUnverifiable {来源资料无法验证} retryableUnavailable {连接暂不可用，请重试} noCachedResult {没有可用观测或缓存结果} authenticationRequired {请重新登录} missingInput {缺少必需输入} staleInput {此请求已过期} inapplicableDestination {目标页面不可用} scopeUnavailable {账户范围已关闭} other {暂不可用}}",
+  "@homeReason": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeFreshness": "{code, select, fresh {已验证在线读取；日期为资料观测日期} cached {缓存资料；刷新未替换已保存结果} stale {已过期缓存资料；请联网重试} other {暂不可用}}",
+  "@homeFreshness": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTrendSummary": "近期趋势 · {count} 个观测",
+  "@homeTrendSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTrendApproximation": "根据当前观测重建；历史资料修订可能影响比较。",
+  "homeTrendUnavailable": "历史趋势暂不可用；请参阅上方方向说明。",
+  "homeGreeting": "准备看看搬家时机吗？",
+  "homeIndicators": "主要指标",
+  "homeDataDetails": "数据与说明",
+  "mapEnterAValidWGS84LatitudeAnd": "请输入合法 WGS84 纬度和经度。",
+  "mapChooseAPointOnMalaysianLand": "请选择马来西亚陆地范围内的地点。",
+  "mapAAndBMustBeDifferent": "地点 A 与地点 B 必须不同。",
+  "mapNameMustContain1120Characters": "名称须为 1–120 个字符。",
+  "mapSelectAValidatedLocationFirst": "请先选择合法地点。",
+  "mapDeletionRequiresAConnectionTheLocation": "删除需要联网；原收藏仍保留。",
+  "mapPermissionDeniedSignInAgain": "无访问权限，请重新登录。",
+  "mapTheLocationChangedOnAnotherDevice": "收藏已在其他设备改变，请重试同步。",
+  "mapThisSavedLocationNoLongerExists": "此收藏已不存在。",
+  "mapQueuedOnThisDeviceNotSynchronized": "已在本机排队 · 尚未同步。",
+  "mapSavedAndSynchronized": "已收藏并同步。",
+  "mapDeletedAndSynchronized": "已删除并同步。",
+  "mapAccountScopeUnavailableSignInAgain": "账户范围不可用，请重新登录。",
+  "mapThisRequestIsOutdatedSelectOr": "此请求已过期，请重新选择或刷新。",
+  "mapTemporarilyUnavailableTryAgain": "暂不可用，请重试。",
+  "mapSaveLocation": "收藏地点",
+  "mapName": "名称",
+  "mapCancel": "取消",
+  "mapSave": "保存",
+  "mapSetCurrentLocationAs": "将当前地点设为",
+  "mapLocationA": "地点 A",
+  "mapLocationB": "地点 B",
+  "mapSavedLocations": "收藏地点",
+  "mapSavedLocationsUnavailableRetrySynchronization": "收藏暂不可用，请重试同步。",
+  "mapNoSavedLocations": "尚无收藏地点",
+  "mapCachedRetrySynchronization": "缓存记录 · 请重试同步",
+  "mapSynchronized": "已同步",
+  "mapQueuedNotSynchronized": "已排队 · 尚未同步",
+  "mapDelete": "删除",
+  "mapRetrySynchronization": "重试同步",
+  "mapSearchPlacesInMalaysia": "搜索马来西亚地点",
+  "mapEnterCoordinates": "输入坐标",
+  "mapSingle": "单点",
+  "mapCompareLocations": "两地比较",
+  "mapLayers": "图层",
+  "mapSaved": "收藏",
+  "mapRefresh": "刷新",
+  "mapClear": "清除",
+  "mapSearchUnavailableTryAgain": "搜索暂不可用，请重试。",
+  "mapNoPlacesFound": "未找到候选地点",
+  "mapSwapAB": "交换 A/B",
+  "mapNotSelected": "未选择",
+  "mapViewComparison": "查看地点比较",
+  "mapSelectALocation": "先选择地点",
+  "mapSelectedAnalysisLocation": "已选择分析地点",
+  "mapPersonalizedSuitabilityUnavailable": "个人化地点适配度暂不可用",
+  "mapViewFullAnalysis": "查看完整分析",
+  "mapStartComparison": "发起比较",
+  "mapSafetyIndex": "地区安全指数",
+  "mapCostOfLivingIndex": "本地生活成本指数",
+  "mapNearbyFacilities2Km": "周边设施 · 2 km",
+  "mapPublicTransportation15Km": "公共交通 · 1.5 km",
+  "mapInfrastructure": "基础设施",
+  "mapProviderNotConnectedDateSourceUnavailable": "提供方未接入；日期／来源不可用",
+  "mapLatitudeMustBeBetween90And": "纬度须介于 −90 与 90。",
+  "mapLongitudeMustBeBetween180And": "经度须介于 −180 与 180。",
+  "mapLatitude": "纬度",
+  "mapLongitude": "经度",
+  "mapSelect": "选择",
+  "mapHideSummary": "收起摘要",
+  "mapShowSummary": "展开摘要",
+  "mapPropertyLocation": "房产地点",
+  "mapNoLocationSelected": "地图：尚未选择地点。",
+  "mapLocationSummary": "{role}：{name}。纬度 {latitude}，经度 {longitude}。",
+  "mapLayerPoint": "图层地点：纬度 {latitude}，经度 {longitude}。",
+  "mapFeatureNotConnected": "此功能尚未接入",
+  "mapLocationRetained": "已保留所选地点，返回地图可继续选点。"
 }
