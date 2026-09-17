@@ -1,7 +1,8 @@
 # Public Transportation 开发协作契约
 
-> 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+> 设计状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 > Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 5
+> 模块实现：`Implemented`（2026-09-17；GPT-5.6 Luna High 的 Standards / Spec 双轴审查通过）；本期集成已通过，`Integrated` 待负责人跨 Owner 批准
 > 唯一公开入口：`package:locatemy/features/public_transportation/public_transportation.dart`
 > 定义完成：消费者可只凭本契约，以不可变合法地点和明确分析日期取得、呈现或复用同一份交通连通性事实；不会把资料不完整、无服务或旧资料伪装为零分。
 
@@ -79,6 +80,49 @@ Transit 从自己的唯一公开入口导出供 Shell 接收的 marker payload�
 最小调用：`await shell.publish(PublicTransportationContribution(outcome, returnContext));`。非 accepted 时保留本页结果并呈现可读恢复路径。
 
 **Fake 场景：** fake Shell 依次返回 accepted、authentication required、stale input；Transit 验证只发布匹配请求的结果，后两者不把资料改为失败或把旧结果放入新槽位。无需 Shell 生产路由。
+
+#### 已确认的 Transit Shell marker 声明（2026-09-17）
+
+负责人已确认返回语境持有 immutable location、role、明确分析日期与原 Shell 请求身份。以下补齐此前缺少的 marker 声明；消费者为同 Owner A 的 Shell/Map composition root，Infrastructure/Suitability 的冻结 TRANSIT-001 结果不变。root 注入 opaque 身份并校验当前任务及其地点/date，Feature 不读取 Shell 可变状态。
+
+```dart
+final class AnalysisReturnContext {
+  final ValidLocationReference location;
+  final LocationRole role;
+  final DateTime analysisDate;
+  final Object originalRequestIdentity;
+  const AnalysisReturnContext({required ValidLocationReference location,
+    required LocationRole role, required DateTime analysisDate,
+    required Object originalRequestIdentity});
+}
+final class OpenPublicTransportationIntent implements ShellIntent {
+  final AnalysisReturnContext returnContext;
+  const OpenPublicTransportationIntent(AnalysisReturnContext returnContext);
+}
+final class OpenPublicTransportationComparisonIntent implements ShellIntent {
+  final AnalysisReturnContext a;
+  final AnalysisReturnContext b;
+  const OpenPublicTransportationComparisonIntent(AnalysisReturnContext a, AnalysisReturnContext b);
+}
+final class ReturnToMapIntent implements ShellIntent {
+  final AnalysisReturnContext returnContext;
+  const ReturnToMapIntent(AnalysisReturnContext returnContext);
+}
+final class PublicTransportationContribution implements ShellContribution {
+  final TransitLoadOutcome outcome;
+  final AnalysisReturnContext returnContext;
+  const PublicTransportationContribution(TransitLoadOutcome outcome, AnalysisReturnContext returnContext);
+}
+final class PublicTransportationComparisonContribution implements ShellContribution {
+  final TransitComparisonOutcome outcome;
+  final AnalysisReturnContext a;
+  final AnalysisReturnContext b;
+  const PublicTransportationComparisonContribution(TransitComparisonOutcome outcome,
+    AnalysisReturnContext a, AnalysisReturnContext b);
+}
+```
+
+打开 marker 的身份属于来源页面；任务建立后 root 为结果页面注入该任务的原请求身份。单点 role 必为 single；比较 role 为 locationA/locationB，日期及身份相同，地点不同。返回和贡献仅接受仍匹配当前任务及地点/date 的身份；错误 payload 以 missingInput/staleInput 拒绝，不改原事实。关闭任务或账户 scope 后旧 publication 被拒绝。
 
 ### Interface 卡：`LOCATION-001` — 不可变合法地点
 
@@ -295,6 +339,41 @@ switch (outcome) {
 5. **共同联调。** 接入真实 seam，仅保留第 5 节所需跨模块流测试。
 
 ## 5. 联合验收、阻塞与变更
+
+### Wave 5 验收分配（Issue #25；2026-09-17）
+
+本次任务是 Public Transportation 模块开发；不代表其他 Wave 5 Feature 或整波已完成。
+本期真实依赖为 authenticated Supabase `read_transit_analysis`、Application Shell
+和 Map / Location；fake 仅用于确定性边界验证。Infrastructure Coverage（Wave 6）
+与 Personalized Location Suitability（Wave 7）是后续真实消费者。
+
+| 场景 ID / 可观察结果 | 验证归属 | 所需依赖及用途 | 证据要求 | 负责 Owner | 最迟 Wave | 本模块证据/状态 | 联合证据/状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| PT-01 / 单点完整 served、不同分析日期 | 两者 | 本期真实 RPC、Map immutable reference、Shell；外部 HTTP 测试边界 | 公开 load 结果映射、真实日期有效路线及来源/快照/grid；真实单点路由与返回 | A | 5 | 已通过：E1/E2/E3/E4；真实 SQL served 算例 75 与正式 grid | 已通过：E4；生产 task/返回 |
+| PT-02 / 30 天边界、stale、missing、failed、日期范围、partial、unavailable、有效零站/零路线 | 本模块 | 本期真实 GTFS snapshot 登记和 RPC；HTTP 确定性响应 | 状态矩阵、无伪零、失败后恢复与上一成功结果保留；16 feed 数据准备完整性审计 | A | 5 | 已通过：E1/E2/E3；状态矩阵/缓存恢复/16 feed 审计 | 不适用 |
+| PT-03 / A/B 可比性、单侧缺失、交换、晚到 | 两者 | 本期真实 Shell/Map；公开 compare；HTTP 确定性响应 | 保留各侧事实；日期/半径/完整性/provenance 对比；真实槽位交换及旧请求隔离 | A | 5 | 已通过：E1；完整比较、各侧事实、交换和晚到 | 已通过：E4；真实 A/B task |
+| PT-04 / 全部 Marker、最近 30 项、列表/Marker 互选、换地点/date/snapshot、scope close | 两者 | 本期真实 MapLayerHost、Shell scope；页面用户交互 | 中心/1.5 km 圆/坐标 Marker、文本选择；全局地点不变；过期和关闭清理；设备首屏、失败及返回/重启证据 | A | 5 | 已通过：E1/E4；全部 Marker、30项、文字互选、scope清理 | 已通过：E4；局部 host/地图地点不变/返回重启 |
+| PT-05 / Shell 消费 canonical outcome | 两者 | 本期真实 Shell；测试 fake 返回 accepted/authentication required/stale input | 当前请求贡献、拒绝后的可读恢复；未评分不置零 | A | 5 | 已通过：E1/E4；canonical marker/身份及拒绝恢复 | 已通过：E4；真实 Shell slots/返回 |
+| PT-06 / Infrastructure 复用 canonical result | 两者 | 测试消费现有公开声明；后续真实 Infrastructure | 本期提供 served/not scored typed result；后续消费者不重读/重算，只消费同一结果 | A 提供；B 主责联合 | 6 | 已通过：E1；提供 served/not scored typed result | 待 B Wave 6 接入 |
+| PT-07 / Suitability 复用 canonical result | 两者 | 测试消费现有公开声明；后续真实 Suitability | 本期提供 served/not scored typed result；后续保留不可用维度且不重算交通分 | A 提供；B 主责联合 | 7 | 已通过：E1；提供同一 canonical typed result | 待 B Wave 7 接入 |
+| PT-08 / 中文/English、动态字体、屏幕阅读器、无颜色 | 本模块 | 本期页面及本地化；Penpot「11 · 公共交通」 | 文字/语义覆盖范围、日期、来源、状态、限制、选择及分数；双语交互、大字体和原型视觉核对 | A | 5 | 已通过：E1/E4；双语200%/语义名/文字状态/Penpot核对 | 不适用 |
+| PT-09 / 外部 Adapter 与读取权限 | 本模块 | 本期真实 Supabase；外部 HTTP 确定性响应 | RPC 错误/边界/恢复；真实成功调用；authenticated 只读与匿名/写入拒绝证据；无敏感信息 | A | 5 | 已通过：E1/E2/E3；真实 read-only allow/deny 与 HTTP 恢复 | 不适用 |
+
+测试范围拟采用最高公开 `PublicTransportation.load/compare`、页面用户交互及真实
+Shell/Map 接线三处边界；按本次指定 TDD skill，写新测试前须取得用户对这三处
+边界的确认。项目负责人已在本任务确认三处边界；后续逐项记录证据，不凭验收分配声明 `Implemented`。
+
+### Wave 5 当前验证状态（2026-09-17）
+
+本模块 **Implemented**；GPT-5.6 Luna High 的 Standards / Spec 双轴审查均通过，本期 Shell/Map 集成通过，当前实现验收阻塞为零。设计就绪与模块实现状态分别记录；本任务不声明整波完成或 Integrated。
+
+证据入口：[Wave 5 验证报告](../../human/evidence/public-transportation-wave5-2026-09-17/report.md)。E1 = 公开 seam、HTTP、页面、Shell/Map 测试及 format/analyze/full suite；E2 = 真实官方 snapshot RPC 和 authenticated/anon/write 权限；E3 = 本地与真实开发 Supabase 回滚 SQL 状态/评分算例、官方下载/标准化审计及正式网格；E4 = Owner A 实机与 Owner B emulator 使用同生产 task factory/local host 的双语、大字体、partial/date/A/B/返回/重启证据及生产 APK；E5 = 指定模型双轴最终审查。受控 UI served fixture 只验证呈现/缓存；受控真实 SQL 算例验证评分函数；两者均不把官方 15 usable + 1 failed 说成完整来源。
+
+2026-09-17 项目负责人已确认完整返回上下文和 feed 服务范围。固定网格采用 UTM EPSG:32647–32651、原点 `(0,0)`、1 km 单元中心及经度分区裁剪；grid ID 为 `zone:i:j`。正式 `official-2026-09-17` snapshot 的分析日网格共 9,641 点，方法为 `utm-wgs84-1km-stopcatchment-v1`，全部满足可用站点 1.5 km geography 圆并集，审计记录输入/grid hash、分区及完整性。
+
+Open intent 使用来源页 request 身份；Shell 接受后分配 task request。root 按具体 route entry 注入不可变 `AnalysisReturnContext`，其中原请求身份是该 task 创建时的 opaque 身份。该对象从加载、贡献到返回始终保留；Shell 严格验证与当前 task 的对象身份及地点/角色/date。比较原 opening intent 与 page 时只比较 immutable 输入，不能把父 request 当成新 task request。
+
+后续 Infrastructure / Suitability 分别由 B 最迟 Wave 6 / 7 接入，不作为当前实现缺陷。
 
 | Capability / canonical AT | 情景与操作 | 可观察完成条件 |
 | --- | --- | --- |

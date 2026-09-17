@@ -14,12 +14,22 @@ import 'shell_view_model.dart';
 /// Only the root registers presentation of provider-owned markers.
 final class ShellTaskView<T extends ShellIntent> {
   final String destination;
+  final bool ownsScaffold;
   final Widget Function(BuildContext, T) _build;
+  final String Function(BuildContext, T)? _title;
   const ShellTaskView(
     String destination,
-    Widget Function(BuildContext, T) build,
-  ) : destination = destination,
-      _build = build;
+    Widget Function(BuildContext, T) build, {
+    String Function(BuildContext, T)? title,
+    bool ownsScaffold = false,
+  }) : destination = destination,
+       ownsScaffold = ownsScaffold,
+       _build = build,
+       _title = title;
+
+  String? title(BuildContext context, ShellIntent input) {
+    return _title?.call(context, input as T);
+  }
 
   bool matches(String target, ShellIntent? input) {
     return target == destination && input is T;
@@ -190,13 +200,19 @@ final class _PrivateNavigationState extends State<_PrivateNavigation> {
                       break;
                     }
                   }
+                  if (task != null && task.ownsScaffold) {
+                    return task.build(context, entry.intent!);
+                  }
                   return Scaffold(
                     appBar: AppBar(
+                      backgroundColor: const Color(0xFFF6F8FB),
+                      surfaceTintColor: Colors.transparent,
                       leading: BackButton(onPressed: viewModel.back),
                       title: Text(
                         entry.destination == 'account'
                             ? l.shellAccount
-                            : l.shellTask,
+                            : task?.title(context, entry.intent!) ??
+                                  l.shellTask,
                       ),
                       actions: const [LanguageButton()],
                     ),

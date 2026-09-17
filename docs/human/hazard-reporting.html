@@ -1,12 +1,13 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hazard Reporting 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Hazard Reporting 开发协作契约</h1>
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hazard Reporting 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;max-width:1100px;margin:auto;padding:24px}a{color:#155eef}pre{overflow:auto;background:#fff;padding:16px;border-radius:12px}code{font-family:monospace}table{border-collapse:collapse;display:block;overflow:auto;background:#fff}td,th{border:1px solid #d0d5dd;padding:10px;text-align:left}blockquote{border-left:4px solid #155eef;padding-left:16px;color:#667085}h1,h2,h3{line-height:1.35}@media(max-width:600px){body{padding:16px}h1{font-size:26px}}</style></head><body><h1 id="hazard-reporting">Hazard Reporting 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）<br />
+实现状态：<code>Implemented</code>（2026-09-17；GPT‑5.6 Luna High Standards / Spec 双轴验收通过）；本期联合验收通过，Property Wave 6 待接入。
 Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5<br />
 唯一公开入口：<code>package:locatemy/features/hazard_reporting/hazard_reporting.dart</code><br />
 完成定义：消费者仅凭本契约即可创建、读取、呈现及管理公共隐患、提交声明式图层，并取得可保存的附近隐患数；不会读取 Feature 内部状态、绕过 RLS，或把隐患混为官方治安结果。</p>
 </blockquote>
 <p>本文件是 Hazard Reporting 对 Issue #23 的唯一 Development Contract；本 Markdown 是权威来源，<a href="hazard-reporting.html">同名 HTML</a> 是语义等价的人类阅读导出，不是第二份规格或发布包。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、数据访问及联合验收；<code>lib/features/hazard_reporting/</code> 内的 Widget、状态管理、Supabase/空间 Adapter、分页、缓存、并发、取消、重试、文件拆分与测试组织由 A 决定。公式、字段、RLS、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<h2 id="0-readiness">0. 固定阅读顺序与四项 Readiness</h2>
 <ol>
 <li><a href="../../CONTEXT.md#项目自有表">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/hazard_reporting.md">隐患产品事实</a>；</li>
 <li><a href="../design/system/feature-map.md#fm-hazard">Feature map（Hazard）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-05公共隐患投票与本人管理">FLOW-05</a>、<a href="../design/system/flows.md#flow-06房产实勘照片风险快照与回收站">FLOW-06</a>；</li>
@@ -44,7 +45,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2>1. 成果、责任与冻结边界</h2>
+<h2 id="1">1. 成果、责任与冻结边界</h2>
 <ul>
 <li>已开启账户范围的用户可在线创建五类公共报告、按 viewport 分页读取图层与详情、对每份报告投赞成/反对/撤回，并只管理自己的 <code>pending/resolved</code> 状态或删除自己的报告。</li>
 <li>发布后报告的 type、trim 后 title、description、location、report time 与 author 均不可编辑。<code>pending/resolved</code> 是作者处理标记，不是平台验证、审核、隐藏或删除决定；没有维护者例外。</li>
@@ -92,8 +93,8 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2>2. 需要调用的 Interface</h2>
-<h3><code>SHELL-001</code> — Hazard 导航与组合</h3>
+<h2 id="2-interface">2. 需要调用的 Interface</h2>
+<h3 id="shell-001-hazard"><code>SHELL-001</code> — Hazard 导航与组合</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Hazard Reporting；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
@@ -137,7 +138,7 @@ enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, s
 </tbody>
 </table>
 <p><strong>Fake 场景：</strong> fake Shell 回 accepted、authentication-required、stale-input rejected；rejected 时保留表单/已读页及原因，不创建/更新报告，不把导航拒绝显示为网络错误。</p>
-<h3><code>LOCATION-002</code> — 长按、图层宿主与点击意图</h3>
+<h3 id="location-002"><code>LOCATION-002</code> — 长按、图层宿主与点击意图</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Hazard Reporting；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
 <p>下列是 Map / Location owning contract 的<strong>完整 canonical 声明</strong>；Hazard 实际调用的子集只有 <code>MapLayerHost.contribute</code> 与 <code>MapLayerHost.requestLongPress</code>，但生产 Adapter、Hazard 和 fake 必须使用整套相同类型、成员、输入及 result variant，不得复制、截断或改形。长按先由 Map 空间校验，成功才返回带 <code>ValidLocationReference</code> 的 <code>CreateHazardIntent</code>；Hazard 不把裸坐标变为可提交写入。items 必有稳定 report id、合法坐标、viewport version 和 provider-defined detail intent。</p>
 <pre><code class="language-dart">abstract interface class MapLayerHost {
@@ -185,7 +186,7 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 </tbody>
 </table>
 <p><strong>Fake 场景：</strong> fake Map 给合法/范围外长按、visible/hidden/rejected、两个 viewport version；Hazard 仅对合法 intent 开表单，旧页不能覆盖新图层，partial 页不称范围为空。</p>
-<h3><code>PRIVACY-001</code> — 账户范围</h3>
+<h3 id="privacy-001"><code>PRIVACY-001</code> — 账户范围</h3>
 <p><strong>提供者：</strong> Account Privacy；<strong>消费者：</strong> Hazard Reporting；<strong>唯一公开 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
 <p>下列是 Account Privacy owning contract 的<strong>完整 canonical 声明</strong>；Hazard 不调用 <code>open</code> 或 <code>close</code>，只消费 <code>readScope()</code> 及作为基线八名 participant 之一实现 <code>clearPrivateState(scope)</code>，但不得因此创造缩窄的 scope 或 close 变体。</p>
 <pre><code class="language-dart">abstract interface class AccountPrivacy {
@@ -223,8 +224,8 @@ enum PrivateStateClearFailure { localStoreUnavailable, fileCleanupIncomplete, qu
 </code></pre>
 <p><code>AuthenticatedAccount</code> 是 <code>AUTH-001</code> 的公开类型。Hazard 的 participant id 固定为 <code>hazardReporting</code>，只清理“本人报告/投票私有视图状态与未完成请求”；不能读或代表其他 participant。closing 开始即阻断旧账户作者/投票读取、提交、重放和晚到响应；完全去身份公共读缓存可留，远端报告/投票不因退出删除。</p>
 <p><strong>Fake 场景：</strong> A 创建/投票中 close，fake Privacy 令 B opened；A 输入、本人列表、投票选择和晚到成功均不可呈现/提交，B 只见 B 私有状态，公共去身份页可重新读取。</p>
-<h2>3. 必须提供的 Interface</h2>
-<h3><code>HAZARD-001</code> — 公共报告、作者管理、投票与图层</h3>
+<h2 id="3-interface">3. 必须提供的 Interface</h2>
+<h3 id="hazard-001"><code>HAZARD-001</code> — 公共报告、作者管理、投票与图层</h3>
 <p><strong>提供者：</strong> Hazard Reporting（A）；<strong>消费者：</strong> Application Shell、Map / Location；<strong>唯一公开 import：</strong> <code>package:locatemy/features/hazard_reporting/hazard_reporting.dart</code>。</p>
 <p>消费者只能 import 此入口。A 应先合入以下声明与最小 fake；它们是协作形状，不是可提交实现体、SQL 或 SDK 映射。</p>
 <pre><code class="language-dart">final class OpenHazardComposerIntent extends ShellIntent {
@@ -343,7 +344,7 @@ enum HazardWriteFailure { invalidType, emptyTitle, titleTooLong, descriptionTooL
 </table>
 <p><strong>最小调用：</strong> <code>await hazards.create(HazardCreateRequest(location: intent.location, type: HazardType.flood, title: title, description: description));</code>。只有 <code>HazardCreated</code> 才 publish 图层/详情贡献；其他 outcome 原样进入字段或恢复路径。</p>
 <p><strong>Fake 场景：</strong> Shell fake 消费 created、empty successful page、partial、authentication-required、permission、conflict、retryable；仅 successful empty 显示“暂无”。Map fake 验证 item 只有 id/location/provider-defined intent，旧 viewport 不发布。双账户 fake 改票/撤回并验证同一 counts、无匿名/他人 vote 枚举。author fake 验证仅本人 status/delete，A close 后成功不可落入 B。</p>
-<h3><code>HAZARD-002</code> — 房产风险附近 pending 数</h3>
+<h3 id="hazard-002-pending"><code>HAZARD-002</code> — 房产风险附近 pending 数</h3>
 <p><strong>提供者：</strong> Hazard Reporting（A）；<strong>消费者：</strong> Property Inspection；<strong>唯一公开 import：</strong> <code>package:locatemy/features/hazard_reporting/hazard_reporting.dart</code>。</p>
 <pre><code class="language-dart">abstract interface class HazardRiskCounter { Future&lt;HazardNearbyCountOutcome&gt; countPending(HazardNearbyCountRequest request); }
 final class HazardNearbyCountRequest { final ValidLocationReference propertyLocation; const HazardNearbyCountRequest(this.propertyLocation); }
@@ -371,7 +372,7 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 </tbody>
 </table>
 <p><strong>Fake 场景：</strong> Property fake 提供内/外/恰 2,000m、pending/resolved；仅内/边界 pending 计入。partial/failure 不返回 0，Property 保留旧原子快照并显示不可用。</p>
-<h2>4. 数据与固定流程</h2>
+<h2 id="4">4. 数据与固定流程</h2>
 <table>
 <thead>
 <tr>
@@ -404,7 +405,94 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 </tbody>
 </table>
 <p>固定顺序：① Shell 确认 opened；② 入口或 Map 合法长按经 <code>SHELL-001.submit</code> 开 composer；③ create 写远端，成功才 publish 图层/详情；④ public page 成功后 <code>LOCATION-002.contribute</code>，点击稳定 id 经 Shell 开详情；⑤ status/delete/vote 先收权威 outcome 再刷新；⑥ close 即阻断私有操作与晚到响应；⑦ Property 仅消费 HAZARD-002 complete available，和同坐标 SAFETY-001 一起自行保存。对应 <code>FLOW-05/06</code>。</p>
-<h2>5. 联合验收、Ready Gate 与变更</h2>
+<h2 id="5-ready-gate">5. 联合验收、Ready Gate 与变更</h2>
+<h3 id="wave-5-issue-25">Wave 5 验收分配（Issue #25）</h3>
+<table>
+<thead>
+<tr>
+<th>场景 ID / 可观察结果</th>
+<th>验证归属</th>
+<th>所需依赖及用途</th>
+<th>证据要求</th>
+<th>负责 Owner</th>
+<th>最迟 Wave</th>
+<th>本模块证据/状态</th>
+<th>联合证据/状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AT-HAZARD-01</code> 创建、校验与恢复</td>
+<td>两者</td>
+<td>本期真实 Shell、Map、Supabase；测试 fake / HTTP mock</td>
+<td>service、widget、Adapter；真实创建与长按路由</td>
+<td>A（Shell / Map 协作）</td>
+<td>5</td>
+<td>测试及真实调用已通过；见 <a href="hazard-reporting-wave5-acceptance-2026-09-17.md">验收报告</a></td>
+<td>真实 Shell / Map 接入与双目标设备已通过</td>
+</tr>
+<tr>
+<td><code>AT-HAZARD-02</code> viewport / 详情 / 多页 / partial</td>
+<td>两者</td>
+<td>本期真实 MapLayerHost、Shell、Supabase；分页 / partial / stale fake</td>
+<td>公共页面、partial 保留、后页失败恢复、Refresh 第一页 / expired cursor 恢复、过期响应；真实图层贡献</td>
+<td>A（Map 协作）</td>
+<td>5</td>
+<td>Adapter / 图层测试及真实读取已通过</td>
+<td>真实 Map 层、详情路由及双目标设备已通过</td>
+</tr>
+<tr>
+<td><code>AT-HAZARD-03</code> 作者管理与返回语境</td>
+<td>两者</td>
+<td>本期真实 Shell / Supabase；页面 fake</td>
+<td>status、确认 / 取消删除、immutable allow / deny、mine</td>
+<td>A（Shell 协作）</td>
+<td>5</td>
+<td>widget / Adapter / 双账户 RLS 已通过</td>
+<td>返回列表、地图及双目标设备已通过</td>
+</tr>
+<tr>
+<td><code>AT-HAZARD-04</code> 投票 / 账户隔离 / scope close</td>
+<td>两者</td>
+<td>本期真实 Auth、Privacy、Supabase；晚到响应 fake</td>
+<td>双账户改票 / 撤回 / 匿名拒绝；close 丢弃 A 响应</td>
+<td>A（Privacy 协作）</td>
+<td>5</td>
+<td>service / Adapter / 真实权限已通过</td>
+<td>真实 Privacy 清理、旧 seam 阻断及双目标设备已通过</td>
+</tr>
+<tr>
+<td><code>AT-HAZARD-05</code> online-only / 恢复 / 本地化与可访问性</td>
+<td>两者</td>
+<td>本期真实 App / 两目标设备；HTTP 离线边界注入；widget 文本缩放</td>
+<td>失败保留输入、无队列；中英文、360dp / 200%、重启</td>
+<td>A（B 的 emulator 协作）</td>
+<td>5</td>
+<td>widget 测试已通过</td>
+<td>双目标设备已通过</td>
+</tr>
+<tr>
+<td><code>AT-PROP-03</code> 2km pending count 提供方</td>
+<td>本模块</td>
+<td>本期真实 Supabase；complete / partial HTTP mock</td>
+<td>1,999 / 2,000 / 2,001m、pending / resolved、radius / timestamp、无身份拒绝</td>
+<td>A</td>
+<td>5</td>
+<td>真实 Haversine 边界和 Adapter partial 已通过</td>
+<td>不适用；不替消费者写 snapshot</td>
+</tr>
+<tr>
+<td><code>AT-PROP-03</code> Property 原子 snapshot 联合</td>
+<td>联合</td>
+<td>后续 Wave Property + 官方 Safety consumer；本模块提供真实 HAZARD-002</td>
+<td>同坐标两个 available 才存；失败保留旧 snapshot</td>
+<td>B（Property 主责）；A（Hazard / Safety 协作）</td>
+<td>6</td>
+<td>提供方 seam 已实现</td>
+<td>待接入；Wave 6 到期，不阻塞 Hazard Implemented</td>
+</tr>
+</tbody>
+</table>
 <table>
 <thead>
 <tr>
@@ -478,5 +566,15 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <td><code>HAZ-01</code>–<code>04</code>、<code>HAZARD-001/002</code>、<code>SHELL-001</code>、<code>LOCATION-002</code>、<code>PRIVACY-001</code>、同名 HTML</td>
 <td>设计 AI（项目负责人授权）</td>
 </tr>
+<tr>
+<td>2026-09-17</td>
+<td><code>Implemented</code>（实现状态）</td>
+<td>Issue #25 Wave 5：真实 Supabase Adapter / RPC、Auth 单一身份 FK、在线页面、Shell / Map / Privacy 接线、分页与恢复、权限及双设备证据；Luna High 双轴审查通过，设计 Ready 与产品口径保持</td>
+<td>HAZ-01–04、HAZARD-001/002、Schema Catalog、生产 root、公开测试、同名 HTML；Property consumer 留 Wave 6</td>
+<td>项目负责人授权开发；GPT‑5.6 Luna High 完成度审查</td>
+</tr>
 </tbody>
-</table></body></html>
+</table>
+<h3 id="wave-5">Wave 5 实现组织与可读性</h3>
+<p>唯一入口导出 contract 类型、scope-aware factories、runtime 和 root 注册的页面 / 图层寄宿 Widget。内部按 Domain 类型、Application service / runtime / Map layer controller、Data Supabase Adapter、Presentation ViewModel / View 分层；SDK 不进入 View 或消费者。图层只贡献 immutable item 与 provider intent，不修改分析地点。</p>
+<p>手写 Dart 采用显式局部类型、完整方法体、显式构造初始化。必要例外：Flutter <code>super.key</code> 与 framework collection-if，marker 跨 library <code>implements ShellIntent</code>（Dart <code>interface</code> 限制）；<code>noSuchMethod</code> 只在明确未调用的测试 fake 操作中使用。生产能力没有 <code>UnimplementedError</code> 或 fake；在线写失败不排队。</p></body></html>

@@ -34,6 +34,10 @@ tags: [transit, station, coverage]
 - 同一 feed 内使用原始 `stop_id` 去重；跨 feed 使用 `feed_id + stop_id` 去重。不同 feed 中同名或同坐标站点不自动合并。
 - 路线唯一键使用 `feed_id + route_id`；相同 `route_short_name` 跨 feed 不合并。
 
+### 固定参照组服务范围
+
+项目负责人于 2026-09-17 确认：参照组服务范围采用分析日期可用 feed 的 `location_type = 0` 站点周围 1.5 公里圆的并集，不使用城市名称或未提供的运营边界。固定 1 km 米制格点中心须在该并集内；参照组绑定同一 GTFS snapshot、分析日期及方法版本。站点是否在圆内仍使用真实米制地理距离；参照组不会随用户选点变化。具体投影、原点、grid ID 和数据准备证据属于 Schema Catalog。
+
 ## 数据处理边界
 
 - 候选来源为官方列出的全部 16 个 GTFS Static feed；系统可用覆盖登记缩小候选范围，但最终以站点坐标是否落入 1.5 公里为准，不按地点名称猜测城市。

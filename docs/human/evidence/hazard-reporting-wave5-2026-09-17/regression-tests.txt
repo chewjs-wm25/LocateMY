@@ -1,0 +1,403 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart: current app signs out, retries and reopens without future owners
+00:00 +1: /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart: current build recovers a persisted logout barrier from the old build
+00:00 +2: /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart: active manifest still blocks required missing owner failure
+00:00 +3: /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart: active manifest still blocks registered owner failure
+00:00 +4: /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart: real Privacy and Shell keep missing-owner barrier and recover across restart
+00:00 +5: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: private intents require authenticated same-account opened scope
+00:00 +6: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: close hides private state immediately and retries the same old scope
+00:00 +7: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: typed navigation keeps ordered snapshots and original return context
+00:00 +8: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: progressive contributions retain unavailable and metadata; stale cannot replace
+00:00 +9: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: sign out during pending open cannot show login before old scope closes
+00:00 +10: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: repeated same-account facts during open do not reset or close its scope
+00:00 +11: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: old scoped Shell cannot replay a fieldless intent into a new account
+00:00 +12: /home/AC79/Desktop/LocateMY/test/app/application_shell_test.dart: failed sign out without an opened scope retries exit instead of reopening
+00:00 +13: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +13: /home/AC79/Desktop/LocateMY/test/app/map_privacy_test.dart: real Privacy/Shell block failed Map cleanup and A cannot leak into B
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-2"}
+{"event":"map.privacy.completed","feature":"map_location","result":"localStoreUnavailable","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+00:01 +14: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +14: /home/AC79/Desktop/LocateMY/test/app/map_shell_test.dart: production shell binding retains exact immutable analysis and comparison input
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+00:01 +15: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +16: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +17: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +18: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +19: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +20: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +21: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +22: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +23: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +24: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +25: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +26: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +27: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:01 +28: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +29: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +30: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +31: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +32: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +33: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +34: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +35: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +36: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +37: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +38: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +39: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +40: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +41: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +42: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +43: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +44: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +45: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +46: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +47: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +48: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +49: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +50: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +51: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +52: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +53: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +54: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +55: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +56: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:02 +57: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:03 +58: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:03 +59: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+00:03 +60: /home/AC79/Desktop/LocateMY/test/app/home_shell_test.dart: opened Home explores map through production binding without selecting a location
+00:04 +61: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:04 +61: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: no imported observations and no cache give a typed unavailable result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"noCachedResult","duration_bucket":"under1s","correlation_id":"home-1"}
+00:04 +62: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:04 +62: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: income alone remains available without inventing macro scores
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-2"}
+00:04 +63: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +63: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: cost pressure ranks 36 falling monthly observations and retains source date
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under1s","correlation_id":"home-3"}
+00:05 +64: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +65: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +65: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: employment uses unemployment, annual growth and participation with their design weights
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-4"}
+00:05 +66: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +66: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: economic momentum uses diffusion directly and GDP growth rather than absolute GDP
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-5"}
+00:05 +67: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +67: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: complete timing combines three scores, ranks reasons and retains quarterly sources
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-6"}
+00:05 +68: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +68: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: a changed CPI schema disables cost and timing while preserving other cards
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under1s","correlation_id":"home-7"}
+00:05 +69: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:05 +69: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: successful refresh cools for exactly 60 seconds with ceiling remaining seconds
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-8"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cooldown","duration_bucket":"under100ms","correlation_id":"home-9"}
+00:06 +70: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:06 +71: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:06 +71: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: successful refresh cools for exactly 60 seconds with ceiling remaining seconds
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-10"}
+00:06 +72: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:06 +72: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-1"}
+00:06 +72: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: persisted public snapshot survives service restart and offline expiry without restoring cooldown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-11"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"stale","duration_bucket":"under100ms","correlation_id":"home-12"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-13"}
+00:06 +73: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:06 +73: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: simultaneous refreshes share one external read and both receive the result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-14"}
+00:06 +74: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:06 +74: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: older online source dates do not replace a newer public snapshot
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-15"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-16"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-17"}
+00:07 +75: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +75: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: unverifiable observations are classified and a corrected refresh is immediately retryable
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-18"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-19"}
+00:07 +76: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +76: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: CPI category weight at 60 percent is usable while 55 percent remains unknown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-20"}
+00:07 +77: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +77: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: CPI category weight at 60 percent is usable while 55 percent remains unknown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under1s","correlation_id":"home-21"}
+00:07 +78: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +78: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: insufficient monthly history cannot be replaced by zeros and income does not affect timing
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under1s","correlation_id":"home-22"}
+00:07 +79: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +79: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: no cache maps 503 external failure into a typed public outcome
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"home-23"}
+00:07 +80: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +80: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: no cache maps schema external failure into a typed public outcome
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"sourceSchemaChanged","duration_bucket":"under100ms","correlation_id":"home-24"}
+00:07 +81: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +81: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: late response from an older provider cannot overwrite a newer durable public cache
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-25"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-26"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-27"}
+00:07 +82: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +83: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:07 +84: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +84: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: current economy uses each dataset latest date when GDP is newer than monthly indicators
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-28"}
+00:08 +85: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +86: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +87: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +88: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +89: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +90: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +90: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: corrupted cached scores are rejected instead of displayed as verified statistics
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-29"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"home-30"}
+00:08 +91: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +92: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +93: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +93: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: temporary SQLite initialization failure can recover and persist a later public result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-36"}
+00:08 +94: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:08 +94: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: temporary SQLite initialization failure can recover and persist a later public result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-37"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-38"}
+00:08 +95: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +96: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +96: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: monthly percentile falls back to older valid history when the five-year window is short
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-39"}
+00:09 +97: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +97: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: quarterly percentile falls back to older valid history when the five-year window is short
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-40"}
+00:09 +98: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +98: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: invalid supplemental GDP schema is partial and cannot start refresh cooldown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-41"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-42"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cooldown","duration_bucket":"under100ms","correlation_id":"home-43"}
+00:09 +99: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +99: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: invalid supplemental GDP data is partial and cannot start refresh cooldown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under1s","correlation_id":"home-44"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-45"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cooldown","duration_bucket":"under100ms","correlation_id":"home-46"}
+00:09 +100: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +101: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:09 +101: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: available cards with an unknown observation date in corrupted SQLite are rejected
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-47"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"home-48"}
+00:09 +102: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +102: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: older outside result cannot replace a newer valid selection outcome
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-2"}
+00:10 +103: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +103: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: saved name length follows SQL Unicode characters
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.save.completed","feature":"map_location","result":"invalidName","duration_bucket":"under100ms","correlation_id":"map-5"}
+00:10 +104: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +104: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: validated selection updates only the requested role
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:10 +105: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +105: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: invalid coordinates preserve the previous validated point
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"map.select.completed","feature":"map_location","result":"invalidCoordinate","duration_bucket":"under100ms","correlation_id":"map-8"}
+00:10 +106: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +106: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: comparison rejects identical points and swaps immutable references only
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.select.completed","feature":"map_location","result":"sameComparisonPoint","duration_bucket":"under100ms","correlation_id":"map-10"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-11"}
+{"event":"map.swap.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-12"}
+00:10 +107: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +107: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: late selection cannot overwrite newer selection or reopen closed scope
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-13"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-14"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-15"}
+00:10 +108: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +108: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline create is durable queued and replay becomes synchronized
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-16"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-17"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-18"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-19"}
+00:10 +109: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +109: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline delete keeps item and remote tombstone prevents resurrection
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-20"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-21"}
+{"event":"map.delete.completed","feature":"map_location","result":"offlineDeleteUnsupported","duration_bucket":"under100ms","correlation_id":"map-22"}
+{"event":"map.delete.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-23"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-24"}
+00:10 +110: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +110: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: privacy participant clears queue and roles without deleting remote
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-25"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-26"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-27"}
+00:10 +111: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +111: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: concurrent saves retain both records through the public saved snapshot
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-28"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-29"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-30"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-31"}
+00:10 +112: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +112: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: an issued immutable reference stays saveable after another point is selected
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-32"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-33"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-34"}
+00:10 +113: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +113: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline restart exposes queued records while reporting synchronization failure
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-35"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-36"}
+{"event":"map.cache.completed","feature":"map_location","result":"cached","duration_bucket":"under100ms","correlation_id":"map-37"}
+{"event":"map.sync.completed","feature":"map_location","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"map-38"}
+00:10 +114: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +114: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: privacy recovery clears the immutable account id even with a restored scope token
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-39"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-40"}
+00:10 +115: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +116: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +117: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:10 +117: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under10s","correlation_id":"home-2"}
+00:10 +118: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +119: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +120: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +121: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +121: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: late contribution during closing returns scope unavailable
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.layer.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-2"}
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.layer.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:11 +122: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +122: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: closing rejects long press as scope unavailable
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-7"}
+00:11 +123: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +124: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +124: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: boundary outage returns typed failures without mutating roles
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.layer.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-10"}
+00:11 +125: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +125: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: visible/hidden contributions and long press preserve selection roles
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-11"}
+{"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under100ms","correlation_id":"map-12"}
+{"event":"map.longpress.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-13"}
+{"event":"map.longpress.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-14"}
+00:11 +126: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:11 +126: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-3"}
+00:12 +127: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:12 +128: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:13 +128: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+00:13 +129: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:14 +130: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:14 +131: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:14 +132: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:14 +132: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under10s","correlation_id":"home-4"}
+00:14 +133: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:14 +134: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:15 +135: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:15 +136: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:15 +137: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +138: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +139: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +140: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +141: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +142: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +143: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +144: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +145: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under10s","correlation_id":"map-2"}
+00:15 +146: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +147: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +148: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +149: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +150: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +151: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +152: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +153: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:15 +154: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +155: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +156: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +157: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +158: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +159: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +160: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +161: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +162: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +163: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +164: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:16 +165: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:16 +165: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-3"}
+00:17 +166: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +167: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +168: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +169: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +170: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +171: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +172: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +172: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-5"}
+00:18 +173: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +174: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +174: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:18 +175: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +176: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +177: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +178: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +179: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +180: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +181: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +182: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +183: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +183: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-7"}
+00:18 +184: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +185: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:19 +185: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: page uses injected layer host and exposes localized map alternative
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-8"}
+00:19 +186: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:19 +186: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: map has no default analysis and supports accessible coordinate selection
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-9"}
+00:19 +187: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:19 +188: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:19 +189: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:19 +189: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: map has no default analysis and supports accessible coordinate selection
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-10"}
+00:19 +190: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:19 +191: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:19 +191: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: comparison requires explicit A/B and search empty is readable
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-11"}
+00:20 +192: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +192: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in en
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-12"}
+00:20 +193: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +193: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in en
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-13"}
+00:20 +194: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +194: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in zh
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-14"}
+00:20 +195: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +196: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +196: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in zh
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-15"}
+00:20 +197: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +198: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:20 +198: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid coordinate keeps dialog open and focuses the invalid field
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-16"}
+00:20 +199: /home/AC79/Desktop/LocateMY/test/widget_test.dart: signed in identity, confirmation and confirmed local sign out
+00:20 +200: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid coordinate keeps dialog open and focuses the invalid field
+00:20 +201: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: Penpot composer starts without a type and retains input on rejected submission
+00:20 +202: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: Penpot composer starts without a type and retains input on rejected submission
+00:20 +203: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: Penpot composer starts without a type and retains input on rejected submission
+00:21 +204: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: Penpot composer starts without a type and retains input on rejected submission
+00:21 +205: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: Penpot composer starts without a type and retains input on rejected submission
+00:21 +206: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: failed report refresh retains the last successful list and can retry
+00:21 +207: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: delete cancellation preserves a report and confirmation removes it
+00:21 +208: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: selected vote can be withdrawn and resolved status can return to pending
+00:21 +209: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: 360dp and 200 percent text support all hazard pages in en
+00:21 +210: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: 360dp and 200 percent text support all hazard pages in zh
+00:22 +211: All tests passed!

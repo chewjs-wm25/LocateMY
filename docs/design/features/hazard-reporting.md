@@ -1,6 +1,7 @@
 # Hazard Reporting 开发协作契约
 
 > 状态：`Ready for Development`（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）  
+> 实现状态：`Implemented`（2026-09-17；GPT‑5.6 Luna High Standards / Spec 双轴验收通过）；本期联合验收通过，Property Wave 6 待接入。
 > Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 5  
 > 唯一公开入口：`package:locatemy/features/hazard_reporting/hazard_reporting.dart`  
 > 完成定义：消费者仅凭本契约即可创建、读取、呈现及管理公共隐患、提交声明式图层，并取得可保存的附近隐患数；不会读取 Feature 内部状态、绕过 RLS，或把隐患混为官方治安结果。
@@ -279,6 +280,18 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 
 ## 5. 联合验收、Ready Gate 与变更
 
+### Wave 5 验收分配（Issue #25）
+
+| 场景 ID / 可观察结果 | 验证归属 | 所需依赖及用途 | 证据要求 | 负责 Owner | 最迟 Wave | 本模块证据/状态 | 联合证据/状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `AT-HAZARD-01` 创建、校验与恢复 | 两者 | 本期真实 Shell、Map、Supabase；测试 fake / HTTP mock | service、widget、Adapter；真实创建与长按路由 | A（Shell / Map 协作） | 5 | 测试及真实调用已通过；见 [验收报告](../../human/hazard-reporting-wave5-acceptance-2026-09-17.md) | 真实 Shell / Map 接入与双目标设备已通过 |
+| `AT-HAZARD-02` viewport / 详情 / 多页 / partial | 两者 | 本期真实 MapLayerHost、Shell、Supabase；分页 / partial / stale fake | 公共页面、partial 保留、后页失败恢复、Refresh 第一页 / expired cursor 恢复、过期响应；真实图层贡献 | A（Map 协作） | 5 | Adapter / 图层测试及真实读取已通过 | 真实 Map 层、详情路由及双目标设备已通过 |
+| `AT-HAZARD-03` 作者管理与返回语境 | 两者 | 本期真实 Shell / Supabase；页面 fake | status、确认 / 取消删除、immutable allow / deny、mine | A（Shell 协作） | 5 | widget / Adapter / 双账户 RLS 已通过 | 返回列表、地图及双目标设备已通过 |
+| `AT-HAZARD-04` 投票 / 账户隔离 / scope close | 两者 | 本期真实 Auth、Privacy、Supabase；晚到响应 fake | 双账户改票 / 撤回 / 匿名拒绝；close 丢弃 A 响应 | A（Privacy 协作） | 5 | service / Adapter / 真实权限已通过 | 真实 Privacy 清理、旧 seam 阻断及双目标设备已通过 |
+| `AT-HAZARD-05` online-only / 恢复 / 本地化与可访问性 | 两者 | 本期真实 App / 两目标设备；HTTP 离线边界注入；widget 文本缩放 | 失败保留输入、无队列；中英文、360dp / 200%、重启 | A（B 的 emulator 协作） | 5 | widget 测试已通过 | 双目标设备已通过 |
+| `AT-PROP-03` 2km pending count 提供方 | 本模块 | 本期真实 Supabase；complete / partial HTTP mock | 1,999 / 2,000 / 2,001m、pending / resolved、radius / timestamp、无身份拒绝 | A | 5 | 真实 Haversine 边界和 Adapter partial 已通过 | 不适用；不替消费者写 snapshot |
+| `AT-PROP-03` Property 原子 snapshot 联合 | 联合 | 后续 Wave Property + 官方 Safety consumer；本模块提供真实 HAZARD-002 | 同坐标两个 available 才存；失败保留旧 snapshot | B（Property 主责）；A（Hazard / Safety 协作） | 6 | 提供方 seam 已实现 | 待接入；Wave 6 到期，不阻塞 Hazard Implemented |
+
 | Capability / canonical AT | 情景与操作 | 可观察完成条件 |
 | --- | --- | --- |
 | `HAZ-01` / `AT-HAZARD-01`、`AT-HAZARD-05` | 入口和合法长按创建；未选 type、trim 空/超长、非法点、离线 | 五类不预选；字段错误明确；online 成功才 created；失败留输入/重试，无离线伪队列。 |
@@ -299,3 +312,10 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 | --- | --- | --- | --- | --- |
 | 2026-09-14 | `Ready for Development` | Issue #14：冻结五类公共报告、发布后不可变、作者 status/delete、单票和 2,000m pending-only count | `HAZ-01`–`04`、`HAZARD-001/002`、Hazard 数据对象、Property | 设计 AI（项目负责人授权） |
 | 2026-09-15 | `Ready for Development` | Issue #23 返工：收束为单一 Development Contract 与等价 HTML；改为引用 Shell、Map / Location 与 Account Privacy 的完整 canonical 声明并说明调用子集；移除 PDF、ADR 0014、handoff 与发布治理，产品/Schema 语义不变 | `HAZ-01`–`04`、`HAZARD-001/002`、`SHELL-001`、`LOCATION-002`、`PRIVACY-001`、同名 HTML | 设计 AI（项目负责人授权） |
+| 2026-09-17 | `Implemented`（实现状态） | Issue #25 Wave 5：真实 Supabase Adapter / RPC、Auth 单一身份 FK、在线页面、Shell / Map / Privacy 接线、分页与恢复、权限及双设备证据；Luna High 双轴审查通过，设计 Ready 与产品口径保持 | HAZ-01–04、HAZARD-001/002、Schema Catalog、生产 root、公开测试、同名 HTML；Property consumer 留 Wave 6 | 项目负责人授权开发；GPT‑5.6 Luna High 完成度审查 |
+
+### Wave 5 实现组织与可读性
+
+唯一入口导出 contract 类型、scope-aware factories、runtime 和 root 注册的页面 / 图层寄宿 Widget。内部按 Domain 类型、Application service / runtime / Map layer controller、Data Supabase Adapter、Presentation ViewModel / View 分层；SDK 不进入 View 或消费者。图层只贡献 immutable item 与 provider intent，不修改分析地点。
+
+手写 Dart 采用显式局部类型、完整方法体、显式构造初始化。必要例外：Flutter `super.key` 与 framework collection-if，marker 跨 library `implements ShellIntent`（Dart `interface` 限制）；`noSuchMethod` 只在明确未调用的测试 fake 操作中使用。生产能力没有 `UnimplementedError` 或 fake；在线写失败不排队。

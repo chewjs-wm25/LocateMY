@@ -1,13 +1,14 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nearby Facilities 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Nearby Facilities 开发协作契约</h1>
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nearby Facilities Development Contract</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;max-width:1100px;margin:auto;padding:32px}table{border-collapse:collapse;background:white;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;text-align:left}pre{overflow:auto;background:#eaf2ff;padding:16px;border-radius:14px}a{color:#155eef}h1,h2,h3{line-height:1.3}</style><main><h1 id="nearby-facilities">Nearby Facilities 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5
 唯一公开入口：<code>package:locatemy/features/nearby_facilities/nearby_facilities.dart</code>
 任务成果：为合法单点或原顺序 A/B 地点交付可解释的 2km 五类 OSM 设施读数；完整空、未知、缓存和不可比绝不互相冒充。
-定义完成：A 已从唯一入口提供完整 <code>FACILITY-001</code>/<code>FACILITY-002</code> 声明及 fake；Shell、Map 和 Suitability 只经该入口协作，且第 6 节所有可观察验收情景成立。</p>
+实现状态：<code>Implemented</code>；2026-09-17；GPT-5.6 Luna High 最终验收审查通过。证据见 <a href="nearby-facilities-wave5-acceptance-2026-09-17.md">Wave 5 完成报告</a>。Suitability 联合集成由 B 在 Wave 7 完成；<code>Integrated</code> 待负责人跨 Owner 验收。</p>
+<p>定义完成：A 已从唯一入口提供完整 <code>FACILITY-001</code>/<code>FACILITY-002</code> 声明及 fake；Shell、Map 和 Suitability 只经该入口协作，且第 6 节所有可观察验收情景成立。</p>
 </blockquote>
 <p>本文件是 Nearby Facilities 唯一的跨 Owner Development Contract，也是同名 HTML 的权威 Markdown 源。它固定公开 Dart seam、结果语义、权限、次序和联合验收；<code>lib/features/nearby_facilities/</code> 内的 Widget、状态管理、Overpass HTTP/解析 Adapter、缓存读写、并发/取消/重试/限流策略、Haversine 实现和测试组织由 A 决定。公式正文只在产品知识库，字段、RLS 与 migration 只在 Schema Catalog。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<h2 id="0-readiness">0. 固定阅读顺序与四项 Readiness</h2>
 <p>实施和审查按顺序读取，后项只能补充而不能改写前项：</p>
 <ol>
 <li><a href="../knowledge_base/locatemy_product/features/nearby_facilities.md">周边设施</a>、<a href="../knowledge_base/locatemy_product/nearby_facilities_scoring.md">单个地点周边设施覆盖</a>；</li>
@@ -46,7 +47,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2>1. 成果、责任与边界</h2>
+<h2 id="1">1. 成果、责任与边界</h2>
 <ul>
 <li>合法单点显示其中心 2,000 米圆形范围内五类<strong>已收录</strong> OSM 设施：类别状态、数量、每类最近三项、直线距离、来源、时间和缓存/完整性。无名称条目显示“未命名地点”。</li>
 <li>A/B 分别按原不可变地点读取；只在两端同一半径、分类映射版本且完整时呈现本域可比读数。地点摘要只在五类状态足够确定时给出覆盖类别数或固定完整空文案。</li>
@@ -88,9 +89,9 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2>2. A 需要调用的跨 Owner Interface</h2>
+<h2 id="2-a-owner-interface">2. A 需要调用的跨 Owner Interface</h2>
 <p>完整语义仍在各 owning document；A 只能 import 下列入口，不能 import 对方 <code>src/</code> 或 SDK。</p>
-<h3><code>SHELL-001</code>：导航与组合</h3>
+<h3 id="shell-001"><code>SHELL-001</code>：导航与组合</h3>
 <p><strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code></p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
@@ -128,7 +129,7 @@ enum ShellRejectionReason {
 // 仅 ShellIntentAccepted 进入分析；其余 outcome 保持原页并显示恢复路径。
 </code></pre>
 <p>fake：Shell 返回 accepted、authentication required、stale input；验证旧地点不会导航、拒绝不显示为“资料暂不可用”，contribution 的来源/时间/unknown 原样保留。</p>
-<h3><code>LOCATION-001</code>：合法不可变地点</h3>
+<h3 id="location-001"><code>LOCATION-001</code>：合法不可变地点</h3>
 <p><strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code></p>
 <pre><code class="language-dart">abstract interface class LocationCoordinator {
   Future&lt;LocationSelectionOutcome&gt; select(LocationSelectionRequest request);
@@ -184,7 +185,7 @@ final class SavedLocationsUnavailable extends SavedLocationsSnapshot { final Sav
 }
 </code></pre>
 <p>fake：给 absent、single、合法不同 A/B 和同点 A/B；验证 absent/same 不调用外部 seam，快速换点/交换后旧结果不会进入新槽。</p>
-<h3><code>LOCATION-002</code>：声明式地图图层与点击意图</h3>
+<h3 id="location-002"><code>LOCATION-002</code>：声明式地图图层与点击意图</h3>
 <p><strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code></p>
 <pre><code class="language-dart">abstract interface class MapLayerHost {
   Future&lt;MapLayerContributionOutcome&gt; contribute(MapLayerContribution contribution);
@@ -217,8 +218,8 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 // MapLayerAccepted 才表示声明已呈现；hidden/rejected 均保留本域结果状态。
 </code></pre>
 <p>fake：Map 返回 accepted、hidden、staleViewport；验证不完整结果无 Marker、晚到 viewport 无覆盖，点击回传稳定 id 而不改变 single/A/B。</p>
-<h2>3. A 提供的 Interface 与外部 seam</h2>
-<h3><code>FACILITY-001</code>：周边设施结果</h3>
+<h2 id="3-a-interface-seam">3. A 提供的 Interface 与外部 seam</h2>
+<h3 id="facility-001"><code>FACILITY-001</code>：周边设施结果</h3>
 <p><strong>提供者：</strong> Nearby Facilities（A）；<strong>消费者：</strong> Application Shell、Map / Location 摘要、Personalized Location Suitability
 <strong>唯一公开 import：</strong> <code>package:locatemy/features/nearby_facilities/nearby_facilities.dart</code></p>
 <p>消费者只能 import 此入口，不能 import <code>src/</code>、<code>FACILITY-002</code>、SQLite 或 Overpass SDK。以下仅为声明，不是实现、网络查询、SQL 或公式正文。</p>
@@ -246,13 +247,49 @@ enum FacilityComparisonFailure { locationAUnavailable, locationBUnavailable, inc
 enum FacilityLayerFailure { analysisUnavailable, analysisIncomplete, mapUnavailable, staleViewport, scopeUnavailable }
 final class FacilityAnalysis { final ValidLocationReference location; final int radiusMetres; final String mappingVersion; final FacilityDataState dataState; final DateTime observedAt; final FacilityAttribution attribution; final List&lt;FacilityCategoryResult&gt; categories; }
 enum FacilityDataState { fresh, cached }
-final class FacilityCategoryResult { final FacilityCategory category; final FacilityCategoryState state; final List&lt;NearbyFacility&gt; nearest; }
+final class FacilityCategoryResult { final FacilityCategory category; final FacilityCategoryState state; final List&lt;NearbyFacility&gt; nearest; final int? count; }
 enum FacilityCategory { health, education, dailyLiving, transport, leisureGreen }
 enum FacilityCategoryState { covered, completeEmpty, unknown }
 final class NearbyFacility { final String stableId; final String displayName; final GeographicPoint point; final double distanceMetres; }
 final class FacilityAttribution { final String source; final Uri copyrightUrl; }
 final class FacilityComparison { final FacilityAnalysis locationA; final FacilityAnalysis locationB; }
 </code></pre>
+<h4 id="wave-5">数量与装配补充（Wave 5）</h4>
+<p><code>FacilityCategoryResult.count</code> 是圆形过滤、归类和 OSM 身份去重后的实际 <code>N_c</code>，不等于最多三项的 <code>nearest.length</code>。生产结果全部带 count；既有 fake 的可选参数默认 null，表示数量未提供，页面不据此推算总数。完整空为 0，unknown 不显示数量或确定覆盖比例。此补充使契约原已要求的数量可被消费者观察；不改变半径、映射、公式或既有调用方式。当前 Shell/Map 消费者在本次接线同步采用；后续 Suitability 仍只消费类别完整性。</p>
+<p>装配入口（数据库与 HTTP client 由 composition root 持有）：</p>
+<pre><code class="language-dart">NearbyFacilities createNearbyFacilities({
+  required OverpassFacilitySource source,
+  Object? Function()? scopeToken,
+  Database? database,
+  DateTime Function()? clock,
+  MapLayerHost Function()? mapLayerHost,
+});
+OverpassFacilitySource createOverpassFacilitySource(http.Client client, {Uri? endpoint});
+</code></pre>
+<p>生产 <code>scopeToken</code> 返回同账户 opened scope 的不透明身份，closing/closed 返回 null；异步完成后再次核对身份，拒绝旧账户结果与发布。无 database 的装配仅供确定性测试使用；生产注入 SQLite。HTTP Adapter 添加不含账户资料的 LocateMY User-Agent；不自动重试限流，用户可显式重试。</p>
+<p>四个 Feature-owned marker 的 payload 如下，<code>returnContext</code> 是 root 传入并原样返回的不透明请求语境；intent 显式提供时原样透传，null 时 root 注入当前 task 的 ShellRequestContext。过期或非 Shell 语境不会被强行改成当前语境，发布由 Shell 拒绝。贡献卡展示原快照，返回后过期 task slots 由 Shell 清除，不跨导航保留：</p>
+<pre><code class="language-dart">final class OpenNearbyFacilitiesIntent implements ShellIntent {
+  final ValidLocationReference location;
+  final Object? returnContext;
+}
+final class OpenNearbyFacilitiesComparisonIntent implements ShellIntent {
+  final ValidLocationReference locationA;
+  final ValidLocationReference locationB;
+  final Object? returnContext;
+}
+final class NearbyFacilitiesSummaryContribution implements ShellContribution {
+  final ValidLocationReference location;
+  final FacilityAnalysisOutcome outcome;
+  final Object? returnContext;
+}
+final class NearbyFacilitiesComparisonContribution implements ShellContribution {
+  final ValidLocationReference locationA;
+  final ValidLocationReference locationB;
+  final FacilityComparisonOutcome outcome;
+  final Object? returnContext;
+}
+</code></pre>
+<p>contribution 内的原 outcome 携带半径、映射、归因、时间、fresh/cached、类别完整性或 typed failure；Shell 只保留原对象。当前设施任务页呈现原结果；返回后旧请求贡献被拒绝。Map 由 <code>NearbyFacilitiesMapPanel</code> 消费公开 Location/MapWorkspace，绑定当前 viewport 与 immutable single 地点，经 FACILITY-001 分析/提交完整图层；换点、viewport 改变和卸载忽略晚到值。该内部呈现装配不改变 FACILITY-001/002 声明。</p>
 <table>
 <thead>
 <tr>
@@ -288,7 +325,7 @@ final class FacilityComparison { final FacilityAnalysis locationA; final Facilit
 // Available 才向 Shell 发布；unknown 保留原因，completeEmpty 才显示“暂无已收录设施”。
 </code></pre>
 <p>fake：完整有项目、完整五类空、一个 unknown、rate limited、invalid payload、24h 内与过期缓存。Shell fake 验证 unknown 不计未覆盖；Suitability fake 验证只有五类可确定才消费覆盖类别数；Map fake 验证完整结果才有 layer。</p>
-<h3><code>FACILITY-002</code>：封装的 Overpass / OSM 外部 seam</h3>
+<h3 id="facility-002-overpass-osm-seam"><code>FACILITY-002</code>：封装的 Overpass / OSM 外部 seam</h3>
 <p><strong>Owner/唯一消费者：</strong> Nearby Facilities（A）；<strong>唯一公开 import：</strong> <code>package:locatemy/features/nearby_facilities/nearby_facilities.dart</code></p>
 <p>这个 seam 只让 A 的内部 Adapter 使用；Shell、Map、Suitability 和其他 Feature 不得 import、调用或消费原始元素。它把外部完整性事实封装为类型化结果，避免外部空/截断被误说成产品的 completeEmpty。</p>
 <pre><code class="language-dart">abstract interface class OverpassFacilitySource { Future&lt;OverpassFacilityOutcome&gt; query(OverpassFacilityQuery query); }
@@ -305,7 +342,7 @@ final class OverpassElement { final String elementType; final String osmId; fina
 // 只有 OverpassFacilityComplete 可进入分类/距离/缓存流程。
 </code></pre>
 <p>fake：Complete 有 Node/Way/Relation、Complete 空、Partial、timeout、rateLimited、invalidPayload；验证统一去重、partial 不产空缓存、失败只在有效缓存下显示 cached。</p>
-<h2>4. 协作交付顺序</h2>
+<h2 id="4">4. 协作交付顺序</h2>
 <ol>
 <li><strong>A 先合入公开 seam：</strong> 唯一入口、<code>FACILITY-001</code>/<code>002</code> 声明和最小 fake；消费者不得依赖 A 私有文件或 Overpass。</li>
 <li><strong>A 固定输入与结果：</strong> 接入 <code>LOCATION-001</code>、Haversine/去重/优先级、完整性和缓存；验证边界、无名称、同对象多标签、Node/Way/Relation、24h 边界。</li>
@@ -313,7 +350,7 @@ final class OverpassElement { final String elementType; final String osmId; fina
 <li><strong>A 封装真实 Adapter：</strong> 仅在 <code>FACILITY-002</code> 后接入 Overpass，保留完整/partial/失败分类；测试缓存降级、限流、超时、无效 payload 和快速换点。</li>
 <li><strong>联合集成：</strong> Shell 组合原元数据，Map 接受声明，A/B 仅在可比条件下显示差异；完成第 6 节验收。</li>
 </ol>
-<h2>5. 直接数据、来源与披露</h2>
+<h2 id="5">5. 直接数据、来源与披露</h2>
 <table>
 <thead>
 <tr>
@@ -346,7 +383,7 @@ final class OverpassElement { final String elementType; final String osmId; fina
 </tbody>
 </table>
 <p>页面在正常、empty、cached 与 unavailable 均显示文字状态、数据来源、查询/缓存时间及“未收录不代表现实中不存在”；不能仅靠颜色、固定数量、箭头或“查看更多”传意。</p>
-<h2>6. 联合验收</h2>
+<h2 id="6">6. 联合验收</h2>
 <table>
 <thead>
 <tr>
@@ -402,12 +439,76 @@ final class OverpassElement { final String elementType; final String osmId; fina
 </tr>
 </tbody>
 </table>
-<h2>7. 内部自由</h2>
+<h3 id="wave-5-2026-09-17">Wave 5 验收分配（2026-09-17）</h3>
+<p>本次测试边界已由项目负责人确认：FACILITY-001、FACILITY-002 与页面公开交互。</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>归属 / 依赖</th>
+<th>证据要求</th>
+<th>Owner / 最迟 Wave</th>
+<th>本模块 / 联合状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正常与边界</td>
+<td>两者；真实 Location、Overpass，测试 HTTP</td>
+<td>分类、圆形边界、去重、最近三项、实际数量；真实查询与设备首屏</td>
+<td>A / 5</td>
+<td>已通过 / 已通过（<a href="nearby-facilities-wave5-acceptance-2026-09-17.md">Wave 5 证据</a>）</td>
+</tr>
+<tr>
+<td>完整空与未知</td>
+<td>两者；真实 Shell，测试 HTTP</td>
+<td>完整空、截断、超时、限流、无效 payload；失败与恢复设备证据</td>
+<td>A / 5</td>
+<td>已通过 / 已通过（<a href="nearby-facilities-wave5-acceptance-2026-09-17.md">Wave 5 证据</a>）</td>
+</tr>
+<tr>
+<td>缓存与刷新</td>
+<td>本模块；真实 SQLite</td>
+<td>24h 边界、刷新、失败回落、重建服务仍读取且不保存账户名称</td>
+<td>A / 5</td>
+<td>已通过 / 不适用（同证据）</td>
+</tr>
+<tr>
+<td>A/B 与竞态</td>
+<td>两者；真实 Map、Shell，测试延迟 source</td>
+<td>原顺序、同点、缺端、换点、刷新与晚到值失效</td>
+<td>A / 5</td>
+<td>已通过 / 已通过（<a href="nearby-facilities-wave5-acceptance-2026-09-17.md">Wave 5 证据</a>）</td>
+</tr>
+<tr>
+<td>摘要与图层</td>
+<td>两者；真实 Shell、Map</td>
+<td>原元数据贡献、完整图层、旧 viewport、关闭拒绝</td>
+<td>A / 5</td>
+<td>已通过 / 已通过（<a href="nearby-facilities-wave5-acceptance-2026-09-17.md">Wave 5 证据</a>）</td>
+</tr>
+<tr>
+<td>适配度复用</td>
+<td>两者；测试消费者；后续真实 Suitability</td>
+<td>本期结果不把未知置零；Suitability 仅消费 FACILITY-001</td>
+<td>A 提供 / B 集成 / 7</td>
+<td>A 提供事实已通过 / B 真实集成待 Wave 7</td>
+</tr>
+<tr>
+<td>关闭与可访问性</td>
+<td>两者；真实 Privacy、Shell</td>
+<td>scope 关闭、换账户晚到值；中文/English、360dp 与 200% 字体、文字来源与限制</td>
+<td>A / 5</td>
+<td>已通过 / 已通过（<a href="nearby-facilities-wave5-acceptance-2026-09-17.md">Wave 5 证据</a>）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7">7. 内部自由</h2>
 <p>A 可自行决定页面结构、状态管理、Overpass 端点/HTTP 库、缓存存储细节、解析、Haversine 实现、取消/重试/退避/去重的内部安排和测试组织。以下变化须由提供方说明影响并经受影响消费者确认：唯一公开 import、公开声明/result variant、输入约束、完整/empty/unknown 语义、半径/映射版、权限/副作用/次序、图层意图或缓存 Schema/RLS。变更在同一 PR 更新本 Development Contract、同名 HTML 导出与受影响 fake/Adapter 测试；不引入独立发布、版本锁定或同步治理流程。</p>
-<h2>8. 阻塞与权威参考</h2>
+<h2 id="8">8. 阻塞与权威参考</h2>
 <p>当前设计阻塞：<strong>无</strong>。<code>RISK-OSM-01</code> 与 <code>RISK-CACHE-01</code> 的设计决定已关闭；真实 Overpass 可用性、限流、超时、视觉可访问性、缓存持久化及 Map/Shell 联动是实现/集成 Gate，不是 Ready 阻塞。若完整性分类或公共缓存隔离无法维持，重新打开相关风险并停止发布受影响结果。</p>
 <p>权威参考：<a href="https://github.com/chewjs-wm25/LocateMY/issues/23">Issue #23</a>、<a href="../adr/0011-human-coded-ai-designed-delivery-process.md">ADR 0011</a>、<a href="../adr/0012-high-level-design-coordination-boundaries.md">ADR 0012</a>、<a href="../adr/0013-autonomous-design-ai-ready-approval.md">ADR 0013</a>、<a href="../design/system/flows.md">Flows 02–03</a>、<a href="../design/system/data-ownership.md">data ownership</a>、<a href="../design/system/risks-and-decisions.md">risk decisions</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/modules/application-shell.md">Application Shell contract</a>、<a href="../design/features/map-and-location.md">Map contract</a>、<a href="../design/modules/geographic-context.md">Geographic Context contract</a>。</p>
-<h2>9. Change Log</h2>
+<h2 id="9-change-log">9. Change Log</h2>
 <table>
 <thead>
 <tr>
@@ -420,6 +521,13 @@ final class OverpassElement { final String elementType; final String osmId; fina
 </thead>
 <tbody>
 <tr>
+<td>2026-09-17</td>
+<td><code>Implemented</code></td>
+<td>依 Issue #25 分配 Wave 5 验收；补齐实际数量的可选 count、marker payload 与生产装配说明；实现 SQLite 缓存、scope 门控、Shell/Map 接线和 Penpot 页面。</td>
+<td>FAC-01、FACILITY-001/002、Shell、Map、facility_public_cache、测试和 HTML；原产品口径不变。</td>
+<td>项目负责人授权开发；Implemented 证据齐全；GPT-5.6 Luna High 最终审查通过；Integrated 未授予</td>
+</tr>
+<tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
 <td>依 Issue #23 收束为单一 Development Contract 与同名 HTML 语义等价导出；移除已废止的发布治理，并与 Shell、Map / Location 的完整 canonical 声明重新对齐。</td>
@@ -428,11 +536,11 @@ final class OverpassElement { final String elementType; final String osmId; fina
 </tr>
 </tbody>
 </table>
-<h2>10. 完成核对</h2>
+<h2 id="10">10. 完成核对</h2>
 <ul>
 <li>[x] 固定阅读顺序和四项 Readiness 已列明。</li>
 <li>[x] <code>SHELL-001</code>、<code>LOCATION-001</code>、<code>LOCATION-002</code>、<code>FACILITY-001</code>、<code>FACILITY-002</code> 均有唯一 import、完整 canonical 声明、约束、typed outputs/failures、状态/副作用、顺序/权限、最小示例与 fake；Nearby Facilities 仅调用标明的子集。</li>
 <li>[x] Overpass 是 A 封装的外部 seam；原始元素和 Adapter 策略不泄漏给消费者。</li>
 <li>[x] <code>FAC-01</code>、<code>D14/D15/D44/D46</code>、<code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-03</code>、<code>AT-RACE-01</code>、<code>facility_public_cache</code> 与风险均可追溯。</li>
 <li>[x] Markdown 是同名 HTML 的唯一源；两者在任务成果、定义完成、完整声明、数据/缓存/权限、联合验收和 Change Log 上语义等价，未包含可提交实现体、SQL、RLS 或公式正文。</li>
-</ul></body></html>
+</ul></main></html>

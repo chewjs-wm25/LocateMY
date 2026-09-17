@@ -1,0 +1,23 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_adapter_test.dart
+00:00 +0: public response retains valid rows when another row cannot be decoded
+00:00 +0 -1: public response retains valid rows when another row cannot be decoded [E]
+  Expected: HazardReadFailure:<HazardReadFailure.incompletePage>
+    Actual: HazardReadFailure:<HazardReadFailure.retryableUnavailable>
+  
+  package:matcher                                               expect
+  package:flutter_test/src/widget_tester.dart 473:18            expect
+  test/features/hazard_reporting/hazard_adapter_test.dart 53:5  main.<fn>
+  
+00:00 +0 -1: vote rejects negative aggregate counts
+00:00 +1 -1: real SDK maps an authoritative created report and aggregate votes
+00:00 +2 -1: public paging preserves the next cursor and viewport identity
+00:00 +3 -1: RPC author denial is a permission failure rather than a network error
+00:00 +4 -1: author can read, resolve, vote, retract and delete an authoritative report
+00:00 +5 -1: my reports are requested as an account-owned page
+00:00 +6 -1: incomplete nearby count never becomes a successful zero
+00:00 +7 -1: nearby count requires a complete 2000 metre response
+00:00 +8 -1: a negative aggregate count is unavailable rather than a fabricated report
+00:00 +9 -1: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_adapter_test.dart: public response retains valid rows when another row cannot be decoded

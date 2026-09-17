@@ -26,9 +26,9 @@
 | `user_budget_scenarios` | Supabase table | `proposed` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负的额外生活开销/住房/交通/月净收入/家庭月度总收入、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost of Living & Budget | Account、Socio-economic 与 Suitability 只消费 `COST-002`，不直接读取本表；月净收入只用于个人预算压力，家庭月度总收入只用于 Socio 收入位置，均不可互代；额外生活开销为空表示无额外开销；migration 须 additive 地加入家庭月度总收入，旧预案保持缺失而不猜测；旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
 | `user_assessment_preferences` | Supabase table | `proposed` | Account Center | user id 主键；safety/cost/daily convenience/transit accessibility/infrastructure 均为整数 1–10；nullable `configured_at`、updated at | owner-only CRUD；Account Center | `configured_at is null` 是未配置，五项默认 `5` 仅可作表单预填；一次成功确认完整五项才写入时间并发布 `ACCOUNT-001` complete snapshot，后续有效修改保留它。Suitability 只消费该 Interface，不直接读取本表。migration 须 add `configured_at`，既有行保持 null，不猜测升级；字段/RLS 实现完成后才可改回 implemented。 |
 | `user_ici_preferences` | Supabase table | `proposed` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 仅保存跨设备的 last saved 权重；合法未保存 preview 是 Feature 页面内存，不写表且不发布给其他设备。已有同名表是五个 0–1 权重，不能作为本契约的 implemented 证据；migration 需迁移或替换 |
-| `crowdsourced_hazards` | Supabase table | `proposed` | Hazard Reporting | id、author user id、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/delete；author-only update 仅允许自身 `pending/resolved` 状态；Hazard、Property count | 发布后 type/title/description/location/report time 不可变；现有广泛 author-update policy 不能作为本契约的 implemented 证据，migration 须收紧为 status-only；公开不等于匿名；无 verified/rejected 或维护者例外 |
-| `crowdsourced_hazard_votes` | Supabase table | `implemented` | Hazard Reporting | hazard id + user id 复合主键、vote `-1/+1`、created/updated at | authenticated 仅管理本人票；Hazard | 撤回删除本人行；级联随报告删除 |
-| `hazard_vote_counts` | Supabase RPC | `proposed` | Hazard Reporting | hazard id、upvotes、downvotes；由全部 vote 行聚合，只暴露计数 | authenticated 可执行；Hazard | 受控 `SECURITY DEFINER` RPC：固定空/安全 `search_path`，RPC 内验证调用者；撤销默认与 anon execute。底层 vote 仍只允许本人读写，RPC 不返回投票者身份；migration 实现并以两账户/匿名证据验证 |
+| `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id（外键指向 auth.users，不依赖可选 profiles）、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/delete；author-only update 仅允许自身 `pending/resolved` 状态；Hazard、Property count | 发布后 type/title/description/location/report time 不可变；现有广泛 author-update policy 不能作为本契约的 implemented 证据，migration 须收紧为 status-only；公开不等于匿名；无 verified/rejected 或维护者例外 |
+| `crowdsourced_hazard_votes` | Supabase table | `implemented` | Hazard Reporting | hazard id + user id（外键指向 auth.users，不依赖可选 profiles）复合主键、vote `-1/+1`、created/updated at | authenticated 仅管理本人票；Hazard | 撤回删除本人行；级联随报告删除 |
+| `hazard_vote_counts` | Supabase RPC | `implemented` | Hazard Reporting | hazard id、upvotes、downvotes；由全部 vote 行聚合，只暴露计数 | authenticated 可执行；Hazard | 受控 `SECURITY DEFINER` RPC：固定空/安全 `search_path`，RPC 内验证调用者；撤销默认与 anon execute。底层 vote 仍只允许本人读写，RPC 不返回投票者身份；migration 实现并以两账户/匿名证据验证 |
 | `property_inspections` | Supabase table | `proposed` | Property Inspection | id、user id、名称 1–200、地址、必需 WGS84 point、可空收藏 id、非负价格、四项 1–5、flood evidence、notes、**原子风险快照组**（`reporting_state`、`safety_index`、`safety_source_year`、`safety_source_id`、`safety_model_boundary_version`、`safety_completeness`、`hazard_pending_count`、`hazard_radius_m`、`hazard_counted_at`、`snapshot_captured_at`）、deleted/created/updated at | owner-only CRUD；Property | 此表是该字段组的唯一字段定义。仅 `SAFETY-001` 与 `HAZARD-002` 对同一合法坐标均为完整 `available` 时，才整体 create/replace；任一不可用或 partial 时不写任何新组，已有组保持。migration 须 add–migrate–validate 必需地点及完整字段组；旧行只能在全部字段有可验证来源时迁移为完整组，否则整组保持缺失并显示风险不可用，不能猜测/补零。soft delete 不删照片 |
 | `property_inspection_photos` | Supabase table | `proposed` | Property Inspection | id、inspection id、user id、唯一 storage path、可空说明 ≤1000、cover flag、created at；每实勘最多 20 | owner-only CRUD，且 user 必须拥有父实勘；Property | 现有表/部分 policy 已建立，但 update/delete 尚未完整证明父实勘 owner；删除封面回退规则归 Feature |
 | `inspection-photos` | private Storage bucket | `proposed` | Property Inspection | 对象路径首段 account id，继而 inspection id 与不可变 photo id；静态常见图片、压缩后上传 | owner-only select/insert/update/delete，且父实勘同 owner；Property | 现有 bucket 已建立，但 read/update/delete 仍须按父实勘关系加固；upsert 需 read/insert/update 权限 |
@@ -71,12 +71,25 @@
 
 | 对象 | 类型/状态 | Owner | 字段契约 | 访问规则 / 迁移方向 |
 | --- | --- | --- | --- | --- |
-| `gtfs_feed_snapshots` | Supabase table / `proposed` | Public Transportation | feed id、source id/url、captured at、parse status、service date range、failure reason；每次采集唯一标识 | authenticated read-only；保留失败尝试，不伪装空 feed；资料状态规则见公共交通事实源 |
-| `gtfs_stops` | Supabase table / `proposed` | Public Transportation | snapshot/feed/stop id、name、WGS84 point、location type、parent station | authenticated read-only；取代缺 feed id 的 `transit_stops` |
-| `gtfs_routes` | Supabase table / `proposed` | Public Transportation | snapshot/feed/route id、short name、route type | authenticated read-only |
-| `gtfs_stop_services` | Supabase table / `proposed` | Public Transportation | snapshot、feed、stop、route、service date、active flag；键可证明有效路线关联 | authenticated read-only；来源链为 routes→trips→stop_times→calendar/exception |
-| `transit_analysis_results` | Supabase View/RPC / `proposed` | Public Transportation | analysis point/radius/date、feed status、nearest distance、unique stops/routes、density、percentiles、score、availability、service outcome、stale warning、generated at | authenticated read-only；Transit 的稳定读取结果；完整资料状态语义见公共交通事实源 |
-| `transit_reference_grid` | Supabase table / `proposed` | Public Transportation | snapshot、1 km grid point、stop density、route count、percentiles | authenticated read-only；固定参照组，不依赖用户地点 |
+| `gtfs_feed_snapshots` | Supabase table / `implemented` | Public Transportation | `(snapshot_id,feed_id)` 主键；source id/url、captured at、parse status、service start/end、failure reason、source SHA256 | authenticated read-only；usable 必须有采集时间及有序服务日期；失败尝试保留 |
+| `gtfs_stops` | Supabase table / `implemented` | Public Transportation | `(snapshot_id,feed_id,stop_id)` 主键；name、WGS84 point、location type、parent station、normalized station type；PostGIS geography/GiST | authenticated read-only；只统计 location type 0；取代缺 feed id 的 `transit_stops` |
+| `gtfs_routes` | Supabase table / `implemented` | Public Transportation | `(snapshot_id,feed_id,route_id)` 主键；short name、raw route type | authenticated read-only；RPC 站点 routes 保留原始类型及 service active |
+| `gtfs_service_dates` | Supabase table / `implemented` | Public Transportation | `(snapshot_id,feed_id,service_date,service_id)` 主键；active | authenticated read-only；calendar 按星期展开，再覆盖 calendar_dates exception |
+| `gtfs_stop_service_links` | Supabase table / `implemented` | Public Transportation | `(snapshot_id,feed_id,stop_id,route_id,service_id)` 主键；外键指向 stop/route | authenticated read-only；来源链 routes→trips→stop_times→calendar/exception |
+| `gtfs_stop_services` | security-invoker view / `implemented` | Public Transportation | snapshot、feed、stop、route、service date、active flag | authenticated read-only；由 links/date 聚合，保留日期有效路线关联 |
+| `transit_analysis_results` | security-invoker view / `implemented` | Public Transportation | promoted grid point/date、canonical RPC result JSON 及 density/routes；只读维护者检查视图 | authenticated read-only；Flutter 只调用参数化 RPC，不读此视图 |
+| `transit_reference_grid` | Supabase table / `implemented`；正式网格已准备 | Public Transportation | `(snapshot_id,analysis_date,grid_id)` 主键；grid version、1 km grid point、stop density、route count | authenticated read-only；固定参照组，不依赖用户地点；范围为可用 feed 的 location_type=0 站点 1.5 km 圆并集；正式网格方法见下文 |
+| `transit_evaluation_batches` | Supabase table / `implemented` | Public Transportation | snapshot 主键、grid version、promotion time、expected count 固定 16 | authenticated read-only；维护者在导入成功后显式推广；应用不导入或推广 |
+
+迁移：`20260917051623_public_transportation_analysis.sql`、`20260917053457_transit_source_validation.sql`、`20260917053658_transit_canonical_result_view.sql`、`20260917054002_transit_missing_batch_sources.sql`、`20260917062031_transit_missing_source_identity.sql`；已应用本地及开发 Supabase。全部基础表启用 RLS，authenticated 仅 SELECT 且需非空 `auth.uid()`；anon 无读权限，authenticated/anon 无写权限。RPC 为 security invoker，固定空 search path，匿名无 EXECUTE。
+
+`read_transit_analysis` 固定登记产品预期的 16 个官方 feed，左连接所选 snapshot；缺行仍返回独立 missing 状态及官方来源，不伪装空 feed。partial 保留成功站点但不评分。正式全资料评分仍需已准备的同 snapshot/date/grid 参照组；无 grid 则 source unverifiable。现有 `official-2026-09-17` 为 15 usable + 1 failed 的 partial batch，此实际来源不产生完整分数。完整评分函数已在真实开发 Supabase 的 authenticated 角色下用受控算例验证为 75，事务 rollback；不得把该算例描述成官方全资料结果。
+
+正式 `official-2026-09-17` / `2026-09-17` 参照组已有 9,641 点，版本 `utm-wgs84-1km-stopcatchment-v1`。方法：UTM WGS84 EPSG:32647–32651，固定原点 `(0,0)`；1,000 m 单元中心 `(i+0.5,j+0.5)*1000`，按中心所在经度分区裁剪以避免 zone 重叠；grid ID 为 `zone:i:j`。中心须满足可用 feed 站点的 1,500 m geography 距离条件；密度为圈内唯一 `(feed_id,stop_id)` 数除以 `π×2.25 km²`，路线为分析日期 active 的唯一 `(feed_id,route_id)` 数。参照组绑定 snapshot/date/method，不随用户地点变化。生成方法使用 [PostGIS ST_SquareGrid](https://postgis.net/docs/ST_SquareGrid.html) 的固定米制网格与 [ST_DWithin](https://postgis.net/docs/ST_DWithin.html) 的 geography 米制距离。
+
+维护脚本 `tool/prepare_transit_reference_grid.py` 核对源 ZIP hash 和五张标准化表，记录输入/grid hash、zone 分布与完整性；远端核验服务范围外点、非正密度和负路线数均为 0。上传可安全续传，既有不同记录拒绝替换；完整 batch promotion 核对整个审计网格而非仅一条记录。与真实来源登记分开保存受控算例证据。
+
+真实读取/allow-deny及代码版本证据见 [公共交通 Wave 5 验证报告](../../human/evidence/public-transportation-wave5-2026-09-17/report.md)。表结构 implemented 不表示 Feature 达到 `Implemented`。
 
 ### 稳定公共读取对象
 
@@ -90,7 +103,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
 | `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
-| `read_transit_analysis` | security-invoker View/RPC / `proposed` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit |
+| `read_transit_analysis` | security-invoker RPC / `implemented` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit |
 
 ### 本机对象
 
@@ -99,7 +112,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `home_public_cache` | SQLite / `implemented` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
 | `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
 | `crime_public_cache` | SQLite / `proposed` | Crime | reporting state、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
-| `facility_public_cache` | SQLite / `proposed` | Facilities | coordinate key、2,000 m、mapping version、完整结果/归因/query time、24-hour expiry | 只保存完整成功；无收藏名称/账户 id |
+| `facility_public_cache` | SQLite / `implemented` | Facilities | `coordinate_key`（坐标/2,000 m/映射版）、`radius_metres`、`mapping_version`、`payload`（完整公开 OSM 元素）、`source`、`copyright_url`、`queried_at`、`expires_at`（24h）、`complete` | 只保存完整成功；无收藏名称/账户 id；旧无元数据缓存安全失效；按当前地点重建分类结果 |
 | `saved_location_cache` | SQLite logical partition / `implemented` | Map | account id、remote id、name、point、remote version/timestamps、删除标记、sync state | 同账户 opened scope；退出清除；墓碑仅用于同步，不作为用户可见收藏 |
 | `saved_location_create_queue` | SQLite logical partition / `implemented` | Map | account id、client id/idempotency key、name、point、created at、attempt/retry state/error class | 只排队 create；成功变 cache 行；退出清除未同步项 |
 | `property_drafts` | SQLite / `proposed` | Property | account id、draft id、全部表单字段、location、updated at | 同账户 scope；远端记录创建成功后按流程清除；草稿照片由独立对象拥有 |
@@ -161,3 +174,26 @@ Forward migrations：`add_home_metrics_read_rpc`、`grant_home_dataset_maintenan
 - SQLite 当前存储 Adapter 将 cache 与 create queue 合并到独占物理表 `map_saved_records(account_id,client_key,payload)`；payload 保存收藏字段、远端版本、墓碑、sync state，以及持久化 attempts / last_failure（重试次数与类型化错误类别）。`saved_location_cache`、`saved_location_create_queue` 为该表的两类逻辑记录，分别按 synchronized 与 queued/retryableFailure 区分。读、替换和清理均按 account_id，替换在单个 SQLite transaction 完成。
 
 - `20260917031216_saved_locations_optional_profile.sql` 先增设并验证 auth.users 外键，再移除 profiles 外键；已有记录不重写，账户权限不变。无可选 profile 的已确认账户已通过真实收藏创建验收。
+
+### Wave 5 Hazard Reporting 运行时 API（2026-09-17）
+
+`20260917050950_hazard_reporting_api.sql` 实现下列 authenticated-only RPC；全部撤销
+PUBLIC/anon 的 EXECUTE，固定空 search_path。上报及投票关联 Auth 账户，资料登记可跳过。
+替代 Auth 外键先验证再移除 profiles 外键；公开报告不因资料删除而删除。
+
+| RPC / 参数 | 返回 | 权限与边界 |
+| --- | --- | --- |
+| `hazard_create(p_type text,p_title text,p_description text,p_latitude float8,p_longitude float8)` | report JSON | 五类、trim 标题 1–120、描述 ≤2000、有效马来西亚坐标；author/report time/status/id 由服务器生成。客户端 INSERT grant 只含 user_id/type/title/description/location。 |
+| `hazard_detail(p_id uuid)` | report JSON | 公共内容；author 仅 mine/other；vote 仅本人选择及聚合计数；notFound 非空对象。 |
+| `hazard_page(p_mine bool,p_south float8,p_west float8,p_north float8,p_east float8,p_cursor uuid=null)` | `{reports,next_cursor}` | 每页 50，report_time/id 降序 keyset；mine 限当前账户；失效 cursor 返回错误。 |
+| `hazard_status(p_id uuid,p_status text)` | report JSON | author-only pending/resolved；UPDATE grant 仅 status，trigger 保证其余发布字段不可改。 |
+| `hazard_delete(p_id uuid)` | true | author-only；缺失/并发删除返回 notFound，报告投票级联删除。 |
+| `hazard_vote(p_id uuid,p_vote text)` | `{mine,upvotes,downvotes}` | 本人 up/down/none 唯一票；counts 由下列 RPC 读取，不枚举他人票。 |
+| `hazard_vote_counts(p_id uuid)` | `{upvotes,downvotes}` | 唯一 SECURITY DEFINER；验证 auth.uid 和报告存在，仅暴露计数，撤销匿名/default execute；替换旧本人行视图。 |
+| `hazard_pending_count(p_latitude float8,p_longitude float8)` | `{count,radius_meters,counted_at,complete}` | invoker 读取公共 pending；Haversine 球半径 6,371,000m，d ≤2000m 包含边界；完整结果带 UTC 时间；`20260917053803_hazard_count_location_guard.sql` 拒绝不在马来西亚行政边界内的伪造坐标。 |
+
+report JSON 形状为 `{id,type,title,description,latitude,longitude,status,reported_at,author,vote}`。
+所有其他 RPC 使用 SECURITY INVOKER 并沿用报告/投票 RLS。原始报告列、用户身份及他人票
+不通过 report JSON 暴露；原始表写入也受 column grants/RLS/immutable trigger 约束。
+证据：`python3 tool/verify_hazard_live.py`，双账户、无 profile 账户、匿名 deny、内容不可变、
+状态/删除、票切换/撤回及真实 Haversine 边界；见 Wave 5 验收报告。

@@ -464,6 +464,9 @@ final class ShellRuntime
     final ShellTab? tab = request.tab;
     final String? destination = request.destination;
     if (tab != null) {
+      for (final ShellNavigationEntry entry in state.routes) {
+        _slots.remove(entry.context);
+      }
       _navigation(tab: tab, routes: const <ShellNavigationEntry>[]);
     } else if (destination != null && destination.trim().isNotEmpty) {
       _navigation(

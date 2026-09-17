@@ -1,0 +1,12 @@
+{
+  "environment": "Supabase development project ntlhjfljkjeefzzqutbc",
+  "snapshot_id": "official-2026-09-17",
+  "reference_grid_version": "utm-wgs84-1km-stopcatchment-v1",
+  "analysis_date": "2026-09-17",
+  "grid_count": 9641,
+  "outside_service_area": 0,
+  "nonpositive_density": 0,
+  "negative_routes": 0,
+  "rollback_fixture_leaks": 0,
+  "verified_at": "2026-09-17T06:21:16.479691+00:00"
+}

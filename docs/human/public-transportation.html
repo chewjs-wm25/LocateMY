@@ -1,12 +1,13 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Public Transportation 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Public Transportation 开发协作契约</h1>
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Public Transportation 开发协作契约</title><style>body{max-width:1100px;margin:40px auto;padding:0 20px;background:#f6f8fb;color:#172033;font:16px/1.7 system-ui,sans-serif}a{color:#155eef}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #d0d5dd;padding:10px;text-align:left;vertical-align:top}pre{overflow:auto;background:#0b1f44;color:white;padding:18px;border-radius:12px}code{font-family:monospace}blockquote{border-left:4px solid #155eef;margin:0;padding-left:16px}</style><body><h1 id="public-transportation">Public Transportation 开发协作契约</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
+<p>设计状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5
+模块实现：<code>Implemented</code>（2026-09-17；GPT-5.6 Luna High 的 Standards / Spec 双轴审查通过）；本期集成已通过，<code>Integrated</code> 待负责人跨 Owner 批准
 唯一公开入口：<code>package:locatemy/features/public_transportation/public_transportation.dart</code>
 定义完成：消费者可只凭本契约，以不可变合法地点和明确分析日期取得、呈现或复用同一份交通连通性事实；不会把资料不完整、无服务或旧资料伪装为零分。</p>
 </blockquote>
 <p>本文件是 Public Transportation 唯一的跨 Owner Development Contract；同名 HTML 是由本 Markdown 导出的等价人类阅读格式。它固定公开 Dart seam、GTFS 结果语义、局部地图协作和联合验收；<code>lib/features/public_transportation/</code> 内的 Widget、GTFS/Supabase Adapter、状态管理、缓存、并发/取消/重试、排序和测试组织由 A 决定。公式正文只在产品知识库，表/RLS/migration 只在 Schema Catalog。</p>
-<h2>0. 固定阅读顺序与四项 Readiness</h2>
+<h2 id="0-readiness">0. 固定阅读顺序与四项 Readiness</h2>
 <ol>
 <li><a href="../../CONTEXT.md#公共交通覆盖">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/transportation.md">公共交通产品事实</a>与<a href="../knowledge_base/locatemy_product/infrastructure_index_scoring.md#公共交通">ICI 公共交通规则</a>；</li>
 <li><a href="../design/system/feature-map.md#fm-transit">Feature map（Transit）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02单点选址地点摘要与六类分析">FLOW-02</a>与<a href="../design/system/flows.md#flow-03地点-ab-比较">FLOW-03</a>；</li>
@@ -44,7 +45,7 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2>1. 成果、责任与冻结边界</h2>
+<h2 id="1">1. 成果、责任与冻结边界</h2>
 <ul>
 <li>用户可查看合法地点 1,500 m 圆内的完整站点数、最近距离、分析日期有效路线数、连通性分、来源、采集/生成日期、可用性和资料限制；首屏按距离升序列 30 个站点，但统计和分数使用全部范围内站点。</li>
 <li>单点和 A/B 结果均绑定 Map 的不可变地点引用与请求的 <code>analysisDate</code>。只有半径、分析日期、GTFS snapshot/参照网格、完整性和 provenance 相同才可比较；不产生赢家或通勤建议。</li>
@@ -87,8 +88,8 @@ Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2>2. 需要调用的 Interface</h2>
-<h3>Interface 卡：<code>SHELL-001</code> — 导航、返回与摘要组合</h3>
+<h2 id="2-interface">2. 需要调用的 Interface</h2>
+<h3 id="interface-shell-001">Interface 卡：<code>SHELL-001</code> — 导航、返回与摘要组合</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Public Transportation；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
@@ -136,7 +137,45 @@ enum ShellRejectionReason {
 </table>
 <p>最小调用：<code>await shell.publish(PublicTransportationContribution(outcome, returnContext));</code>。非 accepted 时保留本页结果并呈现可读恢复路径。</p>
 <p><strong>Fake 场景：</strong> fake Shell 依次返回 accepted、authentication required、stale input；Transit 验证只发布匹配请求的结果，后两者不把资料改为失败或把旧结果放入新槽位。无需 Shell 生产路由。</p>
-<h3>Interface 卡：<code>LOCATION-001</code> — 不可变合法地点</h3>
+<h4 id="transit-shell-marker-2026-09-17">已确认的 Transit Shell marker 声明（2026-09-17）</h4>
+<p>负责人已确认返回语境持有 immutable location、role、明确分析日期与原 Shell 请求身份。以下补齐此前缺少的 marker 声明；消费者为同 Owner A 的 Shell/Map composition root，Infrastructure/Suitability 的冻结 TRANSIT-001 结果不变。root 注入 opaque 身份并校验当前任务及其地点/date，Feature 不读取 Shell 可变状态。</p>
+<pre><code class="language-dart">final class AnalysisReturnContext {
+  final ValidLocationReference location;
+  final LocationRole role;
+  final DateTime analysisDate;
+  final Object originalRequestIdentity;
+  const AnalysisReturnContext({required ValidLocationReference location,
+    required LocationRole role, required DateTime analysisDate,
+    required Object originalRequestIdentity});
+}
+final class OpenPublicTransportationIntent implements ShellIntent {
+  final AnalysisReturnContext returnContext;
+  const OpenPublicTransportationIntent(AnalysisReturnContext returnContext);
+}
+final class OpenPublicTransportationComparisonIntent implements ShellIntent {
+  final AnalysisReturnContext a;
+  final AnalysisReturnContext b;
+  const OpenPublicTransportationComparisonIntent(AnalysisReturnContext a, AnalysisReturnContext b);
+}
+final class ReturnToMapIntent implements ShellIntent {
+  final AnalysisReturnContext returnContext;
+  const ReturnToMapIntent(AnalysisReturnContext returnContext);
+}
+final class PublicTransportationContribution implements ShellContribution {
+  final TransitLoadOutcome outcome;
+  final AnalysisReturnContext returnContext;
+  const PublicTransportationContribution(TransitLoadOutcome outcome, AnalysisReturnContext returnContext);
+}
+final class PublicTransportationComparisonContribution implements ShellContribution {
+  final TransitComparisonOutcome outcome;
+  final AnalysisReturnContext a;
+  final AnalysisReturnContext b;
+  const PublicTransportationComparisonContribution(TransitComparisonOutcome outcome,
+    AnalysisReturnContext a, AnalysisReturnContext b);
+}
+</code></pre>
+<p>打开 marker 的身份属于来源页面；任务建立后 root 为结果页面注入该任务的原请求身份。单点 role 必为 single；比较 role 为 locationA/locationB，日期及身份相同，地点不同。返回和贡献仅接受仍匹配当前任务及地点/date 的身份；错误 payload 以 missingInput/staleInput 拒绝，不改原事实。关闭任务或账户 scope 后旧 publication 被拒绝。</p>
+<h3 id="interface-location-001">Interface 卡：<code>LOCATION-001</code> — 不可变合法地点</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Public Transportation；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
 <p>以下为 Map owning contract 的<strong>完整 canonical 声明</strong>；Transit 只使用本 Feature 所需成员，但不得截断、复制或改形。</p>
 <pre><code class="language-dart">abstract interface class LocationCoordinator {
@@ -190,7 +229,7 @@ final class SavedLocationsUnavailable extends SavedLocationsSnapshot { final Sav
 <p>Transit 只接受 Map owning contract 已产生的 <code>ValidLocationReference</code>（single 或明确的 A/B 角色）。它不自行构造坐标、不回读可变地图状态、不用默认城市、收藏名或旧地点替代。<code>LocationAbsent</code>、<code>invalidCoordinate</code>、<code>outsideMalaysia</code>、<code>sameComparisonPoint</code> 或 <code>scopeUnavailable</code> 时，不读 GTFS、不显示 no-service、不发布 contribution。调用本身无副作用；异步结果必须仍匹配原 location id、角色、analysis date 与结果 provenance。</p>
 <p>最小调用：<code>TransitRequest(location: selectedLocation, analysisDate: analysisDate, policy: TransitLoadPolicy.cacheAllowed)</code>，其中 <code>selectedLocation</code> 只能是 Map 成功返回的值。</p>
 <p><strong>Fake 场景：</strong> fake Map 给 single、A/B、缺端及 scope unavailable；Transit 仅对成功 immutable reference 请求，拒绝时无读取/Marker/0 分。</p>
-<h3>Interface 卡：<code>LOCATION-002</code> — 局部站点分布图</h3>
+<h3 id="interface-location-002">Interface 卡：<code>LOCATION-002</code> — 局部站点分布图</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Public Transportation；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
 <p>以下为 Map owning contract 的<strong>完整 canonical 声明</strong>；Transit 只调用 <code>contribute</code>，但生产 Adapter、消费者和 fake 必须保留同一入口、成员与 result variant。</p>
 <pre><code class="language-dart">abstract interface class MapLayerHost {
@@ -222,10 +261,10 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <p>Transit 使用 Map contract 定义的 <code>MapLayerContribution</code>、<code>MapLayerItem</code>、<code>ProviderDefinedIntent</code>、<code>MapLayerAccepted</code>、<code>MapLayerHidden</code>、<code>MapLayerRejected(MapLayerFailure)</code>。贡献固定为 <code>providerId: 'public-transportation'</code>，stable marker id 为 <code>feedId + ':' + stopId</code>，并包含当前 request 的 <code>viewportVersion</code>、分析中心、1.5 km 圆、当前结果的全部 station Marker 与可选已选站点意图。<code>hidden</code> 是接受但不显示；<code>invalidContribution</code>、<code>invalidCoordinate</code>、<code>outsideMalaysia</code>、<code>scopeUnavailable</code>、<code>staleViewport</code>、<code>unauthenticated</code> 为可区分失败。</p>
 <p>图层只改 Map 覆盖物/相机，Map 点击只回传原 <code>feedId + stopId</code> 意图；Transit 负责将它解析为当前结果中的站点或拒绝过期选择。不得改 single/A/B/property、交通结果或启动导航。仅 opened scope 可见，关闭/换地点/date/snapshot 后清理选择并以 hidden/新 viewport 替换旧层。</p>
 <p>最小调用：<code>await mapLayerHost.contribute(currentStationLayer);</code>。<strong>Fake 场景：</strong> fake host 对新旧 viewport 返回 accepted/staleViewport，断言旧站点不会覆盖新地点；点击未知或旧 marker 时本地选择清除。无需地图 SDK。</p>
-<h3>Interface 卡：<code>TRANSIT-002</code> — 标准化 GTFS 读取（仅 A）</h3>
+<h3 id="interface-transit-002-gtfs-a">Interface 卡：<code>TRANSIT-002</code> — 标准化 GTFS 读取（仅 A）</h3>
 <p><strong>提供者/消费者：</strong> Public Transportation（A）/ A；非跨 Owner 公开入口。A 只经 authenticated、security-invoker 的 <code>read_transit_analysis</code> 读取已准备 snapshot、站点/路线、固定参照网格和聚合；Flutter 不下载 ZIP、不直读 <code>gtfs_feed_snapshots</code>、<code>gtfs_stops</code>、<code>gtfs_routes</code>、<code>gtfs_stop_services</code>、<code>transit_analysis_results</code> 或 <code>transit_reference_grid</code>。字段、键、RLS 和迁移唯一见 Schema Catalog。网络/SDK/查询映射、刷新、缓存、取消及 retry 是 A 的内部实现。</p>
-<h2>3. 必须提供的 Interface</h2>
-<h3>Interface 卡：<code>TRANSIT-001</code> — 公共交通 canonical connectivity result</h3>
+<h2 id="3-interface">3. 必须提供的 Interface</h2>
+<h3 id="interface-transit-001-canonical-connectivity-result">Interface 卡：<code>TRANSIT-001</code> — 公共交通 canonical connectivity result</h3>
 <p><strong>提供者：</strong> Public Transportation（A）；<strong>消费者：</strong> Application Shell、Infrastructure Coverage、Personalized Location Suitability；<strong>唯一公开 import：</strong> <code>package:locatemy/features/public_transportation/public_transportation.dart</code>。</p>
 <p>消费者只能 import 此入口，不能 import <code>lib/features/public_transportation/src/</code> 或任何 GTFS/Adapter 文件。A 应先合入以下声明与最小 fake；这是协作形状，不是可提交实现体。</p>
 <pre><code class="language-dart">abstract interface class PublicTransportation {
@@ -299,7 +338,7 @@ enum TransitComparisonReason { sideUnavailable, sideIncomplete, analysisDateMism
 </tr>
 </tbody>
 </table>
-<h4>必须保持的日期、GTFS 与结果语义</h4>
+<h4 id="gtfs">必须保持的日期、GTFS 与结果语义</h4>
 <ul>
 <li><code>analysisDate</code> 用于 <code>calendar.txt</code> / <code>calendar_dates.txt</code> 的有效服务判定；<code>feed.capturedAt</code> 只表示快照采集时间；<code>generatedAt</code> 只表示本次结果生成时刻，三者不可互代。恰 30 天不 stale；超过 30 天且仍可解析并覆盖 analysisDate 才是 <code>stale</code>。</li>
 <li>站点实体是 <code>location_type = 0</code>；同 feed 以 <code>stop_id</code>、跨 feed 以 <code>feedId + stopId</code> 去重；<code>parentStation</code> 只可展示分组。路线以 <code>feedId + routeId</code> 唯一，必须经 routes → trips → stop_times 并在 analysisDate 有效；同名/同坐标站点与跨 feed <code>route_short_name</code> 不自动合并。</li>
@@ -321,7 +360,7 @@ switch (outcome) {
 }
 </code></pre>
 <p><strong>Fake 场景：</strong> Infrastructure 的 fake <code>PublicTransportation</code> 返回 served score、noStops、noActiveRoutes、incomplete 和 unavailable，验证只在 served score 时纳入 ICI；Suitability fake 将全部非 scored outcome 保留为维度不可用。Shell fake 对 A/B 的 analysis date、radius 或 provenance 不同返回 <code>TransitIncomparable</code>，不显示差异。消费者无需 GTFS、Supabase 或 Transit 生产实现。</p>
-<h2>4. 直接使用的数据与推荐实施顺序</h2>
+<h2 id="4">4. 直接使用的数据与推荐实施顺序</h2>
 <table>
 <thead>
 <tr>
@@ -360,7 +399,127 @@ switch (outcome) {
 <li><strong>A 完成局部选择和可访问呈现。</strong> 列表/Marker 同步，文字同时表达范围、状态、来源、日期、选中和限制；图不是唯一信息载体。</li>
 <li><strong>共同联调。</strong> 接入真实 seam，仅保留第 5 节所需跨模块流测试。</li>
 </ol>
-<h2>5. 联合验收、阻塞与变更</h2>
+<h2 id="5">5. 联合验收、阻塞与变更</h2>
+<h3 id="wave-5-issue-252026-09-17">Wave 5 验收分配（Issue #25；2026-09-17）</h3>
+<p>本次任务是 Public Transportation 模块开发；不代表其他 Wave 5 Feature 或整波已完成。
+本期真实依赖为 authenticated Supabase <code>read_transit_analysis</code>、Application Shell
+和 Map / Location；fake 仅用于确定性边界验证。Infrastructure Coverage（Wave 6）
+与 Personalized Location Suitability（Wave 7）是后续真实消费者。</p>
+<table>
+<thead>
+<tr>
+<th>场景 ID / 可观察结果</th>
+<th>验证归属</th>
+<th>所需依赖及用途</th>
+<th>证据要求</th>
+<th>负责 Owner</th>
+<th>最迟 Wave</th>
+<th>本模块证据/状态</th>
+<th>联合证据/状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PT-01 / 单点完整 served、不同分析日期</td>
+<td>两者</td>
+<td>本期真实 RPC、Map immutable reference、Shell；外部 HTTP 测试边界</td>
+<td>公开 load 结果映射、真实日期有效路线及来源/快照/grid；真实单点路由与返回</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1/E2/E3/E4；真实 SQL served 算例 75 与正式 grid</td>
+<td>已通过：E4；生产 task/返回</td>
+</tr>
+<tr>
+<td>PT-02 / 30 天边界、stale、missing、failed、日期范围、partial、unavailable、有效零站/零路线</td>
+<td>本模块</td>
+<td>本期真实 GTFS snapshot 登记和 RPC；HTTP 确定性响应</td>
+<td>状态矩阵、无伪零、失败后恢复与上一成功结果保留；16 feed 数据准备完整性审计</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1/E2/E3；状态矩阵/缓存恢复/16 feed 审计</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>PT-03 / A/B 可比性、单侧缺失、交换、晚到</td>
+<td>两者</td>
+<td>本期真实 Shell/Map；公开 compare；HTTP 确定性响应</td>
+<td>保留各侧事实；日期/半径/完整性/provenance 对比；真实槽位交换及旧请求隔离</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1；完整比较、各侧事实、交换和晚到</td>
+<td>已通过：E4；真实 A/B task</td>
+</tr>
+<tr>
+<td>PT-04 / 全部 Marker、最近 30 项、列表/Marker 互选、换地点/date/snapshot、scope close</td>
+<td>两者</td>
+<td>本期真实 MapLayerHost、Shell scope；页面用户交互</td>
+<td>中心/1.5 km 圆/坐标 Marker、文本选择；全局地点不变；过期和关闭清理；设备首屏、失败及返回/重启证据</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1/E4；全部 Marker、30项、文字互选、scope清理</td>
+<td>已通过：E4；局部 host/地图地点不变/返回重启</td>
+</tr>
+<tr>
+<td>PT-05 / Shell 消费 canonical outcome</td>
+<td>两者</td>
+<td>本期真实 Shell；测试 fake 返回 accepted/authentication required/stale input</td>
+<td>当前请求贡献、拒绝后的可读恢复；未评分不置零</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1/E4；canonical marker/身份及拒绝恢复</td>
+<td>已通过：E4；真实 Shell slots/返回</td>
+</tr>
+<tr>
+<td>PT-06 / Infrastructure 复用 canonical result</td>
+<td>两者</td>
+<td>测试消费现有公开声明；后续真实 Infrastructure</td>
+<td>本期提供 served/not scored typed result；后续消费者不重读/重算，只消费同一结果</td>
+<td>A 提供；B 主责联合</td>
+<td>6</td>
+<td>已通过：E1；提供 served/not scored typed result</td>
+<td>待 B Wave 6 接入</td>
+</tr>
+<tr>
+<td>PT-07 / Suitability 复用 canonical result</td>
+<td>两者</td>
+<td>测试消费现有公开声明；后续真实 Suitability</td>
+<td>本期提供 served/not scored typed result；后续保留不可用维度且不重算交通分</td>
+<td>A 提供；B 主责联合</td>
+<td>7</td>
+<td>已通过：E1；提供同一 canonical typed result</td>
+<td>待 B Wave 7 接入</td>
+</tr>
+<tr>
+<td>PT-08 / 中文/English、动态字体、屏幕阅读器、无颜色</td>
+<td>本模块</td>
+<td>本期页面及本地化；Penpot「11 · 公共交通」</td>
+<td>文字/语义覆盖范围、日期、来源、状态、限制、选择及分数；双语交互、大字体和原型视觉核对</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1/E4；双语200%/语义名/文字状态/Penpot核对</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>PT-09 / 外部 Adapter 与读取权限</td>
+<td>本模块</td>
+<td>本期真实 Supabase；外部 HTTP 确定性响应</td>
+<td>RPC 错误/边界/恢复；真实成功调用；authenticated 只读与匿名/写入拒绝证据；无敏感信息</td>
+<td>A</td>
+<td>5</td>
+<td>已通过：E1/E2/E3；真实 read-only allow/deny 与 HTTP 恢复</td>
+<td>不适用</td>
+</tr>
+</tbody>
+</table>
+<p>测试范围拟采用最高公开 <code>PublicTransportation.load/compare</code>、页面用户交互及真实
+Shell/Map 接线三处边界；按本次指定 TDD skill，写新测试前须取得用户对这三处
+边界的确认。项目负责人已在本任务确认三处边界；后续逐项记录证据，不凭验收分配声明 <code>Implemented</code>。</p>
+<h3 id="wave-5-2026-09-17">Wave 5 当前验证状态（2026-09-17）</h3>
+<p>本模块 <strong>Implemented</strong>；GPT-5.6 Luna High 的 Standards / Spec 双轴审查均通过，本期 Shell/Map 集成通过，当前实现验收阻塞为零。设计就绪与模块实现状态分别记录；本任务不声明整波完成或 Integrated。</p>
+<p>证据入口：<a href="evidence/public-transportation-wave5-2026-09-17/report.md">Wave 5 验证报告</a>。E1 = 公开 seam、HTTP、页面、Shell/Map 测试及 format/analyze/full suite；E2 = 真实官方 snapshot RPC 和 authenticated/anon/write 权限；E3 = 本地与真实开发 Supabase 回滚 SQL 状态/评分算例、官方下载/标准化审计及正式网格；E4 = Owner A 实机与 Owner B emulator 使用同生产 task factory/local host 的双语、大字体、partial/date/A/B/返回/重启证据及生产 APK；E5 = 指定模型双轴最终审查。受控 UI served fixture 只验证呈现/缓存；受控真实 SQL 算例验证评分函数；两者均不把官方 15 usable + 1 failed 说成完整来源。</p>
+<p>2026-09-17 项目负责人已确认完整返回上下文和 feed 服务范围。固定网格采用 UTM EPSG:32647–32651、原点 <code>(0,0)</code>、1 km 单元中心及经度分区裁剪；grid ID 为 <code>zone:i:j</code>。正式 <code>official-2026-09-17</code> snapshot 的分析日网格共 9,641 点，方法为 <code>utm-wgs84-1km-stopcatchment-v1</code>，全部满足可用站点 1.5 km geography 圆并集，审计记录输入/grid hash、分区及完整性。</p>
+<p>Open intent 使用来源页 request 身份；Shell 接受后分配 task request。root 按具体 route entry 注入不可变 <code>AnalysisReturnContext</code>，其中原请求身份是该 task 创建时的 opaque 身份。该对象从加载、贡献到返回始终保留；Shell 严格验证与当前 task 的对象身份及地点/角色/date。比较原 opening intent 与 page 时只比较 immutable 输入，不能把父 request 当成新 task request。</p>
+<p>后续 Infrastructure / Suitability 分别由 B 最迟 Wave 6 / 7 接入，不作为当前实现缺陷。</p>
 <table>
 <thead>
 <tr>

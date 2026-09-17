@@ -24,6 +24,8 @@ class MapLocationPage extends StatefulWidget {
   final ApplicationShell applicationShell;
   final LocationSearch search;
   final bool showTiles;
+  final void Function(String, GeographicPoint, GeographicPoint)? onViewport;
+  final ValueNotifier<GeographicPoint?>? layerFocus;
   const MapLocationPage({
     required LocationCoordinator locations,
     required MapLayerHost layerHost,
@@ -31,13 +33,17 @@ class MapLocationPage extends StatefulWidget {
     required ApplicationShell applicationShell,
     required LocationSearch search,
     bool showTiles = true,
+    void Function(String, GeographicPoint, GeographicPoint)? onViewport,
+    ValueNotifier<GeographicPoint?>? layerFocus,
     super.key,
   }) : locations = locations,
        layerHost = layerHost,
        workspace = workspace,
        applicationShell = applicationShell,
        search = search,
-       showTiles = showTiles;
+       showTiles = showTiles,
+       onViewport = onViewport,
+       layerFocus = layerFocus;
   @override
   State<MapLocationPage> createState() {
     return _MapLocationPageState();
@@ -117,6 +123,7 @@ class _MapLocationPageState extends State<MapLocationPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    widget.layerFocus?.addListener(_focusLayer);
   }
 
   @override
@@ -129,9 +136,35 @@ class _MapLocationPageState extends State<MapLocationPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    widget.layerFocus?.removeListener(_focusLayer);
     vm.dispose();
     controller.dispose();
     super.dispose();
+  }
+
+  bool _mapReady = false;
+  void _focusLayer() {
+    final GeographicPoint? point = widget.layerFocus?.value;
+    if (_mapReady && point != null) {
+      controller.move(LatLng(point.latitude, point.longitude), 14);
+    }
+  }
+
+  void _viewport(MapCamera camera) {
+    final String version = DateTime.now().microsecondsSinceEpoch.toString();
+    vm.viewport(version);
+    final LatLngBounds bounds = camera.visibleBounds;
+    widget.onViewport?.call(
+      version,
+      GeographicPoint(
+        latitude: bounds.south,
+        longitude: bounds.west.clamp(-180.0, 180.0),
+      ),
+      GeographicPoint(
+        latitude: bounds.north,
+        longitude: bounds.east.clamp(-180.0, 180.0),
+      ),
+    );
   }
 
   Future<void> coordinates() async {
@@ -525,10 +558,13 @@ class _MapLocationPageState extends State<MapLocationPage>
               onLongPress: (_, p) => vm.longPress(
                 GeographicPoint(latitude: p.latitude, longitude: p.longitude),
               ),
-              onPositionChanged: (_, gesture) {
-                if (gesture) {
-                  vm.viewport(DateTime.now().microsecondsSinceEpoch.toString());
-                }
+              onMapReady: () {
+                _mapReady = true;
+                _focusLayer();
+                _viewport(controller.camera);
+              },
+              onPositionChanged: (MapCamera camera, bool gesture) {
+                _viewport(camera);
               },
             ),
             children: [

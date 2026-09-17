@@ -4,6 +4,8 @@
 > Owner：`A`；系统基线：`Baselined — 5d11769`；依赖波次：Wave 5
 > 唯一公开入口：`package:locatemy/features/nearby_facilities/nearby_facilities.dart`
 > 任务成果：为合法单点或原顺序 A/B 地点交付可解释的 2km 五类 OSM 设施读数；完整空、未知、缓存和不可比绝不互相冒充。
+> 实现状态：`Implemented`；2026-09-17；GPT-5.6 Luna High 最终验收审查通过。证据见 [Wave 5 完成报告](../../human/nearby-facilities-wave5-acceptance-2026-09-17.md)。Suitability 联合集成由 B 在 Wave 7 完成；`Integrated` 待负责人跨 Owner 验收。
+>
 > 定义完成：A 已从唯一入口提供完整 `FACILITY-001`/`FACILITY-002` 声明及 fake；Shell、Map 和 Suitability 只经该入口协作，且第 6 节所有可观察验收情景成立。
 
 本文件是 Nearby Facilities 唯一的跨 Owner Development Contract，也是同名 HTML 的权威 Markdown 源。它固定公开 Dart seam、结果语义、权限、次序和联合验收；`lib/features/nearby_facilities/` 内的 Widget、状态管理、Overpass HTTP/解析 Adapter、缓存读写、并发/取消/重试/限流策略、Haversine 实现和测试组织由 A 决定。公式正文只在产品知识库，字段、RLS 与 migration 只在 Schema Catalog。
@@ -226,13 +228,59 @@ enum FacilityComparisonFailure { locationAUnavailable, locationBUnavailable, inc
 enum FacilityLayerFailure { analysisUnavailable, analysisIncomplete, mapUnavailable, staleViewport, scopeUnavailable }
 final class FacilityAnalysis { final ValidLocationReference location; final int radiusMetres; final String mappingVersion; final FacilityDataState dataState; final DateTime observedAt; final FacilityAttribution attribution; final List<FacilityCategoryResult> categories; }
 enum FacilityDataState { fresh, cached }
-final class FacilityCategoryResult { final FacilityCategory category; final FacilityCategoryState state; final List<NearbyFacility> nearest; }
+final class FacilityCategoryResult { final FacilityCategory category; final FacilityCategoryState state; final List<NearbyFacility> nearest; final int? count; }
 enum FacilityCategory { health, education, dailyLiving, transport, leisureGreen }
 enum FacilityCategoryState { covered, completeEmpty, unknown }
 final class NearbyFacility { final String stableId; final String displayName; final GeographicPoint point; final double distanceMetres; }
 final class FacilityAttribution { final String source; final Uri copyrightUrl; }
 final class FacilityComparison { final FacilityAnalysis locationA; final FacilityAnalysis locationB; }
 ```
+
+#### 数量与装配补充（Wave 5）
+
+`FacilityCategoryResult.count` 是圆形过滤、归类和 OSM 身份去重后的实际 `N_c`，不等于最多三项的 `nearest.length`。生产结果全部带 count；既有 fake 的可选参数默认 null，表示数量未提供，页面不据此推算总数。完整空为 0，unknown 不显示数量或确定覆盖比例。此补充使契约原已要求的数量可被消费者观察；不改变半径、映射、公式或既有调用方式。当前 Shell/Map 消费者在本次接线同步采用；后续 Suitability 仍只消费类别完整性。
+
+装配入口（数据库与 HTTP client 由 composition root 持有）：
+
+```dart
+NearbyFacilities createNearbyFacilities({
+  required OverpassFacilitySource source,
+  Object? Function()? scopeToken,
+  Database? database,
+  DateTime Function()? clock,
+  MapLayerHost Function()? mapLayerHost,
+});
+OverpassFacilitySource createOverpassFacilitySource(http.Client client, {Uri? endpoint});
+```
+
+生产 `scopeToken` 返回同账户 opened scope 的不透明身份，closing/closed 返回 null；异步完成后再次核对身份，拒绝旧账户结果与发布。无 database 的装配仅供确定性测试使用；生产注入 SQLite。HTTP Adapter 添加不含账户资料的 LocateMY User-Agent；不自动重试限流，用户可显式重试。
+
+四个 Feature-owned marker 的 payload 如下，`returnContext` 是 root 传入并原样返回的不透明请求语境；intent 显式提供时原样透传，null 时 root 注入当前 task 的 ShellRequestContext。过期或非 Shell 语境不会被强行改成当前语境，发布由 Shell 拒绝。贡献卡展示原快照，返回后过期 task slots 由 Shell 清除，不跨导航保留：
+
+```dart
+final class OpenNearbyFacilitiesIntent implements ShellIntent {
+  final ValidLocationReference location;
+  final Object? returnContext;
+}
+final class OpenNearbyFacilitiesComparisonIntent implements ShellIntent {
+  final ValidLocationReference locationA;
+  final ValidLocationReference locationB;
+  final Object? returnContext;
+}
+final class NearbyFacilitiesSummaryContribution implements ShellContribution {
+  final ValidLocationReference location;
+  final FacilityAnalysisOutcome outcome;
+  final Object? returnContext;
+}
+final class NearbyFacilitiesComparisonContribution implements ShellContribution {
+  final ValidLocationReference locationA;
+  final ValidLocationReference locationB;
+  final FacilityComparisonOutcome outcome;
+  final Object? returnContext;
+}
+```
+
+contribution 内的原 outcome 携带半径、映射、归因、时间、fresh/cached、类别完整性或 typed failure；Shell 只保留原对象。当前设施任务页呈现原结果；返回后旧请求贡献被拒绝。Map 由 `NearbyFacilitiesMapPanel` 消费公开 Location/MapWorkspace，绑定当前 viewport 与 immutable single 地点，经 FACILITY-001 分析/提交完整图层；换点、viewport 改变和卸载忽略晚到值。该内部呈现装配不改变 FACILITY-001/002 声明。
 
 | 调用 | 输入约束 | 成功输出 | typed failure / 调用方处理 |
 | --- | --- | --- | --- |
@@ -305,6 +353,20 @@ fake：Complete 有 Node/Way/Relation、Complete 空、Partial、timeout、rateL
 | 摘要、图层与适配度 | A、Shell、Map、Suitability | 组合完整/unknown；visible/hidden/stale layer；复用设施事实 | 摘要不把 unknown 作比例；图层不改地点且仅完整结果显示；Suitability 不自行查 Overpass | `FAC-01`；`AT-ANALYSIS-01` |
 | 关闭与可访问性 | A、Shell、Privacy | scope closing、不同账户、读取各状态 | 旧结果/发布/晚到响应丢弃；公共缓存保留；每种状态、署名与限制有可复制文字 | `AT-RACE-01`；`RISK-OSM-01` |
 
+### Wave 5 验收分配（2026-09-17）
+
+本次测试边界已由项目负责人确认：FACILITY-001、FACILITY-002 与页面公开交互。
+
+| 场景 | 归属 / 依赖 | 证据要求 | Owner / 最迟 Wave | 本模块 / 联合状态 |
+| --- | --- | --- | --- | --- |
+| 正常与边界 | 两者；真实 Location、Overpass，测试 HTTP | 分类、圆形边界、去重、最近三项、实际数量；真实查询与设备首屏 | A / 5 | 已通过 / 已通过（[Wave 5 证据](../../human/nearby-facilities-wave5-acceptance-2026-09-17.md)） |
+| 完整空与未知 | 两者；真实 Shell，测试 HTTP | 完整空、截断、超时、限流、无效 payload；失败与恢复设备证据 | A / 5 | 已通过 / 已通过（[Wave 5 证据](../../human/nearby-facilities-wave5-acceptance-2026-09-17.md)） |
+| 缓存与刷新 | 本模块；真实 SQLite | 24h 边界、刷新、失败回落、重建服务仍读取且不保存账户名称 | A / 5 | 已通过 / 不适用（同证据） |
+| A/B 与竞态 | 两者；真实 Map、Shell，测试延迟 source | 原顺序、同点、缺端、换点、刷新与晚到值失效 | A / 5 | 已通过 / 已通过（[Wave 5 证据](../../human/nearby-facilities-wave5-acceptance-2026-09-17.md)） |
+| 摘要与图层 | 两者；真实 Shell、Map | 原元数据贡献、完整图层、旧 viewport、关闭拒绝 | A / 5 | 已通过 / 已通过（[Wave 5 证据](../../human/nearby-facilities-wave5-acceptance-2026-09-17.md)） |
+| 适配度复用 | 两者；测试消费者；后续真实 Suitability | 本期结果不把未知置零；Suitability 仅消费 FACILITY-001 | A 提供 / B 集成 / 7 | A 提供事实已通过 / B 真实集成待 Wave 7 |
+| 关闭与可访问性 | 两者；真实 Privacy、Shell | scope 关闭、换账户晚到值；中文/English、360dp 与 200% 字体、文字来源与限制 | A / 5 | 已通过 / 已通过（[Wave 5 证据](../../human/nearby-facilities-wave5-acceptance-2026-09-17.md)） |
+
 ## 7. 内部自由
 
 A 可自行决定页面结构、状态管理、Overpass 端点/HTTP 库、缓存存储细节、解析、Haversine 实现、取消/重试/退避/去重的内部安排和测试组织。以下变化须由提供方说明影响并经受影响消费者确认：唯一公开 import、公开声明/result variant、输入约束、完整/empty/unknown 语义、半径/映射版、权限/副作用/次序、图层意图或缓存 Schema/RLS。变更在同一 PR 更新本 Development Contract、同名 HTML 导出与受影响 fake/Adapter 测试；不引入独立发布、版本锁定或同步治理流程。
@@ -319,6 +381,7 @@ A 可自行决定页面结构、状态管理、Overpass 端点/HTTP 库、缓存
 
 | 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
 | --- | --- | --- | --- | --- |
+| 2026-09-17 | `Implemented` | 依 Issue #25 分配 Wave 5 验收；补齐实际数量的可选 count、marker payload 与生产装配说明；实现 SQLite 缓存、scope 门控、Shell/Map 接线和 Penpot 页面。 | FAC-01、FACILITY-001/002、Shell、Map、facility_public_cache、测试和 HTML；原产品口径不变。 | 项目负责人授权开发；Implemented 证据齐全；GPT-5.6 Luna High 最终审查通过；Integrated 未授予 |
 | 2026-09-15 | `Ready for Development` | 依 Issue #23 收束为单一 Development Contract 与同名 HTML 语义等价导出；移除已废止的发布治理，并与 Shell、Map / Location 的完整 canonical 声明重新对齐。 | `FAC-01`、`FACILITY-001`、`FACILITY-002`、`SHELL-001`、`LOCATION-001`、`LOCATION-002`、`facility_public_cache`、同名 HTML 导出；2km、数据、缓存、权限与验收语义不变。 | 项目负责人 |
 
 ## 10. 完成核对

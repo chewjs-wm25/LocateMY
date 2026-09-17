@@ -1,0 +1,7 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/hazard_reporting_live_test.dart
+00:00 +0: two live accounts publish, vote, manage and enforce author-only immutable reports
+00:02 +1: Haversine includes the 2 km boundary, excludes outside and resolved, and five types persist
+00:04 +2: real Shell, Map and Privacy route validated creation, contribute layers and invalidate old scope
+{"event":"map.longpress.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-2"}
+00:05 +3: All tests passed!

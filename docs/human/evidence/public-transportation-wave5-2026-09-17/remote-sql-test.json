@@ -1,0 +1,9 @@
+{
+  "environment": "Supabase development project ntlhjfljkjeefzzqutbc",
+  "operation": "execute_sql authenticated role controlled fixture, all assertions then ROLLBACK",
+  "fixture": "test/features/public_transportation/sql/transit_rpc_test.sql",
+  "fixture_sha256": "ddc30853a4e55c665b1419a2c354b74db0f36556dc3c5cb2708a1fa2ea2be34f",
+  "result": "PASS: no SQL assertion errors; served worked example 75, full/stale/partial/no_stops/no_active_routes/expected feed identities/date boundaries; missing snapshot with wrong source identity failed",
+  "performed_at": "2026-09-17T06:21:16.479568+00:00",
+  "data_boundary": "Controlled SQL fixture was rolled back; real official source remains 15 usable and 1 failed, partial and not scored."
+}

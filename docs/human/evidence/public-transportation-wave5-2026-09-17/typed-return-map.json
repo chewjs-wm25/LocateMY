@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "targets": [
+    "Owner A real Android",
+    "Owner B emulator"
+  ],
+  "operation": "Transit back button submits ReturnToMapIntent to production binding; original selected location visible on Map",
+  "source_sha256": "7f8ab788e9574bc2352b98e96b1586ab29e1ede0e04f1734e2c7b67d2dcbf7a3"
+}
