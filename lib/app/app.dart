@@ -20,6 +20,7 @@ import '../features/hazard_reporting/hazard_reporting.dart';
 import '../features/public_transportation/public_transportation.dart';
 import '../features/crime_security/crime_security.dart';
 import '../features/socio_economic/socio_economic.dart';
+import '../features/infrastructure_coverage/infrastructure_coverage.dart';
 import '../features/cost_of_living_budget/cost_of_living_budget.dart';
 import '../modules/geographic_context/geographic_context.dart';
 
@@ -320,6 +321,14 @@ final class _ProductionPagesState extends State<_ProductionPages> {
     budget: createSupabaseCurrentBudgetReader(widget.client),
     database: widget.database,
   );
+  late final InfrastructureService _infrastructure =
+      createInfrastructureCoverage(
+        geographicContext: createGeographicContext(widget.client),
+        reader: SupabaseInfrastructureInputsReader(widget.client),
+        transportation: widget.transportation,
+        weightsStore: SupabaseInfrastructureWeightsStore(widget.client),
+        database: widget.database,
+      );
   late final HomeRelocationOutlook _home = createHomeRelocationOutlook(
     widget.client,
   );
@@ -340,6 +349,7 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       transportation: widget.transportation,
       crime: _crime,
       socio: _socio,
+      infrastructure: _infrastructure,
     );
   }
 }
@@ -354,6 +364,7 @@ final class LocateMyPages extends StatefulWidget {
   final PublicTransportation transportation;
   final CrimeSecurity? crime;
   final SocioEconomic? socio;
+  final InfrastructureService? infrastructure;
   final bool showTiles;
   const LocateMyPages({
     required LocationCoordinator locations,
@@ -364,6 +375,7 @@ final class LocateMyPages extends StatefulWidget {
     required PublicTransportation transportation,
     CrimeSecurity? crime,
     SocioEconomic? socio,
+    InfrastructureService? infrastructure,
     bool showTiles = true,
     super.key,
   }) : locations = locations,
@@ -374,6 +386,7 @@ final class LocateMyPages extends StatefulWidget {
        transportation = transportation,
        crime = crime,
        socio = socio,
+       infrastructure = infrastructure,
        showTiles = showTiles;
   @override
   State<LocateMyPages> createState() {
@@ -556,6 +569,7 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         transportation: widget.transportation,
         crime: widget.crime,
         socio: widget.socio,
+        infrastructure: widget.infrastructure,
         onShowMap: _showCrimeLocation,
       ),
     );
@@ -740,6 +754,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
   final PublicTransportation transportation;
   final CrimeSecurity? crime;
   final SocioEconomic? socio;
+  final InfrastructureService? infrastructure;
   final void Function(ValidLocationReference)? onShowMap;
   const LocationAnalysisMenu({
     required ValidLocationReference location,
@@ -748,6 +763,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
     required PublicTransportation transportation,
     CrimeSecurity? crime,
     SocioEconomic? socio,
+    InfrastructureService? infrastructure,
     void Function(ValidLocationReference)? onShowMap,
     super.key,
   }) : location = location,
@@ -756,6 +772,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
        transportation = transportation,
        crime = crime,
        socio = socio,
+       infrastructure = infrastructure,
        onShowMap = onShowMap;
   @override
   Widget build(BuildContext context) {
@@ -836,6 +853,18 @@ final class LocationAnalysisMenu extends StatelessWidget {
             : 'Water, electricity and public service coverage',
         accent: const Color(0xFF16865C),
         icon: Icons.apartment_outlined,
+        onTap: infrastructure == null
+            ? null
+            : () {
+                open(
+                  InfrastructureCoveragePage(
+                    service: infrastructure!,
+                    location: location,
+                    locationB: second,
+                    analysisDate: date,
+                  ),
+                );
+              },
       ),
       _AnalysisCategoryCard(
         title: zh ? '周边设施' : 'Nearby facilities',

@@ -1,0 +1,34 @@
+{
+  "base_head": "1e33cee47189f6475a62ed0891a8c22d26d654e2",
+  "feature_tests": 17,
+  "full_regression_tests": 290,
+  "opt_in_skipped": 12,
+  "analyze": "PASS",
+  "full_device": {
+    "base_head": "1e33cee47189f6475a62ed0891a8c22d26d654e2",
+    "source_sha256": "ab9e51730115882b9998171acd34ed270f46e9901133bccef212df6fb6e8891a",
+    "apk_sha256": "95af82f7a14e92fdd54f1476a0316d61e36bdb9af9558462af8414b884ed3d54",
+    "secret_scan": "PASS",
+    "device": "owner-b-emulator",
+    "single": "PASS",
+    "offline_cached": "PASS",
+    "retry": "PASS",
+    "comparison": "PASS",
+    "bilingual": "PASS",
+    "in_route_language_switch": "PASS",
+    "font_200": "PASS",
+    "logout": "PASS"
+  },
+  "final_presentation": {
+    "base_head": "1e33cee47189f6475a62ed0891a8c22d26d654e2",
+    "source_sha256": "f5a5bd072307a893314854aa3adb847a56ec8ca79fff034917709ac4a5a72f64",
+    "apk_sha256": "a56a15ab8fcb4561bec191d9b29774c0da5505fd50abad05a2c610441f38a377",
+    "secret_scan": "PASS",
+    "device": "owner-b-emulator",
+    "final_production_start": "PASS",
+    "missing_dash_and_list": "PASS",
+    "bilingual": "PASS"
+  },
+  "apk_artifact": "build/infrastructure-wave6-evidence/infrastructure-device-debug.apk",
+  "notes": "Final presentation-only version adds missing dash and explicit missing list; previous complete lifecycle/navigation evidence retains its source version."
+}

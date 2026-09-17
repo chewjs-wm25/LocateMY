@@ -1,0 +1,3 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/infrastructure_live_test.dart
+00:00 +0: real infrastructure RPC canonical transit and private priorities allow deny restore
+00:07 +1: All tests passed!

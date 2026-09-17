@@ -1,40 +1,70 @@
+// Explicit initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
+import 'package:locatemy/l10n/language_controller.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
+import '../application/infrastructure_service.dart';
 import '../domain/infrastructure_models.dart';
 import 'infrastructure_view_model.dart';
 
 final class InfrastructureCoveragePage extends StatefulWidget {
+  final InfrastructureService service;
   final ValidLocationReference location;
+  final ValidLocationReference? locationB;
   final DateTime analysisDate;
-
   const InfrastructureCoveragePage({
-    required this.location,
-    required this.analysisDate,
+    required InfrastructureService service,
+    required ValidLocationReference location,
+    ValidLocationReference? locationB,
+    required DateTime analysisDate,
     super.key,
-  });
-
+  }) : service = service,
+       location = location,
+       locationB = locationB,
+       analysisDate = analysisDate;
   @override
-  State<InfrastructureCoveragePage> createState() =>
-      _InfrastructureCoveragePageState();
+  State<InfrastructureCoveragePage> createState() {
+    return _InfrastructureCoveragePageState();
+  }
 }
 
 final class _InfrastructureCoveragePageState
     extends State<InfrastructureCoveragePage> {
   late final InfrastructureViewModel _model;
+  late final InfrastructureViewModel? _second;
+  bool get _zh {
+    return Localizations.localeOf(context).languageCode == 'zh';
+  }
 
-  bool get _zh => Localizations.localeOf(context).languageCode == 'zh';
-
-  String _t(String zh, String en) => _zh ? zh : en;
+  String _t(String zh, String en) {
+    if (_zh) {
+      return zh;
+    }
+    return en;
+  }
 
   @override
   void initState() {
     super.initState();
     _model = InfrastructureViewModel(
+      service: widget.service,
       location: widget.location,
       analysisDate: widget.analysisDate,
     );
-    _model.load(InfrastructureLoadPolicy.cacheAllowed);
+    final ValidLocationReference? b = widget.locationB;
+    if (b == null) {
+      _second = null;
+      _model.readWeights();
+    } else {
+      _second = InfrastructureViewModel(
+        service: widget.service,
+        location: b,
+        analysisDate: widget.analysisDate,
+      );
+      _second?.load();
+    }
+    _model.load();
   }
 
   @override
@@ -44,100 +74,77 @@ final class _InfrastructureCoveragePageState
         oldWidget.analysisDate != widget.analysisDate) {
       _model.changeLocation(widget.location, widget.analysisDate);
     }
+    if (widget.locationB != null &&
+        _second != null &&
+        (oldWidget.locationB != widget.locationB ||
+            oldWidget.analysisDate != widget.analysisDate)) {
+      _second.changeLocation(widget.locationB!, widget.analysisDate);
+    }
   }
 
   @override
   void dispose() {
     _model.dispose();
+    _second?.dispose();
     super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    await _model.load(InfrastructureLoadPolicy.refresh);
+    await _second?.load(InfrastructureLoadPolicy.refresh);
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Listenable> models = <Listenable>[_model];
+    if (_second != null) {
+      models.add(_second);
+    }
     return ListenableBuilder(
-      listenable: _model,
+      listenable: Listenable.merge(models),
       builder: (BuildContext context, Widget? child) {
-        final InfrastructureLoadOutcome? outcome = _model.outcome;
         return Scaffold(
           backgroundColor: const Color(0xFFF6F8FB),
-          body: SafeArea(
-            child: RefreshIndicator(
-              onRefresh: () => _model.load(InfrastructureLoadPolicy.refresh),
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      IconButton(
-                        tooltip: _t('返回', 'Back'),
-                        onPressed: () => Navigator.maybePop(context),
-                        icon: const Icon(Icons.chevron_left),
-                        padding: EdgeInsets.zero,
-                      ),
-                      Expanded(
-                        child: Text(
-                          _t('基础设施覆盖', 'Infrastructure coverage'),
-                          style: _style(20, FontWeight.w700),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: _model.loading
-                            ? null
-                            : () =>
-                                  _model.load(InfrastructureLoadPolicy.refresh),
-                        child: Text(_t('刷新', 'Refresh')),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    widget.location.displayName ??
-                        _t('所选地点', 'Selected location'),
-                    style: _style(20, FontWeight.w700),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${_t('固定半径 1.5 公里 · 分析日', 'Fixed radius 1.5 km · Analysis date')} ${_date(_model.analysisDate)}',
-                    style: _style(13, FontWeight.w400, const Color(0xFF667085)),
-                  ),
-                  const SizedBox(height: 18),
-                  if (_model.loading)
-                    Padding(
-                      padding: const EdgeInsets.all(30),
-                      child: Semantics(
-                        label: _t(
-                          '正在读取基础设施覆盖',
-                          'Loading infrastructure coverage',
-                        ),
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                    ),
-                  if (_model.retainedPreviousResult)
-                    _notice(
-                      _t(
-                        '刷新失败，正在显示上次成功结果。',
-                        'Refresh failed. Showing the previous successful result.',
-                      ),
-                    ),
-                  if (outcome is InfrastructureAvailable)
-                    ..._available(outcome.snapshot),
-                  if (outcome is InfrastructurePartial)
-                    ..._partial(outcome.snapshot),
-                  if (outcome is InfrastructureUnavailable)
-                    _notice(_reason(outcome.reason)),
-                  const SizedBox(height: 16),
-                  _weightsCard(),
-                  const SizedBox(height: 14),
-                  Text(
-                    _t(
-                      '基础设施覆盖读数为综合指标，仅表示记录覆盖，不代表服务质量。',
-                      'Infrastructure coverage reading is an aggregate indicator representing recorded coverage only; it does not assess service quality.',
-                    ),
-                    style: _style(12, FontWeight.w400, const Color(0xFF667085)),
-                  ),
-                ],
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFF6F8FB),
+            surfaceTintColor: Colors.transparent,
+            title: Text(_t('基础设施', 'Infrastructure')),
+            actions: <Widget>[
+              const LanguageButton(),
+              TextButton(
+                onPressed: _model.loading ? null : _refresh,
+                child: Text(_t('刷新', 'Refresh')),
               ),
+            ],
+          ),
+          body: RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+              children: <Widget>[
+                ..._analysis(_model, _second == null ? null : 'A'),
+                if (_second != null) ..._analysis(_second, 'B'),
+                if (_second == null) _priorities(),
+                if (_second != null)
+                  _note(
+                    _t(
+                      '对比采用中性权重 5。',
+                      'Comparison uses neutral priorities of 5.',
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Text(
+                  _t(
+                    '覆盖读数不代表服务质量。',
+                    'Coverage readings do not assess service quality.',
+                  ),
+                  style: const TextStyle(
+                    color: Color(0xFF667085),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -145,258 +152,294 @@ final class _InfrastructureCoveragePageState
     );
   }
 
-  List<Widget> _available(InfrastructureCoverage snapshot) {
-    return <Widget>[
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0B1F44),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              _t('综合基础设施覆盖', 'Infrastructure coverage score'),
-              style: _style(14, FontWeight.w600, const Color(0xFFB9C9E8)),
-            ),
-            const SizedBox(height: 4),
-            Semantics(
-              label: _t(
-                '基础设施覆盖读数 ${snapshot.score}，满分 100',
-                'Infrastructure coverage score ${snapshot.score} out of 100',
-              ),
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                children: <Widget>[
-                  Text(
-                    '${snapshot.score}',
-                    style: _style(34, FontWeight.w700, Colors.white),
-                  ),
-                  Text(
-                    '/ 100',
-                    style: _style(14, FontWeight.w600, const Color(0xFFCFD9EB)),
-                  ),
-                  Text(
-                    _grade(snapshot.score),
-                    style: _style(14, FontWeight.w600, const Color(0xFFCFD9EB)),
-                  ),
-                ],
-              ),
-            ),
-          ],
+  List<Widget> _analysis(InfrastructureViewModel model, String? side) {
+    final InfrastructureLoadOutcome? outcome = model.outcome;
+    InfrastructureCoverage? snapshot;
+    if (outcome is InfrastructureAvailable) {
+      snapshot = outcome.snapshot;
+    }
+    if (outcome is InfrastructurePartial) {
+      snapshot = outcome.snapshot;
+    }
+    final List<Widget> result = <Widget>[
+      Text(
+        '${side == null ? '' : '$side · '}${model.location.displayName ?? _t('所选地点', 'Selected location')}',
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF172033),
         ),
       ),
-      const SizedBox(height: 12),
-      ..._categoryList(snapshot.categories),
+      const SizedBox(height: 4),
     ];
-  }
-
-  List<Widget> _partial(InfrastructureCoverage snapshot) {
-    return <Widget>[
-      _notice(
-        _t(
-          '资料不完整，无法生成完整覆盖分数。',
-          'Data is incomplete; a complete coverage score is unavailable.',
+    if (snapshot?.district != null) {
+      result.add(
+        Text(
+          '${snapshot!.state} · ${snapshot.district}',
+          style: const TextStyle(color: Color(0xFF667085)),
         ),
-      ),
-      const SizedBox(height: 8),
-      ..._categoryList(snapshot.categories),
-    ];
-  }
-
-  List<Widget> _categoryList(List<InfrastructureCategoryScore> categories) {
-    return <Widget>[
-      Text(_t('分项覆盖', 'Coverage by item'), style: _style(18, FontWeight.w700)),
-      const SizedBox(height: 8),
-      for (final InfrastructureCategoryScore category in categories)
+      );
+    }
+    result.add(const SizedBox(height: 18));
+    if (model.loading) {
+      result.add(
+        Semantics(
+          label: _t('正在读取基础设施', 'Loading infrastructure'),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+    if (model.retainedPreviousResult || outcome is InfrastructureUnavailable) {
+      result.add(_note(_t('读取失败，请重试。', 'Could not load. Please retry.')));
+    }
+    if (snapshot != null) {
+      final int? score = snapshot.score;
+      result.add(
         Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFD9E0EA)),
+            color: const Color(0xFF0B1F44),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: _categoryColour(category.key),
-                  shape: BoxShape.circle,
-                ),
+              Text(
+                _t('基础设施覆盖 ICI', 'Infrastructure coverage ICI'),
+                style: const TextStyle(color: Color(0xFFB9C9E8), fontSize: 14),
               ),
-              const SizedBox(width: 10),
-              Expanded(
+              const SizedBox(height: 6),
+              Semantics(
+                label: score == null
+                    ? _t('综合读数暂不可用', 'Aggregate unavailable')
+                    : _t('综合读数 $score，满分100', 'Coverage $score out of 100'),
                 child: Text(
-                  _zh ? category.labelZh : category.labelEn,
-                  style: _style(14, FontWeight.w600),
+                  score == null ? _t('暂不可用', 'Unavailable') : '$score / 100',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               Text(
-                category.missing ? '—' : '${category.score}',
-                style: _style(14, FontWeight.w700, const Color(0xFF155EEF)),
+                score == null
+                    ? _t('可用分项少于三项', 'Fewer than three available components')
+                    : _grade(score),
+                style: const TextStyle(color: Color(0xFFCFD9EB)),
               ),
             ],
           ),
         ),
-    ];
+      );
+      result.add(const SizedBox(height: 20));
+      result.add(
+        Text(
+          _t('分项覆盖', 'Coverage components'),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+      );
+      result.add(const SizedBox(height: 12));
+      for (final InfrastructureCategoryScore category in snapshot.categories) {
+        result.add(
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFD9E0EA)),
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _zh ? category.labelZh : category.labelEn,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        category.key == 'transit'
+                            ? _t('地点周围1.5公里', 'Within 1.5 km')
+                            : _t('行政区统计', 'District statistics'),
+                        style: const TextStyle(
+                          color: Color(0xFF667085),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      category.score == null
+                          ? '—'
+                          : '${category.score!.round()}',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: category.score == null
+                            ? const Color(0xFFB76E00)
+                            : const Color(0xFF16865C),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+    if (snapshot != null && snapshot.missingCategories.isNotEmpty) {
+      final List<String> labels = <String>[];
+      for (final InfrastructureCategoryScore category in snapshot.categories) {
+        if (category.missing) {
+          labels.add(_zh ? category.labelZh : category.labelEn);
+        }
+      }
+      result.add(
+        Text(
+          '${_t('缺少资料', 'Missing observations')}: ${labels.join('、')}',
+          style: const TextStyle(color: Color(0xFFB76E00), fontSize: 12),
+        ),
+      );
+    }
+    result.add(const SizedBox(height: 16));
+    return result;
   }
 
-  Widget _weightsCard() {
+  String _grade(int score) {
+    if (score < 40) {
+      return _t('较弱', 'Weak');
+    }
+    if (score < 60) {
+      return _t('一般', 'Fair');
+    }
+    if (score < 80) {
+      return _t('良好', 'Good');
+    }
+    return _t('很好', 'Very good');
+  }
+
+  Widget _note(String text) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3DE),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(text),
+    );
+  }
+
+  Widget _priorities() {
     final InfrastructureWeightSettings weights = _model.weights;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD9E0EA)),
+        color: const Color(0xFFFFF3DE),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            _t('基础设施权重', 'Infrastructure weights'),
-            style: _style(18, FontWeight.w700),
+            _t('基础设施权重', 'Infrastructure priorities'),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFB76E00),
+            ),
           ),
-          const SizedBox(height: 10),
-          _sliderRow(
-            labelZh: '医疗',
-            labelEn: 'Health',
-            value: weights.health,
-            onChanged: (double value) =>
-                _model.updateWeights(health: value.round()),
+          Text(
+            _model.preview
+                ? _t('未保存预览', 'Unsaved preview')
+                : _t(
+                    '仅影响本页单点综合读数',
+                    'Applies only to this single location aggregate',
+                  ),
           ),
-          _sliderRow(
-            labelZh: '教育',
-            labelEn: 'Education',
-            value: weights.education,
-            onChanged: (double value) =>
-                _model.updateWeights(education: value.round()),
-          ),
-          _sliderRow(
-            labelZh: '交通',
-            labelEn: 'Transit',
-            value: weights.transit,
-            onChanged: (double value) =>
-                _model.updateWeights(transit: value.round()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sliderRow({
-    required String labelZh,
-    required String labelEn,
-    required int value,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
+          if (_model.weightsFailed)
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(_t('权重读取失败', 'Could not read priorities')),
+                ),
+                TextButton(
+                  onPressed: _model.readWeights,
+                  child: Text(_t('重试', 'Retry')),
+                ),
+              ],
+            ),
+          if (_model.saveFailed)
+            Text(
+              _t(
+                '保存失败，尚未保存。请重试。',
+                'Save failed. Changes remain unsaved. Please retry.',
+              ),
+            ),
+          _slider(_t('医疗', 'Healthcare'), weights.health, (double value) {
+            _model.updateWeights(health: value.round());
+          }),
+          _slider(_t('教育', 'Education'), weights.education, (double value) {
+            _model.updateWeights(education: value.round());
+          }),
+          _slider(_t('公共交通', 'Public transportation'), weights.transit, (
+            double value,
+          ) {
+            _model.updateWeights(transit: value.round());
+          }),
+          Wrap(
+            spacing: 12,
             children: <Widget>[
-              Expanded(
+              FilledButton(
+                onPressed:
+                    _model.weightsLoaded && _model.preview && !_model.saving
+                    ? _model.saveWeights
+                    : null,
                 child: Text(
-                  _zh ? labelZh : labelEn,
-                  style: _style(14, FontWeight.w600),
+                  _model.saving
+                      ? _t('保存中', 'Saving')
+                      : _t('保存权重', 'Save priorities'),
                 ),
               ),
-              Text(
-                '$value',
-                style: _style(13, FontWeight.w700, const Color(0xFF155EEF)),
+              TextButton(
+                onPressed: _model.preview && !_model.saving
+                    ? _model.restoreWeights
+                    : null,
+                child: Text(_t('恢复已保存', 'Restore saved')),
               ),
             ],
           ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              thumbColor: const Color(0xFF155EEF),
-              activeTrackColor: const Color(0xFF155EEF),
-              inactiveTrackColor: const Color(0xFFDBE5FF),
-            ),
-            child: Slider(
-              min: 1,
-              max: 10,
-              divisions: 9,
-              value: value.toDouble(),
-              onChanged: onChanged,
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _notice(String text) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFD9E0EA)),
-      ),
-      child: Text(text, style: _style(14, FontWeight.w600)),
+  Widget _slider(String label, int value, ValueChanged<double> changed) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text('$label · $value'),
+        Semantics(
+          label: label,
+          child: Slider(
+            key: ValueKey<String>(label),
+            min: 1,
+            max: 10,
+            divisions: 9,
+            value: value.toDouble(),
+            label: '$value',
+            onChanged: _model.weightsLoaded && !_model.saving ? changed : null,
+          ),
+        ),
+      ],
     );
-  }
-
-  String _reason(String reason) {
-    final String message = _t(
-      '暂无可用基础设施资料。',
-      'Infrastructure data unavailable.',
-    );
-    return '$message $reason';
-  }
-
-  String _grade(int score) {
-    if (score >= 80) {
-      return _t('很好', 'Very good');
-    }
-    if (score >= 60) {
-      return _t('良好', 'Good');
-    }
-    if (score >= 40) {
-      return _t('一般', 'Average');
-    }
-    return _t('较弱', 'Weak');
-  }
-
-  Color _categoryColour(String key) {
-    switch (key) {
-      case 'water':
-        return const Color(0xFF4A90E2);
-      case 'power':
-        return const Color(0xFFF5A623);
-      case 'health':
-        return const Color(0xFF17A589);
-      case 'education':
-        return const Color(0xFF9B5DE5);
-      case 'transit':
-        return const Color(0xFFEF476F);
-      default:
-        return const Color(0xFF155EEF);
-    }
-  }
-
-  TextStyle _style(
-    double size,
-    FontWeight weight, [
-    Color colour = const Color(0xFF172033),
-  ]) {
-    return TextStyle(
-      fontFamily: 'SourceSansPro',
-      fontSize: size,
-      fontWeight: weight,
-      color: colour,
-    );
-  }
-
-  String _date(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }

@@ -1,52 +1,57 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/infrastructure_coverage/infrastructure_coverage.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 void main() {
   final ValidLocationReference location = ValidLocationReference(
-    locationId: 'kuala-lumpur',
+    locationId: 'test',
     point: const GeographicPoint(latitude: 3.139, longitude: 101.686),
-    displayName: 'Kuala Lumpur',
   );
-
-  test(
-    'service computes a stable infrastructure score with five categories',
-    () async {
-      final InfrastructureService service = const InfrastructureService();
-      final InfrastructureLoadOutcome outcome = await service.fetch(
-        location,
-        DateTime(2026, 9, 17),
-        weights: const InfrastructureWeightSettings(),
-      );
-
-      expect(outcome, isA<InfrastructureAvailable>());
-      final InfrastructureAvailable available =
-          outcome as InfrastructureAvailable;
-      expect(available.snapshot.score, inInclusiveRange(0, 100));
-      expect(available.snapshot.categories.length, 5);
-    },
-  );
-
-  testWidgets('page renders coverage and weights UI', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: InfrastructureCoveragePage(
-          location: location,
-          analysisDate: DateTime(2026, 9, 17),
-        ),
+  test('ICI uses known zeros and full precision before final rounding', () {
+    final InfrastructureCoverage result = InfrastructureService.evaluate(
+      location,
+      DateTime(2026),
+      <String, double?>{
+        'water': 100,
+        'power': 0,
+        'health': 60,
+        'education': null,
+        'transit': null,
+      },
+      const InfrastructureWeightSettings(),
+    );
+    expect(result.score, 53);
+    expect(result.missingCategories, <String>['education', 'transit']);
+  });
+  test('60 percent gate counts baseline categories independently of personal priorities', () {
+    final InfrastructureCoverage result = InfrastructureService.evaluate(
+      location,
+      DateTime(2026),
+      <String, double?>{'water': 100, 'power': 100},
+      const InfrastructureWeightSettings(
+        health: 10,
+        education: 10,
+        transit: 10,
       ),
     );
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Infrastructure coverage'), findsOneWidget);
-    expect(
-      find.textContaining('Infrastructure coverage score'),
-      findsOneWidget,
+    expect(result.score, isNull);
+    final InfrastructureCoverage three = InfrastructureService.evaluate(
+      location,
+      DateTime(2026),
+      <String, double?>{'water': 100, 'power': 0, 'health': 60},
+      const InfrastructureWeightSettings(health: 1),
     );
-    expect(find.text('Infrastructure weights'), findsOneWidget);
+    expect(three.score, 51);
+  });
+  test('priority outside 1 to 10 is rejected', () {
+    expect(
+      () => InfrastructureService.evaluate(
+        location,
+        DateTime(2026),
+        <String, double?>{},
+        const InfrastructureWeightSettings(health: 0),
+      ),
+      throwsArgumentError,
+    );
   });
 }

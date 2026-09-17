@@ -1,4 +1,4 @@
-// Explicit constructor initialization follows Development Standard §7.
+// Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
@@ -7,30 +7,91 @@ import '../application/infrastructure_service.dart';
 import '../domain/infrastructure_models.dart';
 
 final class InfrastructureViewModel extends ChangeNotifier {
-  final InfrastructureService _service = const InfrastructureService();
-
+  final InfrastructureService _service;
   ValidLocationReference _location;
   DateTime _analysisDate;
   InfrastructureWeightSettings _weights = const InfrastructureWeightSettings();
-
+  InfrastructureWeightSettings _saved = const InfrastructureWeightSettings();
   InfrastructureLoadOutcome? _outcome;
   bool _loading = false;
-  bool _retainedPreviousResult = false;
   bool _closed = false;
+  bool _saving = false;
+  bool _weightsLoaded = false;
+  bool _weightsFailed = false;
+  bool _saveFailed = false;
+  bool _retained = false;
   int _revision = 0;
-
   InfrastructureViewModel({
+    required InfrastructureService service,
     required ValidLocationReference location,
     required DateTime analysisDate,
-  }) : _location = location,
+  }) : _service = service,
+       _location = location,
        _analysisDate = analysisDate;
+  bool get loading {
+    return _loading;
+  }
 
-  bool get loading => _loading;
-  bool get retainedPreviousResult => _retainedPreviousResult;
-  InfrastructureLoadOutcome? get outcome => _outcome;
-  ValidLocationReference get location => _location;
-  DateTime get analysisDate => _analysisDate;
-  InfrastructureWeightSettings get weights => _weights;
+  bool get saving {
+    return _saving;
+  }
+
+  bool get weightsLoaded {
+    return _weightsLoaded;
+  }
+
+  bool get weightsFailed {
+    return _weightsFailed;
+  }
+
+  bool get saveFailed {
+    return _saveFailed;
+  }
+
+  bool get preview {
+    return !_weights.same(_saved);
+  }
+
+  bool get retainedPreviousResult {
+    return _retained;
+  }
+
+  InfrastructureLoadOutcome? get outcome {
+    return _outcome;
+  }
+
+  ValidLocationReference get location {
+    return _location;
+  }
+
+  DateTime get analysisDate {
+    return _analysisDate;
+  }
+
+  InfrastructureWeightSettings get weights {
+    return _weights;
+  }
+
+  Future<void> readWeights() async {
+    try {
+      final InfrastructureWeightSettings result = await _service.weightsStore
+          .read();
+      if (_closed) {
+        return;
+      }
+      _saved = result;
+      _weights = result;
+      _weightsLoaded = true;
+      _weightsFailed = false;
+      _recalculate();
+    } catch (_) {
+      if (_closed) {
+        return;
+      }
+      _weightsFailed = true;
+    }
+    notifyListeners();
+  }
 
   Future<void> load([
     InfrastructureLoadPolicy policy = InfrastructureLoadPolicy.cacheAllowed,
@@ -38,65 +99,62 @@ final class InfrastructureViewModel extends ChangeNotifier {
     if (_closed) {
       return;
     }
-
-    final InfrastructureLoadOutcome? previous = _outcome;
     final int revision = ++_revision;
+    final InfrastructureLoadOutcome? previous = _outcome;
     _loading = true;
     notifyListeners();
-
-    try {
-      final InfrastructureLoadOutcome result = await _service.fetch(
-        _location,
-        _analysisDate,
-        policy: policy,
-        weights: _weights,
-      );
-      if (_closed || revision != _revision) {
-        return;
-      }
-
-      if (policy == InfrastructureLoadPolicy.refresh &&
-          previous is InfrastructureAvailable &&
-          result is InfrastructureUnavailable) {
-        _retainedPreviousResult = true;
-        _outcome = previous;
-      } else {
-        _retainedPreviousResult = false;
-        _outcome = result;
-      }
-    } catch (_) {
-      if (_closed || revision != _revision) {
-        return;
-      }
-      if (previous is InfrastructureAvailable) {
-        _retainedPreviousResult = true;
-        _outcome = previous;
-      } else {
-        _retainedPreviousResult = false;
-        _outcome = const InfrastructureUnavailable(
-          'Infrastructure data could not be read. Refresh to retry.',
-        );
-      }
-    } finally {
-      if (!_closed && revision == _revision) {
-        _loading = false;
-        notifyListeners();
-      }
+    final InfrastructureLoadOutcome result = await _service.fetch(
+      _location,
+      _analysisDate,
+      policy: policy,
+      weights: _weights,
+    );
+    if (_closed || revision != _revision) {
+      return;
     }
+    _retained = false;
+    if (result is InfrastructureUnavailable &&
+        (previous is InfrastructureAvailable ||
+            previous is InfrastructurePartial)) {
+      _outcome = previous;
+      _retained = true;
+    } else {
+      _outcome = result;
+    }
+    _recalculate();
+    _loading = false;
+    notifyListeners();
   }
 
-  Future<void> changeLocation(
-    ValidLocationReference location,
-    DateTime analysisDate,
-  ) async {
-    _location = location;
-    _analysisDate = analysisDate;
-    _outcome = null;
-    _retainedPreviousResult = false;
-    if (!_closed) {
-      notifyListeners();
+  void _recalculate() {
+    final InfrastructureLoadOutcome? current = _outcome;
+    InfrastructureCoverage? snapshot;
+    if (current is InfrastructureAvailable) {
+      snapshot = current.snapshot;
     }
-    await load(InfrastructureLoadPolicy.cacheAllowed);
+    if (current is InfrastructurePartial) {
+      snapshot = current.snapshot;
+    }
+    if (snapshot == null) {
+      return;
+    }
+    final Map<String, double?> values = <String, double?>{};
+    for (final InfrastructureCategoryScore category in snapshot.categories) {
+      values[category.key] = category.score;
+    }
+    final InfrastructureCoverage recalculated = InfrastructureService.evaluate(
+      _location,
+      _analysisDate,
+      values,
+      _weights,
+      state: snapshot.state,
+      district: snapshot.district,
+    );
+    if (recalculated.score == null) {
+      _outcome = InfrastructurePartial(recalculated);
+    } else {
+      _outcome = InfrastructureAvailable(recalculated);
+    }
   }
 
   Future<void> updateWeights({
@@ -104,22 +162,77 @@ final class InfrastructureViewModel extends ChangeNotifier {
     int? education,
     int? transit,
   }) async {
-    _weights = InfrastructureWeightSettings(
+    if (_closed || !_weightsLoaded || _saving) {
+      return;
+    }
+    final InfrastructureWeightSettings next = InfrastructureWeightSettings(
       health: health ?? _weights.health,
       education: education ?? _weights.education,
       transit: transit ?? _weights.transit,
     );
+    if (!next.valid) {
+      return;
+    }
+    _weights = next;
+    _saveFailed = false;
+    _recalculate();
+    notifyListeners();
+  }
+
+  void restoreWeights() {
+    if (_closed || _saving) {
+      return;
+    }
+    _weights = _saved;
+    _saveFailed = false;
+    _recalculate();
+    notifyListeners();
+  }
+
+  Future<void> saveWeights() async {
+    if (_closed || _saving || !_weightsLoaded || !preview) {
+      return;
+    }
+    final InfrastructureWeightSettings draft = _weights;
+    _saving = true;
+    _saveFailed = false;
+    notifyListeners();
+    try {
+      await _service.weightsStore.save(draft);
+      if (_closed) {
+        return;
+      }
+      _saved = draft;
+    } catch (_) {
+      if (_closed) {
+        return;
+      }
+      _saveFailed = true;
+    }
     if (!_closed) {
+      _saving = false;
       notifyListeners();
     }
-    await load(InfrastructureLoadPolicy.refresh);
+  }
+
+  Future<void> changeLocation(
+    ValidLocationReference location,
+    DateTime date,
+  ) async {
+    if (_closed) {
+      return;
+    }
+    _location = location;
+    _analysisDate = date;
+    _outcome = null;
+    _retained = false;
+    await load();
   }
 
   @override
   void dispose() {
     _closed = true;
     ++_revision;
-    _outcome = null;
     super.dispose();
   }
 }

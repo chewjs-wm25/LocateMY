@@ -25,7 +25,7 @@
 | `user_saved_locations` | Supabase table | `implemented` | Map / Location | id、user id（auth.users 外键）、同账号唯一 client_key、名称 1–120、WGS84 point、created/updated at；兼容保留 deleted_at/version | owner-only 在线读取／CRUD；Map | Supabase 权威，无本机缓存／队列；沿用现有在线 soft delete 和版本检查以兼容已部署 API，不向 Flutter 发布同步状态。新读取 RPC 过滤已删记录，客户端不回放墓碑。 |
 | `user_budget_scenarios` | Supabase table | `proposed` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负的额外生活开销/住房/交通/月净收入/家庭月度总收入、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost of Living & Budget | Account 与 Socio-economic 只消费 `COST-002`，不直接读取本表；月净收入只用于个人预算压力，家庭月度总收入只用于 Socio 收入位置，均不可互代；额外生活开销为空表示无额外开销；migration 须 additive 地加入家庭月度总收入，旧预案保持缺失而不猜测；旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
 | `user_assessment_preferences` | Supabase table | `deprecated` | 无新消费者 | 历史五项偏好数据 | 客户端停止使用 | Issue #31 向前 migration 撤销 anon/authenticated 所有 grant；不删除历史数据，不建立替代五偏好接口。 |
-| `user_ici_preferences` | Supabase table | `proposed` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 仅保存跨设备的 last saved 权重；合法未保存 preview 是 Feature 页面内存，不写表且不发布给其他设备。已有同名表是五个 0–1 权重，不能作为本契约的 implemented 证据；migration 需迁移或替换 |
+| `user_ici_preferences` | Supabase table | `implemented` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 仅保存跨设备的 last saved 权重；合法未保存 preview 是 Feature 页面内存，不写表且不发布给其他设备。20260917161435 additive 加入三个整数列，旧记录目标值5；历史五个0–1列保留但客户端无列权限；外键转auth.users，既有owner-only RLS保留；20260917161729补齐PostgREST upsert列grant |
 | `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id（外键指向 auth.users，不依赖可选 profiles）、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/delete；author-only update 仅允许自身 `pending/resolved` 状态；Hazard、Property count | 发布后 type/title/description/location/report time 不可变；现有广泛 author-update policy 不能作为本契约的 implemented 证据，migration 须收紧为 status-only；公开不等于匿名；无 verified/rejected 或维护者例外 |
 | `crowdsourced_hazard_votes` | Supabase table | `implemented` | Hazard Reporting | hazard id + user id（外键指向 auth.users，不依赖可选 profiles）复合主键、vote `-1/+1`、created/updated at | authenticated 仅管理本人票；Hazard | 撤回删除本人行；级联随报告删除 |
 | `hazard_vote_counts` | Supabase RPC | `implemented` | Hazard Reporting | hazard id、upvotes、downvotes；由全部 vote 行聚合，只暴露计数 | authenticated 可执行；Hazard | 受控 `SECURITY DEFINER` RPC：固定空/安全 `search_path`，RPC 内验证调用者；撤销默认与 anon execute。底层 vote 仍只允许本人读写，RPC 不返回投票者身份；migration 实现并以两账户/匿名证据验证 |
@@ -62,7 +62,7 @@
 | `hh_access_amenities` | `implemented` | Infrastructure | `(state, district, date)`；piped water、sanitation、electricity | Infrastructure |
 | `hospital_beds` | `implemented` | Infrastructure | `(state, district, date, type)`；beds | Infrastructure |
 | `population_district` | `implemented` | Infrastructure | `(state, district, date, sex, age, ethnicity)`；population | Infrastructure；2026-09-17 完整导入 383,040 行，2020–2025 每年 160 行政区 × 3 性别 × 19 年龄 × 7 族群；population 保留官方千人单位 |
-| `schools_district` | `proposed` | Infrastructure | `(state, district, date, stage, type)`；schools | Infrastructure；当前缺失 |
+| `schools_district` | `implemented` | Infrastructure | `(state, district, date, stage, type)`；schools | Infrastructure；实际已导入，组成年份仍须检查 |
 | `teachers_district` | `implemented` | Infrastructure | `(state, district, date, stage, sex)`；teachers | Infrastructure |
 | `enrolment_school_district` | `implemented` | Infrastructure | `(state, district, date, stage, sex)`；students | Infrastructure |
 
@@ -105,7 +105,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker RPC / `implemented` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker RPC / `implemented` | Socio | `p_state text, p_district text default null` → JSON version/state/district、五组收入/基尼/百分位原始观测 | Socio；authenticated execute，anon/PUBLIC deny |
-| `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
+| `read_infrastructure_inputs` | security-invoker RPC / `implemented` | Infrastructure | p_state/p_district → version/scope、amenities/beds/population/schools/teachers/enrolment 六组原始观测；全国行政区同年百分位由应用计算 | Infrastructure；authenticated execute，PUBLIC/anon deny；20260917161435 migration |
 | `read_transit_analysis` | security-invoker RPC / `implemented` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit |
 
 ### 本机对象
@@ -121,6 +121,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 
 
 
+| `infrastructure_public_cache` | SQLite / `implemented` | Infrastructure | cache_key/version/payload/fetched_at/expires_at；原始公开输入及坐标地理语境，3日期限；刷新失败不续期 | 无账号／权重／地点名称；退出保留 |
 | `device_preferences` | key-value / `implemented` | Application Shell | locale 与小型无身份 UI 偏好 | 跨重启/账户保留；不放业务记录 |
 
 ## 已弃用或不适配对象
