@@ -1,13 +1,15 @@
 import '../../cost_of_living_budget.dart';
 
+import 'package:locatemy/features/map_location/map_location.dart';
+
 class CostOfLivingBudgetFake implements CostOfLivingBudget {
   @override
   Future<CostAnalysisOutcome> analyse(CostAnalysisRequest request) async {
     // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
 
     // Return a fixture based on location ID
-    final location = request.location;
+    final ValidLocationReference location = request.location;
 
     // Example: return unavailable for specific IDs
     if (location.locationId == 'unavailable') {
@@ -16,7 +18,7 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
       );
     }
 
-    final analysis = CostAnalysis(
+    final CostAnalysis analysis = CostAnalysis(
       location: location,
       basketVersion: 'cost-basket-v1',
       modelVersion: 'v1.0-fake',
@@ -28,7 +30,7 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
       locationBudgetBurden: 42.1,
       coverage: 0.95,
       items: [
-        const CostItem(
+        CostItem(
           itemCode: '1',
           name: 'AYAM BERSIH - STANDARD',
           unit: '1kg',
@@ -36,7 +38,7 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
           localPrice: 9.40,
           observedSpend: 18.80,
         ),
-        const CostItem(
+        CostItem(
           itemCode: '118',
           name: 'TELUR AYAM GRED A',
           unit: '10 biji',
@@ -57,15 +59,15 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
 
   @override
   Future<CostComparisonOutcome> compare(CostComparisonRequest request) async {
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future<void>.delayed(const Duration(milliseconds: 800));
 
-    final outcomeA = await analyse(
+    final CostAnalysisOutcome outcomeA = await analyse(
       CostAnalysisRequest(
         location: request.locationA,
         refreshPolicy: request.refreshPolicy,
       ),
     );
-    final outcomeB = await analyse(
+    final CostAnalysisOutcome outcomeB = await analyse(
       CostAnalysisRequest(
         location: request.locationB,
         refreshPolicy: request.refreshPolicy,
@@ -91,7 +93,7 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
   Future<CpiEquivalentOutcome> calculateCpiEquivalent(
     CpiEquivalentRequest request,
   ) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
 
     if (request.inputMonthlySpendRm < 0) {
       return const CpiEquivalentUnavailable(CpiEquivalentFailure.invalidInput);

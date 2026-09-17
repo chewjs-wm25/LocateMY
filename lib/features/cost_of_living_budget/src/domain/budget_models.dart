@@ -1,3 +1,5 @@
+// Explicit initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 final class BudgetScenario {
   final String id;
   final String name;
@@ -11,17 +13,26 @@ final class BudgetScenario {
   final int version;
 
   const BudgetScenario({
-    required this.id,
-    required this.name,
-    this.additionalLivingExpenseRm,
-    this.housingExpenseRm,
-    this.transportExpenseRm,
-    this.monthlyNetIncomeRm,
-    this.householdMonthlyIncomeRm,
-    required this.isCurrent,
-    required this.updatedAt,
-    required this.version,
-  });
+    required String id,
+    required String name,
+    double? additionalLivingExpenseRm,
+    double? housingExpenseRm,
+    double? transportExpenseRm,
+    double? monthlyNetIncomeRm,
+    double? householdMonthlyIncomeRm,
+    required bool isCurrent,
+    required DateTime updatedAt,
+    required int version,
+  }) : id = id,
+       name = name,
+       additionalLivingExpenseRm = additionalLivingExpenseRm,
+       housingExpenseRm = housingExpenseRm,
+       transportExpenseRm = transportExpenseRm,
+       monthlyNetIncomeRm = monthlyNetIncomeRm,
+       householdMonthlyIncomeRm = householdMonthlyIncomeRm,
+       isCurrent = isCurrent,
+       updatedAt = updatedAt,
+       version = version;
 }
 
 final class BudgetScenarioDraft {
@@ -33,20 +44,29 @@ final class BudgetScenarioDraft {
   final double? householdMonthlyIncomeRm;
 
   const BudgetScenarioDraft({
-    required this.name,
-    this.additionalLivingExpenseRm,
-    this.housingExpenseRm,
-    this.transportExpenseRm,
-    this.monthlyNetIncomeRm,
-    this.householdMonthlyIncomeRm,
-  });
+    required String name,
+    double? additionalLivingExpenseRm,
+    double? housingExpenseRm,
+    double? transportExpenseRm,
+    double? monthlyNetIncomeRm,
+    double? householdMonthlyIncomeRm,
+  }) : name = name,
+       additionalLivingExpenseRm = additionalLivingExpenseRm,
+       housingExpenseRm = housingExpenseRm,
+       transportExpenseRm = transportExpenseRm,
+       monthlyNetIncomeRm = monthlyNetIncomeRm,
+       householdMonthlyIncomeRm = householdMonthlyIncomeRm;
 }
 
 final class BudgetScenarioUpdate {
   final String scenarioId;
   final BudgetScenarioDraft values;
 
-  const BudgetScenarioUpdate({required this.scenarioId, required this.values});
+  const BudgetScenarioUpdate({
+    required String scenarioId,
+    required BudgetScenarioDraft values,
+  }) : scenarioId = scenarioId,
+       values = values;
 }
 
 sealed class BudgetScenariosOutcome {
@@ -56,15 +76,17 @@ sealed class BudgetScenariosOutcome {
 final class BudgetScenariosAvailable extends BudgetScenariosOutcome {
   final List<BudgetScenario> scenarios;
   final CurrentBudgetScenarioSnapshot current;
-  const BudgetScenariosAvailable({
-    required this.scenarios,
-    required this.current,
-  });
+  BudgetScenariosAvailable({
+    required List<BudgetScenario> scenarios,
+    required CurrentBudgetScenarioSnapshot current,
+  }) : scenarios = List<BudgetScenario>.unmodifiable(scenarios),
+       current = current;
 }
 
 final class BudgetScenariosUnavailable extends BudgetScenariosOutcome {
   final BudgetScenarioFailure failure;
-  const BudgetScenariosUnavailable(this.failure);
+  const BudgetScenariosUnavailable(BudgetScenarioFailure failure)
+    : failure = failure;
 }
 
 sealed class CurrentBudgetScenarioSnapshot {
@@ -76,14 +98,15 @@ final class CurrentBudgetScenarioAvailable
   final BudgetScenario scenario;
   final int version;
   const CurrentBudgetScenarioAvailable({
-    required this.scenario,
-    required this.version,
-  });
+    required BudgetScenario scenario,
+    required int version,
+  }) : scenario = scenario,
+       version = version;
 }
 
 final class NoCurrentBudgetScenario extends CurrentBudgetScenarioSnapshot {
   final int version;
-  const NoCurrentBudgetScenario({required this.version});
+  const NoCurrentBudgetScenario({required int version}) : version = version;
 }
 
 sealed class BudgetScenarioMutationOutcome {
@@ -94,9 +117,10 @@ final class BudgetScenarioMutationSaved extends BudgetScenarioMutationOutcome {
   final BudgetScenario scenario;
   final CurrentBudgetScenarioSnapshot current;
   const BudgetScenarioMutationSaved({
-    required this.scenario,
-    required this.current,
-  });
+    required BudgetScenario scenario,
+    required CurrentBudgetScenarioSnapshot current,
+  }) : scenario = scenario,
+       current = current;
 }
 
 final class BudgetScenarioMutationDeleted
@@ -104,15 +128,17 @@ final class BudgetScenarioMutationDeleted
   final String scenarioId;
   final CurrentBudgetScenarioSnapshot current;
   const BudgetScenarioMutationDeleted({
-    required this.scenarioId,
-    required this.current,
-  });
+    required String scenarioId,
+    required CurrentBudgetScenarioSnapshot current,
+  }) : scenarioId = scenarioId,
+       current = current;
 }
 
 final class BudgetScenarioMutationRejected
     extends BudgetScenarioMutationOutcome {
   final BudgetScenarioFailure failure;
-  const BudgetScenarioMutationRejected(this.failure);
+  const BudgetScenarioMutationRejected(BudgetScenarioFailure failure)
+    : failure = failure;
 }
 
 enum BudgetScenarioFailure {

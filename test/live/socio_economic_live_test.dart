@@ -39,18 +39,18 @@ void main() {
       expect(initial, isA<BudgetScenariosAvailable>());
       if (initial is BudgetScenariosAvailable &&
           initial.current is NoCurrentBudgetScenario) {
-        final Map<String, dynamic> saved = await client
-            .from('user_budget_scenarios')
-            .insert(<String, Object?>{
-              'user_id': client.auth.currentUser!.id,
-              'scenario_name': 'Socio live verification temporary',
-              'is_current': true,
-              'household_monthly_gross_income_rm': 6300,
-              'monthly_net_income': 1,
-            })
-            .select('id')
-            .single();
-        fixtureId = saved['id'] as String;
+        final BudgetScenarioStore store = createBudgetScenarioStore(
+          client: client,
+        );
+        final BudgetScenarioMutationSaved saved = await store.create(
+          const BudgetScenarioDraft(
+            name: 'Socio live verification temporary',
+            householdMonthlyIncomeRm: 6300,
+            monthlyNetIncomeRm: 1,
+          ),
+        ) as BudgetScenarioMutationSaved;
+        fixtureId = saved.scenario.id;
+        await store.selectCurrent(fixtureId);
       }
       final SocioEconomic socio = createSocioEconomic(
         geographicContext: createGeographicContext(client),

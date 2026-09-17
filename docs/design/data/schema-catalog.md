@@ -23,7 +23,7 @@
 | `auth.users` | Supabase Auth | `external` | Authentication & Session | account id、email（确认信息留在 SDK，不展示验证界面）；认证凭据不复制到 public | SDK 当前会话；Authentication & Session | Supabase 托管；其他消费者只消费 `AUTH-001` |
 | `profiles` | Supabase table | `implemented` | Authentication & Session | `id`=auth account id；可选 username/avatar/bio；updated at | owner-only CRUD；Authentication & Session 写注册资料 | 现有 migration；真实邮箱读 Auth，Account Center 不直读本表 |
 | `user_saved_locations` | Supabase table | `implemented` | Map / Location | id、user id（auth.users 外键）、同账号唯一 client_key、名称 1–120、WGS84 point、created/updated at；兼容保留 deleted_at/version | owner-only 在线读取／CRUD；Map | Supabase 权威，无本机缓存／队列；沿用现有在线 soft delete 和版本检查以兼容已部署 API，不向 Flutter 发布同步状态。新读取 RPC 过滤已删记录，客户端不回放墓碑。 |
-| `user_budget_scenarios` | Supabase table | `proposed` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负的额外生活开销/住房/交通/月净收入/家庭月度总收入、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost of Living & Budget | Account 与 Socio-economic 只消费 `COST-002`，不直接读取本表；月净收入只用于个人预算压力，家庭月度总收入只用于 Socio 收入位置，均不可互代；额外生活开销为空表示无额外开销；migration 须 additive 地加入家庭月度总收入，旧预案保持缺失而不猜测；旧 max rent/living expenses/transport allowance 只作迁移来源，完成后移除 |
+| `user_budget_scenarios` | Supabase table | `implemented` | Cost of Living & Budget | id、user id、非空名称 ≤120、可空非负的额外生活开销/住房/交通/月净收入/家庭月度总收入、`is_current`、created/updated at；每账户最多一个 current | owner-only CRUD；Cost of Living & Budget | Account 与 Socio-economic 只消费 `COST-002`，不直接读取本表；月净收入只用于个人预算压力，家庭月度总收入只用于 Socio 收入位置，均不可互代；额外生活开销为空表示无额外开销；20260917151921已additive加入家庭收入；20260917164939 FK改auth.users、writer列授权与原子current切换；旧金额列只作已完成迁移来源，非破坏性保留归档且无客户端写授权，不被新接口消费 |
 | `user_assessment_preferences` | Supabase table | `deprecated` | 无新消费者 | 历史五项偏好数据 | 客户端停止使用 | Issue #31 向前 migration 撤销 anon/authenticated 所有 grant；不删除历史数据，不建立替代五偏好接口。 |
 | `user_ici_preferences` | Supabase table | `implemented` | Infrastructure Coverage | user id 主键；health/education/transit 整数 1–10；缺少记录的产品默认为 5；updated at | owner-only CRUD；Infrastructure | 仅保存跨设备的 last saved 权重；合法未保存 preview 是 Feature 页面内存，不写表且不发布给其他设备。20260917161435 additive 加入三个整数列，旧记录目标值5；历史五个0–1列保留但客户端无列权限；外键转auth.users，既有owner-only RLS保留；20260917161729补齐PostgREST upsert列grant |
 | `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id（外键指向 auth.users，不依赖可选 profiles）、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/delete；author-only update 仅允许自身 `pending/resolved` 状态；Hazard、Property count | 发布后 type/title/description/location/report time 不可变；现有广泛 author-update policy 不能作为本契约的 implemented 证据，migration 须收紧为 status-only；公开不等于匿名；无 verified/rejected 或维护者例外 |
@@ -32,6 +32,13 @@
 | `property_inspections` | Supabase table | `proposed` | Property Inspection | id、user id、名称 1–200、地址、必需 WGS84 point、可空收藏 id、非负价格、四项 1–5、flood evidence、notes；风险组 `snapshot_availability`（available/unavailable）、`snapshot_latitude/longitude`、`reporting_state`、`safety_index`、`safety_source_year`、`safety_source_id`、`safety_model_boundary_version`、`safety_completeness`、`hazard_pending_count`、`hazard_radius_m`、`hazard_counted_at`、`snapshot_captured_at`；deleted/created/updated at | owner-only 在线 CRUD | 只新增／实际坐标变化计算；失败仍保存 unavailable，业务风险字段整体为空且可保留尝试时间。available 必须完整、安全 complete、radius=2000、快照坐标匹配实勘。坐标改变时不匹配旧组由 trigger 置 unavailable。普通编辑／详情／重启不重算。旧 risk_police_district 等不作为新版数据；新 migration 增补组和约束，不猜测 backfill；完整 Feature/地点非空与归属 FK/照片权限尚须后续对齐，不能因加字段标 implemented。 |
 | `property_inspection_photos` | Supabase table | `proposed` | Property Inspection | id、inspection id、user id、唯一 storage path、可空说明 ≤1000、cover flag、created at；每实勘最多 20 | owner-only CRUD，且 user 必须拥有父实勘；Property | 现有表/部分 policy 已建立，但 update/delete 尚未完整证明父实勘 owner；删除封面回退规则归 Feature |
 | `inspection-photos` | private Storage bucket | `proposed` | Property Inspection | 对象路径首段 account id，继而 inspection id 与不可变 photo id；静态常见图片、压缩后上传 | owner-only select/insert/update/delete，且父实勘同 owner；Property | 现有 bucket 已建立，但 read/update/delete 仍须按父实勘关系加固；upsert 需 read/insert/update 权限 |
+
+### Cost/Budget 固定导入与原子写API
+
+| 对象 | 类型/状态 | Owner | 字段与权限 |
+| --- | --- | --- | --- |
+| `cost_basket_baseline` | 自有冻结表 / implemented | Cost B | basket_version+item_code主键；quantity、name、unit、expected_unit、national_price可空、source_date。固定导入全国商户双中位数逐月代表价平均，不随客户端时钟变化。RLS authenticated只读，无客户端写入；缺失全国价保留null，不重算剩余权重冒充完整基准。20260917164939建立；当前272/1541/1645全部原始观测0行，基准不完整。 |
+| `select_current_budget(uuid)` | security-invoker RPC / implemented | Cost B | auth.uid账户事务锁；归属检查后取消旧current并设置所选，返回完整saved行；不归属/不存在返回null不更改current。默认PUBLIC/anon执行撤销，authenticated执行；底表owner-only RLS与唯一current索引继续生效。 |
 
 ### 公共政府镜像与边界对象
 
@@ -101,7 +108,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | 对象 | 类型/状态 | Owner | 覆盖数据 | 消费者 |
 | --- | --- | --- | --- | --- |
 | `read_home_metrics` | security-invoker RPC / `implemented` | Home | 五个 Home 数据集 | Home |
-| `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、行政区收入，以及地点所属州与全国的 Headline/Overall CPI 同月输入 | Cost |
+| `read_cost_inputs` | security-invoker RPC / `implemented` | Cost | 固定11项基准、12月窗口商户双中位数价格/月份/观测计数、行政区月家庭收入中位数、同最新共同月份州/全国overall CPI（当前无全国headline，合法null，不用core代替） | Cost；20260917164939与20260917165427必要索引，authenticated只读 |
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker RPC / `implemented` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker RPC / `implemented` | Socio | `p_state text, p_district text default null` → JSON version/state/district、五组收入/基尼/百分位原始观测 | Socio；authenticated execute，anon/PUBLIC deny |
@@ -113,7 +120,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | 对象 | 类型/状态 | Owner | 字段契约 | 寿命/访问 |
 | --- | --- | --- | --- | --- |
 | `home_public_cache` | SQLite / `implemented` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
-| `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
+| `cost_public_cache` | SQLite / `implemented` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
 | `crime_public_cache` | SQLite / `implemented` | Crime | cache key（全国输入或分析坐标）、model version、payload（只读州输入/州与boundary version）、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
 | `facility_public_cache` | SQLite / `implemented` | Facilities | `coordinate_key`（坐标/2,000 m/映射版）、`radius_metres`、`mapping_version`、`payload`（完整公开 OSM 元素）、`source`、`copyright_url`、`queried_at`、`expires_at`（24h）、`complete` | 只保存完整成功；无收藏名称/账户 id；旧无元数据缓存安全失效；按当前地点重建分类结果 |
 

@@ -1,3 +1,5 @@
+// Explicit initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
 
@@ -8,9 +10,10 @@ final class CostAnalysisRequest {
   final CostRefreshPolicy refreshPolicy;
 
   const CostAnalysisRequest({
-    required this.location,
-    required this.refreshPolicy,
-  });
+    required ValidLocationReference location,
+    required CostRefreshPolicy refreshPolicy,
+  }) : location = location,
+       refreshPolicy = refreshPolicy;
 }
 
 final class CostComparisonRequest {
@@ -19,10 +22,12 @@ final class CostComparisonRequest {
   final CostRefreshPolicy refreshPolicy;
 
   const CostComparisonRequest({
-    required this.locationA,
-    required this.locationB,
-    required this.refreshPolicy,
-  });
+    required ValidLocationReference locationA,
+    required ValidLocationReference locationB,
+    required CostRefreshPolicy refreshPolicy,
+  }) : locationA = locationA,
+       locationB = locationB,
+       refreshPolicy = refreshPolicy;
 }
 
 final class CpiEquivalentRequest {
@@ -31,10 +36,12 @@ final class CpiEquivalentRequest {
   final CostRefreshPolicy refreshPolicy;
 
   const CpiEquivalentRequest({
-    required this.location,
-    required this.inputMonthlySpendRm,
-    required this.refreshPolicy,
-  });
+    required ValidLocationReference location,
+    required double inputMonthlySpendRm,
+    required CostRefreshPolicy refreshPolicy,
+  }) : location = location,
+       inputMonthlySpendRm = inputMonthlySpendRm,
+       refreshPolicy = refreshPolicy;
 }
 
 sealed class CostAnalysisOutcome {
@@ -43,18 +50,21 @@ sealed class CostAnalysisOutcome {
 
 final class CostAnalysisAvailable extends CostAnalysisOutcome {
   final CostAnalysis analysis;
-  const CostAnalysisAvailable(this.analysis);
+  const CostAnalysisAvailable(CostAnalysis analysis) : analysis = analysis;
 }
 
 final class CostAnalysisPartial extends CostAnalysisOutcome {
   final CostAnalysis analysis;
   final List<CostAvailabilityGap> gaps;
-  const CostAnalysisPartial(this.analysis, this.gaps);
+  CostAnalysisPartial(CostAnalysis analysis, List<CostAvailabilityGap> gaps)
+    : analysis = analysis,
+      gaps = List<CostAvailabilityGap>.unmodifiable(gaps);
 }
 
 final class CostAnalysisUnavailable extends CostAnalysisOutcome {
   final CostAnalysisFailure failure;
-  const CostAnalysisUnavailable(this.failure);
+  const CostAnalysisUnavailable(CostAnalysisFailure failure)
+    : failure = failure;
 }
 
 sealed class CostComparisonOutcome {
@@ -63,18 +73,24 @@ sealed class CostComparisonOutcome {
 
 final class CostComparisonAvailable extends CostComparisonOutcome {
   final CostComparison comparison;
-  const CostComparisonAvailable(this.comparison);
+  const CostComparisonAvailable(CostComparison comparison)
+    : comparison = comparison;
 }
 
 final class CostComparisonPartial extends CostComparisonOutcome {
   final CostComparison comparison;
   final List<CostAvailabilityGap> gaps;
-  const CostComparisonPartial(this.comparison, this.gaps);
+  CostComparisonPartial(
+    CostComparison comparison,
+    List<CostAvailabilityGap> gaps,
+  ) : comparison = comparison,
+      gaps = List<CostAvailabilityGap>.unmodifiable(gaps);
 }
 
 final class CostComparisonUnavailable extends CostComparisonOutcome {
   final CostAnalysisFailure failure;
-  const CostComparisonUnavailable(this.failure);
+  const CostComparisonUnavailable(CostAnalysisFailure failure)
+    : failure = failure;
 }
 
 sealed class CpiEquivalentOutcome {
@@ -83,12 +99,14 @@ sealed class CpiEquivalentOutcome {
 
 final class CpiEquivalentAvailable extends CpiEquivalentOutcome {
   final CpiEquivalentReading reading;
-  const CpiEquivalentAvailable(this.reading);
+  const CpiEquivalentAvailable(CpiEquivalentReading reading)
+    : reading = reading;
 }
 
 final class CpiEquivalentUnavailable extends CpiEquivalentOutcome {
   final CpiEquivalentFailure failure;
-  const CpiEquivalentUnavailable(this.failure);
+  const CpiEquivalentUnavailable(CpiEquivalentFailure failure)
+    : failure = failure;
 }
 
 enum CostAnalysisFailure {
@@ -113,6 +131,8 @@ enum CpiEquivalentFailure {
 
 enum CostAvailabilityGap {
   lowCoverage,
+  baselineIncomplete,
+  notComparable,
   missingHousingInput,
   missingTransportInput,
   missingNetIncomeInput,
@@ -134,30 +154,55 @@ final class CostAnalysis {
   final double? personalBudgetBurden;
   final double? locationBudgetBurden;
   final List<CostItem> items;
-  final double coverage;
+  final double? coverage;
+  final int availableMonths;
+  final String? currentScenarioId;
 
-  const CostAnalysis({
-    required this.location,
-    this.district,
-    this.reportingState,
-    required this.basketVersion,
-    required this.modelVersion,
-    this.sourceDate,
-    this.observedSpend12,
-    this.scenarioSpend12,
-    this.costIndex,
-    this.personalBudgetBurden,
-    this.locationBudgetBurden,
-    required this.items,
-    required this.coverage,
-  });
+  CostAnalysis({
+    required ValidLocationReference location,
+    AdministrativeArea? district,
+    AdministrativeArea? reportingState,
+    required String basketVersion,
+    required String modelVersion,
+    DateTime? sourceDate,
+    double? observedSpend12,
+    double? scenarioSpend12,
+    double? costIndex,
+    double? personalBudgetBurden,
+    double? locationBudgetBurden,
+    required List<CostItem> items,
+    required double? coverage,
+    int availableMonths = 0,
+    String? currentScenarioId,
+  }) : location = location,
+       district = district,
+       reportingState = reportingState,
+       basketVersion = basketVersion,
+       modelVersion = modelVersion,
+       sourceDate = sourceDate,
+       observedSpend12 = observedSpend12,
+       scenarioSpend12 = scenarioSpend12,
+       costIndex = costIndex,
+       personalBudgetBurden = personalBudgetBurden,
+       locationBudgetBurden = locationBudgetBurden,
+       items = List<CostItem>.unmodifiable(items),
+       coverage = coverage,
+       availableMonths = availableMonths,
+       currentScenarioId = currentScenarioId;
 }
 
 final class CostComparison {
   final CostAnalysis analysisA;
   final CostAnalysis analysisB;
+  final bool comparable;
 
-  const CostComparison({required this.analysisA, required this.analysisB});
+  const CostComparison({
+    required CostAnalysis analysisA,
+    required CostAnalysis analysisB,
+    bool comparable = true,
+  }) : analysisA = analysisA,
+       analysisB = analysisB,
+       comparable = comparable;
 }
 
 final class CostItem {
@@ -167,15 +212,29 @@ final class CostItem {
   final double monthlyQuantity;
   final double? localPrice;
   final double? observedSpend;
+  final int premiseCount;
+  final int recordCount;
+  final List<DateTime> months;
 
-  const CostItem({
-    required this.itemCode,
-    required this.name,
-    required this.unit,
-    required this.monthlyQuantity,
-    this.localPrice,
-    this.observedSpend,
-  });
+  CostItem({
+    required String itemCode,
+    required String name,
+    required String unit,
+    required double monthlyQuantity,
+    double? localPrice,
+    double? observedSpend,
+    int premiseCount = 0,
+    int recordCount = 0,
+    List<DateTime> months = const <DateTime>[],
+  }) : itemCode = itemCode,
+       name = name,
+       unit = unit,
+       monthlyQuantity = monthlyQuantity,
+       localPrice = localPrice,
+       observedSpend = observedSpend,
+       premiseCount = premiseCount,
+       recordCount = recordCount,
+       months = List<DateTime>.unmodifiable(months);
 }
 
 final class CpiEquivalentReading {
@@ -185,9 +244,12 @@ final class CpiEquivalentReading {
   final String cpiScope; // Headline/Overall
 
   const CpiEquivalentReading({
-    required this.equivalentRm,
-    required this.date,
-    required this.reportingStateName,
-    required this.cpiScope,
-  });
+    required double equivalentRm,
+    required DateTime date,
+    required String reportingStateName,
+    required String cpiScope,
+  }) : equivalentRm = equivalentRm,
+       date = date,
+       reportingStateName = reportingStateName,
+       cpiScope = cpiScope;
 }

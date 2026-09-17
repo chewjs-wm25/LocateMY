@@ -315,10 +315,24 @@ final class _ProductionPagesState extends State<_ProductionPages> {
     reader: SupabaseSafetyInputsReader(widget.client),
     database: widget.database,
   );
+  late final BudgetScenarioStore _budget = createBudgetScenarioStore(
+    client: widget.client,
+  );
+  late final CurrentBudgetReader _currentBudget =
+      createSupabaseCurrentBudgetReader(widget.client);
+  late final BudgetJsonFiles _budgetFiles = createBudgetJsonFiles(
+    budgetStore: _budget,
+  );
+  late final CostOfLivingBudget _cost = createCostOfLivingBudget(
+    geographicContext: createGeographicContext(widget.client),
+    reader: SupabaseCostPublicReader(widget.client),
+    budget: _currentBudget,
+    database: widget.database,
+  );
   late final SocioEconomic _socio = createSocioEconomic(
     geographicContext: createGeographicContext(widget.client),
     reader: SupabaseSocioInputsReader(widget.client),
-    budget: createSupabaseCurrentBudgetReader(widget.client),
+    budget: _currentBudget,
     database: widget.database,
   );
   late final InfrastructureService _infrastructure =
@@ -350,6 +364,10 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       crime: _crime,
       socio: _socio,
       infrastructure: _infrastructure,
+      cost: _cost,
+      budgetStore: _budget,
+      currentBudget: _currentBudget,
+      budgetFiles: _budgetFiles,
     );
   }
 }
@@ -365,6 +383,10 @@ final class LocateMyPages extends StatefulWidget {
   final CrimeSecurity? crime;
   final SocioEconomic? socio;
   final InfrastructureService? infrastructure;
+  final CostOfLivingBudget? cost;
+  final BudgetScenarioStore? budgetStore;
+  final CurrentBudgetReader? currentBudget;
+  final BudgetJsonFiles? budgetFiles;
   final bool showTiles;
   const LocateMyPages({
     required LocationCoordinator locations,
@@ -376,6 +398,10 @@ final class LocateMyPages extends StatefulWidget {
     CrimeSecurity? crime,
     SocioEconomic? socio,
     InfrastructureService? infrastructure,
+    CostOfLivingBudget? cost,
+    BudgetScenarioStore? budgetStore,
+    CurrentBudgetReader? currentBudget,
+    BudgetJsonFiles? budgetFiles,
     bool showTiles = true,
     super.key,
   }) : locations = locations,
@@ -387,6 +413,10 @@ final class LocateMyPages extends StatefulWidget {
        crime = crime,
        socio = socio,
        infrastructure = infrastructure,
+       cost = cost,
+       budgetStore = budgetStore,
+       currentBudget = currentBudget,
+       budgetFiles = budgetFiles,
        showTiles = showTiles;
   @override
   State<LocateMyPages> createState() {
@@ -570,6 +600,10 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         crime: widget.crime,
         socio: widget.socio,
         infrastructure: widget.infrastructure,
+        cost: widget.cost,
+        budgetStore: widget.budgetStore,
+        currentBudget: widget.currentBudget,
+        budgetFiles: widget.budgetFiles,
         onShowMap: _showCrimeLocation,
       ),
     );
@@ -680,9 +714,14 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
               key: const ValueKey('shell-account'),
               onPressed: () {
                 _push(
-                  AuthenticationPage(
-                    viewModel: InheritedAuthentication.of(context),
-                    onSignOut: InheritedAuthentication.of(context).signOut,
+                  CostBudgetAccountPanel(
+                    reader: widget.currentBudget,
+                    store: widget.budgetStore,
+                    files: widget.budgetFiles,
+                    child: AuthenticationPage(
+                      viewModel: InheritedAuthentication.of(context),
+                      onSignOut: InheritedAuthentication.of(context).signOut,
+                    ),
                   ),
                 );
               },
@@ -755,6 +794,10 @@ final class LocationAnalysisMenu extends StatelessWidget {
   final CrimeSecurity? crime;
   final SocioEconomic? socio;
   final InfrastructureService? infrastructure;
+  final CostOfLivingBudget? cost;
+  final BudgetScenarioStore? budgetStore;
+  final CurrentBudgetReader? currentBudget;
+  final BudgetJsonFiles? budgetFiles;
   final void Function(ValidLocationReference)? onShowMap;
   const LocationAnalysisMenu({
     required ValidLocationReference location,
@@ -764,6 +807,10 @@ final class LocationAnalysisMenu extends StatelessWidget {
     CrimeSecurity? crime,
     SocioEconomic? socio,
     InfrastructureService? infrastructure,
+    CostOfLivingBudget? cost,
+    BudgetScenarioStore? budgetStore,
+    CurrentBudgetReader? currentBudget,
+    BudgetJsonFiles? budgetFiles,
     void Function(ValidLocationReference)? onShowMap,
     super.key,
   }) : location = location,
@@ -773,6 +820,10 @@ final class LocationAnalysisMenu extends StatelessWidget {
        crime = crime,
        socio = socio,
        infrastructure = infrastructure,
+       cost = cost,
+       budgetStore = budgetStore,
+       currentBudget = currentBudget,
+       budgetFiles = budgetFiles,
        onShowMap = onShowMap;
   @override
   Widget build(BuildContext context) {
@@ -808,6 +859,20 @@ final class LocationAnalysisMenu extends StatelessWidget {
             : 'Cost index and estimated monthly spending',
         accent: const Color(0xFFB76E00),
         icon: Icons.account_balance_wallet_outlined,
+        onTap: cost == null
+            ? null
+            : () {
+                open(
+                  CostBudgetPage(
+                    location: location,
+                    locationB: second,
+                    service: cost!,
+                    budgetStore: budgetStore,
+                    currentBudget: currentBudget,
+                    files: budgetFiles,
+                  ),
+                );
+              },
       ),
       _AnalysisCategoryCard(
         title: zh ? '治安与犯罪' : 'Crime and security',

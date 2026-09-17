@@ -1,0 +1,11 @@
+{
+  "source": "Actual complete public schema and raw mirror checks in development Supabase",
+  "headline_cpi": "No genuine national Headline/Overall series/table/RPC; cpi_core is excluded and cpi_state has no national Malaysia observations",
+  "missing_raw_item_codes": [272, 1541, 1645],
+  "missing_root_cause": "Zero raw pricecatcher observations for each entire item series; lookup/unit/premise/date-window filtering does not cause this absence",
+  "salt_unit_normalization": "+-350g maps to canonical ±350g",
+  "baseline_effect": "Fixed11 national weights incomplete; coverage unknown and index/pressure unavailable; observed partial price amount retained",
+  "last_live_price_rpc_ms": 167,
+  "data_imports": false,
+  "mirror_business_columns_rewritten": false
+}

@@ -1,51 +1,95 @@
+// Explicit initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
 import 'package:locatemy/features/home_relocation_outlook/src/presentation/home_visual_style.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/l10n/language_controller.dart';
 
 import '../../cost_of_living_budget.dart';
+import 'cost_view_model.dart';
 
-class CostBudgetPage extends StatefulWidget {
+final class CostBudgetPage extends StatefulWidget {
   final ValidLocationReference location;
+  final ValidLocationReference? locationB;
   final CostOfLivingBudget service;
+  final BudgetScenarioStore? budgetStore;
+  final CurrentBudgetReader? currentBudget;
+  final BudgetJsonFiles? files;
   final Object? returnContext;
-
   const CostBudgetPage({
-    required this.location,
-    required this.service,
-    this.returnContext,
+    required ValidLocationReference location,
+    required CostOfLivingBudget service,
+    ValidLocationReference? locationB,
+    BudgetScenarioStore? budgetStore,
+    CurrentBudgetReader? currentBudget,
+    BudgetJsonFiles? files,
+    Object? returnContext,
     super.key,
-  });
-
+  }) : location = location,
+       service = service,
+       locationB = locationB,
+       budgetStore = budgetStore,
+       currentBudget = currentBudget,
+       files = files,
+       returnContext = returnContext;
   @override
-  State<CostBudgetPage> createState() => _CostBudgetPageState();
+  State<CostBudgetPage> createState() {
+    return _CostBudgetPageState();
+  }
 }
 
-class _CostBudgetPageState extends State<CostBudgetPage> {
-  CostAnalysisOutcome? _outcome;
-  bool _loading = true;
-
+final class _CostBudgetPageState extends State<CostBudgetPage> {
+  late final CostViewModel _model = CostViewModel(
+    service: widget.service,
+    location: widget.location,
+    locationB: widget.locationB,
+    budget: widget.currentBudget,
+  );
+  final TextEditingController _input = TextEditingController();
   @override
   void initState() {
     super.initState();
-    _load();
+    _model.load();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-    });
-    final outcome = await widget.service.analyse(
-      CostAnalysisRequest(
-        location: widget.location,
-        refreshPolicy: CostRefreshPolicy.cacheAllowed,
+  @override
+  void dispose() {
+    _model.dispose();
+    _input.dispose();
+    super.dispose();
+  }
+
+  String _t(String en, String zh) {
+    if (Localizations.localeOf(context).languageCode == 'zh') {
+      return zh;
+    }
+    return en;
+  }
+
+  String _rm(double? value) {
+    if (value == null) {
+      return _t('Unavailable', '暂无资料');
+    }
+    return 'RM ${value.toStringAsFixed(2)}';
+  }
+
+  Future<void> _budgets() async {
+    if (widget.budgetStore == null) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return BudgetScenariosPage(
+            store: widget.budgetStore!,
+            files: widget.files,
+          );
+        },
       ),
     );
-    if (!mounted) return;
-    setState(() {
-      _outcome = outcome;
-      _loading = false;
-    });
+    if (mounted) {
+      _model.load();
+    }
   }
 
   @override
@@ -54,233 +98,306 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
       backgroundColor: HomeVisualStyle.canvas,
       appBar: AppBar(
         backgroundColor: HomeVisualStyle.canvas,
-        surfaceTintColor: Colors.transparent,
         title: Text(
-          'Cost of living & budget',
+          _t('Cost of living', '生活成本'),
           style: HomeVisualStyle.text(20, weight: FontWeight.w700),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        actions: const [LanguageButton()],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Material(color: HomeVisualStyle.canvas, child: _buildBody()),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_outcome is CostAnalysisUnavailable) {
-      final reason = (_outcome as CostAnalysisUnavailable).failure;
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Unavailable: ${reason.name}',
-            style: HomeVisualStyle.text(15, color: HomeVisualStyle.muted),
-          ),
-        ),
-      );
-    }
-
-    if (_outcome is! CostAnalysisAvailable &&
-        _outcome is! CostAnalysisPartial) {
-      return Center(
-        child: Text(
-          'No cost data available',
-          style: HomeVisualStyle.text(15, color: HomeVisualStyle.muted),
-        ),
-      );
-    }
-
-    final analysis = (_outcome is CostAnalysisAvailable)
-        ? (_outcome as CostAnalysisAvailable).analysis
-        : (_outcome as CostAnalysisPartial).analysis;
-
-    final double totalSpend = analysis.observedSpend12 ?? 0;
-    final double scenarioSpend = analysis.scenarioSpend12 ?? 0;
-    final double costIndex = analysis.costIndex ?? 0;
-    final double? burden =
-        analysis.locationBudgetBurden ?? analysis.personalBudgetBurden;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: HomeVisualStyle.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  analysis.location.displayName ?? analysis.location.locationId,
-                  style: HomeVisualStyle.text(
-                    20,
-                    weight: FontWeight.w700,
-                    color: HomeVisualStyle.ink,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'RM ${costIndex.toStringAsFixed(1)}',
-                        style: HomeVisualStyle.text(
-                          32,
-                          weight: FontWeight.w700,
-                          color: HomeVisualStyle.primary,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE9F1FF),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        'Cost index',
-                        style: HomeVisualStyle.text(
-                          11,
-                          weight: FontWeight.w600,
-                          color: HomeVisualStyle.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _MetricRow(
-                  label: 'Observed spend / 12 mo',
-                  value: 'RM ${totalSpend.toStringAsFixed(2)}',
-                ),
-                const SizedBox(height: 8),
-                _MetricRow(
-                  label: 'Scenario spend / 12 mo',
-                  value: 'RM ${scenarioSpend.toStringAsFixed(2)}',
-                ),
-                const SizedBox(height: 8),
-                _MetricRow(
-                  label: 'Budget burden',
-                  value: burden == null ? '—' : '${burden.toStringAsFixed(1)}%',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: HomeVisualStyle.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Price basket',
-                  style: HomeVisualStyle.text(
-                    18,
-                    weight: FontWeight.w700,
-                    color: HomeVisualStyle.ink,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ...analysis.items.asMap().entries.map((entry) {
-                  final int index = entry.key;
-                  final CostItem item = entry.value;
-                  return Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      border: index == analysis.items.length - 1
-                          ? null
-                          : Border(
-                              bottom: BorderSide(color: HomeVisualStyle.border),
-                            ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            item.name,
-                            style: HomeVisualStyle.text(
-                              14,
-                              color: HomeVisualStyle.ink,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            item.localPrice == null
-                                ? '—'
-                                : 'RM ${item.localPrice!.toStringAsFixed(2)}',
-                            textAlign: TextAlign.right,
-                            style: HomeVisualStyle.text(
-                              14,
-                              color: HomeVisualStyle.muted,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            item.observedSpend == null
-                                ? '—'
-                                : 'RM ${item.observedSpend!.toStringAsFixed(2)}',
-                            textAlign: TextAlign.right,
-                            style: HomeVisualStyle.text(
-                              14,
-                              color: HomeVisualStyle.ink,
-                              weight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
+        actions: <Widget>[
+          if (widget.budgetStore != null)
+            TextButton(onPressed: _budgets, child: Text(_t('Budgets', '预案'))),
+          const LanguageButton(),
         ],
       ),
+      body: ListenableBuilder(
+        listenable: _model,
+        builder: (BuildContext context, Widget? child) {
+          if (_model.loading &&
+              _model.outcome == null &&
+              _model.comparison == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final List<Widget> reports = <Widget>[];
+          if (widget.locationB == null) {
+            final CostAnalysisOutcome? result = _model.outcome;
+            if (result is CostAnalysisAvailable) {
+              reports.add(_report(result.analysis));
+            }
+            if (result is CostAnalysisPartial) {
+              reports.add(_report(result.analysis));
+            }
+          } else {
+            final CostComparisonOutcome? result = _model.comparison;
+            CostComparison? comparison;
+            if (result is CostComparisonAvailable) {
+              comparison = result.comparison;
+            }
+            if (result is CostComparisonPartial) {
+              comparison = result.comparison;
+            }
+            if (comparison != null) {
+              if (!comparison.comparable) {
+                reports.add(
+                  Text(
+                    _t(
+                      'Locations are not comparable: incomplete basket or different data dates.',
+                      '两地点不可比较：篮子资料不完整或统计日期不同。',
+                    ),
+                    style: HomeVisualStyle.text(15),
+                  ),
+                );
+              }
+              reports.add(_report(comparison.analysisA));
+              reports.add(const SizedBox(height: 20));
+              reports.add(_report(comparison.analysisB));
+              if (comparison.comparable) {
+                reports.add(
+                  Text(
+                    '${_t('Monthly basket difference', '每月篮子差额')}: ${_rm(comparison.analysisB.observedSpend12! - comparison.analysisA.observedSpend12!)}',
+                  ),
+                );
+              }
+            }
+          }
+          if (reports.isEmpty) {
+            reports.add(
+              Text(
+                _t('Unable to load cost data. Please retry.', '暂无法读取生活成本，请重试。'),
+                style: HomeVisualStyle.text(16),
+              ),
+            );
+          }
+          reports.add(const SizedBox(height: 16));
+          reports.add(
+            OutlinedButton(
+              onPressed: () {
+                _model.load(refresh: true);
+              },
+              child: Text(_t('Retry / refresh', '重试 / 刷新')),
+            ),
+          );
+          reports.add(const SizedBox(height: 20));
+          reports.add(_cpi());
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: reports,
+            ),
+          );
+        },
+      ),
     );
   }
-}
 
-class _MetricRow extends StatelessWidget {
-  final String label;
-  final String value;
+  Widget _card(List<Widget> children, {Color color = Colors.white}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16),
+        border: color == Colors.white
+            ? Border.all(color: HomeVisualStyle.border)
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+    );
+  }
 
-  const _MetricRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+  Widget _report(CostAnalysis a) {
+    final List<Widget> items = <Widget>[];
+    for (final CostItem item in a.items) {
+      items.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                item.name,
+                style: HomeVisualStyle.text(14, weight: FontWeight.w600),
+              ),
+              Text(
+                '${_rm(item.localPrice)} / ${item.unit} · ${_t('Monthly quantity', '月数量')} ${item.monthlyQuantity}',
+                style: HomeVisualStyle.text(14, color: HomeVisualStyle.muted),
+              ),
+              Text(
+                '${_rm(item.observedSpend)} ${_t('/month', '/月')}',
+                style: HomeVisualStyle.text(14),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    String coverage = _t(
+      'Coverage unknown: national baseline incomplete',
+      '覆盖率未知：全国基准不完整',
+    );
+    if (a.coverage != null) {
+      coverage =
+          '${_t('Coverage', '覆盖率')} ${(a.coverage! * 100).toStringAsFixed(1)}%';
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
         Text(
-          label,
+          a.location.displayName ?? _t('Selected location', '选定地点'),
+          style: HomeVisualStyle.text(20, weight: FontWeight.w700),
+        ),
+        Text(
+          '${a.district?.name ?? ''} · ${_t('Single adult estimate', '单身成年人估算')}',
           style: HomeVisualStyle.text(14, color: HomeVisualStyle.muted),
         ),
-        Text(value, style: HomeVisualStyle.text(14, weight: FontWeight.w700)),
+        const SizedBox(height: 16),
+        _card(<Widget>[
+          Text(
+            _t('Cost index', '生活成本指数'),
+            style: HomeVisualStyle.text(14, color: HomeVisualStyle.muted),
+          ),
+          Text(
+            a.costIndex?.toStringAsFixed(1) ?? _t('Unavailable', '不可计算'),
+            style: HomeVisualStyle.text(40, weight: FontWeight.w700),
+          ),
+          Text(
+            _t('Fixed national baseline = 100', '固定全国基准 = 100'),
+            style: HomeVisualStyle.text(13, color: HomeVisualStyle.muted),
+          ),
+        ]),
+        const SizedBox(height: 16),
+        _card(<Widget>[
+          Text(
+            _t('Core market basket estimated monthly spending', '核心市场篮子估算月支出'),
+            style: HomeVisualStyle.text(14, color: HomeVisualStyle.heroLabel),
+          ),
+          Text(
+            '${_rm(a.observedSpend12)} ${_t('/month', '/月')}',
+            style: HomeVisualStyle.text(
+              30,
+              color: Colors.white,
+              weight: FontWeight.w700,
+            ),
+          ),
+          Text(
+            '$coverage · ${a.availableMonths} ${_t('months', '个月')}',
+            style: HomeVisualStyle.text(13, color: HomeVisualStyle.heroUnit),
+          ),
+          if (a.costIndex == null)
+            Text(
+              _t(
+                'Partial basket amount; index and budget pressure unavailable.',
+                '部分篮子金额；指数与预算压力不可计算。',
+              ),
+              style: HomeVisualStyle.text(14, color: Colors.white),
+            ),
+        ], color: HomeVisualStyle.hero),
+        const SizedBox(height: 20),
+        Text(
+          _t('Main components', '主要分项'),
+          style: HomeVisualStyle.text(19, weight: FontWeight.w700),
+        ),
+        Text(
+          _t(
+            'Official observations · fixed model quantities · user budget inputs',
+            '官方观测 · 固定模型数量 · 用户预算输入',
+          ),
+          style: HomeVisualStyle.text(13, color: HomeVisualStyle.muted),
+        ),
+        const SizedBox(height: 12),
+        _card(<Widget>[
+          Text(
+            '${_t('Including current scenario', '包含当前预案')}: ${_rm(a.scenarioSpend12)} ${_t('/month', '/月')}',
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${_t('Personal budget pressure', '个人预算压力')}: ${a.personalBudgetBurden?.toStringAsFixed(1) ?? '—'}%',
+          ),
+          Text(
+            '${_t('District household income baseline', '行政区家庭收入基线')}: ${a.locationBudgetBurden?.toStringAsFixed(1) ?? '—'}%',
+          ),
+          if (a.personalBudgetBurden == null)
+            Text(
+              _t(
+                'Choose a saved scenario with housing, transport and positive monthly net income. Complete basket data is required.',
+                '请选择已保存且填写住房、交通及正月净收入的预案；还需完整篮子资料。',
+              ),
+            ),
+          if (widget.budgetStore != null)
+            TextButton(
+              onPressed: _budgets,
+              child: Text(_t('Manage budget scenarios', '管理预算预案')),
+            ),
+        ], color: const Color(0xFFEAF2FF)),
+        const SizedBox(height: 16),
+        Text(
+          _t('Local unit prices', '本地商品单价'),
+          style: HomeVisualStyle.text(19, weight: FontWeight.w700),
+        ),
+        ...items,
       ],
     );
+  }
+
+  Widget _cpi() {
+    final List<Widget> children = <Widget>[
+      Text(
+        _t('Temporary CPI equivalent budget', '临时 CPI 等效预算'),
+        style: HomeVisualStyle.text(18, weight: FontWeight.w700),
+      ),
+      Text(
+        _t(
+          'National monthly spend; conversion only, never saved to a scenario.',
+          '全国当前月支出；仅供换算，不保存至预案。',
+        ),
+      ),
+      const SizedBox(height: 12),
+      TextField(
+        key: const ValueKey<String>('cpi-input'),
+        controller: _input,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+          labelText: _t('Current monthly spend (RM)', '当前月支出 (RM)'),
+        ),
+      ),
+      const SizedBox(height: 12),
+      FilledButton(
+        onPressed: _model.cpiLoading
+            ? null
+            : () {
+                _model.convert(_input.text);
+              },
+        child: Text(_t('Convert / retry', '换算 / 重试')),
+      ),
+    ];
+    final CpiEquivalentOutcome? result = _model.cpi;
+    if (_model.cpiLoading) {
+      children.add(const LinearProgressIndicator());
+    }
+    if (result is CpiEquivalentAvailable) {
+      children.add(
+        Text(
+          '${_t('Equivalent', '等效金额')}: ${_rm(result.reading.equivalentRm)}',
+          style: HomeVisualStyle.text(22, weight: FontWeight.w700),
+        ),
+      );
+    }
+    if (result is CpiEquivalentUnavailable) {
+      String message = _t(
+        'No matching state and national headline CPI data. Retry when connected.',
+        '暂无州及全国同月总体 CPI 资料，请联网重试。',
+      );
+      if (result.failure == CpiEquivalentFailure.invalidInput) {
+        message = _t('Enter a finite nonnegative amount.', '请输入有效的非负金额。');
+      }
+      children.add(
+        Text(
+          message,
+          style: HomeVisualStyle.text(15, color: HomeVisualStyle.warning),
+        ),
+      );
+    }
+    return _card(children);
   }
 }

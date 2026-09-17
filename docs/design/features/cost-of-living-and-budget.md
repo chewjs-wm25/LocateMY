@@ -1,6 +1,6 @@
 # Cost of Living & Budget 开发契约
 
-> Owner B；Wave 5；Draft — Issue #31 精简设计，生产 Feature 尚未实现。
+> Owner B；Wave 5；生产实现与验收已交付，Implemented Gate 等待独立审查；不宣称 Integrated。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。
@@ -13,7 +13,7 @@
 
 界面按 [UI 精简边界](../../knowledge_base/locatemy_product/ui_design_spec.md#分析页面精简边界2026-09-17) 调整；该节取代本契约中冲突的来源／时间／较旧提示展示要求。
 指标、公式、输入、缓存时效和服务可用性不变。保留内部来源与日期用于取数／校验，取消用户页面技术明细，保留简短错误与重试。
-验收沿用页面和公开服务边界，核对单点与 A/B 均无技术元数据／重复提示，并回归现有缓存、公式、失败恢复与账户行为。此轮仅更新文档，代码调整及验证待后续任务执行。
+验收沿用页面和公开服务边界，核对单点与 A/B 均无技术元数据／重复提示，并回归现有缓存、公式、失败恢复与账户行为。本期生产页面按此边界实现并验证。
 
 ## 单点、A/B 与在线预案
 
@@ -29,7 +29,7 @@ A/B 保持同篮子／来源日期／当前预案口径并列；不可比原因�
 
 ## 服务与接线
 
-未来唯一入口 `lib/features/cost_of_living_budget/cost_of_living_budget.dart`。
+唯一入口 `lib/features/cost_of_living_budget/cost_of_living_budget.dart`。
 B 提供具名成本／预算服务、当前预案读取和成功修改的变化通知；A 页面通过 location／A/B 参数组合结果。
 Account 与 Socio 仅读 current 服务，不各自写预案表。接口需在开发前固定实际可编译声明及字段映射；
 本次不保留庞大的旧 Shell／Privacy／Suitability declarations，不宣称它们 Ready。
@@ -77,7 +77,7 @@ v1 必须含全部上述金额键，值为 null 或有限非负 JSON number；nu
 | 损坏／缺键／无效金额／不支持版本／文件缺失 | B；只读展示失败且云端不变 | Wave 5 |
 | Account current、预算压力与 Socio 家庭收入位置随切换更新 | B 主责、A 接线联合验证 | Wave 6 |
 
-预算 JSON 与完整预算业务随预算 Feature 实现，本次只固定设计与验收。
+预算 JSON 与完整预算业务本期实现，验收证据见本次交付报告。
 ## 生命周期与验收责任
 
 页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
@@ -94,5 +94,28 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 
 `CurrentBudgetReader.readCurrent(): Future<BudgetScenariosOutcome>` 与 `watchCurrent(): Stream<BudgetScenariosOutcome>` 从唯一入口导出。
 `createSupabaseCurrentBudgetReader(client)` 提供真实 owner-only 在线读取；null 家庭收入与 0 区分，网络失败 typed unavailable，不以月净收入替代。
-观察期间每 10 秒在线检查已保存的 current；消费者取消订阅后停止。当前读取与未来预算 writer 的完整联验由 B 主责、A 页面接线，Wave 6。
-该增量不实现预算 CRUD、JSON、CPI 或生活成本，模块状态仍为 Draft；字段以 Schema Catalog 为准。
+观察期间每 10 秒在线检查已保存的 current；消费者取消订阅后停止。当前读取与预算 writer 共用同一真实 store；本期联合验证覆盖成功变更通知及 Socio 的独立家庭收入用途。
+完整预算 CRUD、JSON、临时 CPI 与成本服务现已实现；字段以 Schema Catalog 为准。
+
+## 本次开发固定范围（2026-09-18）
+
+Ready Gate 自主固定：沿用 COST-001、COST-002 与 CurrentBudgetReader；新增 BudgetJsonFiles 为真实应用目录文件边界。
+最高验收 seams 为上述服务和应用页面；Issue #25 Q2 已确认此策略，本次用户授权自行决策。
+生产成本 factory 注入 GeographicContext、CostPublicReader、CurrentBudgetReader、可选 SQLite；
+预算 factory 注入 SupabaseClient，同一 writer 实现 CurrentBudgetReader 并在成功变更后通知消费者。
+CPI 只接受 Headline/Overall 的最新共同月份，真实镜像缺全国 headline 时 unavailable，禁止 cpi_core 代用。
+
+| 场景 ID / 可观察结果 | 验证归属 | 依赖与证据 | Owner / 最迟 | 本模块状态 | 联合状态 |
+| --- | --- | --- | --- | --- | --- |
+| C01 商户双中位数、固定11项、逐月/12月与6月/80%门槛 | 本模块 | 本期真实RPC/SQLite；服务公式与live | B / Wave 5 | 已验证 | 不适用 |
+| C02 current住房/交通缺失、有效零、两个收入与连续压力 | 两者 | 本期真实Budget；服务/页面 | B / Wave 5 | 已验证 | 本期共享接线；完整 Wave 6 |
+| C03 A/B同篮子/日期/current与不可比、过期响应 | 本模块 | 真实Geo/RPC；服务/页面 | B / Wave 5 | 已验证 | 不适用 |
+| C04 同月CPI临时换算、不写预算/离页丢失 | 本模块 | 真实RPC；成功fixture与缺失live | B / Wave 5 | 已验证 | 不适用 |
+| B01 在线CRUD/current原子唯一、失败保留、删除不自动选 | 本模块 | Supabase开发环境allow/deny与恢复 | B / Wave 5 | 已验证 | 不适用 |
+| B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 待验证 | 待验证 |
+| J01 只导出已保存、真实UTF8/唯一文件、列表/打开/null/zero | 本模块 | path_provider/临时真文件与页面 | B / Wave 5 | 已验证 | 不适用 |
+| J02 损坏/缺键/无效日期金额/version/缺文件、无云写 | 本模块 | 真实临时目录/页面、重启退出保留 | B / Wave 5 | 已验证 | 不适用 |
+| U01 中英文小屏200%/读屏、离线权限恢复、dispose晚响应 | 本模块 | emulator-5554/页面测试 | B / Wave 5 | 已验证 | 不适用 |
+| H01 Home完整六类摘要消费 | 联合 | 后续真实Home与Cost | A主责 B参与 / Wave 6 | 不适用 | 待接入 |
+
+Penpot 已读取 Mobile UI 的 05生活成本与UI Foundations，导出实际截图；沿用 SourceSansPro、#F6F8FB、#172033、#155EEF、#0B1F44、16px圆角、16px页面边距。按精简边界移除日期来源技术字段，按事实源修正原型fixture的RM指数与压力等级。
