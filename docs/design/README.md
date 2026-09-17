@@ -19,7 +19,7 @@ AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前
 | Home | A | [首页](features/home-and-relocation-outlook.md)，已有实现 |
 | Map | A | [地图／收藏](features/map-and-location.md)，已有实现重构 |
 | Cost／Budget | B | [生活成本／预算／JSON](features/cost-of-living-and-budget.md)，Draft，尚未实现 |
-| Crime | B | [治安](features/crime-and-security.md)，Draft，尚未实现 |
+| Crime | B | [治安](features/crime-and-security.md)，Wave 5 实现与验收 |
 | Facilities | A | [周边设施](features/nearby-facilities.md)，已有实现重构 |
 | Transit | A | [公共交通](features/public-transportation.md)，已有实现重构 |
 | Hazard | A | [隐患](features/hazard-reporting.md)，已有实现重构 |

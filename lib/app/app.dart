@@ -18,6 +18,8 @@ import '../features/map_location/map_location.dart';
 import '../features/nearby_facilities/nearby_facilities.dart';
 import '../features/hazard_reporting/hazard_reporting.dart';
 import '../features/public_transportation/public_transportation.dart';
+import '../features/crime_security/crime_security.dart';
+import '../modules/geographic_context/geographic_context.dart';
 
 Future<void> startLocateMy() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -305,6 +307,11 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       return locationLayerHost(_map.locations);
     },
   );
+  late final CrimeSecurity _crime = createCrimeSecurity(
+    geographicContext: createGeographicContext(widget.client),
+    reader: SupabaseSafetyInputsReader(widget.client),
+    database: widget.database,
+  );
   late final HomeRelocationOutlook _home = createHomeRelocationOutlook(
     widget.client,
   );
@@ -323,6 +330,7 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       home: _home,
       search: widget.search,
       transportation: widget.transportation,
+      crime: _crime,
     );
   }
 }
@@ -335,6 +343,7 @@ final class LocateMyPages extends StatefulWidget {
   final HomeRelocationOutlook home;
   final LocationSearch search;
   final PublicTransportation transportation;
+  final CrimeSecurity? crime;
   final bool showTiles;
   const LocateMyPages({
     required LocationCoordinator locations,
@@ -343,6 +352,7 @@ final class LocateMyPages extends StatefulWidget {
     required HomeRelocationOutlook home,
     required LocationSearch search,
     required PublicTransportation transportation,
+    CrimeSecurity? crime,
     bool showTiles = true,
     super.key,
   }) : locations = locations,
@@ -351,6 +361,7 @@ final class LocateMyPages extends StatefulWidget {
        home = home,
        search = search,
        transportation = transportation,
+       crime = crime,
        showTiles = showTiles;
   @override
   State<LocateMyPages> createState() {
@@ -365,6 +376,7 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
   final ValueNotifier<GeographicPoint?> _focus = ValueNotifier(null);
   int _tab = 0;
   bool _choosingHazard = false;
+  int _mapReturnVersion = 0;
   String _text(String en, String zh) {
     if (Localizations.localeOf(context).languageCode == 'zh') {
       return zh;
@@ -489,6 +501,40 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
     }
   }
 
+  Future<void> _showCrimeLocation(ValidLocationReference location) async {
+    final LocationSelectionOutcome selected = await widget.locations.select(
+      LocationSelectionRequest(
+        role: LocationRole.single,
+        point: location.point,
+        displayName: location.displayName,
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    if (selected is! LocationSelected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _text(
+              'Unable to select this location. Try again.',
+              '暂无法选择该地点，请重试。',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).popUntil((Route<dynamic> route) {
+      return route.isFirst;
+    });
+    setState(() {
+      _tab = 1;
+      _mapReturnVersion++;
+      _focus.value = location.point;
+    });
+  }
+
   void _analysis(ValidLocationReference a, [ValidLocationReference? b]) {
     _push(
       LocationAnalysisMenu(
@@ -496,6 +542,8 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         locationB: b,
         facilities: widget.facilities,
         transportation: widget.transportation,
+        crime: widget.crime,
+        onShowMap: _showCrimeLocation,
       ),
     );
   }
@@ -513,6 +561,7 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
   Widget build(BuildContext context) {
     final AppLocalizations l = AppLocalizations.of(context)!;
     final Widget map = MapLocationPage(
+      key: ValueKey<int>(_mapReturnVersion),
       locations: widget.locations,
       layerHost: locationLayerHost(widget.locations),
       workspace: locationWorkspace(widget.locations),
@@ -676,16 +725,22 @@ final class LocationAnalysisMenu extends StatelessWidget {
   final ValidLocationReference? locationB;
   final NearbyFacilities facilities;
   final PublicTransportation transportation;
+  final CrimeSecurity? crime;
+  final void Function(ValidLocationReference)? onShowMap;
   const LocationAnalysisMenu({
     required ValidLocationReference location,
     ValidLocationReference? locationB,
     required NearbyFacilities facilities,
     required PublicTransportation transportation,
+    CrimeSecurity? crime,
+    void Function(ValidLocationReference)? onShowMap,
     super.key,
   }) : location = location,
        locationB = locationB,
        facilities = facilities,
-       transportation = transportation;
+       transportation = transportation,
+       crime = crime,
+       onShowMap = onShowMap;
   @override
   Widget build(BuildContext context) {
     final bool zh = Localizations.localeOf(context).languageCode == 'zh';
@@ -774,12 +829,27 @@ final class LocationAnalysisMenu extends StatelessWidget {
               }
             },
           ),
+          if (crime != null)
+            ListTile(
+              title: Text(zh ? '治安与犯罪' : 'Crime and security'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                open(
+                  CrimeSecurityPage(
+                    crime: crime!,
+                    location: location,
+                    locationB: second,
+                    onShowMap: onShowMap,
+                  ),
+                );
+              },
+            ),
           for (final String name
               in zh
-                  ? ['生活成本', '治安', '社会经济', '基础设施']
+                  ? ['生活成本', if (crime == null) '治安', '社会经济', '基础设施']
                   : [
                       'Cost of living',
-                      'Crime and security',
+                      if (crime == null) 'Crime and security',
                       'Socio-economic',
                       'Infrastructure',
                     ])

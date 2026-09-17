@@ -13,7 +13,7 @@
 | TRANSIT-001 PublicTransportation | A | 页面／未来 ICI | 保留 canonical 结果；[Transit](../features/public-transportation.md) |
 | HAZARD-001/002 HazardReporting／HazardRiskCounter | A | 页面／地图／未来房产 | 当前 SDK 用户；[Hazard](../features/hazard-reporting.md) |
 | COST-001/002 成本与预算 current 服务 | B | 页面／Account／Socio | Draft，声明待开发前固定；[Cost](../features/cost-of-living-and-budget.md) |
-| SAFETY-001 州级安全服务 | B | 页面／房产 | Draft；[Crime](../features/crime-and-security.md) |
+| SAFETY-001 州级安全服务 | B | 页面／房产 | `CrimeSecurity.analyse/compare` + 不可变安全结果；[Crime](../features/crime-and-security.md) |
 | SOCIO-001、INFRA-001、PROPERTY-001 后续业务服务 | B | 页面／Account | Draft；分别 owning contract |
 
 AUTH-002、PRIVACY-001/002、SHELL-001、LOCATION-003、HAZARD-003、PROPERTY-002 清理接口、
