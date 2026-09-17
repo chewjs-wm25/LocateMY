@@ -123,7 +123,7 @@ void main() {
       );
       await tester.tap(find.text('Add property inspection'));
       await tester.pumpAndSettle();
-      expect(find.text('Not implemented yet · Wave 6'), findsOneWidget);
+      expect(find.text('Add property inspection'), findsWidgets);
       expect(find.text('Sunway Mentari'), findsOneWidget);
       await tester.pageBack();
       await tester.pumpAndSettle();

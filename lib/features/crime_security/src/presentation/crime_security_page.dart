@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
+import 'package:locatemy/features/property_inspection/property_inspection.dart';
 
 import '../domain/safety_models.dart';
 import 'safety_strings.dart';
@@ -432,33 +433,20 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
   }
 
   void _propertySlot(bool add) {
-    Navigator.of(context).push(
+    if (add) {
+      Navigator.of(context).push<PropertyInspectionRecord>(
+        MaterialPageRoute<PropertyInspectionRecord>(
+          builder: (BuildContext context) {
+            return PropertyInspectionFormPage(location: widget.location);
+          },
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          final SafetyStrings s = SafetyStrings(context);
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                add
-                    ? s.text('Add property inspection', '新增房产实勘')
-                    : s.text('Property portfolio', '房产档案'),
-              ),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(s.text('Not implemented yet · Wave 6', '尚未实现 · Wave 6')),
-                  if (add)
-                    Text(
-                      widget.location.displayName ??
-                          s.text('Selected location', '所选地点'),
-                    ),
-                ],
-              ),
-            ),
-          );
+          return PropertyInspectionPortfolioPage(location: widget.location);
         },
       ),
     );
