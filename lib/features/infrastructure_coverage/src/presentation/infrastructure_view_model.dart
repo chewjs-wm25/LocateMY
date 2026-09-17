@@ -26,35 +26,48 @@ final class InfrastructureViewModel extends ChangeNotifier {
         _analysisDate = analysisDate;
 
   Future<void> load([InfrastructureLoadPolicy policy = InfrastructureLoadPolicy.cacheAllowed]) async {
+    if (_closed) return;
+
     _loading = true;
     notifyListeners();
 
     final int rev = ++_revision;
 
-    final InfrastructureLoadOutcome outcome = await _service.fetch(_location, _analysisDate, policy: policy);
-
-    if (_closed || rev != _revision) {
-      // a later request superseded this one or the model was disposed; drop the result
-      return;
-    }
-
-    // preserve a previous successful result on refresh failures
     final InfrastructureLoadOutcome? previous = _outcome;
-    if (policy == InfrastructureLoadPolicy.refresh) {
-      if (outcome is InfrastructureUnavailable && previous is InfrastructureAvailable) {
-        retainedPreviousResult = true;
-        _outcome = previous;
+
+    try {
+      final InfrastructureLoadOutcome outcome = await _service.fetch(_location, _analysisDate, policy: policy);
+
+      if (_closed || rev != _revision) return;
+
+      // preserve a previous successful result on refresh failures
+      if (policy == InfrastructureLoadPolicy.refresh) {
+        if (outcome is InfrastructureUnavailable && previous is InfrastructureAvailable) {
+          retainedPreviousResult = true;
+          _outcome = previous;
+        } else {
+          retainedPreviousResult = false;
+          _outcome = outcome;
+        }
       } else {
         retainedPreviousResult = false;
         _outcome = outcome;
       }
-    } else {
-      retainedPreviousResult = false;
-      _outcome = outcome;
+    } catch (e) {
+      // on error, preserve previous successful result if available
+      if (_closed || rev != _revision) return;
+      if (previous is InfrastructureAvailable) {
+        retainedPreviousResult = true;
+        _outcome = previous;
+      } else {
+        retainedPreviousResult = false;
+        _outcome = InfrastructureUnavailable('Error retrieving data');
+      }
+    } finally {
+      if (_closed || rev != _revision) return;
+      _loading = false;
+      notifyListeners();
     }
-
-    _loading = false;
-    notifyListeners();
   }
 
   Future<void> changeLocation(ValidLocationReference location, DateTime date) async {
