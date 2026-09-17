@@ -1443,7 +1443,12 @@ final class PropertyInspectionComparisonPage extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              dataRowMaxHeight: 100,
+              dataRowMaxHeight: MediaQuery.textScalerOf(context).scale(16) > 22
+                  ? 240
+                  : 100,
+              headingRowHeight: MediaQuery.textScalerOf(context).scale(16) > 22
+                  ? 144
+                  : 72,
               columns: <DataColumn>[
                 DataColumn(
                   label: Text(_text(context, 'Risk and on-site', '风险与现场')),

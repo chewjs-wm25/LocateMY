@@ -137,7 +137,7 @@ final class SupabasePropertyStore implements PropertyStore {
       data[key] = snapshot.fields[key];
     }
     final Map<String, dynamic> row;
-    if (id == null || id != _accountId) {
+    if (id == null) {
       row = await client
           .from('property_inspections')
           .insert(data)

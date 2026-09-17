@@ -85,6 +85,7 @@ void main() {
         ),
         id: id,
       );
+      expect(edited.id, saved.id);
       print('PROPERTY_LIVE: edited');
       expect(edited.snapshot.fields['snapshot_captured_at'], captured);
       expect(
