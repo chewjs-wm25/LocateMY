@@ -402,47 +402,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mapSafetyIndex => '地区安全指数';
 
   @override
-  String get crimeSafetyIndex => '犯罪与治安指数';
-
-  @override
-  String get crimeStateUnresolved => '地区边界未解析';
-
-  @override
-  String get crimeUnavailable => '犯罪数据不可用';
-
-  @override
-  String get crimeAnnualCases => '年案发数';
-
-  @override
-  String get crimePartialData => '数据不完整';
-
-  @override
-  String crimeSourceYear(int year) {
-    return '资料来源年份：$year';
-  }
-
-  @override
-  String get crimeTrendTitle => '犯罪趋势';
-
-  @override
-  String get crimeTrendNote => '趋势根据可用观测重建。';
-
-  @override
-  String get crimeCategoryAll => '全部';
-
-  @override
-  String get crimeCategoryAssault => '袭击';
-
-  @override
-  String get crimeCategoryProperty => '财产';
-
-  @override
-  String get crimeViewPortfolio => '查看房产列表';
-
-  @override
-  String get crimeAddProperty => '新增房产';
-
-  @override
   String get mapCostOfLivingIndex => '本地生活成本指数';
 
   @override
