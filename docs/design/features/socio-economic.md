@@ -1,7 +1,7 @@
 # Socio-economic 开发契约
 
 > Owner：B；依赖顺序参考 Wave 6；2026-09-17 Issue #31 修订。
-> 状态：实现完成，等待 GPT‑5.6 Luna High 最终验收；Integrated 未批准。
+> 状态：Implemented；GPT‑5.6 Luna High 最终审查通过（2026-09-18）；Integrated 未批准。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。
@@ -55,10 +55,10 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 | SOCIO-03 组均值/份额/P40/P80、真实曲线/P50、不补零 | 本模块 | 真实 RPC；独立 worked fixture | 服务、页面 | B | 6 | 已通过；公式/页面/工程检查 | 不适用 |
 | SOCIO-04 A/B 年份/边界版本/缺失不可比、保留可用端 | 两者 | 真实 Geo；Map 传参 | 服务、应用路由 | B；A 接线 | 6 | 已通过；公开服务/页面/live/设备 | 已通过：真实 Geo/Auth/Map 接线 |
 | SOCIO-05 离线/权限/重试、缓存过期、晚到/dispose/换号 | 两者 | SQLite/SDK/登录页面树 | 服务、页面、真实权限 | B；A 登录树 | 6 | 已通过；公开服务/页面/live/设备 | 已通过：真实 Geo/Auth/Map 接线 |
-| SOCIO-06 中英文/读屏/小屏/放大字体/Penpot 风格、工程门槛 | 本模块 | 实际页面与 Android | widget/device、格式、分析、全测试（275 通过，11 个 live gate 跳过）、APK | B | 6 | 已通过；公式/页面/工程检查 | 不适用 |
+| SOCIO-06 中英文/读屏/小屏/放大字体/Penpot 风格、工程门槛 | 本模块 | 实际页面与 Android | widget/device、格式、分析、全测试（277 通过，11 个 live gate 跳过）、APK | B | 6 | 已通过；公式/页面/工程检查 | 不适用 |
 
 
-## 本次验收证据（2026-09-17）
+## 本次验收证据（2026-09-17 至 2026-09-18）
 
 - 测试按已确认边界逐片 red → green；服务覆盖 independent worked fixture、共同年份、州回退、逐项缺失、无月净收入替代、P1/P100/插值/精确命中、部分曲线、A/B 不可比、三天缓存、离线精确坐标回退、失败刷新不延长缓存、过期响应不覆盖缓存。
 - 页面与应用路由覆盖单点/A-B、读取变化、短错误/重试、保留官方结果但撤回未确认个人位置、晚到/dispose、小屏/双语/200% 字体/读屏语义。
@@ -67,6 +67,8 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 - Penpot board `08 · 社会与经济`（`f8bc3597-5a95-809e-8008-a3fa931ecc50`）已读结构/样式并导出目视核对；使用其 #F5F7FA / #172033 / #667085 / #155EEF / #148F83 / #B76E00 / #D9E0EA、16px 卡片圆角与 Source Sans Pro。官方/估算分组保留，原型示例数字替换为真实读数，按事实源补图与组均值/门槛；A/B 免责声明仅一处。
 - 工程与真实设备证据保存在 `build/socio-wave6-evidence/`（忽略凭据与构建物）：format-check.log、analyze.log、all-tests.log、live-test.log/source.json、official-source-verification.json、production-build.log/source.json、device-build.source.json、owner-b-emulator-*.xml/png/verification.json。
 - `tool/verify_socio_live.py`、`verify_socio_source.py`、`verify_socio_build.py`、`verify_socio_devices.py --devices <adb serial>` 可复跑；私有凭据仅读本地文件，构建仅 allowlist 公共配置，APK secret scan 已通过。当前设备目标为 Android 36 x86_64 模拟器；不声称额外真机验证。
-- 生产源码 SHA-256：`ace7b8e21576ef7ca47d596c962c99414b8fa81cf2158cffd6e5f55dbb068596`；独立 worktree 与 APK 来源匹配。最终 Luna High 审查结果另记；不据本模块验收宣告整个 Wave 6 已完成。
+- 生产源码 SHA-256：`b9c420f0ae7c7fd36eb4221a9c79b510a645ad3f78791cdcee9d32cebe2b12e7`；独立 worktree 与 APK 来源匹配。最终 Luna High 审查通过：规格无未解决问题、规范无硬性违规、当前阻塞为零；审查代码版本 `86d352f`；不据本模块验收宣告整个 Wave 6 已完成。
 
 本期集成：真实 Auth/Geo/Map 与只读 current 读取通过。后续集成：完整预算编辑/删除/选择成功的页面通知与 Socio 更新，由 B 主责、A 接线，最迟 Wave 6；上游尚未实现，Wave 6 联合完成不得提前宣告。
+
+最终页内语言切换已复跑 Android 与公开页面测试；A 不可用/B 可用回归通过。验收报告见 `docs/human/socio-economic-issue-25/README.md`。

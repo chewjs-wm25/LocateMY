@@ -23,7 +23,7 @@ AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前
 | Facilities | A | [周边设施](features/nearby-facilities.md)，已有实现重构 |
 | Transit | A | [公共交通](features/public-transportation.md)，已有实现重构 |
 | Hazard | A | [隐患](features/hazard-reporting.md)，已有实现重构 |
-| Socio | B | [社会经济](features/socio-economic.md)，Draft，尚未实现 |
+| Socio | B | [社会经济](features/socio-economic.md)，Implemented；Luna High 审查通过，完整预算联动 Wave 6 |
 | Infrastructure | B | [基础设施](features/infrastructure-coverage.md)，Draft，尚未实现 |
 | Property | B | [房产](features/property-inspection.md)，Draft，尚未实现 |
 | Account | A | [账户](features/account-center.md)，最小页已接线，完整入口后续 |

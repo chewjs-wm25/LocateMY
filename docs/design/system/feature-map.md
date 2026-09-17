@@ -12,7 +12,7 @@
 | Facilities / Transit / Hazard | A | 已有实现重新接线；各自来源、必要地图对象 |
 | Cost / Budget | B | 尚未实现；Geo、只读成本输入、在线预案、JSON |
 | Crime | B | Wave 5 已实现；Geo 统计州、真实只读治安输入、SQLite、单点/A-B 页面；验收见 owning contract |
-| Socio | B | 尚未实现；Geo、预算家庭月度总收入 |
+| Socio | B | Implemented；真实 Geo、只读社会经济 RPC、预算 current 读取、SQLite、单点/A-B 页面；完整预算联动 Wave 6，验收见 owning contract |
 | Infrastructure | B | 尚未实现；Geo、canonical Transit、在线三权重 |
 | Property | B | 尚未实现；合法地点、州级安全、pending count、在线照片／回收站 |
 | Account Center | A | 最小账号复用 Auth；完整入口后续消费预算／房产／本人隐患 |
