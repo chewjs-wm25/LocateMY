@@ -1,5 +1,8 @@
 import 'package:locatemy/features/map_location/map_location.dart';
 
+/// Shared enums and domain models for Infrastructure Coverage feature.
+enum InfrastructureLoadPolicy { cacheAllowed, refresh }
+
 /// Minimal domain models for Infrastructure Coverage feature.
 final class InfrastructureCoverage {
   final int? score; // 0-100 or null when unavailable

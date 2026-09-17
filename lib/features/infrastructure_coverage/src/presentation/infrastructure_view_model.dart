@@ -3,8 +3,6 @@ import '../domain/infrastructure_models.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 import '../application/infrastructure_service.dart';
 
-enum InfrastructureLoadPolicy { cacheAllowed, refresh }
-
 final class InfrastructureViewModel extends ChangeNotifier {
   final InfrastructureService _service = const InfrastructureService();
 
