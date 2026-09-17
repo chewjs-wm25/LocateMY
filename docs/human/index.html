@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="LocateMY Issue #31 的设计契约导航与阅读入口">
-  <title>LocateMY · Issue #31 设计契约</title>
+  <meta name="description" content="LocateMY 当前实现状态、设计契约导航与阅读入口">
+  <title>LocateMY · 当前实现状态</title>
   <style>
     :root {
       color-scheme: light;
@@ -198,6 +198,7 @@
     .status.draft { background: var(--amber-soft); color: var(--amber); }
     .status.minimum { background: var(--brand-soft); color: var(--brand-dark); }
     .status.closed { background: var(--gray-soft); color: var(--gray); }
+    .status.blocked { background: #fef2f2; color: #b91c1c; }
     .arrow { color: var(--brand); font-size: 1.15rem; }
 
     .empty {
@@ -247,16 +248,16 @@
   <a class="skip-link" href="#documents">跳到文档列表</a>
   <div class="shell">
     <header>
-      <p class="eyebrow">LocateMY · Issue #31</p>
-      <h1>设计契约与开发入口</h1>
-      <p class="lede">这里集中放置当前功能、模块与应用装配的可读版契约。先按主题找到文档，再从文档中的范围、接口和验收条件了解具体工作。</p>
-      <p class="note">阅读提示：本页是导航摘要；功能状态、字段和边界以对应的 owning Markdown 为准。HTML 由 Markdown 导出。</p>
+      <p class="eyebrow">LocateMY · 2026-09-17</p>
+      <h1>当前实现状态与开发入口</h1>
+      <p class="lede">这里集中放置当前功能、模块与应用装配的可读版契约，并标出代码在当前工作区的实现状态。先按主题找到文档，再从文档中的范围、接口和验收条件了解具体工作。</p>
+      <p class="note">状态检查：当前代码已接入社会经济与基础设施页面；治安已有 Wave 5 实现证据，但当前 <code>flutter analyze</code> 与相关测试因移除的本地化 getter 未通过。契约状态、字段和边界仍以对应的 owning Markdown 为准。</p>
     </header>
 
     <section class="summary" aria-label="文档概览">
       <div class="summary-card"><strong>16</strong><span>份设计契约</span></div>
-      <div class="summary-card"><strong>3</strong><span>类阅读入口</span></div>
-      <div class="summary-card"><strong>1</strong><span>个搜索框，快速定位</span></div>
+      <div class="summary-card"><strong>11</strong><span>个已有实现或接线入口</span></div>
+      <div class="summary-card"><strong>1</strong><span>个当前构建阻塞</span></div>
     </section>
 
     <main id="documents">
@@ -283,20 +284,20 @@
             <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="crime security 治安 crime owner b">
-            <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>治安数据、展示范围与协作边界。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>治安分析与比较；Wave 5 责任验收已通过，当前构建受本地化回归阻塞。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status blocked">实现 · 构建阻塞</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="socio economic 社会经济 socioeconomic owner b">
-            <div><h3><a href="socio-economic.html">Socio-economic</a></h3><p>社会经济指标与分析页面契约。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="socio-economic.html">Socio-economic</a></h3><p>社会经济页面代码已接线；设计契约仍为 Draft，待补验收。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status minimum">代码已接线 · 待验收</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="nearby facilities 周边设施 owner a">
             <div><h3><a href="nearby-facilities.html">Nearby Facilities</a></h3><p>周边设施搜索、分类与评分入口。</p></div>
             <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="infrastructure coverage 基础设施 owner b">
-            <div><h3><a href="infrastructure-coverage.html">Infrastructure Coverage</a></h3><p>基础设施覆盖与数据解释契约。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="infrastructure-coverage.html">Infrastructure Coverage</a></h3><p>基础设施覆盖页面代码已接线；设计契约仍为 Draft，待补验收。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status minimum">代码已接线 · 待验收</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="cost living budget 生活成本 预算 owner b">
             <div><h3><a href="cost-of-living-and-budget.html">Cost of Living &amp; Budget</a></h3><p>生活成本、预算篮子与 JSON 边界。</p></div>
@@ -357,7 +358,7 @@
     </main>
 
     <footer>
-      设计与开发入口 · Issue #31 · <a href="https://github.com/chewjs-wm25/LocateMY/issues/31">查看 GitHub Issue</a>
+      当前实现状态与设计开发入口 · 2026-09-17 · <a href="https://github.com/chewjs-wm25/LocateMY/issues/31">查看 GitHub Issue #31</a>
     </footer>
   </div>
 
