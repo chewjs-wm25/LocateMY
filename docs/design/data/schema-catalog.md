@@ -1,7 +1,7 @@
 # Schema Catalog
 
 > 状态：Issue #31 精简修订；历史 migration 保留，目标与现有实现分别标注。
-> 最后更新：2026-09-17
+> 最后更新：2026-09-18
 
 本文件是 LocateMY 数据对象、字段契约、访问规则和迁移状态的唯一目录，不替代可执行 schema。Supabase DDL/RLS/Storage policy 最终以 `supabase/migrations/` 为权威；SQLite 以实现的 migration 为权威。系统与 Feature 文档只能引用这里的对象，不复制字段定义。
 
@@ -29,9 +29,22 @@
 | `crowdsourced_hazards` | Supabase table | `implemented` | Hazard Reporting | id、author user id（外键指向 auth.users，不依赖可选 profiles）、type 五选一、trim 后标题 1–120、可空描述 ≤2000、WGS84 point、`pending/resolved`、report time | authenticated read；author-only insert/delete；author-only update 仅允许自身 `pending/resolved` 状态；Hazard、Property count | 发布后 type/title/description/location/report time 不可变；现有广泛 author-update policy 不能作为本契约的 implemented 证据，migration 须收紧为 status-only；公开不等于匿名；无 verified/rejected 或维护者例外 |
 | `crowdsourced_hazard_votes` | Supabase table | `implemented` | Hazard Reporting | hazard id + user id（外键指向 auth.users，不依赖可选 profiles）复合主键、vote `-1/+1`、created/updated at | authenticated 仅管理本人票；Hazard | 撤回删除本人行；级联随报告删除 |
 | `hazard_vote_counts` | Supabase RPC | `implemented` | Hazard Reporting | hazard id、upvotes、downvotes；由全部 vote 行聚合，只暴露计数 | authenticated 可执行；Hazard | 受控 `SECURITY DEFINER` RPC：固定空/安全 `search_path`，RPC 内验证调用者；撤销默认与 anon execute。底层 vote 仍只允许本人读写，RPC 不返回投票者身份；migration 实现并以两账户/匿名证据验证 |
-| `property_inspections` | Supabase table | `proposed` | Property Inspection | id、user id、名称 1–200、地址、必需 WGS84 point、可空收藏 id、非负价格、四项 1–5、flood evidence、notes；风险组 `snapshot_availability`（available/unavailable）、`snapshot_latitude/longitude`、`reporting_state`、`safety_index`、`safety_source_year`、`safety_source_id`、`safety_model_boundary_version`、`safety_completeness`、`hazard_pending_count`、`hazard_radius_m`、`hazard_counted_at`、`snapshot_captured_at`；deleted/created/updated at | owner-only 在线 CRUD | 只新增／实际坐标变化计算；失败仍保存 unavailable，业务风险字段整体为空且可保留尝试时间。available 必须完整、安全 complete、radius=2000、快照坐标匹配实勘。坐标改变时不匹配旧组由 trigger 置 unavailable。普通编辑／详情／重启不重算。旧 risk_police_district 等不作为新版数据；新 migration 增补组和约束，不猜测 backfill；完整 Feature/地点非空与归属 FK/照片权限尚须后续对齐，不能因加字段标 implemented。 |
-| `property_inspection_photos` | Supabase table | `proposed` | Property Inspection | id、inspection id、user id、唯一 storage path、可空说明 ≤1000、cover flag、created at；每实勘最多 20 | owner-only CRUD，且 user 必须拥有父实勘；Property | 现有表/部分 policy 已建立，但 update/delete 尚未完整证明父实勘 owner；删除封面回退规则归 Feature |
-| `inspection-photos` | private Storage bucket | `proposed` | Property Inspection | 对象路径首段 account id，继而 inspection id 与不可变 photo id；静态常见图片、压缩后上传 | owner-only select/insert/update/delete，且父实勘同 owner；Property | 现有 bucket 已建立，但 read/update/delete 仍须按父实勘关系加固；upsert 需 read/insert/update 权限 |
+| `property_inspections` | Supabase table | `implemented` | Property Inspection | id、user id（auth.users 外键）、名称 1–200、地址、WGS84 point（新写入／更新必需且经纬度合法）、可空收藏 id、非负价格、四项 1–5、flood evidence、notes；风险组 `snapshot_availability`（available/unavailable）、`snapshot_latitude/longitude`、`reporting_state`、`safety_index`、`safety_source_year`、`safety_source_id`、`safety_model_boundary_version`、`safety_completeness`、`hazard_pending_count`、`hazard_radius_m`、`hazard_counted_at`、`snapshot_captured_at`；deleted/created/updated at | authenticated owner-only 在线 CRUD；anon deny | 20260917173933 已对齐风险组、auth.users FK 与地点约束。available 必须整组完整、安全 complete、radius=2000、快照坐标匹配实勘；unavailable 的业务风险组整体为空，可保留尝试时间。坐标变化且无匹配新组时 trigger 清旧组；普通编辑／详情／重启不重算。NOT VALID 地点约束保留历史空地点，读取 RPC 不发布空地点记录；不猜测 backfill。旧 risk_police_district 等保留但新接口不消费。软删除仅设 deleted_at，保留照片；永久删除生命周期见下文。 |
+| `property_inspection_photos` | Supabase table | `implemented` | Property Inspection | id、inspection id（父实勘外键，on delete cascade）、user id（auth.users 外键）、唯一 storage path、可空说明 ≤1000、cover flag、`upload_complete`（非空 boolean；旧行默认 true，正式预留新行 false）、created at；每实勘包括未完成预留在内最多 20；每父实勘最多一个 cover | authenticated owner-only CRUD，所有操作检查本人照片与本人父实勘；anon deny；Property | 20260917173933 已加固 RLS、身份／路径／created_at 不可变 guard、父行锁20张限制与路径校验。路径为 account id/inspection id/photo id.jpg，必须先有正式父实勘；上传成功后 finish RPC 才标完成。20260917174617 删除封面 trigger 选择最早完成照片（created_at、id）回退。未完成元数据保留正式 path，不能作为成功照片展示；软删／恢复保留所有元数据。 |
+| `inspection-photos` | private Storage bucket | `implemented` | Property Inspection | 正式对象路径 account id/inspection id/photo id.jpg；bucket 上限 10 MiB，允许 JPEG/PNG/WebP/HEIC；Feature 将支持的静态照片压缩为 JPEG 后上传 | authenticated owner-only select/insert/update/delete；read/delete 要求路径 account 与本人父实勘；insert/update 还要求父实勘活动且已有对应 metadata path；anon deny；Property | 20260917173933 已按父实勘关系加固全部 Storage policy，upsert read/insert/update 受同一规则限制。软删除仍可读取本人照片且禁止写入，恢复后可写。永久清空先移除文件，再删 metadata／parent；实际 SDK 重复删除已不存在文件成功，权限／网络失败不吞掉。 |
+
+### Property 在线照片 API 与删除生命周期
+
+| 对象 | 类型/状态 | Owner | 字段与权限 |
+| --- | --- | --- | --- |
+| `read_property_inspections(uuid, boolean)` | security-invoker RPC / `implemented` | Property B | 可选实勘 id 与 deleted 筛选（默认活动；null 包括已删）；仅本人且 location 非空，返回 JSON 与 latitude/longitude；updated_at、id 降序。 |
+| `reserve_property_photo(uuid)` | security-invoker RPC / `implemented` | Property B | 锁定本人活动父实勘，生成正式 photo id/path 并写 upload_complete=false，返回元数据；20张检查计入预留行。 |
+| `finish_property_photo(uuid)` | security-invoker RPC / `implemented` | Property B | 锁定本人活动父实勘，将本人照片 upload_complete=true；无封面时设为封面。应用只在 Storage 上传成功后调用，不以预留元数据冒充上传成功。 |
+| `edit_property_photo(uuid, uuid, text, boolean)` | security-invoker RPC / `implemented` | Property B | 本人活动父实勘与已完成照片；编辑说明／原子切换单封面，父行锁与唯一 cover 索引共同生效。 |
+
+迁移 `20260917173933_property_online_photos_and_risk.sql` 与 `20260917174617_property_cover_fallback.sql` 已部署开发 Supabase。四个公开 RPC 固定空 search_path、撤销 PUBLIC/anon EXECUTE，仅 authenticated 可执行并受表 RLS 约束；内部触发函数撤销客户端执行。真实 owner CRUD、其他账户与匿名 deny、Storage 上传／读取、软删／恢复与永久清空证据见 Wave 6 验收。
+
+软删除／恢复仅变更父实勘 deleted_at，文件与元数据保留。确认取消不执行删除。确认永久清空后，应用按每份实勘逐个执行 Storage 文件删除 → 对应照片 metadata 删除 → 全部照片处理成功后 parent 删除；文件已不存在允许继续，其他失败保留未完成 path 与父记录供当前页重试，不先利用 cascade 清空元数据。上传／元数据完成失败同样保留正式 path 与 upload_complete=false；当前页内存可重试原照片，离页后可重新选择，不建立数据库上传队列或本机持久队列。
 
 ### Cost/Budget 固定导入与原子写API
 
