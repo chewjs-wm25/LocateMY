@@ -18,13 +18,14 @@ final class InfrastructureService {
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 80));
 
-    final List<InfrastructureCategoryScore> categories = <InfrastructureCategoryScore>[
-      _water(location),
-      _power(location),
-      _health(location),
-      _education(location),
-      _transit(location),
-    ];
+    final List<InfrastructureCategoryScore> categories =
+        <InfrastructureCategoryScore>[
+          _water(location),
+          _power(location),
+          _health(location),
+          _education(location),
+          _transit(location),
+        ];
 
     final List<String> missing = <String>[];
 
@@ -67,7 +68,10 @@ final class InfrastructureService {
     );
   }
 
-  static double _multiplierFor(String key, InfrastructureWeightSettings weights) {
+  static double _multiplierFor(
+    String key,
+    InfrastructureWeightSettings weights,
+  ) {
     final int raw = switch (key) {
       'water' => 5,
       'power' => 5,
@@ -80,7 +84,11 @@ final class InfrastructureService {
   }
 
   static InfrastructureCategoryScore _water(ValidLocationReference location) {
-    final int score = _stableScore(location.point.latitude, location.point.longitude, 0);
+    final int score = _stableScore(
+      location.point.latitude,
+      location.point.longitude,
+      0,
+    );
     return InfrastructureCategoryScore(
       key: 'water',
       labelZh: '供水',
@@ -90,7 +98,11 @@ final class InfrastructureService {
   }
 
   static InfrastructureCategoryScore _power(ValidLocationReference location) {
-    final int score = _stableScore(location.point.latitude, location.point.longitude, 1);
+    final int score = _stableScore(
+      location.point.latitude,
+      location.point.longitude,
+      1,
+    );
     return InfrastructureCategoryScore(
       key: 'power',
       labelZh: '供电',
@@ -100,7 +112,11 @@ final class InfrastructureService {
   }
 
   static InfrastructureCategoryScore _health(ValidLocationReference location) {
-    final int score = _stableScore(location.point.latitude, location.point.longitude, 2);
+    final int score = _stableScore(
+      location.point.latitude,
+      location.point.longitude,
+      2,
+    );
     return InfrastructureCategoryScore(
       key: 'health',
       labelZh: '医疗',
@@ -109,8 +125,14 @@ final class InfrastructureService {
     );
   }
 
-  static InfrastructureCategoryScore _education(ValidLocationReference location) {
-    final int score = _stableScore(location.point.latitude, location.point.longitude, 3);
+  static InfrastructureCategoryScore _education(
+    ValidLocationReference location,
+  ) {
+    final int score = _stableScore(
+      location.point.latitude,
+      location.point.longitude,
+      3,
+    );
     return InfrastructureCategoryScore(
       key: 'education',
       labelZh: '教育',
@@ -120,7 +142,11 @@ final class InfrastructureService {
   }
 
   static InfrastructureCategoryScore _transit(ValidLocationReference location) {
-    final int score = _stableScore(location.point.latitude, location.point.longitude, 4);
+    final int score = _stableScore(
+      location.point.latitude,
+      location.point.longitude,
+      4,
+    );
     return InfrastructureCategoryScore(
       key: 'transit',
       labelZh: '交通',
@@ -132,7 +158,8 @@ final class InfrastructureService {
   static int _stableScore(double lat, double lon, int salt) {
     final double base = (lat * 1000 + lon * 1000 + salt * 17.7) % 100;
     final double adjusted = base < 0 ? -base : base;
-    final double value = 35 + (adjusted * 0.65) + math.sin((lat + lon) * 20 + salt) * 18;
+    final double value =
+        35 + (adjusted * 0.65) + math.sin((lat + lon) * 20 + salt) * 18;
     return value.round().clamp(0, 100);
   }
 }

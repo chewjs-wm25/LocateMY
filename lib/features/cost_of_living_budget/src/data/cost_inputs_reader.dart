@@ -1,5 +1,6 @@
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
+
 import '../domain/cost_models.dart';
 
 abstract interface class CostInputsReader {
@@ -54,11 +55,7 @@ enum CostInputFailure {
   incompatibleVersion,
 }
 
-enum CostInputGap {
-  missingPriceData,
-  missingIncomeData,
-  missingCpiData,
-}
+enum CostInputGap { missingPriceData, missingIncomeData, missingCpiData }
 
 // Data structures for inputs from the View/RPC
 

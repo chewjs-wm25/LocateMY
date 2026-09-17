@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 import 'package:locatemy/features/map_location/src/domain/location_models.dart';
+
 import '../domain/safety_models.dart';
 import 'crime_view_model.dart';
 import 'safety_trend_chart.dart';
@@ -50,10 +51,13 @@ class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
         title: Text(l.crimeSafetyIndex),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.maybePop(context, CrimeReturnToMapIntent(
-            location: widget.location,
-            returnContext: widget.returnContext,
-          )),
+          onPressed: () => Navigator.maybePop(
+            context,
+            CrimeReturnToMapIntent(
+              location: widget.location,
+              returnContext: widget.returnContext,
+            ),
+          ),
         ),
       ),
       body: ListenableBuilder(
@@ -216,13 +220,18 @@ class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
     return Wrap(
       spacing: 8,
       children: snapshot.availableFilters.map((filter) {
-        final isSelected = snapshot.trend.filter.runtimeType == filter.runtimeType &&
-            (filter is! CategoryTrend || (snapshot.trend.filter as CategoryTrend).category == filter.category);
+        final isSelected =
+            snapshot.trend.filter.runtimeType == filter.runtimeType &&
+            (filter is! CategoryTrend ||
+                (snapshot.trend.filter as CategoryTrend).category ==
+                    filter.category);
 
         String label = '';
         if (filter is AllCrimeTrend) label = l.crimeCategoryAll;
         if (filter is CategoryTrend) {
-          label = filter.category == CrimeCategory.assault ? l.crimeCategoryAssault : l.crimeCategoryProperty;
+          label = filter.category == CrimeCategory.assault
+              ? l.crimeCategoryAssault
+              : l.crimeCategoryProperty;
         }
 
         return ChoiceChip(
@@ -243,21 +252,31 @@ class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
     return Column(
       children: [
         OutlinedButton(
-          onPressed: () => Navigator.maybePop(context, PropertyArchiveIntent(returnContext: widget.returnContext)),
+          onPressed: () => Navigator.maybePop(
+            context,
+            PropertyArchiveIntent(returnContext: widget.returnContext),
+          ),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: Center(child: Text(l.crimeViewPortfolio)),
         ),
         const SizedBox(height: 12),
         ElevatedButton(
-          onPressed: () => Navigator.maybePop(context, PropertyAddIntent(returnContext: widget.returnContext)),
+          onPressed: () => Navigator.maybePop(
+            context,
+            PropertyAddIntent(returnContext: widget.returnContext),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF155EEF),
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(48),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: Center(child: Text(l.crimeAddProperty)),
         ),

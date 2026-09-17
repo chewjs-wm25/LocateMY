@@ -1,16 +1,13 @@
 import 'dart:convert';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../domain/safety_models.dart';
 
 class CrimeRepository {
   final SupabaseClient supabaseClient;
   final Database database;
 
-  const CrimeRepository({
-    required this.supabaseClient,
-    required this.database,
-  });
+  const CrimeRepository({required this.supabaseClient, required this.database});
 
   Future<void> ensureCacheTableExists() async {
     await database.execute('''
@@ -35,7 +32,8 @@ class CrimeRepository {
     await ensureCacheTableExists();
     final List<Map<String, dynamic>> maps = await database.query(
       'crime_public_cache',
-      where: 'reporting_state = ? AND model_version = ? AND boundary_version = ?',
+      where:
+          'reporting_state = ? AND model_version = ? AND boundary_version = ?',
       whereArgs: [stateId, modelVersion, boundaryVersion],
     );
 
@@ -43,8 +41,7 @@ class CrimeRepository {
 
     final row = maps.first;
     final int expiresAt = row['expires_at'] as int;
-    final bool isExpired =
-        DateTime.now().millisecondsSinceEpoch > expiresAt;
+    final bool isExpired = DateTime.now().millisecondsSinceEpoch > expiresAt;
 
     return CachedSafetyData(
       snapshotJson: row['result'] as String,
@@ -64,19 +61,15 @@ class CrimeRepository {
   }) async {
     await ensureCacheTableExists();
     final now = DateTime.now();
-    await database.insert(
-      'crime_public_cache',
-      {
-        'reporting_state': stateId,
-        'model_version': modelVersion,
-        'boundary_version': boundaryVersion,
-        'result': snapshotJson,
-        'source_year': sourceYear,
-        'fetched_at': now.millisecondsSinceEpoch,
-        'expires_at': now.add(ttl).millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await database.insert('crime_public_cache', {
+      'reporting_state': stateId,
+      'model_version': modelVersion,
+      'boundary_version': boundaryVersion,
+      'result': snapshotJson,
+      'source_year': sourceYear,
+      'fetched_at': now.millisecondsSinceEpoch,
+      'expires_at': now.add(ttl).millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<RawCrimeData>> fetchCrimeData(String stateName) async {
@@ -89,8 +82,6 @@ class CrimeRepository {
           .from('crime_district')
           .select('date, state, category, type, crimes')
           .eq('state', stateName);
-
-      if (response == null) return [];
 
       final List<dynamic> data = response as List<dynamic>;
       return data.map((json) => RawCrimeData.fromJson(json)).toList();
@@ -109,8 +100,6 @@ class CrimeRepository {
           .select('state, category, crimes')
           .filter('date', 'like', '$year%')
           .neq('state', 'Malaysia');
-
-      if (response == null) return [];
 
       // This logic should probably be in an RPC for performance,
       // but for now we aggregate in the service if the RPC isn't ready.

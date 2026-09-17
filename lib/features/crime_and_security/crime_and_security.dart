@@ -1,4 +1,3 @@
-import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sqflite/sqflite.dart';

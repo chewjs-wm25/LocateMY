@@ -1,4 +1,3 @@
-import 'package:locatemy/features/map_location/map_location.dart';
 import '../../cost_of_living_budget.dart';
 
 class CostOfLivingBudgetFake implements CostOfLivingBudget {
@@ -9,10 +8,12 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
 
     // Return a fixture based on location ID
     final location = request.location;
-    
+
     // Example: return unavailable for specific IDs
     if (location.locationId == 'unavailable') {
-      return const CostAnalysisUnavailable(CostAnalysisFailure.sourceUnavailable);
+      return const CostAnalysisUnavailable(
+        CostAnalysisFailure.sourceUnavailable,
+      );
     }
 
     final analysis = CostAnalysis(
@@ -58,22 +59,32 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
   Future<CostComparisonOutcome> compare(CostComparisonRequest request) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
-    final outcomeA = await analyse(CostAnalysisRequest(
-      location: request.locationA,
-      refreshPolicy: request.refreshPolicy,
-    ));
-    final outcomeB = await analyse(CostAnalysisRequest(
-      location: request.locationB,
-      refreshPolicy: request.refreshPolicy,
-    ));
+    final outcomeA = await analyse(
+      CostAnalysisRequest(
+        location: request.locationA,
+        refreshPolicy: request.refreshPolicy,
+      ),
+    );
+    final outcomeB = await analyse(
+      CostAnalysisRequest(
+        location: request.locationB,
+        refreshPolicy: request.refreshPolicy,
+      ),
+    );
 
-    if (outcomeA is CostAnalysisAvailable && outcomeB is CostAnalysisAvailable) {
+    if (outcomeA is CostAnalysisAvailable &&
+        outcomeB is CostAnalysisAvailable) {
       return CostComparisonAvailable(
-        CostComparison(analysisA: outcomeA.analysis, analysisB: outcomeB.analysis),
+        CostComparison(
+          analysisA: outcomeA.analysis,
+          analysisB: outcomeB.analysis,
+        ),
       );
     }
 
-    return const CostComparisonUnavailable(CostAnalysisFailure.retryableUnavailable);
+    return const CostComparisonUnavailable(
+      CostAnalysisFailure.retryableUnavailable,
+    );
   }
 
   @override

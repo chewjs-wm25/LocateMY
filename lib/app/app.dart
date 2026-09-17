@@ -19,6 +19,8 @@ import '../features/nearby_facilities/nearby_facilities.dart';
 import '../features/hazard_reporting/hazard_reporting.dart';
 import '../features/public_transportation/public_transportation.dart';
 import '../features/crime_security/crime_security.dart';
+import '../features/socio_economic/socio_economic.dart';
+import '../features/cost_of_living_budget/cost_of_living_budget.dart';
 import '../modules/geographic_context/geographic_context.dart';
 
 Future<void> startLocateMy() async {
@@ -312,6 +314,12 @@ final class _ProductionPagesState extends State<_ProductionPages> {
     reader: SupabaseSafetyInputsReader(widget.client),
     database: widget.database,
   );
+  late final SocioEconomic _socio = createSocioEconomic(
+    geographicContext: createGeographicContext(widget.client),
+    reader: SupabaseSocioInputsReader(widget.client),
+    budget: createSupabaseCurrentBudgetReader(widget.client),
+    database: widget.database,
+  );
   late final HomeRelocationOutlook _home = createHomeRelocationOutlook(
     widget.client,
   );
@@ -331,6 +339,7 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       search: widget.search,
       transportation: widget.transportation,
       crime: _crime,
+      socio: _socio,
     );
   }
 }
@@ -344,6 +353,7 @@ final class LocateMyPages extends StatefulWidget {
   final LocationSearch search;
   final PublicTransportation transportation;
   final CrimeSecurity? crime;
+  final SocioEconomic? socio;
   final bool showTiles;
   const LocateMyPages({
     required LocationCoordinator locations,
@@ -353,6 +363,7 @@ final class LocateMyPages extends StatefulWidget {
     required LocationSearch search,
     required PublicTransportation transportation,
     CrimeSecurity? crime,
+    SocioEconomic? socio,
     bool showTiles = true,
     super.key,
   }) : locations = locations,
@@ -362,6 +373,7 @@ final class LocateMyPages extends StatefulWidget {
        search = search,
        transportation = transportation,
        crime = crime,
+       socio = socio,
        showTiles = showTiles;
   @override
   State<LocateMyPages> createState() {
@@ -543,6 +555,7 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         facilities: widget.facilities,
         transportation: widget.transportation,
         crime: widget.crime,
+        socio: widget.socio,
         onShowMap: _showCrimeLocation,
       ),
     );
@@ -726,6 +739,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
   final NearbyFacilities facilities;
   final PublicTransportation transportation;
   final CrimeSecurity? crime;
+  final SocioEconomic? socio;
   final void Function(ValidLocationReference)? onShowMap;
   const LocationAnalysisMenu({
     required ValidLocationReference location,
@@ -733,6 +747,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
     required NearbyFacilities facilities,
     required PublicTransportation transportation,
     CrimeSecurity? crime,
+    SocioEconomic? socio,
     void Function(ValidLocationReference)? onShowMap,
     super.key,
   }) : location = location,
@@ -740,6 +755,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
        facilities = facilities,
        transportation = transportation,
        crime = crime,
+       socio = socio,
        onShowMap = onShowMap;
   @override
   Widget build(BuildContext context) {
@@ -801,6 +817,17 @@ final class LocationAnalysisMenu extends StatelessWidget {
             : 'Household income and income distribution',
         accent: const Color(0xFF155EEF),
         icon: Icons.people_outline,
+        onTap: socio == null
+            ? null
+            : () {
+                open(
+                  SocioEconomicPage(
+                    socio: socio!,
+                    location: location,
+                    locationB: second,
+                  ),
+                );
+              },
       ),
       _AnalysisCategoryCard(
         title: zh ? '基础设施' : 'Infrastructure',

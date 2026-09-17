@@ -1,4 +1,11 @@
+// Explicit initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'dart:async';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'src/application/current_budget_reader.dart';
+import 'src/data/supabase_current_budget_reader.dart';
 
 import 'package:locatemy/features/map_location/map_location.dart';
 
@@ -8,6 +15,7 @@ import 'src/application/cost_of_living_budget_fake.dart';
 import 'src/application/budget_scenario_store_fake.dart';
 
 export 'src/domain/cost_models.dart';
+export 'src/application/current_budget_reader.dart';
 export 'src/domain/budget_models.dart';
 export 'src/presentation/cost_budget_page.dart';
 
@@ -120,7 +128,7 @@ final class CostOfLivingBudgetService implements CostOfLivingBudget {
     if (_budgetStore == null) {
       return null;
     }
-    final BudgetScenariosOutcome outcome = await _budgetStore!.read();
+    final BudgetScenariosOutcome outcome = await _budgetStore.read();
     if (outcome is! BudgetScenariosAvailable) {
       return null;
     }
@@ -469,4 +477,8 @@ final class OpenCostComparisonIntent {
 
 final class OpenBudgetScenarioIntent {
   OpenBudgetScenarioIntent();
+}
+
+CurrentBudgetReader createSupabaseCurrentBudgetReader(SupabaseClient client) {
+  return SupabaseCurrentBudgetReader(client);
 }

@@ -254,7 +254,7 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

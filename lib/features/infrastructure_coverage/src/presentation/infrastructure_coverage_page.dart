@@ -19,7 +19,8 @@ final class InfrastructureCoveragePage extends StatefulWidget {
       _InfrastructureCoveragePageState();
 }
 
-final class _InfrastructureCoveragePageState extends State<InfrastructureCoveragePage> {
+final class _InfrastructureCoveragePageState
+    extends State<InfrastructureCoveragePage> {
   late final InfrastructureViewModel _model;
 
   bool get _zh => Localizations.localeOf(context).languageCode == 'zh';
@@ -83,7 +84,8 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
                       TextButton(
                         onPressed: _model.loading
                             ? null
-                            : () => _model.load(InfrastructureLoadPolicy.refresh),
+                            : () =>
+                                  _model.load(InfrastructureLoadPolicy.refresh),
                         child: Text(_t('刷新', 'Refresh')),
                       ),
                     ],
@@ -104,7 +106,10 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
                     Padding(
                       padding: const EdgeInsets.all(30),
                       child: Semantics(
-                        label: _t('正在读取基础设施覆盖', 'Loading infrastructure coverage'),
+                        label: _t(
+                          '正在读取基础设施覆盖',
+                          'Loading infrastructure coverage',
+                        ),
                         child: const Center(child: CircularProgressIndicator()),
                       ),
                     ),
@@ -171,19 +176,11 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
                   ),
                   Text(
                     '/ 100',
-                    style: _style(
-                      14,
-                      FontWeight.w600,
-                      const Color(0xFFCFD9EB),
-                    ),
+                    style: _style(14, FontWeight.w600, const Color(0xFFCFD9EB)),
                   ),
                   Text(
                     _grade(snapshot.score),
-                    style: _style(
-                      14,
-                      FontWeight.w600,
-                      const Color(0xFFCFD9EB),
-                    ),
+                    style: _style(14, FontWeight.w600, const Color(0xFFCFD9EB)),
                   ),
                 ],
               ),
@@ -211,10 +208,7 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
 
   List<Widget> _categoryList(List<InfrastructureCategoryScore> categories) {
     return <Widget>[
-      Text(
-        _t('分项覆盖', 'Coverage by item'),
-        style: _style(18, FontWeight.w700),
-      ),
+      Text(_t('分项覆盖', 'Coverage by item'), style: _style(18, FontWeight.w700)),
       const SizedBox(height: 8),
       for (final InfrastructureCategoryScore category in categories)
         Container(
@@ -273,25 +267,22 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
             labelZh: '医疗',
             labelEn: 'Health',
             value: weights.health,
-            onChanged: (double value) => _model.updateWeights(
-              health: value.round(),
-            ),
+            onChanged: (double value) =>
+                _model.updateWeights(health: value.round()),
           ),
           _sliderRow(
             labelZh: '教育',
             labelEn: 'Education',
             value: weights.education,
-            onChanged: (double value) => _model.updateWeights(
-              education: value.round(),
-            ),
+            onChanged: (double value) =>
+                _model.updateWeights(education: value.round()),
           ),
           _sliderRow(
             labelZh: '交通',
             labelEn: 'Transit',
             value: weights.transit,
-            onChanged: (double value) => _model.updateWeights(
-              transit: value.round(),
-            ),
+            onChanged: (double value) =>
+                _model.updateWeights(transit: value.round()),
           ),
         ],
       ),
@@ -355,9 +346,11 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
   }
 
   String _reason(String reason) {
-    return _t('暂无可用基础设施资料。', 'Infrastructure data unavailable.') +
-        ' ' +
-        reason;
+    final String message = _t(
+      '暂无可用基础设施资料。',
+      'Infrastructure data unavailable.',
+    );
+    return '$message $reason';
   }
 
   String _grade(int score) {

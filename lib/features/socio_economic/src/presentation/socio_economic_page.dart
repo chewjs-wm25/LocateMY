@@ -1,524 +1,623 @@
-import 'dart:math' as math;
-
+// Explicit initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
-import '../../../../l10n/language_controller.dart';
-import '../../../home_relocation_outlook/src/presentation/home_visual_style.dart';
 import '../../../map_location/map_location.dart';
+import '../../../../l10n/language_controller.dart';
+import '../domain/socio_models.dart';
+import 'socio_view_model.dart';
+
+const Color _canvas = Color(0xFFF5F7FA);
+const Color _ink = Color(0xFF172033);
+const Color _muted = Color(0xFF667085);
+const Color _blue = Color(0xFF155EEF);
+const Color _teal = Color(0xFF148F83);
+const Color _amber = Color(0xFFB76E00);
 
 final class SocioEconomicPage extends StatefulWidget {
+  final SocioEconomic socio;
   final ValidLocationReference location;
   final ValidLocationReference? locationB;
-
   const SocioEconomicPage({
-    required this.location,
-    this.locationB,
+    required SocioEconomic socio,
+    required ValidLocationReference location,
+    ValidLocationReference? locationB,
     super.key,
-  });
-
+  }) : socio = socio,
+       location = location,
+       locationB = locationB;
   @override
-  State<SocioEconomicPage> createState() => _SocioEconomicPageState();
+  State<SocioEconomicPage> createState() {
+    return _SocioEconomicPageState();
+  }
 }
 
 final class _SocioEconomicPageState extends State<SocioEconomicPage> {
-  double _householdIncome = 6800;
-
-  double _medianForLocation(ValidLocationReference location) {
-    final double seed = (location.point.latitude.abs() * 1000) +
-        (location.point.longitude.abs() * 1000);
-    return 4200 + (seed % 2200);
+  late SocioViewModel _model;
+  bool get _zh {
+    return Localizations.localeOf(context).languageCode == 'zh';
   }
 
-  double _giniForLocation(ValidLocationReference location) {
-    final double seed = (location.point.latitude.abs() * 1000) +
-        (location.point.longitude.abs() * 1000);
-    return 0.31 + ((seed % 1000) / 1000) * 0.18;
-  }
-
-  List<double> _buildDistribution(double median) {
-    final List<double> values = <double>[];
-    for (int percentile = 1; percentile <= 100; percentile++) {
-      final double spread = percentile / 100;
-      final double base = median * (0.38 + (spread * 2.6));
-      final double variation = math.sin(percentile / 7.2) * 260;
-      values.add(base + variation);
+  String _text(String en, String zh) {
+    if (_zh) {
+      return zh;
     }
-    return values;
+    return en;
   }
 
-  int _percentileFor(double income, double minIncome, double maxIncome) {
-    if (income <= minIncome) return 1;
-    if (income >= maxIncome) return 100;
-    final double ratio = (income - minIncome) / (maxIncome - minIncome);
-    return (ratio * 99).round() + 1;
+  @override
+  void initState() {
+    super.initState();
+    _createModel();
+  }
+
+  void _createModel() {
+    _model = SocioViewModel(widget.socio, widget.location, widget.locationB);
+    _model.load();
+  }
+
+  @override
+  void didUpdateWidget(SocioEconomicPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.socio != widget.socio ||
+        oldWidget.location != widget.location ||
+        oldWidget.locationB != widget.locationB) {
+      _model.dispose();
+      _createModel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool zh = Localizations.localeOf(context).languageCode == 'zh';
-    final double median = _medianForLocation(widget.location);
-    final double gini = _giniForLocation(widget.location);
-    final List<double> distribution = _buildDistribution(median);
-    final double sliderMin = median * 0.4;
-    final double sliderMax = median * 2.8;
-    final double b40Threshold = median * 0.65;
-    final double t20Threshold = median * 2.1;
-
-    final double effectiveHouseholdIncome = _householdIncome.clamp(
-      sliderMin,
-      sliderMax,
-    );
-    final int householdIncome = effectiveHouseholdIncome.round();
-    final int percentile = _percentileFor(
-      effectiveHouseholdIncome,
-      sliderMin,
-      sliderMax,
-    );
-    final String incomeLabel = zh ? 'RM ${householdIncome.toString()}/月' : 'RM ${householdIncome.toString()}/month';
-
-    final String positionText = percentile <= 1
-        ? (zh ? '低于 P1' : 'Below P1')
-        : percentile >= 100
-        ? (zh ? '高于 P100' : 'Above P100')
-        : (zh ? '大约位于 P$percentile' : 'Approx. P$percentile');
-
-    final String medianLabel = zh ? '家庭收入中位数' : 'Household median income';
-    final String giniLabel = zh ? '基尼系数' : 'Gini coefficient';
-    final String thresholdLabel = zh ? 'B40 门槛' : 'B40 threshold';
-    final String stateLabel = zh ? '州级参考估算' : 'State reference estimate';
-    final String detailText = widget.locationB != null
-        ? (zh ? 'A/B 对比概览' : 'A/B comparison context')
-        : (zh ? '单点分析' : 'Single-point analysis');
-
     return Scaffold(
+      backgroundColor: _canvas,
       appBar: AppBar(
-        title: Text(zh ? '社会经济' : 'Socio-economic'),
-        actions: [LanguageButton()],
-      ),
-      body: Material(
-        color: HomeVisualStyle.canvas,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: HomeVisualStyle.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.location.displayName ??
-                        '${widget.location.point.latitude}, ${widget.location.point.longitude}',
-                    style: HomeVisualStyle.text(
-                      19,
-                      color: HomeVisualStyle.ink,
-                      weight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'RM ${median.round().toString()}',
-                          style: HomeVisualStyle.text(
-                            32,
-                            color: HomeVisualStyle.primary,
-                            weight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE9F1FF),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          stateLabel,
-                          style: HomeVisualStyle.text(
-                            11,
-                            color: HomeVisualStyle.primary,
-                            weight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    detailText,
-                    style: HomeVisualStyle.text(
-                      13,
-                      color: HomeVisualStyle.muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _MetricTile(
-                  title: medianLabel,
-                  value: 'RM ${median.round()}',
-                  detail: '2024',
-                ),
-                _MetricTile(
-                  title: giniLabel,
-                  value: gini.toStringAsFixed(2),
-                  detail: zh ? '更高的不平等' : 'Higher inequality',
-                ),
-                _MetricTile(
-                  title: thresholdLabel,
-                  value: 'RM ${b40Threshold.round()}',
-                  detail: 'B40',
-                ),
-                _MetricTile(
-                  title: zh ? 'T20 门槛' : 'T20 threshold',
-                  value: 'RM ${t20Threshold.round()}',
-                  detail: 'T20',
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _Panel(
-              title: zh ? '收入分布' : 'Income distribution',
-              subtitle: zh ? '州级收入分布参考（P1–P100）' : 'State income distribution reference (P1–P100)',
-              child: SizedBox(
-                height: 220,
-                child: CustomPaint(
-                  painter: _DistributionPainter(
-                    values: distribution,
-                    highlightAt: percentile,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _Panel(
-              title: zh ? '收入结构' : 'Income structure',
-              subtitle: zh ? '州级参考：收入份额' : 'State reference: income share',
-              child: Column(
-                children: [
-                  _StructureRow(
-                    label: 'B40',
-                    share: '45%',
-                    amount: 'RM ${(median * 0.65).round()}',
-                    color: const Color(0xFF155EEF),
-                  ),
-                  _StructureRow(
-                    label: 'M40',
-                    share: '40%',
-                    amount: 'RM ${(median * 1.1).round()}',
-                    color: const Color(0xFF7AA7FF),
-                  ),
-                  _StructureRow(
-                    label: 'T20',
-                    share: '15%',
-                    amount: 'RM ${(median * 2.15).round()}',
-                    color: const Color(0xFF173B75),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            _Panel(
-              title: zh ? '用户收入位置' : 'Your income position',
-              subtitle: zh ? '按当前评估预案中的家庭月收入估算' : 'Estimated from household monthly income in current assessment',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          incomeLabel,
-                          style: HomeVisualStyle.text(
-                            22,
-                            color: HomeVisualStyle.ink,
-                            weight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEAFBEF),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          positionText,
-                          style: HomeVisualStyle.text(
-                            12,
-                            color: const Color(0xFF1E8E5A),
-                            weight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Slider(
-                    value: effectiveHouseholdIncome,
-                    min: sliderMin,
-                    max: sliderMax,
-                    divisions: 100,
-                    label: 'RM ${effectiveHouseholdIncome.round()}',
-                    activeColor: HomeVisualStyle.primary,
-                    onChanged: (double value) {
-                      setState(() {
-                        _householdIncome = value;
-                      });
-                    },
-                  ),
-                  Text(
-                    zh ? '州级参考估算；结果仅用于位置概览，不是官方阶层判定。' : 'State reference estimate; intended for context only, not an official socio-economic class.',
-                    style: HomeVisualStyle.text(
-                      12,
-                      color: HomeVisualStyle.muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        backgroundColor: _canvas,
+        title: Text(
+          _text('Socio-economic', '社会与经济'),
+          style: _style(22, FontWeight.w700),
         ),
+        actions: <Widget>[
+          const LanguageButton(),
+          IconButton(
+            tooltip: _text('Refresh', '刷新'),
+            onPressed: () {
+              _model.load(refresh: true);
+            },
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: ListenableBuilder(
+        listenable: _model,
+        builder: (BuildContext context, Widget? child) {
+          final List<Widget> content = <Widget>[];
+          if (_model.loading) {
+            content.add(
+              LinearProgressIndicator(semanticsLabel: _text('Loading', '加载中')),
+            );
+          }
+          if (_model.failed ||
+              _model.a?.failure != null ||
+              _model.b?.failure != null) {
+            content.add(
+              Text(
+                _text('Temporarily unavailable. Please retry.', '暂不可用，请重试。'),
+                style: _style(14),
+              ),
+            );
+            content.add(
+              TextButton(
+                onPressed: () {
+                  _model.load(refresh: true);
+                },
+                child: Text(_text('Retry', '重试')),
+              ),
+            );
+          }
+          if (_model.a != null) {
+            content.add(
+              _analysis(_model.a!, widget.locationB == null ? null : 'A'),
+            );
+          }
+          if (_model.b != null) {
+            content.add(const SizedBox(height: 24));
+            content.add(_analysis(_model.b!, 'B'));
+            content.add(_comparison(SocioComparison(_model.a!, _model.b!)));
+          }
+          if (_model.a != null) {
+            content.add(const SizedBox(height: 24));
+            content.add(_disclosure());
+          }
+          return RefreshIndicator(
+            onRefresh: () {
+              return _model.load(refresh: true);
+            },
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: content,
+            ),
+          );
+        },
       ),
     );
   }
-}
 
-final class _MetricTile extends StatelessWidget {
-  final String title;
-  final String value;
-  final String detail;
+  Widget _analysis(SocioAnalysis result, String? role) {
+    String name =
+        result.location.displayName ??
+        '${result.location.point.latitude}, ${result.location.point.longitude}';
+    if (role != null) {
+      name = '$role · $name';
+    }
+    final SocioReading? income = result.income;
+    final SocioReading? gini = result.gini;
+    final SocioStructure? structure = result.structure;
+    final IncomePosition? position = result.position;
+    String scope =
+        result.district ??
+        result.state ??
+        _text('Location unresolved', '地点未解析');
+    final List<Widget> content = <Widget>[
+      Text(name, style: _style(20, FontWeight.w700)),
+      const SizedBox(height: 6),
+      Text(scope, style: _style(13, FontWeight.w400, _muted)),
+      const SizedBox(height: 20),
+      _card(<Widget>[
+        Text(
+          income?.district == null
+              ? _text('Official state reference', '官方州级参考')
+              : _text('Official district statistics', '官方地区读数'),
+          style: _style(13, FontWeight.w600, const Color(0xFF16865C)),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _text('Household median income', '家庭收入中位数'),
+          style: _style(14, FontWeight.w600, _muted),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          income == null ? _text('No data', '暂无数据') : _money(income.value),
+          style: _style(30, FontWeight.w700),
+        ),
+        if (income == null)
+          Text(
+            _text(
+              'No matching district or state income data',
+              '没有匹配的行政区或州收入数据',
+            ),
+            style: _style(12, FontWeight.w400, _muted),
+          ),
+        if (income != null)
+          Text(
+            '${income.district ?? income.state} · ${income.year}',
+            style: _style(12, FontWeight.w400, _muted),
+          ),
+      ]),
+      const SizedBox(height: 24),
+      Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              _text('State reference estimates', '州级参考估算'),
+              style: _style(18, FontWeight.w700),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3DE),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Text(
+              _text('Estimate', '估算'),
+              style: _style(13, FontWeight.w600, _amber),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+    ];
+    if (structure == null) {
+      content.add(
+        Text(
+          _text('Income structure: No data', '收入结构：暂无数据'),
+          style: _style(14),
+        ),
+      );
+    } else {
+      content.add(
+        Text(
+          '${result.state} · ${structure.year} · ${_text('Derived from percentiles', '由百分位数据推导')}',
+          style: _style(12, FontWeight.w400, _muted),
+        ),
+      );
+      content.add(_band('B40', structure.b40, _blue));
+      content.add(_band('M40', structure.m40, _teal));
+      content.add(_band('T20', structure.t20, _amber));
+      content.add(
+        Text(
+          'B40 ${_text('threshold', '门槛')}: ${_optionalMoney(structure.b40Threshold)}\nM40 ${_text('threshold', '门槛')}: ${_optionalMoney(structure.m40Threshold)}',
+          style: _style(13),
+        ),
+      );
+    }
+    content.add(const SizedBox(height: 24));
+    final Widget giniCard = _card(<Widget>[
+      Text(
+        _text('Gini coefficient', '基尼系数'),
+        style: _style(13, FontWeight.w600, _muted),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        gini?.value.toStringAsFixed(3) ?? _text('No data', '暂无数据'),
+        style: _style(26, FontWeight.w700),
+      ),
+      if (gini == null)
+        Text(
+          _text(
+            'No matching district or state inequality data',
+            '没有匹配的行政区或州不平等数据',
+          ),
+          style: _style(12, FontWeight.w400, _muted),
+        ),
+      if (gini != null)
+        Text(
+          '${gini.district ?? gini.state} · ${gini.year}',
+          style: _style(11, FontWeight.w400, _muted),
+        ),
+      if (result.giniChange != null)
+        Text(
+          '${_text('Annual change', '同比变化')}: ${result.giniChange!.toStringAsFixed(3)}',
+          style: _style(12),
+        ),
+    ]);
+    final Widget positionCard = _card(<Widget>[
+      Text(
+        _text('Your income position', '你的收入位置'),
+        style: _style(13, FontWeight.w600, _muted),
+      ),
+      const SizedBox(height: 8),
+      Text(_positionLabel(position), style: _style(26, FontWeight.w700, _blue)),
+      if (position == null)
+        Text(
+          _text(
+            'Requires saved household income and a complete state distribution',
+            '需要已保存家庭收入及完整州分布',
+          ),
+          style: _style(12, FontWeight.w400, _muted),
+        ),
+      if (position != null)
+        Text(
+          '${_money(position.householdIncome)} · ${position.year}',
+          style: _style(12),
+        ),
+      Text(
+        _text(
+          'Saved current scenario · household gross income',
+          '已保存当前预案 · 家庭总收入',
+        ),
+        style: _style(11, FontWeight.w400, _muted),
+      ),
+    ]);
+    content.add(
+      LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (constraints.maxWidth < 350 ||
+              MediaQuery.textScalerOf(context).scale(1) > 1.3) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                giniCard,
+                const SizedBox(height: 16),
+                positionCard,
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(child: giniCard),
+              const SizedBox(width: 16),
+              Expanded(child: positionCard),
+            ],
+          );
+        },
+      ),
+    );
+    content.add(const SizedBox(height: 24));
+    content.add(
+      _card(<Widget>[
+        Text(
+          _text('State income distribution reference', '州级收入分布参考'),
+          style: _style(18, FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${result.state ?? scope} · ${result.distributionYear ?? '—'} · RM/${_text('month', '月')}',
+          style: _style(12, FontWeight.w400, _muted),
+        ),
+        if (result.distributionPoints.isEmpty)
+          Text(
+            _text('No data: incomplete distribution', '暂无数据：分布不完整'),
+            style: _style(14),
+          )
+        else
+          Semantics(
+            label: _text(
+              'Observed percentiles P1 to P100. P50: ${_optionalMoney(result.distributionPoints[50])}',
+              '真实百分位 P1 至 P100。P50：${_optionalMoney(result.distributionPoints[50])}',
+            ),
+            child: SizedBox(
+              height: 210,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _DistributionPainter(result.distributionPoints),
+              ),
+            ),
+          ),
+      ]),
+    );
+    final Set<int> visibleYears = <int>{};
+    if (income != null) {
+      visibleYears.add(income.year);
+    }
+    if (gini != null) {
+      visibleYears.add(gini.year);
+    }
+    if (structure != null) {
+      visibleYears.add(structure.year);
+    }
+    if (result.distributionYear != null) {
+      visibleYears.add(result.distributionYear!);
+    }
+    if (position != null) {
+      visibleYears.add(position.year);
+    }
+    if (visibleYears.length > 1) {
+      content.add(
+        Text(
+          _text(
+            'Different survey years; avoid direct comparison.',
+            '统计年份不同，不宜直接比较。',
+          ),
+          style: _style(13),
+        ),
+      );
+    }
+    content.add(const SizedBox(height: 24));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: content,
+    );
+  }
 
-  const _MetricTile({
-    required this.title,
-    required this.value,
-    required this.detail,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _disclosure() {
     return Container(
-      width: 160,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: HomeVisualStyle.border),
+        color: const Color(0xFFEAF2FF),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
-            title,
-            style: HomeVisualStyle.text(12, color: HomeVisualStyle.muted),
+            _text('About estimates', '关于估算'),
+            style: _style(14, FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            value,
-            style: HomeVisualStyle.text(20, weight: FontWeight.w700),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            detail,
-            style: HomeVisualStyle.text(11, color: HomeVisualStyle.muted),
+            _text(
+              'State reference estimates, not official district income groups or class classifications. Nominal RM/month, not adjusted for inflation. Higher Gini means greater income inequality.',
+              '州级参考估算，不是行政区官方收入组或阶层判定。名义 RM/月，未按通胀调整。基尼越高表示收入不平等程度越高。',
+            ),
+            style: _style(13),
           ),
         ],
       ),
     );
   }
-}
 
-final class _Panel extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Widget child;
+  Widget _comparison(SocioComparison result) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: _card(<Widget>[
+        Text(
+          _text('A/B differences (B − A)', 'A/B 差异（B − A）'),
+          style: _style(18, FontWeight.w700),
+        ),
+        Text(
+          '${_text('Median income', '收入中位数')}: ${_difference(result.incomeDifference, true)}',
+          style: _style(14),
+        ),
+        Text(
+          '${_text('Gini', '基尼')}: ${_difference(result.giniDifference, false)}',
+          style: _style(14),
+        ),
+      ]),
+    );
+  }
 
-  const _Panel({
-    required this.title,
-    required this.subtitle,
-    required this.child,
-  });
+  String _difference(double? value, bool money) {
+    if (value == null) {
+      return _text(
+        'Not comparable: missing data, survey year, scope or boundary version differs',
+        '不可比：数据缺失，或调查年份、层级、边界版本不同',
+      );
+    }
+    if (money) {
+      return _money(value);
+    }
+    return value.toStringAsFixed(3);
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  String _positionLabel(IncomePosition? position) {
+    if (position == null) {
+      return _text('Temporarily unavailable', '暂不可用');
+    }
+    if (position.boundary == IncomePositionBoundary.belowP1) {
+      return _text('Below P1', '低于 P1');
+    }
+    if (position.boundary == IncomePositionBoundary.aboveP100) {
+      return _text('Above P100', '高于 P100');
+    }
+    return 'P${NumberFormat('0.#').format(position.percentile)}';
+  }
+
+  Widget _band(String label, SocioGroup group, Color color) {
+    final String share = '${(group.share * 100).toStringAsFixed(1)}%';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              SizedBox(
+                width: 56,
+                child: Text(label, style: _style(14, FontWeight.w700)),
+              ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: group.share,
+                    minHeight: 8,
+                    color: color,
+                    backgroundColor: const Color(0xFFEDF1F6),
+                    semanticsLabel: '$label ${_text('income share', '收入份额')}',
+                    semanticsValue: share,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Text(share, style: _style(14, FontWeight.w700, color)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${_text('Group mean', '组内平均收入')}: ${_money(group.mean)}',
+            style: _style(12, FontWeight.w400, _muted),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _optionalMoney(double? amount) {
+    if (amount == null) {
+      return _text('No data', '暂无数据');
+    }
+    return _money(amount);
+  }
+
+  String _money(double amount) {
+    return 'RM ${NumberFormat('#,##0.##').format(amount)}';
+  }
+
+  Widget _card(List<Widget> children) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: HomeVisualStyle.border),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFD9E0EA)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: HomeVisualStyle.text(17, weight: FontWeight.w700),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: HomeVisualStyle.text(12, color: HomeVisualStyle.muted),
-          ),
-          const SizedBox(height: 14),
-          child,
-        ],
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }
+}
+
+TextStyle _style(
+  double size, [
+  FontWeight weight = FontWeight.w400,
+  Color color = _ink,
+]) {
+  return TextStyle(
+    fontFamily: 'SourceSansPro',
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+  );
 }
 
 final class _DistributionPainter extends CustomPainter {
-  final List<double> values;
-  final int highlightAt;
-
-  _DistributionPainter({required this.values, required this.highlightAt});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint linePaint = Paint()
-      ..color = HomeVisualStyle.primary
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    final Paint fillPaint = Paint()
-      ..color = const Color(0xFFBFD6FF)
-      ..style = PaintingStyle.fill;
-
-    final minValue = values.reduce(math.min);
-    final maxValue = values.reduce(math.max);
-    final double range = maxValue == minValue ? 1 : maxValue - minValue;
-    final Path linePath = Path();
-    final Path fillPath = Path();
-
-    for (int index = 0; index < values.length; index++) {
-      final double x = (index / (values.length - 1)) * size.width;
-      final double y = size.height -
-          ((values[index] - minValue) / range) * (size.height - 20) -
-          10;
-
-      if (index == 0) {
-        linePath.moveTo(x, y);
-        fillPath.moveTo(x, size.height);
-        fillPath.lineTo(x, y);
-      } else {
-        linePath.lineTo(x, y);
-        fillPath.lineTo(x, y);
-      }
-    }
-
-    fillPath.lineTo(size.width, size.height);
-    fillPath.close();
-    canvas.drawPath(fillPath, fillPaint);
-    canvas.drawPath(linePath, linePaint);
-
-    final int markerIndex = highlightAt.clamp(0, values.length - 1);
-    final double markerX = (markerIndex / (values.length - 1)) * size.width;
-    final double markerY = size.height -
-        ((values[markerIndex] - minValue) / range) * (size.height - 20) -
-        10;
-
-    canvas.drawCircle(Offset(markerX, markerY), 6, Paint()..color = const Color(0xFF173B75));
-    canvas.drawLine(
-      Offset(markerX, size.height),
-      Offset(markerX, markerY),
-      Paint()..color = const Color(0xFF173B75).withValues(alpha: 0.5),
+  final Map<int, double> points;
+  _DistributionPainter(Map<int, double> points) : points = points;
+  void _label(Canvas canvas, String text, Offset offset) {
+    final TextPainter painter = TextPainter(
+      text: TextSpan(text: text, style: _style(11)),
+      textDirection: TextDirection.ltr,
     );
+    painter.layout();
+    painter.paint(canvas, offset);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-
-final class _StructureRow extends StatelessWidget {
-  final String label;
-  final String share;
-  final String amount;
-  final Color color;
-
-  const _StructureRow({
-    required this.label,
-    required this.share,
-    required this.amount,
-    required this.color,
-  });
+  void paint(Canvas canvas, Size size) {
+    double maximum = 1;
+    for (final double value in points.values) {
+      if (value > maximum) {
+        maximum = value;
+      }
+    }
+    final double width = size.width - 50;
+    final double height = size.height - 40;
+    const double left = 40;
+    final Paint line = Paint();
+    line.color = _blue;
+    line.strokeWidth = 2;
+    line.style = PaintingStyle.stroke;
+    final Path path = Path();
+    final List<int> percentiles = points.keys.toList();
+    percentiles.sort();
+    bool first = true;
+    for (final int percentile in percentiles) {
+      final double x = left + ((percentile - 1) / 99) * width;
+      final double y = 10 + height - (points[percentile]! / maximum) * height;
+      if (first) {
+        path.moveTo(x, y);
+        first = false;
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    canvas.drawPath(path, line);
+    final double? median = points[50];
+    if (median != null) {
+      final Offset p50 = Offset(
+        left + (49 / 99) * width,
+        10 + height - (median / maximum) * height,
+      );
+      final Paint marker = Paint();
+      marker.color = _teal;
+      canvas.drawCircle(p50, 4, marker);
+      _label(
+        canvas,
+        'P50 · RM ${NumberFormat('#,##0').format(median)}',
+        Offset(left + width / 3, 10),
+      );
+    }
+    _label(canvas, 'P1', Offset(left, height + 18));
+    _label(canvas, 'P100', Offset(size.width - 32, height + 18));
+    _label(canvas, '0', Offset(0, height));
+    _label(canvas, NumberFormat.compact().format(maximum), Offset(0, 0));
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: HomeVisualStyle.text(14, weight: FontWeight.w600),
-                ),
-              ),
-              Text(
-                share,
-                style: HomeVisualStyle.text(14, weight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              final shareValue = switch (label) {
-                'B40' => 0.45,
-                'M40' => 0.40,
-                _ => 0.15,
-              };
-              return Stack(
-                children: [
-                  Container(
-                    height: 10,
-                    width: width,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F3F8),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                  Container(
-                    height: 10,
-                    width: width * shareValue,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              amount,
-              style: HomeVisualStyle.text(12, color: HomeVisualStyle.muted),
-            ),
-          ),
-        ],
-      ),
-    );
+  bool shouldRepaint(covariant _DistributionPainter oldDelegate) {
+    return !identical(points, oldDelegate.points);
   }
 }

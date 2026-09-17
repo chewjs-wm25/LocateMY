@@ -1,0 +1,37 @@
+[
+  {
+    "dataset": "hh_income_district",
+    "source_url": "https://storage.dosm.gov.my/hies/hh_income_district.csv",
+    "source_sha256": "538054fb769e020f0ee2ba46a4166ba55d2eff1cb45e0d4545a96dff483e9f20",
+    "matching_scope_rows": 3,
+    "result": "PASS"
+  },
+  {
+    "dataset": "hh_income_state",
+    "source_url": "https://storage.dosm.gov.my/hies/hh_income_state.csv",
+    "source_sha256": "c6e84b901820a568024c13f46c930cd6c832d4977fc5c99bfc5e955dba994130",
+    "matching_scope_rows": 21,
+    "result": "PASS"
+  },
+  {
+    "dataset": "hh_inequality_district",
+    "source_url": "https://storage.dosm.gov.my/hies/hh_inequality_district.csv",
+    "source_sha256": "61e25593f2379615a6b1ef70773a57578fbed0ab69216511a1ad2cbc8767d310",
+    "matching_scope_rows": 3,
+    "result": "PASS"
+  },
+  {
+    "dataset": "hh_inequality_state",
+    "source_url": "https://storage.dosm.gov.my/hies/hh_inequality_state.csv",
+    "source_sha256": "8a2de46213dc4ed3554f74afedad2d808f0afe10e292dc66c08824bec3994b49",
+    "matching_scope_rows": 20,
+    "result": "PASS"
+  },
+  {
+    "dataset": "hies_state_percentile",
+    "source_url": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
+    "source_sha256": "781990407571bcfb6a6f374aad34694d89b276f4c41c6b6f9e648fa6c82676d5",
+    "matching_scope_rows": 1200,
+    "result": "PASS"
+  }
+]

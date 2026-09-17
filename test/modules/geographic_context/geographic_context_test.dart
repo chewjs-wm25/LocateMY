@@ -122,10 +122,7 @@ void main() {
     expect(district.provenance.importedAt.isUtc, isTrue);
   });
   test('missing and anonymous sessions never read RPC', () async {
-    for (final setup in [
-      () async {},
-      () => seed(anonymous: true),
-    ]) {
+    for (final setup in [() async {}, () => seed(anonymous: true)]) {
       await setup();
       final result =
           await geo.resolve(request()) as GeographicContextUnavailable;

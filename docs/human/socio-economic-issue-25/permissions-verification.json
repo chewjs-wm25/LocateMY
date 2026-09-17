@@ -1,0 +1,45 @@
+{
+  "code_commit": "d192281",
+  "environment": "Supabase development project",
+  "public_rpc": {
+    "anonymous_execute": "DENY",
+    "authenticated_read": "ALLOW",
+    "security": "stable security invoker; empty search_path"
+  },
+  "mirrors": {
+    "hh_income_district": {
+      "authenticated_select": true,
+      "authenticated_insert_update_delete": false,
+      "anonymous_select_insert_update_delete": false
+    },
+    "hh_income_state": {
+      "authenticated_select": true,
+      "authenticated_insert_update_delete": false,
+      "anonymous_select_insert_update_delete": false
+    },
+    "hh_inequality_district": {
+      "authenticated_select": true,
+      "authenticated_insert_update_delete": false,
+      "anonymous_select_insert_update_delete": false
+    },
+    "hh_inequality_state": {
+      "authenticated_select": true,
+      "authenticated_insert_update_delete": false,
+      "anonymous_select_insert_update_delete": false
+    },
+    "hies_state_percentile": {
+      "authenticated_select": true,
+      "authenticated_insert_update_delete": false,
+      "anonymous_select_insert_update_delete": false
+    }
+  },
+  "private_current": {
+    "live_own_saved_household_income": "PASS",
+    "live_null_and_restore": "PASS",
+    "anonymous_read": "DENY",
+    "sql_transaction_fixture_owner_read": "ALLOW",
+    "sql_transaction_fixture_other_owner_read": "DENY",
+    "fixture_cleanup": "ROLLBACK"
+  },
+  "advisors": "No new Socio RPC/field security finding; existing PostGIS and Auth advisories outside scope"
+}

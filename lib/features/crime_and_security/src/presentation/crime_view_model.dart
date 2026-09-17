@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:locatemy/features/map_location/src/domain/location_models.dart';
+
 import '../domain/safety_models.dart';
 
 sealed class CrimeUiState {
@@ -27,12 +28,11 @@ final class CrimeViewModel extends ChangeNotifier {
   CrimeUiState _state = const CrimeLoading();
   CrimeUiState get state => _state;
 
-  CrimeViewModel({
-    required this.service,
-    required this.initialLocation,
-  });
+  CrimeViewModel({required this.service, required this.initialLocation});
 
-  Future<void> load({SafetyLoadPolicy policy = SafetyLoadPolicy.cacheAllowed}) async {
+  Future<void> load({
+    SafetyLoadPolicy policy = SafetyLoadPolicy.cacheAllowed,
+  }) async {
     _state = const CrimeLoading();
     notifyListeners();
 

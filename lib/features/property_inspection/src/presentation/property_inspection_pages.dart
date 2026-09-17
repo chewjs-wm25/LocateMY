@@ -546,7 +546,7 @@ final class _PropertyInspectionFormPageState
               contentPadding: EdgeInsets.zero,
               title: Text(isZh ? '水灾迹象' : 'Flood warning signs'),
               value: _floodRisk,
-              activeColor: _propertyBlue,
+              activeThumbColor: _propertyBlue,
               onChanged: (bool value) => setState(() => _floodRisk = value),
             ),
             const SizedBox(height: 8),
