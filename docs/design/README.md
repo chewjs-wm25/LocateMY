@@ -25,7 +25,7 @@ AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前
 | Hazard | A | [隐患](features/hazard-reporting.md)，已有实现重构 |
 | Socio | B | [社会经济](features/socio-economic.md)，Implemented；Luna High 审查通过，完整预算联动 Wave 6 |
 | Infrastructure | B | [基础设施](features/infrastructure-coverage.md)，Implemented；Luna High 规格/规范复审通过，首页完整摘要消费待接入 Wave 6 |
-| Property | B | [房产](features/property-inspection.md)，Draft，尚未实现 |
+| Property | B | [房产](features/property-inspection.md)，Implemented；Luna High 最终审查通过，真实风险／照片／地图／账户联验通过 |
 | Account | A | [账户](features/account-center.md)，最小页已接线，完整入口后续 |
 
 [Account Privacy](modules/account-privacy.md) 已取消；[Personalized Location Suitability](features/personalized-location-suitability.md) 已排除。

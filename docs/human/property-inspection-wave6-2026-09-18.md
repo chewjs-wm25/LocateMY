@@ -1,6 +1,6 @@
 # Property Inspection Wave 6
 
-当前状态：生产实现及必要边界测试已完成，最终设备必要证据已完成，等待 Luna High 最终审查；未授予 Implemented 或 Integrated。
+当前状态：Implemented；GPT‑5.6 Luna High 规格与规范最终 gate 均通过。Integrated 未批准。
 
 最高公开验收 seam：PropertyInspectionService 与应用页面。Supabase、Storage、相机/系统相册为系统边界。Issue #25 Q2 与本次自主决策授权固定测试范围。Penpot MCP 已读取并 export 档案屏；五屏使用 #F6F8FB 底色、白圆角卡、蓝主按钮与左侧照片封面，当前契约取消历史草稿/待同步/风险刷新行为。
 
@@ -21,7 +21,11 @@
 
 Storage下载CDN短时可返回先前缓存；永久删除以Storage list为空及真实storage.objects缺失作为实际删除证据，不能据短时缓存误报云对象仍存在。
 
-1. 模块实现：既定实现及验收证据完成，Implemented候选。最终等待Luna High审查。
+1. 模块实现：Implemented；既定生产行为、验收证据及独立两轴审查通过。
 2. 本期集成：当前Wave6真实Map/Account/Crime/风险调用已接线；真实设备联合路径证据见本次evidence。
 3. 后续集成：本模块当前无未来槽位；Integrated由项目负责人批准。
-4. 当前阻塞：Luna最终gate待授予，无实现或既定证据缺口。最终设备编辑保存成功notice即时中英切换已通过。原生读屏树来自UiAutomation可访问性服务，与中英320dp200%截图一并交付；未启用TalkBack音频。
+4. 当前阻塞：无；Luna High 最终 gate 已通过，无实现或既定证据缺口。最终设备编辑保存成功notice即时中英切换已通过。原生读屏树来自UiAutomation可访问性服务，与中英320dp200%截图一并交付；未启用TalkBack音频。
+
+## 最终独立审查
+
+最终生产代码 `633f505`；证据提交 `c5f4e32` 与清理提交 `9c055cc`。GPT‑5.6 Luna High Standards/Spec 均确认可授予 Implemented；缺失 Storage 文件幂等清空、成功提示随当前语言呈现及全部既定设备证据均已解除阻塞。本期真实联合通过，本模块后续槽位无，Integrated 由项目负责人批准。本任务 QA 记录、照片、相册临时文件和测试代理已清理，工作区干净。

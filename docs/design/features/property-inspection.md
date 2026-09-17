@@ -1,6 +1,6 @@
 # Property Inspection 开发契约
 
-> Owner B；Wave 6；实现及既定验收完成，等待审查 — Issue #31 精简设计；真实照片/权限/生命周期/比较证据已取得，最终离线原页重试、保存notice即时语言切换已完成，Luna gate 待授予。
+> Owner B；Wave 6；Implemented — GPT‑5.6 Luna High 规格与规范最终审查通过（2026-09-18，生产代码 `633f505`，最终证据 `9c055cc`）；Integrated 未批准。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。
@@ -14,9 +14,9 @@
 新增和编辑只在线保存 Supabase；成功后档案／详情读取云端真实记录，不用启动示例或 mock。
 当前页输入在地图返回式选点期间保留：Navigator.push 返回合法地点，再填入仍存活的表单。
 不保存跨重启草稿、草稿照片或后台同步队列。保存失败保留当前页输入与普通重试反馈。
-唯一未来入口 `lib/features/property_inspection/property_inspection.dart`；页面明确实勘 id／坐标参数，
+唯一公开入口 `lib/features/property_inspection/property_inspection.dart`；页面明确实勘 id／坐标参数，
 具名服务消费 Geo、州级安全业务与 HazardRiskCounter，不依赖 Shell／AccountScope／Privacy。
-开发前固定可编译服务声明与照片平台依赖；本次不声明 Ready 或已实现。
+实际公开声明、照片平台依赖与验收分配已固定；实现及证据见本次验收报告。
 
 ## 风险快照请求时机
 
@@ -67,7 +67,7 @@ Issue #25 Q2 已确认最高公开入口；本任务授权自主决策。测试�
 | 软删保留照片、恢复、取消清空无副作用、永久清空真实／部分失败 | B；页面及真实 Storage 业务删除 | Wave 6 |
 | 本人 2–3 项比较与账户中心档案入口 | B 主责、A 接线联合验证 | Wave 6 |
 
-以上是后续 Feature 验收；当前数据库对象存在不证明 Flutter 已交付。
+以上场景的本期实现与联合验收证据见本次报告；状态以独立审查结论为准。
 ## 生命周期与验收责任
 
 页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
@@ -78,3 +78,7 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
 本次重构的统一证据见 [Issue #31 执行检查](../system/issue-31-validation.md)；
 设备、真实外部服务证据缺失时不得宣称新版本 `Implemented` 或 `Integrated`。
+
+## 最终独立审查
+
+GPT‑5.6 Luna High Standards 与 Spec 两轴最终 gate 均通过。本模块为 Implemented，当前阻塞无；真实 Map 返回、Account/Crime 入口和 Geo/Crime/Hazard 风险联合路径通过。本模块无后续业务槽位，Integrated 仍由负责人单独批准。详见[本次报告](../../human/property-inspection-wave6-2026-09-18.md)。
