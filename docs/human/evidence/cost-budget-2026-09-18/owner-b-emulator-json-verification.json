@@ -1,0 +1,14 @@
+{
+  "base_head": "32be4bac5c6d68d0e86428c57c58bed3a7e2b89e",
+  "source_sha256": "d6f2a4862154e3922655a9b123b70de1745a4c57aa1422e849058ecac3e2dd13",
+  "apk_sha256": "1ba899f20c1a4754879e6fe628ce66ff044647c252663fffdd48705cb61a35ac",
+  "secret_scan": "PASS",
+  "actual_json_file_paths": [
+    "app_flutter/budget_exports/683cbecc-7577-49a2-8431-f8dd656f7c92-1789665993562382-1.json"
+  ],
+  "export_visible_feedback_open": "PASS",
+  "restart_public_list": "PASS",
+  "logout_file_retention": "PASS",
+  "relogin_same_copy_open": "PASS",
+  "account_shared_current": "PASS"
+}

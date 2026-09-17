@@ -112,7 +112,7 @@ CPI 只接受 Headline/Overall 的最新共同月份，真实镜像缺全国 hea
 | C03 A/B同篮子/日期/current与不可比、过期响应 | 本模块 | 真实Geo/RPC；服务/页面 | B / Wave 5 | 已验证 | 不适用 |
 | C04 同月CPI临时换算、不写预算/离页丢失 | 本模块 | 真实RPC；成功fixture与缺失live | B / Wave 5 | 已验证 | 不适用 |
 | B01 在线CRUD/current原子唯一、失败保留、删除不自动选 | 本模块 | Supabase开发环境allow/deny与恢复 | B / Wave 5 | 已验证 | 不适用 |
-| B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 待验证 | 待验证 |
+| B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 已验证 | 本期writer/reader、Account current设备及Socio live已验证；完整Wave 6仍按分配 |
 | J01 只导出已保存、真实UTF8/唯一文件、列表/打开/null/zero | 本模块 | path_provider/临时真文件与页面 | B / Wave 5 | 已验证 | 不适用 |
 | J02 损坏/缺键/无效日期金额/version/缺文件、无云写 | 本模块 | 真实临时目录/页面、重启退出保留 | B / Wave 5 | 已验证 | 不适用 |
 | U01 中英文小屏200%/读屏、离线权限恢复、dispose晚响应 | 本模块 | emulator-5554/页面测试 | B / Wave 5 | 已验证 | 不适用 |
