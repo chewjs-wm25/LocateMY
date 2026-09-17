@@ -86,9 +86,23 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
           s.title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           softWrap: true,
+          maxLines: 3,
         ),
         actions: <Widget>[
-          if (widget.locationB == null && widget.onShowMap != null)
+          if (widget.locationB == null &&
+              widget.onShowMap != null &&
+              MediaQuery.textScalerOf(context).scale(20) > 28)
+            IconButton(
+              tooltip: s.text('Main map', '主地图'),
+              onPressed: () {
+                widget.onShowMap!(widget.location);
+              },
+              icon: const Icon(Icons.map_outlined),
+              color: const Color(0xFF155EEF),
+            ),
+          if (widget.locationB == null &&
+              widget.onShowMap != null &&
+              MediaQuery.textScalerOf(context).scale(20) <= 28)
             Tooltip(
               message: s.text('Main map', '主地图'),
               child: TextButton(

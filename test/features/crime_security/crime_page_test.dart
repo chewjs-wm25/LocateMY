@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/rendering.dart';
 import 'package:locatemy/features/crime_security/crime_security.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
@@ -171,6 +172,14 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        final String title = language == 'zh' ? '治安与犯罪' : 'Crime and security';
+        final RenderParagraph titleParagraph = tester
+            .renderObject<RenderParagraph>(find.text(title));
+        expect(
+          titleParagraph.didExceedMaxLines,
+          false,
+          reason: 'Page title remains readable at 200 percent',
+        );
         final String retry = language == 'zh' ? '重试 / 刷新' : 'Retry / refresh';
         await tester.scrollUntilVisible(find.text(retry), 200);
         await tester.pumpAndSettle();
