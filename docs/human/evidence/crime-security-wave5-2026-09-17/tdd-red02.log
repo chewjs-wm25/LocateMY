@@ -1,0 +1,11 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart
+00:00 +0: state safety uses 60:40 category percentiles across actual states
+00:00 +1: one category normalizes its weight and marks partial without inventing total
+00:00 +1 -1: one category normalizes its weight and marks partial without inventing total [E]
+  Null check operator used on a null value
+  package:locatemy/features/crime_security/src/application/crime_security_service.dart 34:52  CrimeSecurityService.analyse
+  
+00:00 +1 -1: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart: one category normalizes its weight and marks partial without inventing total

@@ -1,0 +1,471 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime single route preserves inputs and map-return callback
+00:00 +0 ~1: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime single route preserves inputs and map-return callback
+00:00 +0 ~2: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime single route preserves inputs and map-return callback
+00:01 +0 ~3: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime single route preserves inputs and map-return callback
+00:01 +0 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime single route preserves inputs and map-return callback
+00:01 +1 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime single route preserves inputs and map-return callback
+00:01 +2 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_lifecycle_test.dart: account change and logout close crime pages and ignore late analysis responses
+00:02 +3 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_lifecycle_test.dart: account change and logout close crime pages and ignore late analysis responses
+00:02 +4 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_lifecycle_test.dart: account change and logout close crime pages and ignore late analysis responses
+00:02 +5 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_lifecycle_test.dart: account change and logout close crime pages and ignore late analysis responses
+00:02 +6 ~4: /home/AC79/Desktop/LocateMY/test/app/crime_lifecycle_test.dart: account change and logout close crime pages and ignore late analysis responses
+00:02 +6 ~5: /home/AC79/Desktop/LocateMY/test/app/crime_lifecycle_test.dart: account change and logout close crime pages and ignore late analysis responses
+00:02 +7 ~5: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime A/B route preserves inputs and map-return callback
+00:02 +8 ~5: /home/AC79/Desktop/LocateMY/test/app/crime_routes_test.dart: ordinary crime A/B route preserves inputs and map-return callback
+00:02 +9 ~5: /home/AC79/Desktop/LocateMY/test/widget_test.dart: registration validates confirmation and signs in immediately
+00:02 +10 ~5: /home/AC79/Desktop/LocateMY/test/widget_test.dart: signed in identity, confirmation and confirmed local sign out
+00:02 +10 ~6: /home/AC79/Desktop/LocateMY/test/widget_test.dart: signed in identity, confirmation and confirmed local sign out
+00:02 +10 ~7: /home/AC79/Desktop/LocateMY/test/widget_test.dart: signed in identity, confirmation and confirmed local sign out
+00:03 +10 ~8: /home/AC79/Desktop/LocateMY/test/widget_test.dart: signed in identity, confirmation and confirmed local sign out
+00:03 +11 ~8: /home/AC79/Desktop/LocateMY/test/widget_test.dart: small screen and large text remain scrollable without overflow
+00:03 +11 ~9: /home/AC79/Desktop/LocateMY/test/widget_test.dart: small screen and large text remain scrollable without overflow
+00:03 +12 ~9: /home/AC79/Desktop/LocateMY/test/widget_test.dart: screen reader labels are associated with editable fields
+00:03 +12 ~10: /home/AC79/Desktop/LocateMY/test/widget_test.dart: screen reader labels are associated with editable fields
+00:03 +13 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: older outside result cannot replace a newer valid selection outcome
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-2"}
+00:03 +14 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: failed online save is never replayed when connectivity returns
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"map.save.completed","feature":"map_location","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.load_saved.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"map.load_saved.completed","feature":"map_location","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"map-7"}
+00:03 +15 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: saved name length follows SQL Unicode characters
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.save.completed","feature":"map_location","result":"invalidName","duration_bucket":"under100ms","correlation_id":"map-10"}
+00:03 +16 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: validated selection updates only the requested role
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-11"}
+00:03 +17 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: invalid coordinates preserve the previous validated point
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-12"}
+{"event":"map.select.completed","feature":"map_location","result":"invalidCoordinate","duration_bucket":"under100ms","correlation_id":"map-13"}
+00:03 +18 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: comparison rejects identical points and swaps immutable references only
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-14"}
+{"event":"map.select.completed","feature":"map_location","result":"sameComparisonPoint","duration_bucket":"under100ms","correlation_id":"map-15"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-16"}
+{"event":"map.swap.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-17"}
+00:03 +19 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary http becomes typed unavailable and recovers
+00:03 +19 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: offline delete keeps item and remote tombstone prevents resurrection
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-18"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-19"}
+{"event":"map.delete.completed","feature":"map_location","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"map-20"}
+{"event":"map.delete.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-21"}
+{"event":"map.load_saved.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-22"}
+00:03 +20 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary http becomes typed unavailable and recovers
+00:03 +20 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: concurrent saves retain both records through the public saved snapshot
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-23"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-24"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-25"}
+{"event":"map.load_saved.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-26"}
+00:03 +21 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary http becomes typed unavailable and recovers
+00:03 +21 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: an issued immutable reference stays saveable after another point is selected
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-27"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-28"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-29"}
+00:03 +22 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary http becomes typed unavailable and recovers
+00:03 +23 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary timeout becomes typed unavailable and recovers
+00:03 +24 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary metadata becomes typed unavailable and recovers
+00:03 +25 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary emptyVersion becomes typed unavailable and recovers
+00:03 +26 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: Geoapify HTTP and malformed responses recover on retry
+00:03 +27 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: Geoapify requests Malaysia candidates and preserves coordinates
+00:03 +28 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: boundary outage returns typed failures without mutating roles
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-2"}
+{"event":"map.layer.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-3"}
+00:03 +29 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: visible/hidden contributions and long press preserve selection roles
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.longpress.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"map.longpress.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-7"}
+00:04 +30 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/remote_adapter_test.dart: remote permission 42501 is not a retryable network failure
+00:04 +31 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/remote_adapter_test.dart: remote permission PGRST301 is not a retryable network failure
+00:04 +32 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:04 +33 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+00:04 +34 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +35 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +36 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +37 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +38 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +39 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +40 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +41 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +42 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +43 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +44 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +45 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +46 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +47 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +48 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+{"event":"map.load_saved.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-2"}
+00:05 +48 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: each category has its own symbol and mixed clusters retain category icons
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-1"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-2"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+00:05 +49 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: private save dialog disappears with account Navigator
+00:05 +50 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: each category has its own symbol and mixed clusters retain category icons
+00:05 +51 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: each category has its own symbol and mixed clusters retain category icons
+00:05 +52 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: each category has its own symbol and mixed clusters retain category icons
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+00:05 +52 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-3"}
+00:05 +53 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: each category has its own symbol and mixed clusters retain category icons
+00:06 +54 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: each category has its own symbol and mixed clusters retain category icons
+00:06 +55 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/public_transportation_page_test.dart: known no stops renders unscored facts and a centre circle
+00:06 +56 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+00:06 +56 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: late dense facility layer stays readable and retains every point
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+00:06 +57 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+00:06 +58 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+00:06 +59 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+00:06 +60 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+00:06 +61 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+00:06 +62 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-5"}
+00:06 +63 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: late selected-point rejection cannot overwrite current feedback
+00:06 +63 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/public_transportation_page_test.dart: real local Map host receives all stations and is cleared after scope closes without changing the global selection
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+00:06 +63 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: providers remain distinct, offscreen points are culled and original intents are routed
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-8"}
+00:06 +64 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:06 +65 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:06 +65 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:06 +66 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:06 +67 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:06 +67 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/public_transportation_page_test.dart: real local Map host receives all stations and is cleared after scope closes without changing the global selection
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-2"}
+00:07 +68 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +69 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +69 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_marker_density_test.dart: providers remain distinct, offscreen points are culled and original intents are routed
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-10"}
+00:07 +70 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +71 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +71 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/public_transportation_page_test.dart: real local Map host receives all stations and is cleared after scope closes without changing the global selection
+{"event":"map.layer.completed","feature":"map_location","result":"hidden","duration_bucket":"under100ms","correlation_id":"map-3"}
+00:07 +72 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +73 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +74 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +74 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid saved name keeps dialog open and focuses name
+{"event":"map.load_saved.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-7"}
+00:07 +75 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +76 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +77 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +78 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +79 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +80 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +80 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: page uses injected layer host and exposes localized map alternative
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-8"}
+00:07 +81 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:07 +81 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: map has no default analysis and supports accessible coordinate selection
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-9"}
+00:08 +82 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:08 +82 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: map has no default analysis and supports accessible coordinate selection
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-10"}
+00:08 +83 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:08 +84 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:08 +85 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:08 +85 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: no imported observations and no cache give a typed unavailable result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"noCachedResult","duration_bucket":"under1s","correlation_id":"home-1"}
+00:08 +86 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:08 +86 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: comparison requires explicit A/B and search empty is readable
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-11"}
+00:08 +86 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: income alone remains available without inventing macro scores
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-2"}
+00:08 +87 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +88 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +88 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: cost pressure ranks 36 falling monthly observations and retains source date
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under1s","correlation_id":"home-3"}
+00:09 +89 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +89 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: employment uses unemployment, annual growth and participation with their design weights
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-4"}
+00:09 +90 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +90 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: economic momentum uses diffusion directly and GDP growth rather than absolute GDP
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-5"}
+00:09 +91 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +92 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +92 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in en
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-12"}
+00:09 +92 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: complete timing combines three scores, ranks reasons and retains quarterly sources
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-6"}
+00:09 +93 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +93 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: a changed CPI schema disables cost and timing while preserving other cards
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-7"}
+00:09 +94 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +94 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: successful refresh cools for exactly 60 seconds with ceiling remaining seconds
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-8"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cooldown","duration_bucket":"under100ms","correlation_id":"home-9"}
+00:09 +95 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +95 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: successful refresh cools for exactly 60 seconds with ceiling remaining seconds
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-10"}
+00:09 +96 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +96 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in en
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-13"}
+00:09 +96 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: persisted public snapshot survives service restart and offline expiry without restoring cooldown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-11"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"stale","duration_bucket":"under100ms","correlation_id":"home-12"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-13"}
+00:09 +97 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +97 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: simultaneous refreshes share one external read and both receive the result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-14"}
+00:09 +98 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:09 +98 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: older online source dates do not replace a newer public snapshot
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-15"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-16"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-17"}
+00:10 +99 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +99 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: unverifiable observations are classified and a corrected refresh is immediately retryable
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-18"}
+00:10 +100 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +100 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: unverifiable observations are classified and a corrected refresh is immediately retryable
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-19"}
+00:10 +101 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +102 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +102 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in zh
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-14"}
+00:10 +102 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: CPI category weight at 60 percent is usable while 55 percent remains unknown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-20"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-21"}
+00:10 +103 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +103 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: insufficient monthly history cannot be replaced by zeros and income does not affect timing
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-22"}
+00:10 +104 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +104 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: no cache maps 503 external failure into a typed public outcome
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"home-23"}
+00:10 +105 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +105 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: no cache maps schema external failure into a typed public outcome
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"sourceSchemaChanged","duration_bucket":"under100ms","correlation_id":"home-24"}
+00:10 +106 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +106 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: small screen with 200 percent text remains usable in zh
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-15"}
+00:10 +106 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: late response from an older provider cannot overwrite a newer durable public cache
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-25"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-26"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-27"}
+00:10 +107 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +107 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: current economy uses each dataset latest date when GDP is newer than monthly indicators
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-28"}
+00:10 +108 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +108 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: corrupted cached scores are rejected instead of displayed as verified statistics
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-29"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"home-30"}
+00:10 +109 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +110 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +111 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +112 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:10 +112 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-1"}
+00:10 +112 ~10: /home/AC79/Desktop/LocateMY/test/features/map_location/map_page_test.dart: invalid coordinate keeps dialog open and focuses the invalid field
+{"event":"map.load_saved.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under1s","correlation_id":"map-16"}
+00:10 +112 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: temporary SQLite initialization failure can recover and persist a later public result
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under1s","correlation_id":"home-36"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-37"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under100ms","correlation_id":"home-38"}
+00:10 +113 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +113 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: monthly percentile falls back to older valid history when the five-year window is short
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-39"}
+00:11 +114 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +114 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: quarterly percentile falls back to older valid history when the five-year window is short
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-40"}
+00:11 +115 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +115 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: invalid supplemental GDP schema is partial and cannot start refresh cooldown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-41"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-42"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cooldown","duration_bucket":"under100ms","correlation_id":"home-43"}
+00:11 +116 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +117 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +117 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: invalid supplemental GDP data is partial and cannot start refresh cooldown
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"partial","duration_bucket":"under100ms","correlation_id":"home-44"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-45"}
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cooldown","duration_bucket":"under100ms","correlation_id":"home-46"}
+00:11 +118 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +119 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +119 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: available cards with an unknown observation date in corrupted SQLite are rejected
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-47"}
+00:11 +120 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +120 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_load_test.dart: available cards with an unknown observation date in corrupted SQLite are rejected
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"home-48"}
+00:11 +121 ~10: /home/AC79/Desktop/LocateMY/test/features/public_transportation/transit_accessibility_test.dart: en at 200% preserves all 35 markers, 30 nearest rows and textual selection
+00:11 +122 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:11 +123 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:11 +124 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +125 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +126 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +127 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +128 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +128 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: complete OSM response creates ordered coverage and excludes points beyond 2km
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-1"}
+00:12 +129 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +129 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: refresh failure falls back only to a valid complete cache
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-2"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-3"}
+00:12 +130 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +130 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: partial response without cache is unavailable rather than empty
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"incompleteResponse","duration_bucket":"under100ms","correlation_id":"facility-4"}
+00:12 +131 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +131 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: a cached coordinate binds to the caller location without inheriting its previous name
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-5"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-6"}
+00:12 +132 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +132 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: counts include all unique facilities while nearest is limited to three
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-7"}
+00:12 +133 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +134 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +134 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: complete public cache survives recreation and expires exactly at 24 hours
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-8"}
+00:12 +135 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +135 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: complete public cache survives recreation and expires exactly at 24 hours
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-9"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under100ms","correlation_id":"facility-10"}
+00:12 +136 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +136 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: legacy cache without provenance is invalidated instead of presented as current
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under100ms","correlation_id":"facility-11"}
+00:12 +137 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +137 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: a future-dated observation is not a valid fallback cache
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-12"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under100ms","correlation_id":"facility-13"}
+00:12 +138 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:12 +138 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: late older refresh cannot overwrite the latest observation in the cache
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-14"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-15"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-16"}
+00:13 +139 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +139 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: OSM identity deduplication and overlapping tags obey product category priority
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-17"}
+00:13 +140 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +140 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: circle filtering excludes bounding-box corners and retains near-radius facilities
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-18"}
+00:13 +141 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +141 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: comparison preserves A/B order and reports a missing B without replacing its result
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-19"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"incompleteResponse","duration_bucket":"under100ms","correlation_id":"facility-20"}
+{"event":"facility.compare.completed","feature":"nearby_facilities","result":"locationBUnavailable","duration_bucket":"under100ms","correlation_id":"facility-21"}
+{"event":"facility.compare.completed","feature":"nearby_facilities","result":"sameComparisonPoint","duration_bucket":"under100ms","correlation_id":"facility-22"}
+00:13 +142 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +143 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +144 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +145 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:13 +146 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under10s","correlation_id":"home-2"}
+00:13 +147 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:14 +148 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: production homepage exposes real six-observation trends and their approximation basis
+00:14 +149 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:14 +150 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:14 +151 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:14 +152 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:14 +152 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: fresh and cached complete layers retain all five facility categories
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-1"}
+00:14 +152 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under100ms","correlation_id":"home-3"}
+00:14 +152 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: fresh and cached complete layers retain all five facility categories
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-2"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-3"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-2"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-4"}
+00:14 +153 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:14 +154 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +154 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: a selected Map location publishes facilities for its current viewport
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+00:14 +154 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: changing the public location reloads and ignores a late old response
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-1"}
+00:14 +155 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +156 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +157 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +157 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: changing the public location reloads and ignores a late old response
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under1s","correlation_id":"facility-2"}
+00:14 +158 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +159 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +160 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +161 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +162 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +162 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: a selected Map location publishes facilities for its current viewport
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-5"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-6"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.layer.completed","feature":"map_location","result":"hidden","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-7"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-8"}
+00:14 +163 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:14 +163 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: unknown categories refuse layer publication with an analysis completeness reason
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"analysisIncomplete","duration_bucket":"under100ms","correlation_id":"facility-9"}
+00:14 +164 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +165 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +166 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +167 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +168 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +169 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +170 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +171 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +172 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +173 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +174 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+00:15 +175 ~10: /home/AC79/Desktop/LocateMY/test/features/home_relocation_outlook/home_trend_page_test.dart: economic trend endpoint retains the newer GDP observation and current score
+{"event":"home.load.completed","feature":"home_relocation_outlook","result":"cached","duration_bucket":"under10s","correlation_id":"home-4"}
+00:15 +176 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_layer_test.dart: all five hazard types reach the map with category metadata
+00:15 +177 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_layer_test.dart: all five hazard types reach the map with category metadata
+00:15 +178 ~10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: unknown categories suppress definitive coverage and total at 360dp with 200 percent text
+00:16 +179 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_layer_test.dart: an expired cursor retries from a fresh first page
+00:16 +180 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +181 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +182 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +183 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +184 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +185 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +186 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +187 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +188 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +189 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +190 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +191 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +192 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +193 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +194 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +195 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +196 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +197 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +198 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +199 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +200 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +201 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +202 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +203 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +204 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +205 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +206 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +207 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +208 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +209 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +210 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +211 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +212 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +213 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +214 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +215 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +216 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +217 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +218 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +219 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +220 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +221 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +222 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:16 +223 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:17 +224 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:17 +225 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: successful vote remains authoritative when detail refresh fails
+00:17 +226 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +227 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:17 +228 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +229 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:18 +230 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:19 +231 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: switching translates existing validation and preserves input
+00:19 +232 ~10: /home/AC79/Desktop/LocateMY/test/features/hazard_reporting/hazard_pages_test.dart: 360dp and 200 percent text support all hazard pages in zh
+00:19 +233 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: English registration feedback and confirmation are translated
+00:19 +234 ~10: /home/AC79/Desktop/LocateMY/test/language_support_test.dart: English registration fits small screen with 200 percent text
+00:19 +235 ~10: All tests passed!

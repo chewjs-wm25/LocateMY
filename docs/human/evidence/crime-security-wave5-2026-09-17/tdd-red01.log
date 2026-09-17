@@ -1,0 +1,50 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart
+test/features/crime_security/crime_security_test.dart:4:8: Error: Error when reading 'lib/features/crime_security/crime_security.dart': No such file or directory
+import 'package:locatemy/features/crime_security/crime_security.dart';
+       ^
+test/features/crime_security/crime_security_test.dart:26:38: Error: Type 'SafetyInputsReader' not found.
+final class ReaderFixture implements SafetyInputsReader {
+                                     ^^^^^^^^^^^^^^^^^^
+test/features/crime_security/crime_security_test.dart:15:4: Error: Not a constant expression.
+  @override
+   ^^^^^^^^
+test/features/crime_security/crime_security_test.dart:43:8: Error: 'CrimeSecurity' isn't a type.
+  late CrimeSecurity crime;
+       ^^^^^^^^^^^^^
+test/features/crime_security/crime_security_test.dart:47:11: Error: Method not found: 'createCrimeSecurity'.
+    crime=createCrimeSecurity(geographicContext:geo,reader:reader,database:db,clock:(){return DateTime.utc(2026,9,17);});
+          ^^^^^^^^^^^^^^^^^^^
+test/features/crime_security/crime_security_test.dart:51:11: Error: 'SafetyAnalysis' isn't a type.
+    final SafetyAnalysis result=await crime.analyse(sunway);
+          ^^^^^^^^^^^^^^
+test/features/crime_security/crime_security_test.dart:55:32: Error: Undefined name 'SafetyAvailability'.
+    expect(result.availability,SafetyAvailability.complete);
+                               ^^^^^^^^^^^^^^^^^^
+00:00 +0 -1: loading /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart [E]
+  Failed to load "/home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart":
+  Compilation failed for testPath=/home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart: test/features/crime_security/crime_security_test.dart:4:8: Error: Error when reading 'lib/features/crime_security/crime_security.dart': No such file or directory
+  import 'package:locatemy/features/crime_security/crime_security.dart';
+         ^
+  test/features/crime_security/crime_security_test.dart:26:38: Error: Type 'SafetyInputsReader' not found.
+  final class ReaderFixture implements SafetyInputsReader {
+                                       ^^^^^^^^^^^^^^^^^^
+  test/features/crime_security/crime_security_test.dart:15:4: Error: Not a constant expression.
+    @override
+     ^^^^^^^^
+  test/features/crime_security/crime_security_test.dart:43:8: Error: 'CrimeSecurity' isn't a type.
+    late CrimeSecurity crime;
+         ^^^^^^^^^^^^^
+  test/features/crime_security/crime_security_test.dart:47:11: Error: Method not found: 'createCrimeSecurity'.
+      crime=createCrimeSecurity(geographicContext:geo,reader:reader,database:db,clock:(){return DateTime.utc(2026,9,17);});
+            ^^^^^^^^^^^^^^^^^^^
+  test/features/crime_security/crime_security_test.dart:51:11: Error: 'SafetyAnalysis' isn't a type.
+      final SafetyAnalysis result=await crime.analyse(sunway);
+            ^^^^^^^^^^^^^^
+  test/features/crime_security/crime_security_test.dart:55:32: Error: Undefined name 'SafetyAvailability'.
+      expect(result.availability,SafetyAvailability.complete);
+                                 ^^^^^^^^^^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart: loading /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart
