@@ -5,7 +5,7 @@
 当前设计取代冲突的历史框架；历史批准与实现证据仅描述原版本，不能自动证明修改后的完成状态。
 产品术语／公式以 CONTEXT 与知识库为准，字段／RLS／migration 以 Schema Catalog 为准。
 
-本轮分析页面精简按 [知识库 UI 边界](../knowledge_base/locatemy_product/ui_design_spec.md#分析页面精简边界2026-09-17) 执行；它覆盖冲突的技术元数据展示要求，不更改既有分析算法／缓存。代码尚待后续任务实施。
+本轮分析页面精简按 [知识库 UI 边界](../knowledge_base/locatemy_product/ui_design_spec.md#分析页面精简边界2026-09-17) 执行；它覆盖冲突的技术元数据展示要求，不更改既有分析算法／缓存。既有分析页面尚待后续任务实施；治安 Wave 5 已按此边界实现。
 
 先读 [开发标准](development-standard.md)（手写 Dart 遵循第 7 节）、[系统入口](system/README.md)，
 再读 owning 契约。仅在实际跨 Owner 业务需要时固定公开 declarations，不保留空层或框架包装。
@@ -19,7 +19,7 @@ AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前
 | Home | A | [首页](features/home-and-relocation-outlook.md)，已有实现 |
 | Map | A | [地图／收藏](features/map-and-location.md)，已有实现重构 |
 | Cost／Budget | B | [生活成本／预算／JSON](features/cost-of-living-and-budget.md)，Draft，尚未实现 |
-| Crime | B | [治安](features/crime-and-security.md)，Wave 5 实现与验收 |
+| Crime | B | [治安](features/crime-and-security.md)，Implemented；Wave 5 本期验收通过，房产消费 Wave 6 |
 | Facilities | A | [周边设施](features/nearby-facilities.md)，已有实现重构 |
 | Transit | A | [公共交通](features/public-transportation.md)，已有实现重构 |
 | Hazard | A | [隐患](features/hazard-reporting.md)，已有实现重构 |

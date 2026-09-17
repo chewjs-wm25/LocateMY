@@ -1,7 +1,7 @@
 # Crime & Security 开发契约
 
 > Owner：B；依赖顺序参考 Wave 5；2026-09-17 Issue #31 修订。
-> 状态：实现完成，Wave 5 验收与审查进行中；未宣告 Integrated。
+> 状态：Implemented；Wave 5 本期责任验收通过；Integrated 尚待项目负责人批准。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。
@@ -59,17 +59,17 @@ A/B 同一次输入快照和模型/边界版本且双方 complete 才提供 B-A 
 
 | 场景 / 结果 | 验证归属 | 依赖 | 证据 | Owner | 最迟 Wave | 本模块状态 | 联合状态 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| CS01 州聚合/排名/60:40/平分/零值/territory 映射 | 本模块 | 测试外部输入，真实 Geo | public service 测试+live | B | 5 | 待验证 | 不适用 |
-| CS02 缺失/部分/空/无来源/完整年度/5年缺口 | 本模块 | 外部输入/来源 | service+页面 | B | 5 | 待验证 | 不适用 |
-| CS03 动态 type/类别筛选不改变分数 | 本模块 | 真实分析/页面 | widget+设备 | B | 5 | 待验证 | 不适用 |
-| CS04 Geo resolved/unresolved/ambiguous/来源不可用 | 两者 | 本期真实 Geo；fake 只作边界案例 | service+真实坐标解析 | B 主责 A 配合 | 5 | 待验证 | 待验证 |
-| CS05 3天 SQLite/损坏/过期/离线/重试/并发 | 本模块 | 本期真实 SQLite、只读 Adapter | service+Adapter | B | 5 | 待验证 | 不适用 |
-| CS06 A/B 同口径/部分侧/不可比/交换 | 两者 | 本期地图 A/B、真实 service | widget+live+设备 | B 主责 A 配合 | 5 | 待验证 | 待验证 |
-| CS07 普通返回/主地图选中当前分析点 | 两者 | 本期真实地图+普通路由 | 页面入口/设备 | B 主责 A 配合 | 5 | 待验证 | 待验证 |
-| CS08 登录业务树/退出换号/dispose晚到忽略 | 两者 | 本期真实 App/Auth | lifecycle widget+设备 | B 主责 A 配合 | 5 | 待验证 | 待验证 |
-| CS09 RPC来源校验/映射/错误恢复/allow-deny | 本模块 | 本期真实 Supabase | HTTP确定性+真实authenticated/anon/写deny | B | 5 | 待验证 | 不适用 |
-| CS10 中英文/精简UI/读屏/小屏200%字体/Penpot | 本模块 | 本期页面 | widget+Owner A Android及Owner B模拟器 | B | 5 | 待验证 | 不适用 |
-| CS11 房产公开风险读数/入口参数 | 两者 | 测试消费公开结果，后续真实房产 | 本期service与槽位；Wave6真实快照流程 | B | 6 | 待验证 | 待接入 |
+| CS01 州聚合/排名/60:40/平分/零值/territory 映射 | 本模块 | 测试外部输入，真实 Geo | public service 测试+live | B | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 不适用 |
+| CS02 缺失/部分/空/无来源/完整年度/5年缺口 | 本模块 | 外部输入/来源 | service+页面 | B | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 不适用 |
+| CS03 动态 type/类别筛选不改变分数 | 本模块 | 真实分析/页面 | widget+设备 | B | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 不适用 |
+| CS04 Geo resolved/unresolved/ambiguous/来源不可用 | 两者 | 本期真实 Geo；fake 只作边界案例 | service+真实坐标解析 | B 主责 A 配合 | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) |
+| CS05 3天 SQLite/损坏/过期/离线/重试/并发 | 本模块 | 本期真实 SQLite、只读 Adapter | service+Adapter | B | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 不适用 |
+| CS06 A/B 同口径/部分侧/不可比/交换 | 两者 | 本期地图 A/B、真实 service | widget+live+设备 | B 主责 A 配合 | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) |
+| CS07 普通返回/主地图选中当前分析点 | 两者 | 本期真实地图+普通路由 | 页面入口/设备 | B 主责 A 配合 | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) |
+| CS08 登录业务树/退出换号/dispose晚到忽略 | 两者 | 本期真实 App/Auth | lifecycle widget+设备 | B 主责 A 配合 | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) |
+| CS09 RPC来源校验/映射/错误恢复/allow-deny | 本模块 | 本期真实 Supabase | HTTP确定性+真实authenticated/anon/写deny | B | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 不适用 |
+| CS10 中英文/精简UI/读屏/小屏200%字体/Penpot | 本模块 | 本期页面 | widget+Owner A Android及Owner B模拟器 | B | 5 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 不适用 |
+| CS11 房产公开风险读数/入口参数 | 两者 | 测试消费公开结果，后续真实房产 | 本期service与槽位；Wave6真实快照流程 | B | 6 | 已通过 [报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md) | 待接入 |
 
 Ready Gate：实际声明按上述边界实施；真实只读 RPC 在当前任务建立并验证，所有场景责任已分配。
 
@@ -80,3 +80,5 @@ Penpot 节点 `f8bc3597-5a95-809e-8008-a3fa91b70d32`（07 · 治安与犯罪）�
 使用其 Source Sans Pro、Canvas #F6F8FB、Hero #0B1F44/18dp、Primary #155EEF、白色图表/16dp、说明底色 #EAF1FF、16dp页边距。
 数值/年份来自真实服务；不复制原型示例评分/2025。无已批准分级阈值，状态使用完整/部分/暂不可用，避免制造评级。
 趋势沿用事实源折线，保留原型白色圆角图表与蓝色趋势；缺失年份断线并有逐年文字摘要。
+
+Wave 5 完成证据：[验收报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md)、[GPT‑5.6 Luna High 双轴审查](../../human/crime-and-security-wave5-luna-review-2026-09-17.md)。当前阻塞无；真实房产消费 B / Wave 6 待接入；本模块不代表其他 Wave 5 Feature 已完成。

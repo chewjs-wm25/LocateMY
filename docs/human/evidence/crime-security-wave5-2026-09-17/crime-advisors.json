@@ -1,0 +1,9 @@
+{
+  "checked_at_utc": "2026-09-17T10:09:28Z",
+  "scope": [
+    "public.crime_district",
+    "public.read_safety_inputs"
+  ],
+  "security_findings": [],
+  "performance_findings": []
+}
