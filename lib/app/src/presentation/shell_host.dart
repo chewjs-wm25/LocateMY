@@ -1,3 +1,6 @@
+// Explicit parameter types and initialization follow Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:flutter/material.dart';
 import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/authentication_session/authentication_session.dart';
@@ -12,19 +15,33 @@ import 'shell_view_model.dart';
 final class ShellTaskView<T extends ShellIntent> {
   final String destination;
   final Widget Function(BuildContext, T) _build;
-  const ShellTaskView(this.destination, this._build);
-  bool matches(String target, ShellIntent? input) =>
-      target == destination && input is T;
-  Widget build(BuildContext context, ShellIntent input) =>
-      _build(context, input as T);
+  const ShellTaskView(
+    String destination,
+    Widget Function(BuildContext, T) build,
+  ) : destination = destination,
+      _build = build;
+
+  bool matches(String target, ShellIntent? input) {
+    return target == destination && input is T;
+  }
+
+  Widget build(BuildContext context, ShellIntent input) {
+    return _build(context, input as T);
+  }
 }
 
 final class ShellContributionView<T extends ShellContribution> {
   final Widget Function(BuildContext, T) _build;
-  const ShellContributionView(this._build);
-  bool matches(ShellContribution input) => input is T;
-  Widget build(BuildContext context, ShellContribution input) =>
-      _build(context, input as T);
+  const ShellContributionView(Widget Function(BuildContext, T) build)
+    : _build = build;
+
+  bool matches(ShellContribution input) {
+    return input is T;
+  }
+
+  Widget build(BuildContext context, ShellContribution input) {
+    return _build(context, input as T);
+  }
 }
 
 final class ShellViews {
@@ -45,17 +62,21 @@ final class ShellHost extends StatelessWidget {
   final Widget authentication;
   final ShellViews views;
   const ShellHost({
-    required this.viewModel,
-    required this.authentication,
-    required this.views,
+    required ShellViewModel viewModel,
+    required Widget authentication,
+    required ShellViews views,
     super.key,
-  });
+  }) : viewModel = viewModel,
+       authentication = authentication,
+       views = views;
 
   @override
   Widget build(BuildContext context) {
-    final state = viewModel.state;
-    final l = AppLocalizations.of(context)!;
-    if (state.gate == ShellGate.authentication) return authentication;
+    final ShellState state = viewModel.state;
+    final AppLocalizations l = AppLocalizations.of(context)!;
+    if (state.gate == ShellGate.authentication) {
+      return authentication;
+    }
     if (state.gate != ShellGate.opened) {
       final busy = state.gate != ShellGate.recovery;
       return Scaffold(
@@ -79,14 +100,7 @@ final class ShellHost extends StatelessWidget {
                   if (!busy) ...[
                     const SizedBox(height: 16),
                     if (state.signOutFailure != null)
-                      Text(switch (state.signOutFailure!) {
-                        SignOutFailure.retryableUnavailable =>
-                          l.signOutRetryableUnavailable,
-                        SignOutFailure.remoteRejected =>
-                          l.signOutRemoteRejected,
-                        SignOutFailure.unsupportedClient =>
-                          l.signOutUnsupportedClient,
-                      }),
+                      Text(_signOutFailureMessage(state.signOutFailure!, l)),
                     if (state.closeOutcome is AccountScopeCloseIncomplete ||
                         state.closeOutcome is AccountScopeCloseRejected)
                       Text(l.shellCleanupPending)
@@ -117,26 +131,41 @@ final class ShellHost extends StatelessWidget {
   }
 }
 
+String _signOutFailureMessage(
+  SignOutFailure failure,
+  AppLocalizations localizations,
+) {
+  switch (failure) {
+    case SignOutFailure.retryableUnavailable:
+      return localizations.signOutRetryableUnavailable;
+    case SignOutFailure.remoteRejected:
+      return localizations.signOutRemoteRejected;
+    case SignOutFailure.unsupportedClient:
+      return localizations.signOutUnsupportedClient;
+  }
+}
+
 final class _PrivateNavigation extends StatefulWidget {
   final ShellViewModel viewModel;
   final ShellViews views;
   const _PrivateNavigation({
-    required this.viewModel,
-    required this.views,
+    required ShellViewModel viewModel,
+    required ShellViews views,
     super.key,
-  });
+  }) : viewModel = viewModel,
+       views = views;
   @override
   State<_PrivateNavigation> createState() => _PrivateNavigationState();
 }
 
 final class _PrivateNavigationState extends State<_PrivateNavigation> {
-  final _navigator = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _navigator = GlobalKey<NavigatorState>();
   @override
   Widget build(BuildContext context) {
-    final viewModel = widget.viewModel;
-    final views = widget.views;
-    final state = viewModel.state;
-    final l = AppLocalizations.of(context)!;
+    final ShellViewModel viewModel = widget.viewModel;
+    final ShellViews views = widget.views;
+    final ShellState state = viewModel.state;
+    final AppLocalizations l = AppLocalizations.of(context)!;
     // Removing this Navigator also removes private dialogs and retained pages.
     return NavigatorPopHandler<Object?>(
       onPopWithResult: (_) {
@@ -153,13 +182,14 @@ final class _PrivateNavigationState extends State<_PrivateNavigation> {
             MaterialPage(
               key: ValueKey(entry.context),
               child: Builder(
-                builder: (context) {
-                  final task = views.tasks
-                      .where(
-                        (binding) =>
-                            binding.matches(entry.destination, entry.intent),
-                      )
-                      .firstOrNull;
+                builder: (BuildContext context) {
+                  ShellTaskView? task;
+                  for (final ShellTaskView candidate in views.tasks) {
+                    if (candidate.matches(entry.destination, entry.intent)) {
+                      task = candidate;
+                      break;
+                    }
+                  }
                   return Scaffold(
                     appBar: AppBar(
                       leading: BackButton(onPressed: viewModel.back),
@@ -231,16 +261,37 @@ final class _TabsState extends State<_Tabs> {
       },
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: const Color(0xFFF6F8FB),
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          toolbarHeight: 64,
           title: Text(
-            vm.state.selectedTab == ShellTab.home ? l.shellHome : l.shellMap,
+            vm.state.selectedTab == ShellTab.home ? 'LocateMY' : l.shellMap,
+            style: const TextStyle(
+              fontFamily: 'SourceSansPro',
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF172033),
+            ),
           ),
           actions: [
             const LanguageButton(),
-            IconButton(
-              key: const ValueKey('shell-account'),
-              tooltip: l.shellAccount,
-              icon: const Icon(Icons.person_outline),
-              onPressed: vm.openAccountTask,
+            Tooltip(
+              message: l.shellAccount,
+              child: TextButton(
+                key: const ValueKey('shell-account'),
+                onPressed: vm.openAccountTask,
+                child: Text(
+                  l.shellAccount,
+                  style: const TextStyle(
+                    fontFamily: 'SourceSansPro',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF155EEF),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -272,20 +323,87 @@ final class _TabsState extends State<_Tabs> {
               ),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: vm.state.selectedTab.index,
-          onDestinationSelected: (index) =>
-              vm.selectTab(ShellTab.values[index]),
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.home_outlined),
-              label: l.shellHome,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.map_outlined),
-              label: l.shellMap,
-            ),
-          ],
+        bottomNavigationBar: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = MediaQuery.textScalerOf(context).scale(14) <= 19;
+            Widget tab(IconData icon, String label, bool selected) {
+              final color = selected
+                  ? const Color(0xFF155EEF)
+                  : const Color(0xFF667085);
+              return compact
+                  ? ExcludeSemantics(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(icon, size: 18, color: color),
+                          const SizedBox(width: 6),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontFamily: 'SourceSansPro',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Icon(icon, size: 18, color: color);
+            }
+
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFD9E0EA))),
+              ),
+              child: Stack(
+                children: [
+                  NavigationBar(
+                    height: compact ? 74 : 96,
+                    backgroundColor: Colors.white,
+                    surfaceTintColor: Colors.transparent,
+                    indicatorColor: Colors.transparent,
+                    labelBehavior: compact
+                        ? NavigationDestinationLabelBehavior.alwaysHide
+                        : NavigationDestinationLabelBehavior.alwaysShow,
+                    selectedIndex: vm.state.selectedTab.index,
+                    onDestinationSelected: (index) =>
+                        vm.selectTab(ShellTab.values[index]),
+                    destinations: [
+                      NavigationDestination(
+                        icon: tab(Icons.home_outlined, l.shellHome, false),
+                        selectedIcon: tab(
+                          Icons.home_outlined,
+                          l.shellHome,
+                          true,
+                        ),
+                        label: l.shellHome,
+                      ),
+                      NavigationDestination(
+                        icon: tab(Icons.map_outlined, l.shellMap, false),
+                        selectedIcon: tab(Icons.map_outlined, l.shellMap, true),
+                        label: l.shellMap,
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    top: 0,
+                    left:
+                        constraints.maxWidth *
+                            (vm.state.selectedTab.index + .5) /
+                            2 -
+                        41,
+                    child: const SizedBox(
+                      width: 82,
+                      height: 3,
+                      child: ColoredBox(color: Color(0xFF155EEF)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

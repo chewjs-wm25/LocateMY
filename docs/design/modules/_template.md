@@ -25,6 +25,8 @@
 
 ## 3. Public Interface
 
+设计公开 declaration 及实现手写 Dart 代码时，遵循[Java 阅读习惯约束](../development-standard.md#7-java-阅读习惯与-dart-可读性约束)。
+
 先说明每个 Interface 的 ID、消费者、生命周期、权限、副作用和失败恢复，再给出完整 caller-visible declaration。
 
 ```dart

@@ -1,0 +1,10 @@
+{
+  "supabase/migrations/20260917011441_grant_home_dataset_maintenance.sql": "f125d4590b951885b79ec81c6bb9ed10b4498c290f8f6bc458cc0cb959a7ff56",
+  "supabase/migrations/20260917011508_allow_maintenance_data_api_guard.sql": "dc3be0070c2f9868b1b41c23fd22ab1cc8b8429e1a5eec09d5489cc99a50231f",
+  "supabase/migrations/20260917010944_add_home_metrics_read_rpc.sql": "a4bb40e99856ce7aa2bc997443ca77b3743ec5b0bbaf2a1be7a4387e5e2bc1c4",
+  "supabase/migrations/20260917013056_align_official_lfs_mirror.sql": "01773da205c53c963c8892b9fbc95ceaa4614816577c2dbd569e62caa4422572",
+  "supabase/migrations/20260917012440_harden_home_mirror_readonly.sql": "e654484b0418774e10adf4342ce4b0c3249a5ed58b65d6c3f7ea6663c0c8c228",
+  "tool/import_home_datasets.py": "ca8111e0f449d91385af05e9489f1b7d4050dd696eb94b36041f5b2cb1330673",
+  "tool/verify_home_devices.py": "2faf2e02c5b4022ffb00af2695189143b9f4ffcbe80a395d0660ecea8461dd64",
+  "tool/verify_home_live.py": "f6035b4a0535b05f41314e19edff01f736e22cd6e5720bc39cad3ad7de88acdf"
+}

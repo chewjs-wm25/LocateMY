@@ -8,16 +8,40 @@ import '../domain/shell_state.dart';
 final class ShellViewModel extends ChangeNotifier {
   final ShellRuntime runtime;
   late final StreamSubscription<ShellState> _subscription;
-  ShellViewModel(this.runtime) {
-    _subscription = runtime.changes.listen((_) => notifyListeners());
+  ShellViewModel(ShellRuntime runtime) : runtime = runtime {
+    _subscription = runtime.changes.listen((ShellState state) {
+      notifyListeners();
+    });
   }
-  ShellState get state => runtime.state;
-  Future<void> initialize() => runtime.initialize();
-  Future<void> retry() => runtime.retry();
-  Future<void> signOut() => runtime.signOut();
-  void selectTab(ShellTab tab) => runtime.selectTab(tab);
-  void back() => runtime.back();
-  void openAccountTask() => runtime.openAccountTask();
+
+  ShellState get state {
+    return runtime.state;
+  }
+
+  Future<void> initialize() {
+    return runtime.initialize();
+  }
+
+  Future<void> retry() {
+    return runtime.retry();
+  }
+
+  Future<void> signOut() {
+    return runtime.signOut();
+  }
+
+  void selectTab(ShellTab tab) {
+    runtime.selectTab(tab);
+  }
+
+  void back() {
+    runtime.back();
+  }
+
+  void openAccountTask() {
+    runtime.openAccountTask();
+  }
+
   @override
   void dispose() {
     _subscription.cancel();

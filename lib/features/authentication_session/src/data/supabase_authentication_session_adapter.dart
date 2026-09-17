@@ -9,19 +9,20 @@ import '../domain/authentication_models.dart';
 final class SupabaseAuthenticationSessionAdapter
     implements AuthenticationSession {
   final SupabaseClient _client;
-  SupabaseAuthenticationSessionAdapter(this._client);
+  SupabaseAuthenticationSessionAdapter(SupabaseClient client)
+    : _client = client;
   String? _pendingProfileEmail;
   String? _pendingUsername;
 
   Future<ProfileRegistrationOutcome> retryOptionalProfile() async {
-    final snapshot = await restoreSession();
+    final SessionSnapshot snapshot = await restoreSession();
     if (snapshot is! AuthenticatedSession ||
         snapshot.account.email.toLowerCase() !=
             _pendingProfileEmail?.toLowerCase() ||
         _pendingUsername == null) {
       return const ProfileRegistrationSkipped();
     }
-    final result = await _writeOptionalProfile(
+    final ProfileRegistrationOutcome result = await _writeOptionalProfile(
       accountId: snapshot.account.accountId,
       username: _pendingUsername,
     );
@@ -37,12 +38,16 @@ final class SupabaseAuthenticationSessionAdapter
   @override
   Future<SessionSnapshot> restoreSession() async {
     try {
-      final session = await _client.auth.getSession().timeout(_requestTimeout);
-      if (session == null) return const UnauthenticatedSession();
+      final Session? session = await _client.auth.getSession().timeout(
+        _requestTimeout,
+      );
+      if (session == null) {
+        return const UnauthenticatedSession();
+      }
       if (_isExpired(session)) {
         return const SessionUnavailable(SessionFailure.retryableUnavailable);
       }
-      final user =
+      final User? user =
           (await _client.auth
                   .getUser(session.accessToken)
                   .timeout(_requestTimeout))
@@ -53,7 +58,8 @@ final class SupabaseAuthenticationSessionAdapter
           user.id != session.user.id) {
         return const SessionUnavailable(SessionFailure.remoteRejected);
       }
-      return AuthenticatedSession(_mapAccount(user));
+      final AuthenticatedAccount account = _mapAccount(user);
+      return AuthenticatedSession(account);
     } on SocketException {
       return const SessionUnavailable(SessionFailure.retryableUnavailable);
     } on TimeoutException {
@@ -72,17 +78,20 @@ final class SupabaseAuthenticationSessionAdapter
     late StreamController<SessionSnapshot> controller;
     StreamSubscription<AuthState>? subscription;
     Timer? expiryTimer;
-    var revision = 0;
+    int revision = 0;
 
     void emit(SessionSnapshot snapshot) {
-      if (controller.isClosed) return;
+      if (controller.isClosed) {
+        return;
+      }
       expiryTimer?.cancel();
       controller.add(snapshot);
       if (snapshot is AuthenticatedSession) {
-        final expiry = _client.auth.currentSession?.expiresAt;
+        final int? expiry = _client.auth.currentSession?.expiresAt;
         if (expiry != null) {
-          final remaining = DateTime.fromMillisecondsSinceEpoch(expiry * 1000)
-              .difference(DateTime.now());
+          final Duration remaining = DateTime.fromMillisecondsSinceEpoch(
+            expiry * 1000,
+          ).difference(DateTime.now());
           expiryTimer = Timer(
             remaining.isNegative ? Duration.zero : remaining,
             () {
@@ -96,9 +105,11 @@ final class SupabaseAuthenticationSessionAdapter
     }
 
     Future<void> verify() async {
-      final requestRevision = ++revision;
-      final snapshot = await restoreSession();
-      if (requestRevision == revision) emit(snapshot);
+      final int requestRevision = ++revision;
+      final SessionSnapshot snapshot = await restoreSession();
+      if (requestRevision == revision) {
+        emit(snapshot);
+      }
     }
 
     controller = StreamController<SessionSnapshot>(
@@ -110,12 +121,14 @@ final class SupabaseAuthenticationSessionAdapter
               unawaited(Future<void>(verify));
             } else {
               ++revision;
-              emit(
-                state.signOutReason == SignOutReason.sessionExpired ||
-                        state.signOutReason == SignOutReason.sessionMissing
-                    ? const SessionUnavailable(SessionFailure.remoteRejected)
-                    : _mapSession(state.session),
-              );
+              final bool sessionWasRejected =
+                  state.signOutReason == SignOutReason.sessionExpired ||
+                  state.signOutReason == SignOutReason.sessionMissing;
+              if (sessionWasRejected) {
+                emit(const SessionUnavailable(SessionFailure.remoteRejected));
+              } else {
+                emit(_mapSession(state.session));
+              }
             }
           },
           onError: (Object error, StackTrace stack) {
@@ -143,10 +156,10 @@ final class SupabaseAuthenticationSessionAdapter
       return const SignInRejected(SignInFailure.invalidInput);
     }
     try {
-      final response = await _client.auth
+      final AuthResponse response = await _client.auth
           .signInWithPassword(email: email.trim(), password: password)
           .timeout(_requestTimeout);
-      final session = response.session;
+      final Session? session = response.session;
       if (session == null) {
         return const SignInRejected(SignInFailure.unsupportedClient);
       }
@@ -158,7 +171,8 @@ final class SupabaseAuthenticationSessionAdapter
         _pendingProfileEmail = null;
         _pendingUsername = null;
       }
-      return SignInSucceeded(_mapAccount(session.user));
+      final AuthenticatedAccount account = _mapAccount(session.user);
+      return SignInSucceeded(account);
     } on SocketException {
       return const SignInRejected(SignInFailure.retryableUnavailable);
     } on TimeoutException {
@@ -187,19 +201,25 @@ final class SupabaseAuthenticationSessionAdapter
     try {
       _pendingProfileEmail = email.trim();
       _pendingUsername = username?.trim();
-      final response = await _client.auth
+      final AuthResponse response = await _client.auth
           .signUp(email: email.trim(), password: password)
           .timeout(_requestTimeout);
-      final session = response.session;
+      final Session? session = response.session;
       if (session == null) {
         if (response.user == null) {
           return const RegistrationRejected(
             RegistrationFailure.unsupportedClient,
           );
         }
-        final profile = (username?.trim().isEmpty ?? true)
-            ? const ProfileRegistrationSkipped()
-            : const ProfileRegistrationFailed(ProfileFailure.permissionDenied);
+        final String? normalizedUsername = username?.trim();
+        final ProfileRegistrationOutcome profile;
+        if (normalizedUsername == null || normalizedUsername.isEmpty) {
+          profile = const ProfileRegistrationSkipped();
+        } else {
+          profile = const ProfileRegistrationFailed(
+            ProfileFailure.permissionDenied,
+          );
+        }
         return RegistrationVerificationRequired(email.trim(), profile);
       }
       if (_isExpired(session)) {
@@ -207,8 +227,8 @@ final class SupabaseAuthenticationSessionAdapter
           RegistrationFailure.retryableUnavailable,
         );
       }
-      final account = _mapAccount(session.user);
-      final profile = await _writeOptionalProfile(
+      final AuthenticatedAccount account = _mapAccount(session.user);
+      final ProfileRegistrationOutcome profile = await _writeOptionalProfile(
         accountId: account.accountId,
         username: username,
       );
@@ -264,12 +284,18 @@ final class SupabaseAuthenticationSessionAdapter
     }
   }
 
-  bool _isExpired(Session session) =>
-      session.expiresAt == null ||
-      DateTime.now().millisecondsSinceEpoch >= session.expiresAt! * 1000;
+  bool _isExpired(Session session) {
+    final int? expiry = session.expiresAt;
+    if (expiry == null) {
+      return true;
+    }
+    return DateTime.now().millisecondsSinceEpoch >= expiry * 1000;
+  }
 
   SessionSnapshot _mapSession(Session? session) {
-    if (session == null) return const UnauthenticatedSession();
+    if (session == null) {
+      return const UnauthenticatedSession();
+    }
     if (_isExpired(session)) {
       return const SessionUnavailable(SessionFailure.retryableUnavailable);
     }
@@ -281,16 +307,20 @@ final class SupabaseAuthenticationSessionAdapter
   }
 
   AuthenticatedAccount _mapAccount(User user) {
-    final email = user.email?.trim();
+    final String? email = user.email?.trim();
     if (email == null || email.isEmpty) {
       throw const FormatException('Email/password user has no email.');
+    }
+    final EmailConfirmation confirmation;
+    if (user.emailConfirmedAt != null) {
+      confirmation = EmailConfirmation.confirmed;
+    } else {
+      confirmation = EmailConfirmation.verificationRequired;
     }
     return AuthenticatedAccount(
       accountId: user.id,
       email: email.trim(),
-      confirmation: user.emailConfirmedAt != null
-          ? EmailConfirmation.confirmed
-          : EmailConfirmation.verificationRequired,
+      confirmation: confirmation,
     );
   }
 
@@ -298,13 +328,14 @@ final class SupabaseAuthenticationSessionAdapter
     required String accountId,
     required String? username,
   }) async {
-    if (username == null || username.trim().isEmpty) {
+    final String? normalizedUsername = username?.trim();
+    if (normalizedUsername == null || normalizedUsername.isEmpty) {
       return const ProfileRegistrationSkipped();
     }
     try {
       await _client
           .from('profiles')
-          .upsert({'id': accountId, 'username': username.trim()})
+          .upsert({'id': accountId, 'username': normalizedUsername})
           .timeout(_requestTimeout);
       return const ProfileRegistered();
     } on PostgrestException catch (error) {
@@ -331,7 +362,9 @@ final class SupabaseAuthenticationSessionAdapter
         error is AuthRetryableFetchException) {
       return SessionFailure.retryableUnavailable;
     }
-    if (error is AuthException) return SessionFailure.remoteRejected;
+    if (error is AuthException) {
+      return SessionFailure.remoteRejected;
+    }
     return SessionFailure.unsupportedClient;
   }
 
@@ -351,9 +384,10 @@ final class SupabaseAuthenticationSessionAdapter
         error.code == 'email_address_invalid') {
       return SignInFailure.invalidInput;
     }
-    return invalidCredentialCodes.contains(error.code)
-        ? SignInFailure.invalidCredentials
-        : SignInFailure.unsupportedClient;
+    if (invalidCredentialCodes.contains(error.code)) {
+      return SignInFailure.invalidCredentials;
+    }
+    return SignInFailure.unsupportedClient;
   }
 
   RegistrationFailure _mapRegistrationFailure(AuthException error) {

@@ -2,7 +2,10 @@
 final class AccountScopeCheckpoint {
   final String accountId;
   final bool closing;
-  const AccountScopeCheckpoint(this.accountId, {required this.closing});
+  const AccountScopeCheckpoint({
+    required this.accountId,
+    required this.closing,
+  });
 }
 
 abstract interface class AccountScopeStore {

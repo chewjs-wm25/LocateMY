@@ -1,0 +1,28 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart
+test/features/map_location/location_coordinator_test.dart:161:33: Error: The getter 'attempts' isn't defined for the type 'SavedRecord'.
+ - 'SavedRecord' is from 'package:locatemy/features/map_location/src/application/location_storage.dart' ('lib/features/map_location/src/application/location_storage.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'attempts'.
+      expect(store.local.single.attempts, 1);
+                                ^^^^^^^^
+test/features/map_location/location_coordinator_test.dart:162:33: Error: The getter 'lastFailure' isn't defined for the type 'SavedRecord'.
+ - 'SavedRecord' is from 'package:locatemy/features/map_location/src/application/location_storage.dart' ('lib/features/map_location/src/application/location_storage.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'lastFailure'.
+      expect(store.local.single.lastFailure, SavedLocationFailure.retryableUnavailable);
+                                ^^^^^^^^^^^
+00:00 +0 -1: loading /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart [E]
+  Failed to load "/home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart":
+  Compilation failed for testPath=/home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: test/features/map_location/location_coordinator_test.dart:161:33: Error: The getter 'attempts' isn't defined for the type 'SavedRecord'.
+   - 'SavedRecord' is from 'package:locatemy/features/map_location/src/application/location_storage.dart' ('lib/features/map_location/src/application/location_storage.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'attempts'.
+        expect(store.local.single.attempts, 1);
+                                  ^^^^^^^^
+  test/features/map_location/location_coordinator_test.dart:162:33: Error: The getter 'lastFailure' isn't defined for the type 'SavedRecord'.
+   - 'SavedRecord' is from 'package:locatemy/features/map_location/src/application/location_storage.dart' ('lib/features/map_location/src/application/location_storage.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'lastFailure'.
+        expect(store.local.single.lastFailure, SavedLocationFailure.retryableUnavailable);
+                                  ^^^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart: loading /home/AC79/Desktop/LocateMY/test/features/map_location/location_coordinator_test.dart

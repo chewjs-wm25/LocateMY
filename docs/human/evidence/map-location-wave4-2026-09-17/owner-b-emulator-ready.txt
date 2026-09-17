@@ -1,0 +1,4 @@
+09-17 12:00:54.561 14913 14913 I flutter : MAP_DEVICE: PASS real confirmed sign-in
+09-17 12:00:54.754 14913 14913 I flutter : MAP_DEVICE: PASS production privacy gate
+09-17 12:00:55.306 14913 14913 I flutter : MAP_DEVICE: PASS real favorites read
+09-17 12:00:55.306 14913 14913 I flutter : MAP_DEVICE: READY

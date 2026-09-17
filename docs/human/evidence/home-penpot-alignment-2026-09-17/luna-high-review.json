@@ -1,0 +1,15 @@
+{
+  "model": "GPT-5.6 Luna High",
+  "source_sha256": "aa0ebdfff9b062e5c0c499d5f6f9ff732b78a37605cc99e1f9e91df8af183825",
+  "Spec": {
+    "verdict": "PASS",
+    "scope": "Penpot UI tokens/order/font; real contract data/dates/cache/cost direction/accessibility retained",
+    "blockers": []
+  },
+  "Standards": {
+    "verdict": "PASS — Implemented",
+    "scope": "UI/code and final source-matched live/build/device evidence",
+    "blockers": []
+  },
+  "evidence_correction": "Regenerated stale aggregate device summary for final UI source; all eight current manifests match."
+}

@@ -1,74 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_localizations.dart';
 
-/// Device preference, independent of authentication and account data.
 final class LanguageController extends ChangeNotifier {
   static const preferenceKey = 'locatemy.language';
-  final SharedPreferences? _preferences;
-  Locale _locale;
-  Future<void>? _pendingSave;
+  late final SharedPreferences? _preferences;
+  late Locale _locale;
+  Future<bool>? _pendingSave;
 
-  LanguageController({SharedPreferences? preferences})
-    : _preferences = preferences,
-      _locale = Locale(preferences?.get(preferenceKey) == 'en' ? 'en' : 'zh');
+  LanguageController({SharedPreferences? preferences}) {
+    _preferences = preferences;
+    final savedLanguage = preferences?.get(preferenceKey);
+    _setLocale(savedLanguage == 'en' ? 'en' : 'zh');
+  }
 
-  Locale get locale => _locale;
+  Locale get locale {
+    return _locale;
+  }
 
   Future<bool> select(String languageCode) async {
-    if (languageCode != 'zh' && languageCode != 'en') {
+    _validateLanguageCode(languageCode);
+    _setLocale(languageCode);
+    notifyListeners();
+
+    if (_preferences == null) {
+      return true;
+    }
+    return _savePreference(languageCode);
+  }
+
+  void _setLocale(String languageCode) {
+    _locale = Locale(languageCode);
+  }
+
+  void _validateLanguageCode(String languageCode) {
+    final isSupported = languageCode == 'zh' || languageCode == 'en';
+    if (!isSupported) {
       throw ArgumentError.value(languageCode, 'languageCode');
     }
-    _locale = Locale(languageCode);
-    notifyListeners();
-    if (_preferences == null) return true;
-    var saved = true;
-    _pendingSave = (_pendingSave ?? Future<void>.value()).then((_) async {
-      try {
-        saved = await _preferences.setString(preferenceKey, languageCode);
-      } catch (_) {
-        saved = false;
-      }
-    });
-    await _pendingSave;
-    return saved;
   }
-}
 
-final class LanguageScope extends InheritedNotifier<LanguageController> {
-  const LanguageScope({
-    required LanguageController controller,
-    required super.child,
-    super.key,
-  }) : super(notifier: controller);
+  Future<bool> _savePreference(String languageCode) {
+    final previousSave = _pendingSave;
+    final currentSave = _saveAfter(previousSave, languageCode);
+    _pendingSave = currentSave;
+    return currentSave;
+  }
 
-  static LanguageController of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<LanguageScope>()!.notifier!;
+  Future<bool> _saveAfter(
+    Future<bool>? previousSave,
+    String languageCode,
+  ) async {
+    if (previousSave != null) {
+      await previousSave;
+    }
+
+    try {
+      return await _preferences!.setString(preferenceKey, languageCode);
+    } catch (_) {
+      return false;
+    }
+  }
 }
 
 final class LanguageButton extends StatelessWidget {
   const LanguageButton({super.key});
 
   @override
-  Widget build(BuildContext context) => IconButton(
-    key: const ValueKey('language-switch'),
-    tooltip: AppLocalizations.of(context)!.language,
-    icon: const Icon(Icons.language),
-    onPressed: () async {
-      final controller = LanguageScope.of(context);
-      final saved = await controller.select(
-        controller.locale.languageCode == 'zh' ? 'en' : 'zh',
-      );
-      if (!saved && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              lookupAppLocalizations(controller.locale).languageSaveFailed,
+  Widget build(BuildContext context) {
+    return IconButton(
+      key: const ValueKey('language-switch'),
+      tooltip: AppLocalizations.of(context)!.language,
+      icon: const Icon(Icons.language),
+      onPressed: () async {
+        final controller = context.read<LanguageController>();
+        final nextLanguage = controller.locale.languageCode == 'zh'
+            ? 'en'
+            : 'zh';
+        final saved = await controller.select(nextLanguage);
+        if (!saved && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                lookupAppLocalizations(controller.locale).languageSaveFailed,
+              ),
             ),
-          ),
-        );
-      }
-    },
-  );
+          );
+        }
+      },
+    );
+  }
 }

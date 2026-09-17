@@ -1,0 +1,23 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/map_location/map_diagnostics_test.dart
+00:00 +0: diagnostics classify outcomes and never include private inputs
+00:00 +0 -1: diagnostics classify outcomes and never include private inputs [E]
+  Expected: contains all of [
+              'success',
+              'invalidName',
+              'queued',
+              'retryableUnavailable',
+              'cached',
+              'conflict',
+              'localStoreUnavailable'
+            ]
+    Actual: MappedListIterable<Map<String, dynamic>, dynamic>:[]
+     Which: has too few elements (0 < 7)
+  
+  package:matcher                                            expect
+  package:flutter_test/src/widget_tester.dart 473:18         expect
+  test/features/map_location/map_diagnostics_test.dart 30:5  main.<fn>
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/map_location/map_diagnostics_test.dart: diagnostics classify outcomes and never include private inputs

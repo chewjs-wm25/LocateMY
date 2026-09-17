@@ -9,7 +9,8 @@ import '../domain/account_privacy_models.dart';
 final class AccountPrivacyCoordinator implements AccountPrivacy {
   final AuthenticationSession _auth;
   final Map<AccountPrivacyParticipantId, List<AccountPrivacyParticipant>>
-  _participants = {};
+  _participants =
+      <AccountPrivacyParticipantId, List<AccountPrivacyParticipant>>{};
   final Set<AccountPrivacyParticipantId> _requiredParticipants;
   bool _registrationUnavailable = false;
   AccountScopeSnapshot _snapshot = const AccountScopeUnavailable(
@@ -30,14 +31,22 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
     Set<AccountPrivacyParticipantId> requiredParticipants = const {
       ...AccountPrivacyParticipantId.values,
     },
-  }) : _requiredParticipants = Set.of(requiredParticipants)
-         ..add(AccountPrivacyParticipantId.authenticationSession)
-         ..add(AccountPrivacyParticipantId.applicationShell) {
+  }) : _requiredParticipants = Set<AccountPrivacyParticipantId>.of(
+         requiredParticipants,
+       ) {
+    _requiredParticipants.add(
+      AccountPrivacyParticipantId.authenticationSession,
+    );
+    _requiredParticipants.add(AccountPrivacyParticipantId.applicationShell);
     try {
-      for (final participant in participants) {
-        final id = participant.participantId;
+      for (final AccountPrivacyParticipant participant in participants) {
+        final AccountPrivacyParticipantId id = participant.participantId;
         _requiredParticipants.add(id);
-        (_participants[id] ??= []).add(participant);
+        final List<AccountPrivacyParticipant> registeredParticipants =
+            _participants.putIfAbsent(id, () {
+              return <AccountPrivacyParticipant>[];
+            });
+        registeredParticipants.add(participant);
       }
     } catch (_) {
       _registrationUnavailable = true;
@@ -46,9 +55,9 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
     _restoreStore();
     _subscription = _auth.watchSession().listen(
       _observe,
-      onDone: () => _observe(
-        const SessionUnavailable(SessionFailure.retryableUnavailable),
-      ),
+      onDone: () {
+        _observe(const SessionUnavailable(SessionFailure.retryableUnavailable));
+      },
       onError: (Object _) {
         _observe(const SessionUnavailable(SessionFailure.retryableUnavailable));
       },
@@ -57,14 +66,20 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
 
   void _restoreStore() {
     try {
-      final pending = _journal.readPending();
+      final AccountScopeCheckpoint? pending = _journal.readPending();
       _storeUnavailable = false;
-      _recoverableScope = pending != null && !pending.closing
-          ? AccountScope(pending.accountId)
-          : null;
-      _snapshot = pending != null && pending.closing
-          ? AccountScopeClosing(AccountScope(pending.accountId))
-          : const AccountScopeUnavailable(AccountScopeFailure.scopeNotOpen);
+      if (pending != null && !pending.closing) {
+        _recoverableScope = AccountScope(pending.accountId);
+      } else {
+        _recoverableScope = null;
+      }
+      if (pending != null && pending.closing) {
+        _snapshot = AccountScopeClosing(AccountScope(pending.accountId));
+      } else {
+        _snapshot = const AccountScopeUnavailable(
+          AccountScopeFailure.scopeNotOpen,
+        );
+      }
     } catch (_) {
       _storeUnavailable = true;
       _recoverableScope = null;
@@ -75,8 +90,13 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
   }
 
   void _observe(SessionSnapshot fact) {
-    final id = fact is AuthenticatedSession ? fact.account.accountId : null;
-    final opened = _snapshot;
+    final String? id;
+    if (fact is AuthenticatedSession) {
+      id = fact.account.accountId;
+    } else {
+      id = null;
+    }
+    final AccountScopeSnapshot opened = _snapshot;
     if (id == null ||
         (_observedAccount != null && id != _observedAccount) ||
         (opened is AccountScopeOpened && opened.scope.accountId != id)) {
@@ -85,8 +105,10 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         _blockScope(opened.scope);
       }
     }
-    final recovered = _recoverableScope;
-    if (recovered != null && id != recovered.accountId) _blockScope(recovered);
+    final AccountScope? recovered = _recoverableScope;
+    if (recovered != null && id != recovered.accountId) {
+      _blockScope(recovered);
+    }
     _observedAccount = id;
   }
 
@@ -103,16 +125,20 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
   Future<void> dispose() async {
     _disposed = true;
     ++_revision;
-    if (_snapshot case AccountScopeOpened(:final scope)) {
-      _snapshot = AccountScopeClosing(scope);
+    final AccountScopeSnapshot snapshot = _snapshot;
+    if (snapshot is AccountScopeOpened) {
+      _snapshot = AccountScopeClosing(snapshot.scope);
     }
     await _subscription.cancel();
   }
 
   @override
-  AccountScopeSnapshot readScope() => _snapshot;
+  AccountScopeSnapshot readScope() {
+    return _snapshot;
+  }
 
-  final Set<AccountPrivacyParticipantId> _cleared = {};
+  final Set<AccountPrivacyParticipantId> _cleared =
+      <AccountPrivacyParticipantId>{};
   Future<CloseAccountScopeOutcome>? _closing;
   int _revision = 0;
 
@@ -134,9 +160,9 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         AccountScopeFailure.identityMismatch,
       );
     }
-    final revision = _revision;
+    final int revision = _revision;
     try {
-      final current = await _auth.restoreSession();
+      final SessionSnapshot current = await _auth.restoreSession();
       if (revision != _revision || _snapshot is AccountScopeClosing) {
         return const AccountScopeOpenRejected(AccountScopeFailure.scopeClosing);
       }
@@ -148,9 +174,11 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
       if (_snapshot is AccountScopeOpened) {
         _observe(current);
       } else {
-        _observedAccount = current is AuthenticatedSession
-            ? current.account.accountId
-            : null;
+        if (current is AuthenticatedSession) {
+          _observedAccount = current.account.accountId;
+        } else {
+          _observedAccount = null;
+        }
       }
       if (_snapshot is AccountScopeClosing) {
         return const AccountScopeOpenRejected(
@@ -175,8 +203,13 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         }
         return AccountScopeOpenedForAccount(scope);
       }
-      final scope = _recoverableScope ?? AccountScope(account.accountId);
-      if (_recoverableScope == null) _journal.recordOpened(scope.accountId);
+      final AccountScope scope;
+      if (_recoverableScope != null) {
+        scope = _recoverableScope!;
+      } else {
+        scope = AccountScope(account.accountId);
+        _journal.recordOpened(scope.accountId);
+      }
       _recoverableScope = null;
       _cleared.clear();
       _snapshot = AccountScopeOpened(scope);
@@ -202,12 +235,17 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         ),
       );
     }
-    final current = switch (_snapshot) {
-      AccountScopeOpened(:final scope) ||
-      AccountScopeClosing(:final scope) ||
-      AccountScopeClosed(:final scope) => scope,
-      _ => null,
-    };
+    final AccountScopeSnapshot snapshot = _snapshot;
+    final AccountScope? current;
+    if (snapshot is AccountScopeOpened) {
+      current = snapshot.scope;
+    } else if (snapshot is AccountScopeClosing) {
+      current = snapshot.scope;
+    } else if (snapshot is AccountScopeClosed) {
+      current = snapshot.scope;
+    } else {
+      current = null;
+    }
     if (!identical(current, scope)) {
       return Future.value(
         AccountScopeCloseRejected(scope, AccountScopeFailure.identityMismatch),
@@ -216,7 +254,9 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
     if (_snapshot is AccountScopeClosed) {
       return Future.value(AccountScopeClosedForAccount(scope));
     }
-    if (_closing != null) return _closing!;
+    if (_closing != null) {
+      return _closing!;
+    }
     ++_revision;
     _snapshot = AccountScopeClosing(scope);
     try {
@@ -229,16 +269,21 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         ),
       );
     }
-    final operation = _clear(scope);
+    final Future<CloseAccountScopeOutcome> operation = _clear(scope);
     _closing = operation;
-    operation.whenComplete(() => _closing = null);
+    operation.whenComplete(() {
+      _closing = null;
+    });
     return operation;
   }
 
   Future<CloseAccountScopeOutcome> _clear(AccountScope scope) async {
-    final incomplete = <PrivateStateClearIncomplete>[];
-    for (final id in _requiredParticipants) {
-      if (_cleared.contains(id)) continue;
+    final List<PrivateStateClearIncomplete> incomplete =
+        <PrivateStateClearIncomplete>[];
+    for (final AccountPrivacyParticipantId id in _requiredParticipants) {
+      if (_cleared.contains(id)) {
+        continue;
+      }
       if (_disposed) {
         incomplete.add(
           PrivateStateClearIncomplete(
@@ -249,9 +294,17 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         );
         continue;
       }
-      final matches = _registrationUnavailable
-          ? <AccountPrivacyParticipant>[]
-          : (_participants[id] ?? <AccountPrivacyParticipant>[]);
+      final List<AccountPrivacyParticipant> matches;
+      if (_registrationUnavailable) {
+        matches = <AccountPrivacyParticipant>[];
+      } else {
+        final List<AccountPrivacyParticipant>? registered = _participants[id];
+        if (registered != null) {
+          matches = registered;
+        } else {
+          matches = <AccountPrivacyParticipant>[];
+        }
+      }
       if (matches.length != 1) {
         incomplete.add(
           PrivateStateClearIncomplete(
@@ -263,7 +316,7 @@ final class AccountPrivacyCoordinator implements AccountPrivacy {
         continue;
       }
       try {
-        final result = await matches.single
+        final PrivateStateClearOutcome result = await matches.single
             .clearPrivateState(scope)
             .timeout(_participantTimeout);
         if (_disposed) {

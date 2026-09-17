@@ -3,7 +3,7 @@
 > Owner：`A`
 > 依赖顺序：Wave 4。A 先合并唯一公开入口及本文件冻结的完整 `LOCATION-001`/`LOCATION-002` 声明；Application Shell、分析 Feature 和图层提供方随后以同一声明的 fake 并行开发。
 > 完成定义：消费者仅凭本文件即可安全地区分合法地点、拒绝、收藏同步状态及图层意图；不读取 Map 内部状态、缓存或 SDK 对象。
-> 状态：`Ready for Development`；系统基线：`5d11769`；最后复核：`2026-09-15`
+> 状态：`Implemented`；系统基线：`5d11769`；最后复核：`2026-09-17`
 
 这是 Map / Location 唯一的跨 Owner Development Contract；本 Markdown 为权威来源，`docs/human/map-and-location.html` 是同名、语义等价的人类可读导出。它冻结公开 Dart 声明、合法地点与账户隔离语义、收藏同步可观察结果及联合验收。`lib/features/map_location/` 内部的 Widget、地图/空间 SDK、状态管理、SQLite/Supabase/Geoapify Adapter、取消/重试/去重策略、缓存键、文件拆分和测试组织均由 Owner 决定。
 
@@ -248,6 +248,7 @@ Owner 可自行决定底图包、Geoapify/空间 Adapter、点位内部映射、
 
 | 日期 | 状态 | 变更原因 | 受影响的 Capability / Interface / 数据对象 / Feature | 批准者 |
 | --- | --- | --- | --- | --- |
+| 2026-09-17 | `Implemented` | 完成 Map / Location 生产能力、TDD、真实 Adapter/权限、最终双目标设备及 Luna High 可读性/规格复审；登记后续联合责任。 | `MAP-01`–`MAP-06`、`LOCATION-001`–`LOCATION-003`、收藏同步/清理、Map 页面；冻结公开接口与领域语义保持不变。 | Owner A 实现验收；GPT-5.6 Luna High 审查 |
 | 2026-09-15 | `Ready for Development` | 依 Issue #23 收束为单一 Development Contract 与同名 HTML 语义等价导出；移除旧式多文件发布治理，并明确冻结两份接口的单一公开入口和完整 canonical 声明。 | `MAP-01`–`MAP-06`、`LOCATION-001`、`LOCATION-002`、同名 HTML 导出；地点、权限、同步、数据与验收语义不变。 | 项目负责人 |
 
 ## 10. 完成核对
@@ -257,3 +258,19 @@ Owner 可自行决定底图包、Geoapify/空间 Adapter、点位内部映射、
 - [x] `MAP-01`–`MAP-06`、`D05/D06` 与下游 Map 边可追溯；`MAP-07` 明确不由本 Owner 重算。
 - [x] 范围、账户隔离、同步权威/墓碑、分析快照、A/B 中性、图层不改地点均有唯一权威；不复制 Schema、RLS、公式或可提交实现。
 - [x] 同名 HTML 与本 Markdown 在任务成果、依赖顺序、两份 canonical 声明、表格、链接、联合验收与 Change Log 上语义等价；无旧式多文件发布治理要求。
+
+## 11. Wave 4 验收分配（2026-09-17）
+
+用户已确认 TDD seams：LOCATION-001、LOCATION-002、Map 页面及外部 Adapter 行为。
+
+| 场景 | 归属 | 依赖 | 证据要求 | Owner / 最迟 Wave | 本模块 / 联合状态 |
+| --- | --- | --- | --- | --- | --- |
+| AT-LOC-01/02、AT-RACE-01 选点搜索 | 两者 | 真实边界 RPC、Geoapify、OSM、Shell | seam、页面、真实调用、设备 | A / 4 | 已通过：seam、页面、live / 已通过：真实 Shell、Privacy 及最终双目标设备 |
+| AT-ANALYSIS-01 单点快照 | 两者 | 真实 Shell；六类分析后续槽位 | 导航同一引用；摘要元数据 | A / 5（Infrastructure 6） | 已通过：不可变引用、Shell 导航 / 待接入分析提供方 |
+| AT-COMPARE-01–03 | 两者 | Shell；分析 fake/后续槽位 | 缺端、同点、交换、快照 | A、分析 Owners / 5–6 | 已通过：缺端、同点、交换、快照 / 待接入分析提供方 |
+| AT-SAVED-01–03 | 本模块 | 真实 Supabase、SQLite | create/delete、重启重放、双客户端、冲突、RLS | A / 4 | 已通过：测试、live 与最终双目标设备 / 不适用 |
+| AT-SAVED-04、AT-RACE-01 关闭换号 | 两者 | 真实 Privacy、Shell | 晚到丢弃、清理失败恢复、A→B | A / 4 | 已通过：seam、页面、live / 已通过：真实 Shell、Privacy 及最终双目标设备 |
+| LOCATION-002、AT-HAZARD-01 图层长按 | 两者 | provider fake；真实 Shell；Wave 5 provider | 视口、hidden、原意图、角色不变 | A / 5 | 已通过：seam、fake 页面、Shell / Wave 5 provider 待接入 |
+| 页面、本地化、可访问性 | 本模块 | 真实 Map 页面 | 中/英、360dp、200%、地图文字替代、目标设备 | A / 4 | 已通过：测试、live 与最终双目标设备 / 不适用 |
+
+实现进度与证据见 [Wave 4 验收报告](../../human/map-and-location-wave4-acceptance-2026-09-17.md)。代码、本模块场景及 Wave 4 到期联合项已通过；最终双目标设备与测试/构建 source hash 一致。当前模块为 `Implemented`，无实现验收阻塞。完整分析/provider/Suitability 联合接入仍按 Wave 5–7 责任表执行；`Integrated` 待项目负责人跨 Owner 验收批准。

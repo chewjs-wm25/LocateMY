@@ -12,7 +12,8 @@ void main() {
   late AuthenticationViewModel vm;
   setUp(() {
     fake = FakeAuthenticationSession();
-    vm = AuthenticationViewModel(AuthenticationUseCase(fake));
+    final AuthenticationUseCase useCase = AuthenticationUseCase(fake);
+    vm = AuthenticationViewModel(useCase);
   });
   tearDown(() async {
     vm.dispose();
@@ -22,10 +23,10 @@ void main() {
   test(
     'initialization is shared and restore does not overwrite newer event',
     () async {
-      final restore = Completer<SessionSnapshot>();
+      final Completer<SessionSnapshot> restore = Completer<SessionSnapshot>();
       fake.pendingRestore = restore.future;
-      final first = vm.initialize();
-      final second = vm.initialize();
+      final Future<void> first = vm.initialize();
+      final Future<void> second = vm.initialize();
       fake.changes.add(const AuthenticatedSession(accountB));
       restore.complete(const AuthenticatedSession(accountA));
       await Future.wait([first, second]);

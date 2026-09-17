@@ -12,13 +12,28 @@ final class ShellRuntime
     implements ApplicationShell, AccountPrivacyParticipant {
   final AuthenticationSession authentication;
   final AccountPrivacy Function() _privacy;
-  AccountPrivacy get privacy => _privacy();
+  AccountPrivacy get privacy {
+    return _privacy();
+  }
+
   ShellState _state = const ShellState(gate: ShellGate.restoring);
-  ShellState get state => _state;
-  ApplicationShell? get applicationShell =>
-      _authorized ? _ScopedShell(this, state.scope!) : null;
-  final _changes = StreamController<ShellState>.broadcast();
-  Stream<ShellState> get changes => _changes.stream;
+  ShellState get state {
+    return _state;
+  }
+
+  ApplicationShell? get applicationShell {
+    if (!_authorized) {
+      return null;
+    }
+    return _ScopedShell(this, state.scope!);
+  }
+
+  final StreamController<ShellState> _changes =
+      StreamController<ShellState>.broadcast();
+  Stream<ShellState> get changes {
+    return _changes.stream;
+  }
+
   StreamSubscription<SessionSnapshot>? _subscription;
   Future<void>? _initialization;
   Future<void>? _opening;
@@ -34,17 +49,24 @@ final class ShellRuntime
   final List<ShellContributionBinding> _contributions;
   final Map<ShellRequestContext, Map<String, ShellContribution>> _slots = {};
   final Map<ShellTab, ShellRequestContext> _tabContexts = {};
-  ShellRequestContext? get currentContext => state.gate != ShellGate.opened
-      ? null
-      : state.routes.isNotEmpty
-      ? state.routes.last.context
-      : _tabContexts[state.selectedTab];
+  ShellRequestContext? get currentContext {
+    if (state.gate != ShellGate.opened) {
+      return null;
+    }
+    if (state.routes.isNotEmpty) {
+      return state.routes.last.context;
+    }
+    return _tabContexts[state.selectedTab];
+  }
+
   ShellRuntime({
     required this.authentication,
     required AccountPrivacy privacy,
     List<ShellIntentBinding> intents = const [],
     List<ShellContributionBinding> contributions = const [],
-  }) : _privacy = (() => privacy),
+  }) : _privacy = (() {
+         return privacy;
+       }),
        _intents = List.unmodifiable(intents),
        _contributions = List.unmodifiable(contributions);
 
@@ -54,23 +76,30 @@ final class ShellRuntime
     required AccountPrivacy Function() privacy,
     List<ShellIntentBinding> intents = const [],
     List<ShellContributionBinding> contributions = const [],
-  }) : _privacy = (() => privacy()),
+  }) : _privacy = (() {
+         return privacy();
+       }),
        _intents = List.unmodifiable(intents),
        _contributions = List.unmodifiable(contributions);
 
   void _emit(ShellState value) {
-    if (_disposed) return;
+    if (_disposed) {
+      return;
+    }
     _state = value;
     _changes.add(value);
   }
 
-  Future<void> initialize() => _initialization ??= _initialize();
+  Future<void> initialize() {
+    return _initialization ??= _initialize();
+  }
+
   Future<void> _initialize() async {
     _subscription = authentication.watchSession().listen(
-      (fact) {
+      (SessionSnapshot fact) {
         _accept(fact);
       },
-      onError: (Object _) {
+      onError: (Object error) {
         _accept(const SessionUnavailable(SessionFailure.retryableUnavailable));
       },
       onDone: () {
@@ -84,7 +113,9 @@ final class ShellRuntime
   }
 
   Future<void> retry() async {
-    if (_disposed) return;
+    if (_disposed) {
+      return;
+    }
     if (_exitPending ||
         _oldScope != null ||
         privacy.readScope() is AccountScopeClosing) {
@@ -94,9 +125,13 @@ final class ShellRuntime
       await signOut(reason: _closeReason);
       return;
     }
-    if (_cleanup != null) return _cleanup;
-    if (_opening != null) return _opening;
-    final revision = ++_revision;
+    if (_cleanup != null) {
+      return _cleanup!;
+    }
+    if (_opening != null) {
+      return _opening!;
+    }
+    final int revision = ++_revision;
     _emit(const ShellState(gate: ShellGate.restoring));
     SessionSnapshot fact;
     try {
@@ -104,27 +139,33 @@ final class ShellRuntime
     } catch (_) {
       fact = const SessionUnavailable(SessionFailure.retryableUnavailable);
     }
-    if (!_disposed && revision == _revision) await _accept(fact);
+    if (!_disposed && revision == _revision) {
+      await _accept(fact);
+    }
   }
 
   Future<void> _accept(SessionSnapshot fact) async {
-    if (_disposed) return;
-    if (_exitPending || _oldScope != null || _cleanup != null) return;
+    if (_disposed) {
+      return;
+    }
+    if (_exitPending || _oldScope != null || _cleanup != null) {
+      return;
+    }
     if (_opening != null &&
         fact is AuthenticatedSession &&
         fact.account.accountId == _openingAccountId &&
         fact.account.confirmation == EmailConfirmation.confirmed) {
       return;
     }
-    final revision = ++_revision;
-    final opened = _state.scope;
-    final id =
+    final int revision = ++_revision;
+    final AccountScope? opened = _state.scope;
+    final String? id =
         fact is AuthenticatedSession &&
             fact.account.confirmation == EmailConfirmation.confirmed
         ? fact.account.accountId
         : null;
     if (opened != null && _state.gate == ShellGate.opened) {
-      final current = privacy.readScope();
+      final AccountScopeSnapshot current = privacy.readScope();
       if (id == opened.accountId &&
           current is AccountScopeOpened &&
           identical(current.scope, opened)) {
@@ -162,7 +203,10 @@ final class ShellRuntime
     }
     _emit(const ShellState(gate: ShellGate.opening));
     _openingAccountId = id;
-    final work = _open((fact as AuthenticatedSession).account, revision);
+    final Future<void> work = _open(
+      (fact as AuthenticatedSession).account,
+      revision,
+    );
     _opening = work;
     try {
       await work;
@@ -183,9 +227,11 @@ final class ShellRuntime
         AccountScopeFailure.retryableUnavailable,
       );
     }
-    if (_disposed) return;
+    if (_disposed) {
+      return;
+    }
     if (result is AccountScopeOpenedForAccount) {
-      final snapshot = privacy.readScope();
+      final AccountScopeSnapshot snapshot = privacy.readScope();
       if (revision == _revision &&
           result.scope.accountId == account.accountId &&
           snapshot is AccountScopeOpened &&
@@ -234,8 +280,12 @@ final class ShellRuntime
   Future<void> signOut({
     AccountScopeCloseReason reason = AccountScopeCloseReason.signOut,
   }) {
-    if (_disposed) return Future.value();
-    if (_cleanup != null) return _cleanup!;
+    if (_disposed) {
+      return Future<void>.value();
+    }
+    if (_cleanup != null) {
+      return _cleanup!;
+    }
     ++_revision;
     _oldScope ??= _state.scope;
     if (_oldScope == null) {
@@ -248,10 +298,10 @@ final class ShellRuntime
     _slots.clear();
     _tabContexts.clear();
     _emit(const ShellState(gate: ShellGate.closing));
-    final completion = Completer<void>();
+    final Completer<void> completion = Completer<void>();
     _cleanup = completion.future;
     Future<void>.microtask(_endSessionAndClose).then(
-      (_) {
+      (void value) {
         _cleanup = null;
         completion.complete();
       },
@@ -274,7 +324,7 @@ final class ShellRuntime
     // Settle any pending authorization before closing its immutable old scope.
     await _opening;
     // Both operations are required, even when the Auth request fails.
-    final scope = _oldScope;
+    final AccountScope? scope = _oldScope;
     CloseAccountScopeOutcome? close;
     if (scope != null) {
       try {
@@ -286,7 +336,9 @@ final class ShellRuntime
         );
       }
     }
-    if (_disposed) return;
+    if (_disposed) {
+      return;
+    }
     if (exit is SignOutSucceeded &&
         (scope == null ||
             close is AccountScopeClosedForAccount &&
@@ -311,7 +363,7 @@ final class ShellRuntime
   }
 
   bool get _authorized {
-    final current = privacy.readScope();
+    final AccountScopeSnapshot current = privacy.readScope();
     return !_disposed &&
         state.gate == ShellGate.opened &&
         current is AccountScopeOpened &&
@@ -323,11 +375,14 @@ final class ShellRuntime
     List<ShellNavigationEntry>? routes,
     AuthenticatedAccount? account,
   }) {
-    final nextRoutes = routes ?? state.routes;
-    final nextTab = tab ?? state.selectedTab;
-    final context = nextRoutes.isEmpty
-        ? _tabContexts[nextTab]
-        : nextRoutes.last.context;
+    final List<ShellNavigationEntry> nextRoutes = routes ?? state.routes;
+    final ShellTab nextTab = tab ?? state.selectedTab;
+    final ShellRequestContext? context;
+    if (nextRoutes.isEmpty) {
+      context = _tabContexts[nextTab];
+    } else {
+      context = nextRoutes.last.context;
+    }
     _emit(
       ShellState(
         gate: ShellGate.opened,
@@ -341,17 +396,23 @@ final class ShellRuntime
   }
 
   void selectTab(ShellTab tab) {
-    if (_authorized && state.routes.isEmpty) _navigation(tab: tab);
+    if (_authorized && state.routes.isEmpty) {
+      _navigation(tab: tab);
+    }
   }
 
   void back() {
-    if (!_authorized || state.routes.isEmpty) return;
+    if (!_authorized || state.routes.isEmpty) {
+      return;
+    }
     _slots.remove(state.routes.last.context);
     _navigation(routes: state.routes.sublist(0, state.routes.length - 1));
   }
 
   void openAccountTask() {
-    if (!_authorized) return;
+    if (!_authorized) {
+      return;
+    }
     _navigation(
       routes: [
         ...state.routes,
@@ -366,10 +427,15 @@ final class ShellRuntime
 
   @override
   Future<ShellIntentOutcome> submit(ShellIntent intent) async {
-    if (!_authorized) return ShellAuthenticationRequired();
-    final bindings = _intents
-        .where((binding) => binding.matches(intent))
-        .toList();
+    if (!_authorized) {
+      return ShellAuthenticationRequired();
+    }
+    final List<ShellIntentBinding> bindings = <ShellIntentBinding>[];
+    for (final ShellIntentBinding binding in _intents) {
+      if (binding.matches(intent)) {
+        bindings.add(binding);
+      }
+    }
     if (bindings.length != 1) {
       return const ShellIntentRejected(
         ShellRejectionReason.inapplicableDestination,
@@ -381,27 +447,30 @@ final class ShellRuntime
     } catch (_) {
       return const ShellIntentRejected(ShellRejectionReason.missingInput);
     }
-    if (request.rejection != null) {
-      return ShellIntentRejected(request.rejection!);
+    final ShellRejectionReason? rejection = request.rejection;
+    if (rejection != null) {
+      return ShellIntentRejected(rejection);
     }
     if (request.context == null) {
       return const ShellIntentRejected(ShellRejectionReason.missingInput);
     }
-    if (!identical(request.context!.scope, state.scope)) {
+    final ShellRequestContext context = request.context!;
+    if (!identical(context.scope, state.scope)) {
       return const ShellIntentRejected(ShellRejectionReason.scopeUnavailable);
     }
-    if (!identical(request.context, currentContext)) {
+    if (!identical(context, currentContext)) {
       return const ShellIntentRejected(ShellRejectionReason.staleInput);
     }
-    if (request.tab != null) {
-      _navigation(tab: request.tab, routes: const []);
-    } else if (request.destination != null &&
-        request.destination!.trim().isNotEmpty) {
+    final ShellTab? tab = request.tab;
+    final String? destination = request.destination;
+    if (tab != null) {
+      _navigation(tab: tab, routes: const <ShellNavigationEntry>[]);
+    } else if (destination != null && destination.trim().isNotEmpty) {
       _navigation(
         routes: [
           ...state.routes,
           ShellNavigationEntry(
-            request.destination!,
+            destination,
             intent,
             ShellRequestContext(state.scope!),
           ),
@@ -416,14 +485,16 @@ final class ShellRuntime
   }
 
   ShellRequestContext? beginRequest() {
-    if (!_authorized) return null;
+    if (!_authorized) {
+      return null;
+    }
     _slots.remove(currentContext);
     final context = ShellRequestContext(state.scope!);
     if (state.routes.isEmpty) {
       _tabContexts[state.selectedTab] = context;
       _navigation();
     } else {
-      final last = state.routes.last;
+      final ShellNavigationEntry last = state.routes.last;
       _navigation(
         routes: [
           ...state.routes.take(state.routes.length - 1),
@@ -438,10 +509,16 @@ final class ShellRuntime
   Future<ShellContributionOutcome> publish(
     ShellContribution contribution,
   ) async {
-    if (!_authorized) return ShellContributionAuthenticationRequired();
-    final bindings = _contributions
-        .where((binding) => binding.matches(contribution))
-        .toList();
+    if (!_authorized) {
+      return ShellContributionAuthenticationRequired();
+    }
+    final List<ShellContributionBinding> bindings =
+        <ShellContributionBinding>[];
+    for (final ShellContributionBinding binding in _contributions) {
+      if (binding.matches(contribution)) {
+        bindings.add(binding);
+      }
+    }
     if (bindings.length != 1) {
       return const ShellContributionRejected(
         ShellRejectionReason.inapplicableDestination,
@@ -453,30 +530,41 @@ final class ShellRuntime
     } catch (_) {
       return const ShellContributionRejected(ShellRejectionReason.missingInput);
     }
-    if (request.rejection != null) {
-      return ShellContributionRejected(request.rejection!);
+    final ShellRejectionReason? rejection = request.rejection;
+    if (rejection != null) {
+      return ShellContributionRejected(rejection);
     }
     if (request.context == null ||
         request.slot == null ||
         request.slot!.trim().isEmpty) {
       return const ShellContributionRejected(ShellRejectionReason.missingInput);
     }
-    if (!identical(request.context!.scope, state.scope)) {
+    final ShellRequestContext context = request.context!;
+    if (!identical(context.scope, state.scope)) {
       return const ShellContributionRejected(
         ShellRejectionReason.scopeUnavailable,
       );
     }
-    if (!identical(request.context, currentContext)) {
+    if (!identical(context, currentContext)) {
       return const ShellContributionRejected(ShellRejectionReason.staleInput);
     }
-    (_slots[request.context!] ??= {})[request.slot!] = contribution;
+    final String slot = request.slot!;
+    final Map<String, ShellContribution> slotsForContext = _slots.putIfAbsent(
+      context,
+      () {
+        return <String, ShellContribution>{};
+      },
+    );
+    slotsForContext[slot] = contribution;
     _navigation();
     return ShellContributionAccepted();
   }
 
   @override
-  AccountPrivacyParticipantId get participantId =>
-      AccountPrivacyParticipantId.applicationShell;
+  AccountPrivacyParticipantId get participantId {
+    return AccountPrivacyParticipantId.applicationShell;
+  }
+
   @override
   Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope) async {
     if (!identical(scope, _oldScope) || state.gate == ShellGate.opened) {
@@ -504,16 +592,29 @@ final class ShellRuntime
 final class _ScopedShell implements ApplicationShell {
   final ShellRuntime _runtime;
   final AccountScope _scope;
-  const _ScopedShell(this._runtime, this._scope);
-  bool get _current =>
-      _runtime._authorized && identical(_runtime.state.scope, _scope);
+  const _ScopedShell(ShellRuntime runtime, AccountScope scope)
+    : _runtime = runtime,
+      _scope = scope;
+
+  bool get _current {
+    return _runtime._authorized && identical(_runtime.state.scope, _scope);
+  }
+
   @override
-  Future<ShellIntentOutcome> submit(ShellIntent intent) => _current
-      ? _runtime.submit(intent)
-      : Future.value(ShellAuthenticationRequired());
+  Future<ShellIntentOutcome> submit(ShellIntent intent) {
+    if (_current) {
+      return _runtime.submit(intent);
+    }
+    return Future<ShellIntentOutcome>.value(ShellAuthenticationRequired());
+  }
+
   @override
-  Future<ShellContributionOutcome> publish(ShellContribution contribution) =>
-      _current
-      ? _runtime.publish(contribution)
-      : Future.value(ShellContributionAuthenticationRequired());
+  Future<ShellContributionOutcome> publish(ShellContribution contribution) {
+    if (_current) {
+      return _runtime.publish(contribution);
+    }
+    return Future<ShellContributionOutcome>.value(
+      ShellContributionAuthenticationRequired(),
+    );
+  }
 }

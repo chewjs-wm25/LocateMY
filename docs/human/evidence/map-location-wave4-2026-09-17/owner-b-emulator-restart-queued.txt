@@ -1,0 +1,4 @@
+09-17 12:02:40.239 15821 15821 I flutter : MAP_DEVICE: PASS real confirmed sign-in
+09-17 12:02:40.551 15821 15821 I flutter : MAP_DEVICE: PASS production privacy gate
+09-17 12:02:40.772 15821 15821 I flutter : MAP_DEVICE: PASS offline replay reports unavailable
+09-17 12:02:40.772 15821 15821 I flutter : MAP_DEVICE: RESTART_QUEUED_READY

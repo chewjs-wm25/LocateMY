@@ -1,0 +1,10 @@
+PASS: device-build; no high privilege key or local login credentials in APK
+owner-b-emulator READY
+owner-b-emulator SELECTED_READY
+owner-b-emulator REJECTED_READY
+owner-b-emulator QUEUED_READY
+owner-b-emulator RESTART_QUEUED_READY
+owner-b-emulator RECOVERED_READY
+owner-b-emulator CLOSED_READY
+Restoring production APK and cleaning disposable fixtures
+PASS: production-build; no high privilege key or local login credentials in APK

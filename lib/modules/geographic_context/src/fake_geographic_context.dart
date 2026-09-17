@@ -1,38 +1,49 @@
+// Explicit constructor parameters make immutable field initialization visible.
+// ignore_for_file: prefer_initializing_formals
+
 import 'geographic_context_models.dart';
 
-class FakeGeographicContext implements GeographicContext {
+final class FakeGeographicContext implements GeographicContext {
   final GeographicContextOutcome? presetOutcome;
 
-  FakeGeographicContext({this.presetOutcome});
+  FakeGeographicContext({GeographicContextOutcome? presetOutcome})
+    : presetOutcome = presetOutcome;
 
   @override
   Future<GeographicContextOutcome> resolve(
     GeographicContextRequest request,
   ) async {
-    final levels = Set<GeographicLevel>.unmodifiable(request.levels);
+    final Set<GeographicLevel> levels = Set<GeographicLevel>.unmodifiable(
+      request.levels,
+    );
     if (levels.isEmpty) {
       throw ArgumentError.value(levels, 'levels', 'must not be empty');
     }
-    final preset = presetOutcome;
+    final GeographicContextOutcome? preset = presetOutcome;
     if (preset is GeographicContextAvailable) {
-      final results = <GeographicLevel, GeographicLevelOutcome>{};
+      final Map<GeographicLevel, GeographicLevelOutcome> results =
+          <GeographicLevel, GeographicLevelOutcome>{};
       for (final level in levels) {
-        final outcome = preset.results[level];
+        final GeographicLevelOutcome? outcome = preset.results[level];
         if (outcome == null) {
           throw StateError('Fake preset is missing requested level');
         }
-        results[level] = outcome is GeographicLevelAmbiguous
-            ? GeographicLevelAmbiguous(
-                List.unmodifiable(outcome.candidates),
-                outcome.provenance,
-              )
-            : outcome;
+        if (outcome is GeographicLevelAmbiguous) {
+          results[level] = GeographicLevelAmbiguous(
+            List<AdministrativeArea>.unmodifiable(outcome.candidates),
+            outcome.provenance,
+          );
+        } else {
+          results[level] = outcome;
+        }
       }
       return GeographicContextAvailable(Map.unmodifiable(results));
     }
-    if (preset != null) return preset;
+    if (preset != null) {
+      return preset;
+    }
 
-    final sampleProvenance = BoundaryProvenance(
+    final BoundaryProvenance sampleProvenance = BoundaryProvenance(
       datasetId: 'dosm_admin_2026',
       sourceUri: Uri.parse('https://data.gov.my/datasets/dosm_boundaries'),
       sourceVersion: 'v1.0.0',
@@ -43,7 +54,8 @@ class FakeGeographicContext implements GeographicContext {
       importedAt: DateTime.utc(2026, 1, 1),
     );
 
-    final results = <GeographicLevel, GeographicLevelOutcome>{};
+    final Map<GeographicLevel, GeographicLevelOutcome> results =
+        <GeographicLevel, GeographicLevelOutcome>{};
 
     if (request.levels.contains(GeographicLevel.district)) {
       results[GeographicLevel.district] = GeographicLevelResolved(

@@ -36,7 +36,10 @@ final class FakeAuthenticationSession implements AuthenticationSession {
   }
 
   @override
-  Stream<SessionSnapshot> watchSession() => changes.stream;
+  Stream<SessionSnapshot> watchSession() {
+    return changes.stream;
+  }
+
   @override
   Future<SignInOutcome> signIn({
     required String email,
@@ -44,7 +47,11 @@ final class FakeAuthenticationSession implements AuthenticationSession {
   }) {
     ++signInCalls;
     submittedEmail = email;
-    return pendingSignIn ?? Future.value(signedIn);
+    final Future<SignInOutcome>? pendingOutcome = pendingSignIn;
+    if (pendingOutcome != null) {
+      return pendingOutcome;
+    }
+    return Future.value(signedIn);
   }
 
   @override

@@ -37,11 +37,15 @@ dependencies:
     sdk: flutter
   intl: ^0.20.2
   shared_preferences: ^2.5.3
+  provider: ^6.1.5+1
   cupertino_icons: ^1.0.8
   flutter_dotenv: ^6.0.1
   supabase_flutter: 2.17.2
   http: 1.6.0
   path_provider: 2.1.6
+  sqflite: 2.4.2
+  flutter_map: 8.2.2
+  latlong2: 0.9.1
 
 dev_dependencies:
   shared_preferences_platform_interface: 2.4.2
@@ -54,6 +58,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  sqflite_common_ffi: 2.4.0+3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -65,9 +70,19 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
+  fonts:
+    - family: SourceSansPro
+      fonts:
+        - asset: assets/fonts/source_sans_pro/SourceSansPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/source_sans_pro/SourceSansPro-Semibold.ttf
+          weight: 600
+        - asset: assets/fonts/source_sans_pro/SourceSansPro-Bold.ttf
+          weight: 700
   uses-material-design: true
   assets:
     - .env
+    - assets/fonts/source_sans_pro/LICENSE.txt
 
   # To add assets to your application, add an assets section, like this:
   # assets:

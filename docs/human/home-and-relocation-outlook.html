@@ -1,11 +1,12 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Home &amp; Relocation Outlook 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Home &amp; Relocation Outlook 开发协作契约</h1>
+<!doctype html><html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Home & Relocation Outlook Development Contract</title><style>body{max-width:1120px;margin:40px auto;padding:0 24px;font:16px/1.7 system-ui;color:#172033;background:#f6f8fb}table{border-collapse:collapse;width:100%;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{background:#eaf2ff;padding:16px;overflow:auto}a{color:#155eef}h1,h2,h3{line-height:1.35}</style></head><body><h1 id="home-relocation-outlook">Home &amp; Relocation Outlook 开发协作契约</h1>
 <blockquote>
 <p>Owner：<code>A</code><br>
+模块实现：<code>Implemented</code>（2026-09-17）；集成状态：Home/Shell 当期子项通过，真实 Map 联验待 Owner A 于 Wave 4 完成，尚未批准 <code>Integrated</code>。<br>
 依赖顺序：Wave 4；消费已冻结的 Application Shell <code>SHELL-001</code>，并向 Shell 提供 <code>HOME-001</code> 公共入口与 fake。<br>
 定义完成：Shell 能只凭本文件读取、呈现和刷新全国首页结果，并安全提交“探索地图”意图；不需要 Home 的内部文件、Supabase Adapter 或缓存实现。</p>
 </blockquote>
 <p>本文件是 Home &amp; Relocation Outlook 唯一的跨 Owner 开发协作契约；同名 HTML 是供人阅读的等价导出，不是平行的发布或治理工件。它只固定可观察结果、公开 Dart seam、数据边界与联验；<code>lib/features/home_relocation_outlook/</code> 内的页面、状态管理、计算组织、缓存策略、并发/取消/重试和测试组织由 A 决定。公式正文只在产品知识库，字段、RLS 与迁移只在 Schema Catalog。</p>
-<h2>1. 任务成果</h2>
+<h2 id="1">1. 任务成果</h2>
 <ul>
 <li>在已打开的主应用首页，用户可看到全国 <code>0–100</code> 搬家时机、状态、最多三条原因、三个宏观分项和家庭收入中位数；每项携带单位、真实观测日期、来源和可用性。</li>
 <li>用户可以用按钮或下拉触发同一刷新语义；成功刷新后有 60 秒进程内冷却，失败保留已可用结果并如实标示缓存或过期状态。</li>
@@ -13,7 +14,7 @@
 <li>包含 <code>HOME-01</code>、<code>HOME-02</code>、<code>HOME-03</code>；不拥有地点分析、个人化地点适配度、地图状态、语言偏好、认证门控或政府数据写入。</li>
 </ul>
 <p>产品事实唯一来源：<a href="../knowledge_base/locatemy_product/features/home.md">首页</a>、<a href="../knowledge_base/locatemy_product/home_index_scoring.md">首页宏观指数</a>；系统追踪为 <code>HOME-001</code>、<code>D04</code>、<code>FLOW-08</code> 与 <code>AT-HOME-01</code>–<code>AT-HOME-03</code>。</p>
-<h2>2. 责任与依赖</h2>
+<h2 id="2">2. 责任与依赖</h2>
 <table>
 <thead>
 <tr>
@@ -45,8 +46,8 @@
 </tbody>
 </table>
 <p>Home 的受控实现边界是 <code>lib/features/home_relocation_outlook/</code>。消费者只使用下列公开入口；不导入该目录的 <code>src/</code> 或任何 Adapter 文件。</p>
-<h2>3. 需要调用 Interface</h2>
-<h3><code>SHELL-001</code>：提交探索地图意图</h3>
+<h2 id="3-interface">3. 需要调用 Interface</h2>
+<h3 id="shell-001"><code>SHELL-001</code>：提交探索地图意图</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Home；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。下列是 <a href="../design/modules/application-shell.md#shell-001--application-coordination">Application Shell 的 canonical <code>SHELL-001</code> 声明</a>；Home 只调用其中的 <code>submit</code>，不调用 <code>publish</code>，也不重述、缩窄或另定义任何 Shell 类型。</p>
 <pre><code class="language-dart">abstract interface class ApplicationShell {
   Future&lt;ShellIntentOutcome&gt; submit(ShellIntent intent);
@@ -108,8 +109,8 @@ enum ShellRejectionReason {
 </tbody>
 </table>
 <p><strong>Fake 场景：</strong> Home 使用 fake Shell 分别返回 accepted、rejected 和 authentication-required；断言 accepted 只发出上述无地点意图，另外两种结果保持首页原状且可读出原因。测试不需要地图或真实 Shell。</p>
-<h2>4. 必须提供 Interface</h2>
-<h3><code>HOME-001</code>：全国搬家时机与宏观首页</h3>
+<h2 id="4-interface">4. 必须提供 Interface</h2>
+<h3 id="home-001"><code>HOME-001</code>：全国搬家时机与宏观首页</h3>
 <p><strong>提供者：</strong> Home &amp; Relocation Outlook（A）；<strong>消费者：</strong> Application Shell；<strong>唯一公开 import：</strong> <code>package:locatemy/features/home_relocation_outlook/home_relocation_outlook.dart</code>。</p>
 <p>消费者只能 import 此入口。A 应先合入下列声明与最小 fake；这些是协作形状，不是可提交实现体。</p>
 <pre><code class="language-dart">abstract interface class HomeRelocationOutlook {
@@ -188,7 +189,7 @@ final class MetricSource {
 }
 </code></pre>
 <p><code>HomeOutlookSnapshot</code> 的五个字段始终存在；<code>MetricAvailability.unavailable</code> 时该卡数值字段为 null，并提供分类原因。<code>HomeCompleteness.partial</code> 表示至少一张卡不可用，并与 <code>fresh</code>、<code>cached</code> 或 <code>stale</code> 的资料新旧事实独立；卡来源日期仍由 <code>MetricSource</code> 表示。</p>
-<h4>输入与调用次序</h4>
+<h4 id="_1">输入与调用次序</h4>
 <table>
 <thead>
 <tr>
@@ -210,7 +211,7 @@ final class MetricSource {
 </tr>
 </tbody>
 </table>
-<h4>输出、失败、状态与副作用</h4>
+<h4 id="_2">输出、失败、状态与副作用</h4>
 <table>
 <thead>
 <tr>
@@ -253,7 +254,7 @@ final class MetricSource {
 <li>综合分仅在三项主分项均可用时提供；原因最多三条，按模型影响排序。家庭收入中位数为背景卡，绝不参与综合分。</li>
 <li>Home 不读取账户资料、不写政府镜像表、不执行导航、不生成地点，也不把缓存或一次性导入称为官方实时统计。</li>
 </ul>
-<h4>最小调用示例（Shell）</h4>
+<h4 id="shell">最小调用示例（Shell）</h4>
 <pre><code class="language-dart">final outcome = await homeRelocationOutlook.load(HomeLoadRequest.cacheAllowed);
 switch (outcome) {
   case HomeLoaded(:final snapshot):
@@ -265,7 +266,7 @@ switch (outcome) {
 }
 </code></pre>
 <p><strong>Fake 场景：</strong> Shell 以 fake <code>HomeRelocationOutlook</code> 返回：（1）三主分项与收入均 available、异频日期的 fresh snapshot；（2）一个主分项 unavailable 的 partial snapshot；（3）stale snapshot；（4）<code>HomeUnavailable(noCachedResult)</code>；（5）<code>HomeRefreshCoolingDown(remainingSeconds: 42)</code>。断言分别保留日期/来源、使综合卡 unavailable 而保留其他卡、标示 stale、提供重试、显示 42 秒且不再调用 refresh；无需 Supabase 或 A 的生产计算。</p>
-<h2>5. 直接使用数据</h2>
+<h2 id="5">5. 直接使用数据</h2>
 <table>
 <thead>
 <tr>
@@ -302,14 +303,14 @@ switch (outcome) {
 </tr>
 </tbody>
 </table>
-<h2>6. 推荐实现顺序</h2>
+<h2 id="6">6. 推荐实现顺序</h2>
 <ol>
 <li><strong>A：先合入公共 seam。</strong> 创建唯一入口、上述声明和最小 fake；Shell 不依赖 A 的内部文件。</li>
 <li><strong>Shell：用 fake 完成首页槽位。</strong> 处理 loaded、partial、stale、unavailable、冷却及探索地图的 accepted/rejected/authentication-required。</li>
 <li><strong>A：实现实际读取与模型。</strong> 只经 <code>read_home_metrics</code> 取得输入，按知识库应用模型；实现公共缓存、成功刷新冷却和来源元数据。</li>
 <li><strong>共同联调。</strong> 在 opened scope 下接入实际 seam，执行下节的 Interface 级场景；只为该联验保留跨 Owner 流程测试。</li>
 </ol>
-<h2>7. 联合验收</h2>
+<h2 id="7">7. 联合验收</h2>
 <table>
 <thead>
 <tr>
@@ -358,19 +359,126 @@ switch (outcome) {
 </tr>
 </tbody>
 </table>
-<h2>8. 内部自由</h2>
+<h3 id="71-wave-4">7.1 Wave 4 验收分配</h3>
+<p>项目负责人于 2026-09-17 确认四个 TDD seam：HOME-001 load、首页公开页面、Home/真实 Shell 公开组合入口、通过 HOME-001 真实 RPC 及数据库权限。仅在这些边界观察行为；外部 HTTP、SQLite 和时钟可使用确定性 Adapter。</p>
+<table>
+<thead>
+<tr>
+<th>场景 / 可观察结果</th>
+<th>验证归属</th>
+<th>依赖分类</th>
+<th>证据要求</th>
+<th>Owner</th>
+<th>最迟 Wave</th>
+<th>本模块状态</th>
+<th>联合状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HOME-W4-01 完整首页、独立数据日期/来源/单位、模型与原因</td>
+<td>两者</td>
+<td>本期真实 RPC/Home/Shell；HTTP 测试边界</td>
+<td>load 已知例、页面、live 与设备</td>
+<td>A</td>
+<td>4</td>
+<td>已通过；见 7.3</td>
+<td>Home/Shell 当期子项已通过；见 7.3</td>
+</tr>
+<tr>
+<td>HOME-W4-02 缺失/字段变化/历史不足、60% 门槛、收入独立</td>
+<td>两者</td>
+<td>本期真实计算；HTTP 确定性数据</td>
+<td>load 与页面保留可用卡、未知不置零</td>
+<td>A</td>
+<td>4</td>
+<td>已通过；见 7.3</td>
+<td>Home/Shell 当期子项已通过；见 7.3</td>
+</tr>
+<tr>
+<td>HOME-W4-03 cached/stale/无缓存、较新替换、进程重启</td>
+<td>两者</td>
+<td>本期真实 SQLite；网络故障测试边界</td>
+<td>持久缓存/失败恢复、离线设备</td>
+<td>A</td>
+<td>4</td>
+<td>已通过；见 7.3</td>
+<td>Home/Shell 当期子项已通过；见 7.3</td>
+</tr>
+<tr>
+<td>HOME-W4-04 双入口刷新、进行中去重、仅成功60秒冷却</td>
+<td>两者</td>
+<td>本期真实 Home/Shell；测试时钟/网络</td>
+<td>load、按钮/下拉、失败保留、设备</td>
+<td>A</td>
+<td>4</td>
+<td>已通过；见 7.3</td>
+<td>Home/Shell 当期子项已通过；见 7.3</td>
+</tr>
+<tr>
+<td>HOME-W4-05 opened门控、关闭丢弃响应、无地点探索/拒绝</td>
+<td>两者</td>
+<td>本期真实 Auth/Privacy/Shell/Home；Map 后续槽位</td>
+<td>公开组合测试与设备关闭/重启；真实 Map 联验</td>
+<td>A</td>
+<td>Home/Shell 4；Map 4</td>
+<td>已通过；见 7.3</td>
+<td>Home/Shell 已通过；真实 Map 待接入，A / Wave 4</td>
+</tr>
+<tr>
+<td>HOME-W4-06 中英日期/动态状态、小屏200%、文字可读性</td>
+<td>本模块</td>
+<td>本期真实本地化</td>
+<td>Widget与两目标设备</td>
+<td>A；B模拟器</td>
+<td>4</td>
+<td>已通过；见 7.3</td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>HOME-W4-07 外部映射和RPC读权限、镜像写入/匿名deny</td>
+<td>本模块</td>
+<td>本期真实开发环境；HTTP确定性错误</td>
+<td>官方schema/键/行数/日期审计、live allow/deny</td>
+<td>A</td>
+<td>4</td>
+<td>已通过；见 7.3</td>
+<td>不适用</td>
+</tr>
+</tbody>
+</table>
+<p>Map 的地图状态和真实页面不在本任务开发范围；其 Wave 4 联合责任仍由 A 承担，Home 不制造地点或成功占位。</p>
+<h3 id="72-wave-4">7.2 Wave 4 实现接线</h3>
+<p>Feature 分层实现 HOME-001：Domain 管理百分位、历史、权重和卡片规则；Application use case 管理读取、去重、缓存替换、降级与成功冷却；Data Adapter 隔离 Supabase/SQLite；HomeViewModel 管理呈现和用户动作，公开 HomeOutlookPage 提供 Shell 首页槽位。
+唯一公开入口补充生产装配 factory 和页面 helper；HOME-001/SHELL-001 的成员和结果不变。
+测试 fake 仅位于 test/support，不接入生产。SQLite TTL 为 24 小时，成功冷却仅内存保存。</p>
+<p>组合根在每个 opened scope 创建独立 Home provider/ViewModel，以弱 scope key 复用当前页面；只共享无账户字段的持久公共缓存，旧账户请求不与新账户合并。探索 marker 由组合根精确投影为 Map Tab，不构造地点、分析语境或默认坐标。
+页面中英文同等呈现各自数据日期、来源/单位、方向、原因与 fresh/cached/stale/partial/typed failure；指数有文字和读屏摘要，不只靠颜色。三个宏观图按各自最后六个月的有效观测重算，明确标示 currentObservationsApproximation，逐期日期/分数可供读屏；缺失月不复制前值，缓存重启缺少序列时显示趋势不可用和方向摘要。</p>
+<p>当前官方 GDP CSV 只有 abs，RPC 不将其作为 growth_qoq；经济动能使用其余可用 70% 原权重归一化。这是可用输入的如实处理，不改变模型、数据或公共结果。</p>
+<h3 id="73-implemented-2026-09-17">7.3 Implemented 验收记录（2026-09-17）</h3>
+<p>四个已确认测试边界均通过：HOME-001 公开 load（26 项）、公开页面（6 项）、真实 Shell 组合（2 项）、真实 Supabase RPC/权限（1 项 live）；另有真实 provider 的趋势页面测试 2 项。共 36 项定向测试、145 项全量通过（5 项显式 opt-in 跳过）；Home live 单独启用通过。格式、静态分析、diff 检查和普通 debug APK 构建通过。</p>
+<p>Owner A 真机及 Owner B 目标模拟器均通过：首页双语、实际下拉刷新/冷却、离线 stale、过期公共缓存进程重启、在线恢复、无地点 Map Tab/返回、关闭 scope 后旧意图拒绝。正常 APK 已恢复、测试账户已清理；凭据扫描通过。</p>
+<p>历史月/季窗口回退、GDP schema/data 异常不成功冷却、缓存分数/日期损坏拒绝、SQLite 临时失败恢复和跨 scope 晚到写入回退防护均有公开 TDD 证据。稳定诊断事件仅含固定分类、耗时桶和生成关联号，敏感字段 deny-list 测试通过。</p>
+<p>基线 HEAD <code>66f4ffc1e9392a1cdf9e01b054cbd81b713e82b9</code>；测试/live/两设备及 APK 的 App source SHA-256 为 <code>931fc6856e6301ea59975c2ca7ceee2ecf918c559d54f909ca8a8d449424ac1a</code>，迁移和 Python runner 另有 revision 清单。
+证据：<a href="home-and-relocation-outlook-wave4-acceptance-2026-09-17.md">验收报告</a>、<a href="home-and-relocation-outlook-wave4-review-2026-09-17.md">GPT-5.6 Luna High 两轴审查</a>、<a href="evidence/home-and-relocation-outlook-wave4-2026-09-17/checks.source.json">命令与版本</a>、<a href="evidence/home-and-relocation-outlook-wave4-2026-09-17/device-verification-summary.json">设备与清理</a>、<a href="evidence/home-and-relocation-outlook-wave4-2026-09-17/schema-and-tool-revision.json">迁移/工具版本</a>。</p>
+<p>Home 模块当前阻塞：无。整个 Wave 4 尚未完成：真实 Map 页面及 HOME-W4-05 完整联合场景仍由 Owner A 在 Wave 4 交付，不能把 Tab 槽位证据当作真实 Map 联验或 Integrated 批准。</p>
+<h3 id="74-penpot-2026-09-17">7.4 Penpot 首页风格对照（2026-09-17）</h3>
+<p>通过 Penpot MCP 读取 <code>LocateMY Mobile UI</code> / <code>02 · 首页</code>（board <code>f8bc3597-5a95-809e-8008-a3e627fc0313</code>），实现 Source Sans Pro、蓝色/深蓝色与浅灰底、评分卡 20 圆角、指标卡 14 圆角、探索按钮前置和 Shell 品牌/账户/导航样式。真实指标、独立日期、收入与趋势继续遵守合同；200% 字号采用自适应布局。</p>
+<p>UI 更新后全量 146 项通过、5 项 opt-in 跳过，live 1 项通过；静态分析与格式检查通过。Owner A 真机和 Owner B 模拟器均通过双语、实际下拉/冷却、离线/重启/恢复、探索与 scope 关闭；普通 APK 恢复、临时凭据清理及扫描通过。GPT-5.6 Luna High 的 Spec/Standards 两轴均通过；Home 维持 Implemented，真实 Map 联验责任不变。</p>
+<p>当前含字体 App SHA-256：<code>aa0ebdfff9b062e5c0c499d5f6f9ff732b78a37605cc99e1f9e91df8af183825</code>；7.3 为此前核心实现记录。<a href="home-penpot-alignment-2026-09-17.md">UI 对照报告与截图</a>、<a href="evidence/home-penpot-alignment-2026-09-17/penpot-device-summary.json">最终设备记录</a>。</p>
+<h2 id="8">8. 内部自由</h2>
 <p>A 可决定 Feature 内的文件拆分、Widget、状态管理、Adapter、缓存序列化、TTL、请求调度、取消、重试、去重、局部验证和测试组织。Shell 可决定其槽位布局、日期本地化和导航 UI。以下事项须先协商：唯一公开 import、公开声明/结果变体、60 秒成功冷却、三主分项/收入的可用性边界、来源元数据、探索地图的无地点约束、<code>read_home_metrics</code>/<code>home_public_cache</code> 的 schema 或权限。</p>
-<h2>9. 阻塞与权威参考</h2>
-<p><strong>当前阻塞项：无。</strong> <code>read_home_metrics</code> 与 <code>home_public_cache</code> 仍是 <code>proposed</code>：实现前须以 Schema Catalog 的 add–migrate–validate 证据确认官方 schema/键/行数、最大日期和完整/部分/空导入。运行时依赖、离线与可访问性证据由 <code>RISK-NFR-01</code> 在实现/集成验收关闭；它们不改变本契约。</p>
+<h2 id="9">9. 阻塞与权威参考</h2>
+<p><strong>当前阻塞项：无。</strong> <code>read_home_metrics</code> 与 <code>home_public_cache</code> 已实现：官方 schema/键/行数、最大日期与完整/部分/空输入由 Schema Catalog 的 Home Wave 4 条目及验收证据追踪。运行时依赖、离线与可访问性证据由 <code>RISK-NFR-01</code> 在实现/集成验收关闭；它们不改变本契约。</p>
 <p>权威参考：<a href="../design/modules/application-shell.md#shell-001--application-coordination">Application Shell</a>、<a href="../design/system/interfaces.md">系统 Interface 注册表</a>、<a href="../design/system/flows.md#flow-08首页刷新与探索地图">FLOW-08</a>、<a href="../design/system/capability-traceability.md">Capability 追踪</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#稳定公共读取对象">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md">风险与决定</a>、<a href="../knowledge_base/locatemy_product/features/home.md">首页产品事实</a>、<a href="../knowledge_base/locatemy_product/home_index_scoring.md">指数事实</a>。</p>
-<h3>Ready 检查</h3>
+<h3 id="ready">Ready 检查</h3>
 <ul>
 <li>[x] Owner、消费者、受控边界和 Wave 4 依赖次序明确。</li>
 <li>[x] <code>HOME-001</code> 与消费的 <code>SHELL-001</code> 均有唯一公开 import、声明或精确调用、输入约束、typed 结果/失败、状态/副作用、次序、权限、最小示例与 fake 场景。</li>
 <li>[x] <code>read_home_metrics</code>、<code>home_public_cache</code>、<code>STATE-HOME-REFRESH</code> 和模型的访问/权限/数据边界均链接唯一权威，且不复制字段、RLS、迁移或公式正文。</li>
 <li>[x] 联合验收覆盖完整/partial、缓存/无缓存、双入口刷新与冷却、范围门控和无地点地图导航，双向追踪 <code>AT-HOME-01</code>–<code>AT-HOME-03</code>。</li>
 </ul>
-<h2>10. Change Log</h2>
+<h2 id="10-change-log">10. Change Log</h2>
 <table>
 <thead>
 <tr>

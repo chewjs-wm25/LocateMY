@@ -9,8 +9,9 @@ final class AuthenticationPrivacyParticipant
   final AuthenticationSession _session;
   AuthenticationPrivacyParticipant(this._session);
   @override
-  AccountPrivacyParticipantId get participantId =>
-      AccountPrivacyParticipantId.authenticationSession;
+  AccountPrivacyParticipantId get participantId {
+    return AccountPrivacyParticipantId.authenticationSession;
+  }
 
   @override
   Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope) async {
@@ -22,18 +23,17 @@ final class AuthenticationPrivacyParticipant
       );
     }
     try {
-      final current = await _session.restoreSession();
+      final SessionSnapshot current = await _session.restoreSession();
       if (current is UnauthenticatedSession) {
         return PrivateStateCleared(participantId, scope);
       }
-      return PrivateStateClearIncomplete(
-        participantId,
-        scope,
-        current is SessionUnavailable &&
-                current.failure == SessionFailure.retryableUnavailable
-            ? PrivateStateClearFailure.retryableUnavailable
-            : PrivateStateClearFailure.scopeUnavailable,
-      );
+      PrivateStateClearFailure failure =
+          PrivateStateClearFailure.scopeUnavailable;
+      if (current is SessionUnavailable &&
+          current.failure == SessionFailure.retryableUnavailable) {
+        failure = PrivateStateClearFailure.retryableUnavailable;
+      }
+      return PrivateStateClearIncomplete(participantId, scope, failure);
     } catch (_) {
       return PrivateStateClearIncomplete(
         participantId,

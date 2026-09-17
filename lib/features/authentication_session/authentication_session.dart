@@ -18,16 +18,26 @@ import 'src/data/supabase_authentication_session_adapter.dart';
 
 AccountPrivacyParticipant createAuthenticationPrivacyParticipant(
   AuthenticationSession session,
-) => AuthenticationPrivacyParticipant(session);
+) {
+  return AuthenticationPrivacyParticipant(session);
+}
 
-AuthenticationSession createAuthenticationSession(SupabaseClient client) =>
-    SupabaseAuthenticationSessionAdapter(client);
+AuthenticationSession createAuthenticationSession(SupabaseClient client) {
+  return SupabaseAuthenticationSessionAdapter(client);
+}
 
 // Composition helpers; AUTH-001 declarations and Feature consumption stay fixed.
 AuthenticationViewModel createAuthenticationViewModel(
   AuthenticationSession session,
-) => AuthenticationViewModel(AuthenticationUseCase(session));
+) {
+  final AuthenticationUseCase useCase = AuthenticationUseCase(session);
+  return AuthenticationViewModel(useCase);
+}
 
 Future<ProfileRegistrationOutcome> retryAuthenticationOptionalProfile(
   AuthenticationSession session,
-) => (session as SupabaseAuthenticationSessionAdapter).retryOptionalProfile();
+) {
+  final SupabaseAuthenticationSessionAdapter adapter =
+      session as SupabaseAuthenticationSessionAdapter;
+  return adapter.retryOptionalProfile();
+}
