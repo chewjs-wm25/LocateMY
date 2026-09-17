@@ -6,7 +6,7 @@ import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/features/public_transportation/public_transportation.dart';
 
 void main() {
-  test('official snapshot RPC preserves partial facts and enforces read-only access', () async {
+  test('complete imported snapshot serves scored facts and enforces read-only access', () async {
     HttpOverrides.global = null;
     final Map<String, String> env = Platform.environment;
     final SupabaseClient client = SupabaseClient(
@@ -39,27 +39,25 @@ void main() {
           policy: TransitLoadPolicy.refresh,
         ),
       );
-      expect(outcome, isA<TransitIncomplete>());
-      final TransitPartialSnapshot snapshot =
-          (outcome as TransitIncomplete).snapshot;
+      expect(outcome, isA<TransitAvailable>());
+      final TransitSnapshot snapshot = (outcome as TransitAvailable).snapshot;
       expect(snapshot.radiusMeters, 1500);
       expect(snapshot.feeds.length, 16);
       expect(snapshot.stations, isNotEmpty);
       expect(snapshot.uniqueStopCount, snapshot.stations.length);
       expect(snapshot.uniqueRouteCount, greaterThan(0));
-      expect(snapshot.provenance.snapshotId, 'official-2026-09-17');
+      expect(snapshot.provenance.snapshotId, 'manual-2026-09-17-complete');
+      expect(snapshot.score, isNotNull);
+      expect(snapshot.score!.value, inInclusiveRange(0, 100));
       expect(
         snapshot.provenance.referenceGridVersion,
         'utm-wgs84-1km-stopcatchment-v1',
       );
       expect(
-        snapshot.feeds
-            .where((FeedStatus feed) {
-              return feed.availability == FeedAvailability.failed;
-            })
-            .single
-            .feedId,
-        'gtfs_static_prasarana_rapid_bus_kuantan',
+        snapshot.feeds.every((FeedStatus feed) {
+          return feed.availability == FeedAvailability.usable;
+        }),
+        isTrue,
       );
       final TransitLoadOutcome future = await transportation.load(
         TransitRequest(

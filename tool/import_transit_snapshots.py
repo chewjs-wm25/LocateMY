@@ -16,6 +16,9 @@ def prepare():
         status = {**shared, 'source_id': feed, 'source_url': item['url'],
                   'captured_at': None, 'parse_status': 'failed', 'failure_reason': item.get('failure'),
                   'service_start': None, 'service_end': None, 'source_sha256': None}
+        # Snapshot identity uses the registered producer; the audit retains the
+        # actual archive URL and capture time for a verified archived feed.
+        status['source_url'] = item.get('official_producer_url',item['url'])
         try:
             if 'failure' in item:
                 raise ValueError(item['failure'])
@@ -149,12 +152,13 @@ def promote(grid_version, analysis_date):
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser()
+    parser.add_argument('--root',type=Path,default=ROOT)
     parser.add_argument('--snapshot',default=SNAPSHOT)
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--promote',action='store_true')
     parser.add_argument('--grid-version')
     parser.add_argument('--analysis-date')
-    args=parser.parse_args();SNAPSHOT=args.snapshot
+    args=parser.parse_args();SNAPSHOT=args.snapshot;ROOT=args.root
     if args.promote:
         if not args.grid_version or not args.analysis_date:
             parser.error('--promote requires --grid-version and --analysis-date')

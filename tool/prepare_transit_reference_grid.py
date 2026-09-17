@@ -159,7 +159,8 @@ def apply(snapshot,day):
 
 if __name__=='__main__':
     import re
-    parser=argparse.ArgumentParser();parser.add_argument('--snapshot',default='official-2026-09-17');parser.add_argument('--date',required=True);parser.add_argument('--apply',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--snapshot',default='official-2026-09-17');parser.add_argument('--date',required=True);parser.add_argument('--apply',action='store_true');parser.add_argument('--root',type=Path,default=ROOT);args=parser.parse_args()
+    ROOT=args.root
     if not re.fullmatch(r'[A-Za-z0-9_-]+',args.snapshot):parser.error('Invalid snapshot identity')
     day=datetime.date.fromisoformat(args.date).isoformat()
     if args.apply:apply(args.snapshot,day)

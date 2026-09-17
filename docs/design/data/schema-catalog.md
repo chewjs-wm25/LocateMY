@@ -44,7 +44,7 @@
 | `economic_indicators` | `implemented` | Home | `date`；leading、leading diffusion | Home；当前缺失 |
 | `gdp_qtr_real_sa` | `implemented` | Home | `(series, date)`；value | Home；现有年度 GDP/GNI 表不能替代季度季调序列 |
 | `hh_income` | `implemented` | Home | `date`；income mean/median | Home |
-| `price_catcher` / `pricecatcher` | `implemented` | Cost | `(date, premise_code, item_code)`；price | Cost；物理名可保留，来源 ID 仍为 `pricecatcher` |
+| `price_catcher` / `pricecatcher` | `implemented` | Cost | `(date, premise_code, item_code)`；price | Cost；2026-09-17 确认仅保留 cost-basket-v1 的 11 个商品代码，2025-10 至 2026-09 共 460,019 行；来源 ID 为 pricecatcher；原始观测缺失保持缺失 |
 | `lookup_item` | `implemented` | Cost | `item_code`；item、unit、group、category | Cost |
 | `lookup_premise` | `implemented` | Cost | `premise_code`；premise/address/type/state/district | Cost |
 | `cpi_state` | `implemented` | Cost | `(state, date, division)`；index；临时换算同时读取地点所属州与全国 Headline/Overall CPI 的同月记录 | Cost |
@@ -52,15 +52,16 @@
 | `hh_income_district` | `implemented` | Cost、Socio | `(state, district, date)`；income mean/median | Cost、Socio |
 | `hh_income_state` | `proposed` | Socio | `(state, date)`；income mean/median | Socio；现有 `hies_state` 不是同一数据集 |
 | `hh_inequality_district` | `implemented` | Socio | `(state, district, date)`；gini | Socio |
-| `hh_inequality_state` | `proposed` | Socio | `(state, date)`；gini | Socio；现有全国 `hh_inequality` 不能替代 |
-| `hies_state_percentile` | `proposed` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；现有全国 percentile 与州汇总表不能替代 |
+| `hh_inequality_state` | `implemented` | Socio | `(state, date)`；gini | Socio；2026-09-17 完整导入 289 行，最新 2024 年覆盖 16 州；不代表 Socio Feature 已实现 |
+| `hies_state_percentile` | `implemented` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；2026-09-17 完整导入 19,200 行，2019/2022/2024 × 16 州 × 100 百分位 × 4 变量；保留 96 个官方隐私空值 |
 | `crime_district` | `implemented` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；已重命名并与官方 CSV 完整业务内容校验；只读 RPC 排除全国/All 汇总，聚合警区叶记录 |
 | `government_dataset_imports` | `implemented` | Geographic Context | `(dataset id, source version, derived geometry hash)`；source URL/SHA-256、transform、row count、import time | 行政区边界的不可变导入审计；客户端无表读权 |
+| `government_data_import_files` | `implemented` | 手动资料导入 | `(import_id,dataset_id,source_sha256)`；source_url、selection_rule、row_count、rejected_rows、imported_at | 33 个源文件登记；单独记录 PriceCatcher 筛选和关丹归档下载 URL；RLS 无客户端 policy/grant，service_role 仅 SELECT/INSERT/UPDATE |
 | `administrative_district_boundaries` | `implemented` | Geographic Context | `(boundary id, source version, derived geometry hash)`；state、district、multipolygon | 160 个 DOSM `administrative_2_district` 边界已导入；7 个退化环按 `RISK-GEO-02` 修复，重叠保持候选；客户端无表读权 |
 | `police_districts_boundary` | `retiring` | 无 | id、name、state、multipolygon、source version | 禁止新消费者；警区多边形资料不可获取，待无消费者后由 migration 删除；历史 migration 不回写 |
 | `hh_access_amenities` | `implemented` | Infrastructure | `(state, district, date)`；piped water、sanitation、electricity | Infrastructure |
 | `hospital_beds` | `implemented` | Infrastructure | `(state, district, date, type)`；beds | Infrastructure |
-| `population_district` | `proposed` | Infrastructure | `(state, district, date, sex, age, ethnicity)`；population | Infrastructure；现有 `district_population` 缺维度，不能替代 |
+| `population_district` | `implemented` | Infrastructure | `(state, district, date, sex, age, ethnicity)`；population | Infrastructure；2026-09-17 完整导入 383,040 行，2020–2025 每年 160 行政区 × 3 性别 × 19 年龄 × 7 族群；population 保留官方千人单位 |
 | `schools_district` | `proposed` | Infrastructure | `(state, district, date, stage, type)`；schools | Infrastructure；当前缺失 |
 | `teachers_district` | `implemented` | Infrastructure | `(state, district, date, stage, sex)`；teachers | Infrastructure |
 | `enrolment_school_district` | `implemented` | Infrastructure | `(state, district, date, stage, sex)`；students | Infrastructure |
@@ -92,6 +93,8 @@
 真实读取/allow-deny及代码版本证据见 [公共交通 Wave 5 验证报告](../../human/evidence/public-transportation-wave5-2026-09-17/report.md)。表结构 implemented 不表示 Feature 达到 `Implemented`。
 
 ### 稳定公共读取对象
+
+2026-09-17 手动资料补齐后，最新推广交通批次为 `manual-2026-09-17-complete`：16 feed usable、17,611 站点、452 路线与 10,271 个重新核验的固定参照网格点（分析日期 2026-09-17）。关丹官方 producer URL 与真实归档下载 URL 分别保留在快照身份和 `government_data_import_files` 审计中，采集来源为 2026-07-23 归档。正式 Flutter 读取服务、完整评分、日期超界和读写权限 live 验证通过；旧部分批次仍保留。导入结果见 `docs/human/government-data-import-result-2026-09-17.md`，此前的部分批次说明仅描述旧批次。
 
 Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字段、原始统计日期、来源 ID、资料完整性和导入批次；View 使用调用者权限。RPC 默认不以提权掩盖访问错误；`read_administrative_boundary_candidates` 是已审计的例外：它只向 authenticated 返回固定候选与来源事实，表本身不授予客户端读权。
 
