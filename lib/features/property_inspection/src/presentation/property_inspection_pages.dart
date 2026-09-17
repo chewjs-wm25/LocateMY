@@ -60,9 +60,12 @@ String _failure(BuildContext context, Object failure) {
   );
 }
 
-enum _PropertyNotice { completed }
+enum _PropertyNotice { completed, saved }
 
 String _message(BuildContext context, Object message) {
+  if (message == _PropertyNotice.saved) {
+    return _text(context, 'Inspection saved online.', '实勘已在线保存。');
+  }
   if (message == _PropertyNotice.completed) {
     return _text(context, 'Online operation completed.', '在线操作已完成。');
   }
@@ -740,7 +743,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
             photoPicker: widget.photoPicker,
             chooseLocation: widget.chooseLocation,
             initialPhotos: picked,
-            message: _text(context, 'Inspection saved online.', '实勘已在线保存。'),
+            savedNotice: true,
           );
         },
       ),
@@ -945,21 +948,21 @@ final class PropertyInspectionDetailPage extends StatefulWidget {
   final String id;
   final PropertyPhotoPicker? photoPicker;
   final Future<ValidLocationReference?> Function(BuildContext)? chooseLocation;
-  final String? message;
+  final bool savedNotice;
   final List<PropertyPickedPhoto> initialPhotos;
   PropertyInspectionDetailPage({
     required PropertyInspectionService service,
     required String id,
     PropertyPhotoPicker? photoPicker,
     Future<ValidLocationReference?> Function(BuildContext)? chooseLocation,
-    String? message,
+    bool savedNotice = false,
     List<PropertyPickedPhoto> initialPhotos = const <PropertyPickedPhoto>[],
     super.key,
   }) : service = service,
        id = id,
        photoPicker = photoPicker,
        chooseLocation = chooseLocation,
-       message = message,
+       savedNotice = savedNotice,
        initialPhotos = List<PropertyPickedPhoto>.unmodifiable(initialPhotos);
   @override
   State<PropertyInspectionDetailPage> createState() {
@@ -993,7 +996,7 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
   void initState() {
     super.initState();
     vm.addListener(_changed);
-    message = widget.message;
+    message = widget.savedNotice ? _PropertyNotice.saved : null;
     selectedPhotos.addAll(widget.initialPhotos);
     _load();
     if (selectedPhotos.isNotEmpty) {

@@ -12,6 +12,51 @@ import 'property_service_test.dart'
     show MemoryPropertyStore, UnavailablePropertyRisk;
 
 void main() {
+  testWidgets('saved notice translates when active locale changes', (
+    WidgetTester tester,
+  ) async {
+    final ValueNotifier<Locale> locale = ValueNotifier<Locale>(
+      const Locale('en'),
+    );
+    await tester.pumpWidget(
+      ValueListenableBuilder<Locale>(
+        valueListenable: locale,
+        builder: (BuildContext context, Locale value, Widget? child) {
+          return MaterialApp(
+            locale: value,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: PropertyInspectionFormPage(
+              service: PropertyInspectionService(
+                store: MemoryPropertyStore(),
+                risk: UnavailablePropertyRisk(),
+              ),
+              location: const ValidLocationReference(
+                locationId: 'a',
+                point: GeographicPoint(latitude: 3, longitude: 101),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    await tester.enterText(find.byType(TextField).at(0), 'House');
+    await tester.enterText(find.byType(TextField).at(1), '1');
+    await tester.enterText(find.byType(TextField).at(2), 'Street');
+    await tester.scrollUntilVisible(
+      find.text('Save inspection'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Save inspection'));
+    await tester.pumpAndSettle();
+    expect(find.text('Inspection saved online.'), findsOneWidget);
+    locale.value = const Locale('zh');
+    await tester.pumpAndSettle();
+    expect(find.text('实勘已在线保存。'), findsOneWidget);
+    expect(find.text('Inspection saved online.'), findsNothing);
+  });
+
   testWidgets(
     'detail photo reservation failure retains current selection for retry',
     (WidgetTester tester) async {
