@@ -30,7 +30,6 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
     super.didUpdateWidget(oldWidget);
     if (oldWidget.location != widget.location || oldWidget.analysisDate != widget.analysisDate) {
       _model.changeLocation(widget.location, widget.analysisDate);
-      _model.load();
     }
   }
 

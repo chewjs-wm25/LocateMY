@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
 import '../domain/infrastructure_models.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
+import '../application/infrastructure_service.dart';
 
 enum InfrastructureLoadPolicy { cacheAllowed, refresh }
 
 final class InfrastructureViewModel extends ChangeNotifier {
+  final InfrastructureService _service = const InfrastructureService();
+
   ValidLocationReference _location;
   DateTime _analysisDate;
 
@@ -17,6 +20,9 @@ final class InfrastructureViewModel extends ChangeNotifier {
   ValidLocationReference get location => _location;
   DateTime get analysisDate => _analysisDate;
 
+  int _revision = 0;
+  bool _closed = false;
+
   InfrastructureViewModel({required ValidLocationReference location, required DateTime analysisDate})
       : _location = location,
         _analysisDate = analysisDate;
@@ -25,9 +31,16 @@ final class InfrastructureViewModel extends ChangeNotifier {
     _loading = true;
     notifyListeners();
 
-    // Lightweight placeholder behaviour: simulate no data available yet.
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    _outcome = InfrastructureUnavailable('Data not yet implemented');
+    final int rev = ++_revision;
+
+    final InfrastructureLoadOutcome outcome = await _service.fetch(_location, _analysisDate, policy: policy);
+
+    if (_closed || rev != _revision) {
+      // a later request superseded this one or the model was disposed; drop the result
+      return;
+    }
+
+    _outcome = outcome;
     _loading = false;
     notifyListeners();
   }
@@ -36,12 +49,14 @@ final class InfrastructureViewModel extends ChangeNotifier {
     _location = location;
     _analysisDate = date;
     _outcome = null;
-    notifyListeners();
+    _revision++;
+    if (!_closed) notifyListeners();
     await load(InfrastructureLoadPolicy.cacheAllowed);
   }
 
   @override
   void dispose() {
+    _closed = true;
     _outcome = null;
     super.dispose();
   }
