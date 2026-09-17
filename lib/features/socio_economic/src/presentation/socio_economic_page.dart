@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../map_location/map_location.dart';
+import '../../../../l10n/language_controller.dart';
 import '../domain/socio_models.dart';
 import 'socio_view_model.dart';
 
@@ -84,6 +85,7 @@ final class _SocioEconomicPageState extends State<SocioEconomicPage> {
           style: _style(22, FontWeight.w700),
         ),
         actions: <Widget>[
+          const LanguageButton(),
           IconButton(
             tooltip: _text('Refresh', '刷新'),
             onPressed: () {

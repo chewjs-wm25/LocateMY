@@ -219,6 +219,11 @@ try:
             wait('家庭收入中位数')
             wait('Petaling')
             capture('single-zh')
+            tap('语言')
+            wait('Household median income')
+            capture('in-route-en')
+            tap('Language')
+            wait('家庭收入中位数')
             top()
             offline(True)
             tap('刷新')
@@ -268,7 +273,7 @@ try:
             (EVIDENCE / (tag + '-device.log')).write_text(logs)
             if any(message in logs for message in ['A RenderFlex overflowed', 'EXCEPTION CAUGHT BY', 'SOCIO_DEVICE: FAILED']):
                 raise RuntimeError(tag + ': Flutter error; sanitized log retained')
-            (EVIDENCE / (tag + '-verification.json')).write_text(json.dumps({**stamp, 'device': tag, 'single': 'PASS', 'offline_cached': 'PASS', 'retry': 'PASS', 'comparison': 'PASS', 'bilingual': 'PASS', 'font_200': 'PASS', 'logout': 'PASS'}, indent=2) + '\n')
+            (EVIDENCE / (tag + '-verification.json')).write_text(json.dumps({**stamp, 'device': tag, 'single': 'PASS', 'offline_cached': 'PASS', 'retry': 'PASS', 'comparison': 'PASS', 'bilingual': 'PASS', 'in_route_language_switch': 'PASS', 'font_200': 'PASS', 'logout': 'PASS'}, indent=2) + '\n')
             print(tag, 'ALL PASS', flush=True)
         except Exception:
             pid = run(adb + ['shell', 'pidof', '-s', PACKAGE]).decode().strip()

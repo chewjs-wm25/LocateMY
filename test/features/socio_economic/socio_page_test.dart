@@ -5,6 +5,8 @@ import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/socio_economic/socio_economic.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
+import 'package:locatemy/l10n/language_controller.dart';
+import 'package:provider/provider.dart';
 
 import 'socio_economic_test.dart' show GeoFixture, ReaderFixture, location;
 
@@ -57,6 +59,81 @@ Widget app(
 }
 
 void main() {
+  testWidgets('A unavailable and B usable retains B without crashing', (
+    WidgetTester tester,
+  ) async {
+    final ControlledSocio service = ControlledSocio();
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SocioEconomicPage(
+          socio: service,
+          location: location,
+          locationB: location,
+        ),
+      ),
+    );
+    service.requests[0].complete(
+      const SocioAnalysis(
+        location: location,
+        failure: SocioFailure.sourceUnavailable,
+      ),
+    );
+    await tester.pump();
+    service.requests[1].complete(
+      const SocioAnalysis(
+        location: location,
+        income: SocioReading(9000, 2024, 'Selangor', 'Petaling'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('RM 9,000'), 300);
+    expect(find.text('RM 9,000'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('About estimates'), 300);
+    expect(find.text('About estimates'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await service.events.close();
+  });
+  testWidgets(
+    'language switches on the Socio route without reloading analysis',
+    (WidgetTester tester) async {
+      final ControlledSocio service = ControlledSocio();
+      final LanguageController language = LanguageController();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<LanguageController>.value(
+          value: language,
+          child: Consumer<LanguageController>(
+            builder:
+                (
+                  BuildContext context,
+                  LanguageController controller,
+                  Widget? child,
+                ) {
+                  return app(service, locale: controller.locale);
+                },
+          ),
+        ),
+      );
+      service.requests[0].complete(
+        const SocioAnalysis(
+          location: location,
+          income: SocioReading(8210, 2024, 'Selangor', 'Petaling'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('社会与经济'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('language-switch')));
+      await tester.pumpAndSettle();
+      expect(find.text('Socio-economic'), findsOneWidget);
+      expect(find.text('RM 8,210'), findsOneWidget);
+      expect(service.requests, hasLength(1));
+      await tester.pumpWidget(const SizedBox());
+      await service.events.close();
+      language.dispose();
+    },
+  );
   testWidgets(
     'page displays real district readings and missing income position without a synthetic slider',
     (WidgetTester tester) async {
