@@ -193,12 +193,69 @@ void main() {
             : 'Convicted cases, not the actual crime rate';
         await tester.scrollUntilVisible(find.text(chart), 250);
         expect(find.text(chart), findsOneWidget);
+        expect(tester.getSemantics(find.text(chart)).label, contains(chart));
         expect(tester.takeException(), isNull);
         handle.dispose();
         await tester.pumpWidget(const SizedBox());
         await db.close();
       },
     );
+  }
+
+  for (final String language in <String>['zh', 'en']) {
+    testWidgets('$language A/B remains readable at 320dp and 200 percent', (
+      WidgetTester tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(320, 700));
+      addTearDown(() {
+        return tester.binding.setSurfaceSize(null);
+      });
+      final Database db = await databaseFactoryFfiNoIsolate.openDatabase(
+        inMemoryDatabasePath,
+      );
+      final GeoFixture geo = GeoFixture();
+      geo.locationStates['b'] = 'Johor';
+      final CrimeSecurity crime = createCrimeSecurity(
+        geographicContext: geo,
+        reader: ReaderFixture(),
+        database: db,
+      );
+      const ValidLocationReference b = ValidLocationReference(
+        locationId: 'b',
+        point: GeographicPoint(latitude: 1.5, longitude: 103.7),
+        displayName: 'Johor Bahru',
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: Locale(language),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (BuildContext context, Widget? child) {
+            return MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!,
+            );
+          },
+          home: CrimeSecurityPage(crime: crime, location: sunway, locationB: b),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final String title = language == 'zh' ? '治安与犯罪' : 'Crime and security';
+      expect(
+        tester
+            .renderObject<RenderParagraph>(find.text(title))
+            .didExceedMaxLines,
+        false,
+      );
+      expect(find.text('A · Sunway Mentari'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('B · Johor Bahru'), 250);
+      await tester.pumpAndSettle();
+      expect(find.text('B · Johor Bahru'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await db.close();
+    });
   }
 
   testWidgets(
