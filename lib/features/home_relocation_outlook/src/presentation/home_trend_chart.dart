@@ -46,15 +46,28 @@ final class HomeTrendChart extends StatelessWidget {
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                DateFormat.yMMM(Localizations.localeOf(context).languageCode)
-                    .format(points.first.observedAt),
+              Expanded(
+                child: FittedBox(
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    DateFormat.yMMM(
+                      Localizations.localeOf(context).languageCode,
+                    ).format(points.first.observedAt),
+                  ),
+                ),
               ),
-              Text(
-                DateFormat.yMMM(Localizations.localeOf(context).languageCode)
-                    .format(points.last.observedAt),
+              Expanded(
+                child: FittedBox(
+                  alignment: Alignment.centerRight,
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    DateFormat.yMMM(
+                      Localizations.localeOf(context).languageCode,
+                    ).format(points.last.observedAt),
+                  ),
+                ),
               ),
             ],
           ),

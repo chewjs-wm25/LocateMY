@@ -54,6 +54,23 @@ void main() {
     );
     await tester.pumpWidget(const SizedBox());
   });
+  testWidgets('compact Chinese trend cards fit a 384dp phone width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final HomeRelocationOutlook home = FakeHomeRelocationOutlook(
+      (_) async => HomeLoaded(snapshot: homeFixture()),
+    );
+
+    await tester.pumpWidget(host(home, locale: 'zh'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets(
     'button and pull refresh share cooldown feedback and prevent repeated reads',
     (tester) async {
