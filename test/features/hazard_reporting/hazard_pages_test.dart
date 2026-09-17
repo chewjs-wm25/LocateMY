@@ -1,4 +1,3 @@
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
@@ -47,8 +46,8 @@ void main() {
             body: HazardComposerPage(
               hazards: createHazardReporting(
                 store: RecordingHazardStore(),
-                readScope: () {
-                  return const AccountScopeOpened(AccountScope('test'));
+                currentAccountId: () {
+                  return 'test';
                 },
               ),
               request: (HazardType type, String title, String? description) {

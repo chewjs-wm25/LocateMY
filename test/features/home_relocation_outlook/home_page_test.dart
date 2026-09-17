@@ -1,44 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/home_relocation_outlook/home_relocation_outlook.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
 import '../../support/fake_home_relocation_outlook.dart';
-import '../../support/fake_application_shell.dart';
 
 Widget host(HomeRelocationOutlook home, {String locale = 'en'}) => MaterialApp(
   locale: Locale(locale),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: Scaffold(
-    body: HomeOutlookPage(home: home, applicationShell: FakeApplicationShell()),
+    body: HomeOutlookPage(home: home, onExploreMap: () {}),
   ),
 );
 void main() {
-  testWidgets(
-    'home displays five cards with independent source dates, units and national context',
-    (tester) async {
-      final home = FakeHomeRelocationOutlook(
-        (_) async => HomeLoaded(snapshot: homeFixture()),
-      );
-      await tester.pumpWidget(host(home));
-      await tester.pumpAndSettle();
-      expect(find.text('Relocation timing'), findsOneWidget);
-      expect(find.text('70 / 100'), findsWidgets);
-      expect(find.textContaining('Jul 2026'), findsWidgets);
-      await tester.scrollUntilVisible(
-        find.text('Household median income'),
-        300,
-      );
-      expect(find.textContaining('7,017'), findsOneWidget);
-      expect(find.textContaining('2024'), findsWidgets);
-      expect(
-        find.text('At current-year prices, not adjusted for inflation'),
-        findsOneWidget,
-      );
-    },
-  );
+  testWidgets('home displays five cards with units and national context', (
+    tester,
+  ) async {
+    final home = FakeHomeRelocationOutlook(
+      (_) async => HomeLoaded(snapshot: homeFixture()),
+    );
+    await tester.pumpWidget(host(home));
+    await tester.pumpAndSettle();
+    expect(find.text('Relocation timing'), findsOneWidget);
+    expect(find.text('70 / 100'), findsWidgets);
+    await tester.scrollUntilVisible(find.text('Household median income'), 300);
+    expect(find.textContaining('7,017'), findsOneWidget);
+    expect(find.textContaining('2024'), findsWidgets);
+    expect(
+      find.text('At current-year prices, not adjusted for inflation'),
+      findsOneWidget,
+    );
+  });
   testWidgets('Penpot home presents exploration before the macro indicators', (
     tester,
   ) async {
@@ -108,41 +101,9 @@ void main() {
     expect(requests, [HomeLoadRequest.cacheAllowed, HomeLoadRequest.refresh]);
     await tester.pumpWidget(const SizedBox());
   });
-  testWidgets('rejected map navigation keeps outlook and explains the reason', (
-    tester,
-  ) async {
-    final shell = FakeApplicationShell(
-      intents: [
-        const ShellIntentRejected(ShellRejectionReason.scopeUnavailable),
-      ],
-    );
-    final home = FakeHomeRelocationOutlook(
-      (_) async => HomeLoaded(snapshot: homeFixture()),
-    );
-    await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: HomeOutlookPage(home: home, applicationShell: shell),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.byKey(const ValueKey('home-explore')),
-      400,
-    );
-    await tester.tap(find.byKey(const ValueKey('home-explore')));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('Account scope is closed'), findsOneWidget);
-    expect(find.text('Relocation timing'), findsOneWidget);
-  });
-
   for (final locale in ['en', 'zh']) {
     testWidgets(
-      '$locale partial and stale outlook remains readable at 360dp and 200% text',
+      '$locale partial outlook remains readable at 360dp and 200% text',
       (tester) async {
         tester.view.physicalSize = const Size(360, 800);
         tester.view.devicePixelRatio = 1;
@@ -168,18 +129,13 @@ void main() {
               child: child!,
             ),
             home: Scaffold(
-              body: HomeOutlookPage(
-                home: home,
-                applicationShell: FakeApplicationShell(),
-              ),
+              body: HomeOutlookPage(home: home, onExploreMap: () {}),
             ),
           ),
         );
         await tester.pumpAndSettle();
-        expect(
-          find.textContaining(locale == 'en' ? 'Expired cached' : '已过期缓存'),
-          findsOneWidget,
-        );
+        expect(find.textContaining('Expired cached'), findsNothing);
+        expect(find.textContaining('已过期缓存'), findsNothing);
         expect(
           find.textContaining(
             locale == 'en' ? 'Insufficient valid historical' : '有效历史样本不足',

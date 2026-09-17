@@ -16,24 +16,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoringSession => '正在检查登录状态';
 
   @override
-  String get signOutIncomplete => '退出未完成';
-
-  @override
-  String get retrySignOut => '重试退出';
-
-  @override
-  String get sessionUnavailableTitle => '登录状态暂不可用';
-
-  @override
-  String get sessionRetryHint => '请连接网络后重试，以确认登录状态。';
-
-  @override
-  String get sessionRejectedHint => '登录状态已失效，请退出当前设备后重新登录。';
-
-  @override
-  String get sessionUnsupportedHint => '暂不支持登录，请检查应用配置或联系支持。';
-
-  @override
   String get retry => '重试';
 
   @override
@@ -41,18 +23,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get signedIn => '已登录';
-
-  @override
-  String get emailConfirmed => '邮箱已验证';
-
-  @override
-  String get emailVerificationRequired => '需要验证邮箱';
-
-  @override
-  String get emailConfirmationUnavailable => '邮箱验证状态暂不可用';
-
-  @override
-  String get retryUsername => '重试保存用户名';
 
   @override
   String get createAccount => '创建账户';
@@ -145,13 +115,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get registrationAuthenticated => '账户创建成功。';
 
   @override
-  String get registrationProfileFailed => '账户已创建，用户名保存失败，可稍后重试。';
-
-  @override
-  String get verificationEmailSent => '请查看邮件，完成邮箱验证后再登录。';
-
-  @override
-  String get verificationProfileRetryNeeded => '请验证邮箱，再登录以完成用户名设置。';
+  String get registrationProfileFailed => '账号已创建，但用户名未能保存。';
 
   @override
   String get registrationInvalidInput => '请检查必填项和确认密码。';
@@ -161,15 +125,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get registrationUnsupportedClient => '当前设备暂时无法注册。';
-
-  @override
-  String get profileRetrySucceeded => '用户名已保存。';
-
-  @override
-  String get profileRetryFailed => '用户名未保存，请检查格式或重试。';
-
-  @override
-  String get profileRetrySkipped => '当前设备没有待保存的用户名。';
 
   @override
   String get signOutRetryableUnavailable => '退出未完成，请连接网络后重试。';
@@ -207,33 +162,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get shellAccount => '账户';
-
-  @override
-  String get shellTask => '任务';
-
-  @override
-  String get shellPreparing => '正在准备应用，请稍候。';
-
-  @override
-  String get shellRecovery => '应用暂时不可用，请重试。';
-
-  @override
-  String get shellCleanupPending => '旧账户清理尚未完成，私有内容已关闭。请重试完成清理。';
-
-  @override
-  String get shellScopeUnavailable => '暂时无法确认账户范围，请重试。';
-
-  @override
-  String get shellFutureTask => '此功能将在后续开发阶段接入。';
-
-  @override
-  String get shellHomePending => '首页功能尚未接入。';
-
-  @override
-  String get shellMapPending => '地图功能尚未接入。当前没有选择地点。';
-
-  @override
-  String get shellAccountPending => '账户中心尚未接入。你可以在此退出当前设备。';
 
   @override
   String get homeTiming => '搬家时机';
@@ -281,79 +209,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeUnavailable => '暂不可用';
 
   @override
-  String get homeObservedUnknown => '观测日期不可用';
-
-  @override
   String homeCooling(int seconds) {
     return '$seconds 秒后可再次刷新';
   }
 
   @override
-  String get crimeSafetyIndex => '安全指数';
-
-  @override
-  String get crimeAnnualCases => '年度已定罪案件数';
-
-  @override
-  String get crimeTrendTitle => '最近5年犯罪趋势';
-
-  @override
-  String get crimeCategoryAll => '全部';
-
-  @override
-  String get crimeCategoryAssault => '暴力犯罪';
-
-  @override
-  String get crimeCategoryProperty => '财产犯罪';
-
-  @override
-  String get crimeTrendNote => '案件数，不代表实际犯罪率';
-
-  @override
-  String crimeSourceYear(int year) {
-    return '数据年份：$year';
-  }
-
-  @override
-  String get crimeFresh => '最新';
-
-  @override
-  String get crimeCached => '缓存';
-
-  @override
-  String get crimeStale => '可能过期';
-
-  @override
-  String get crimeUnavailable => '暂不可用';
-
-  @override
-  String get crimeStateUnresolved => '地点在支持区域外';
-
-  @override
-  String get crimePartialData => '部分数据';
-
-  @override
-  String get crimeViewPortfolio => '房产档案';
-
-  @override
-  String get crimeAddProperty => '新增房产';
-
-  @override
-  String get crimeBackToMap => '返回主地图';
-
-  @override
-  String homeFetched(String date) {
-    return '上次成功读取：$date';
-  }
-
-  @override
   String homeIncomeAmount(String amount, String year) {
     return 'RM $amount / 月 · $year 年调查';
-  }
-
-  @override
-  String homeSource(String dataset, String date) {
-    return '来源：DOSM / data.gov.my · $dataset · $date';
   }
 
   @override
@@ -387,27 +249,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String homeReason(String code) {
     String _temp0 = intl.Intl.selectLogic(code, {
       'sourceMissing': '来源资料缺失',
-      'sourceSchemaChanged': '来源字段已变化',
+      'sourceSchemaChanged': '资料暂不可用，请重试',
       'insufficientHistory': '有效历史样本不足',
       'sourceDataUnverifiable': '来源资料无法验证',
       'retryableUnavailable': '连接暂不可用，请重试',
-      'noCachedResult': '没有可用观测或缓存结果',
+      'noCachedResult': '没有可用资料，请重试',
       'authenticationRequired': '请重新登录',
       'missingInput': '缺少必需输入',
       'staleInput': '此请求已过期',
       'inapplicableDestination': '目标页面不可用',
       'scopeUnavailable': '账户范围已关闭',
-      'other': '暂不可用',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String homeFreshness(String code) {
-    String _temp0 = intl.Intl.selectLogic(code, {
-      'fresh': '已验证在线读取；日期为资料观测日期',
-      'cached': '缓存资料；刷新未替换已保存结果',
-      'stale': '已过期缓存资料；请联网重试',
       'other': '暂不可用',
     });
     return '$_temp0';
@@ -431,9 +282,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeIndicators => '主要指标';
 
   @override
-  String get homeDataDetails => '数据与说明';
-
-  @override
   String get mapEnterAValidWGS84LatitudeAnd => '请输入合法 WGS84 纬度和经度。';
 
   @override
@@ -455,22 +303,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mapPermissionDeniedSignInAgain => '无访问权限，请重新登录。';
 
   @override
-  String get mapTheLocationChangedOnAnotherDevice => '收藏已在其他设备改变，请重试同步。';
+  String get mapTheLocationChangedOnAnotherDevice => '收藏已改变，请重新读取后重试。';
 
   @override
   String get mapThisSavedLocationNoLongerExists => '此收藏已不存在。';
-
-  @override
-  String get mapQueuedOnThisDeviceNotSynchronized => '已在本机排队 · 尚未同步。';
-
-  @override
-  String get mapSavedAndSynchronized => '已收藏并同步。';
-
-  @override
-  String get mapDeletedAndSynchronized => '已删除并同步。';
-
-  @override
-  String get mapAccountScopeUnavailableSignInAgain => '账户范围不可用，请重新登录。';
 
   @override
   String get mapThisRequestIsOutdatedSelectOr => '此请求已过期，请重新选择或刷新。';
@@ -503,26 +339,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mapSavedLocations => '收藏地点';
 
   @override
-  String get mapSavedLocationsUnavailableRetrySynchronization =>
-      '收藏暂不可用，请重试同步。';
-
-  @override
   String get mapNoSavedLocations => '尚无收藏地点';
 
   @override
-  String get mapCachedRetrySynchronization => '缓存记录 · 请重试同步';
-
-  @override
-  String get mapSynchronized => '已同步';
-
-  @override
-  String get mapQueuedNotSynchronized => '已排队 · 尚未同步';
-
-  @override
   String get mapDelete => '删除';
-
-  @override
-  String get mapRetrySynchronization => '重试同步';
 
   @override
   String get mapSearchPlacesInMalaysia => '搜索马来西亚地点';
@@ -564,13 +384,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mapViewComparison => '查看地点比较';
 
   @override
+  String get mapSelectedLocation => '所选地点';
+
+  @override
   String get mapSelectALocation => '先选择地点';
 
   @override
   String get mapSelectedAnalysisLocation => '已选择分析地点';
-
-  @override
-  String get mapPersonalizedSuitabilityUnavailable => '个人化地点适配度暂不可用';
 
   @override
   String get mapViewFullAnalysis => '查看完整分析';
@@ -592,9 +412,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mapInfrastructure => '基础设施';
-
-  @override
-  String get mapProviderNotConnectedDateSourceUnavailable => '提供方未接入；日期／来源不可用';
 
   @override
   String get mapLatitudeMustBeBetween90And => '纬度须介于 −90 与 90。';
@@ -657,4 +474,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String mapLayerCluster(String layer, int count) {
     return '$layer：$count 个地点，点击查看。';
   }
+
+  @override
+  String get mapSavedOnline => '已在线收藏。';
+
+  @override
+  String get mapDeletedOnline => '已在线删除。';
+
+  @override
+  String get mapSavedLocationsUnavailable => '收藏暂不可用，请重新读取。';
+
+  @override
+  String get mapRetryLoading => '重新读取';
+
+  @override
+  String get mapAccountUnavailableSignInAgain => '无法读取当前账户或地点，请重试。';
+
+  @override
+  String get mapSummaryUnavailable => '摘要暂不可用，请打开完整分析。';
 }

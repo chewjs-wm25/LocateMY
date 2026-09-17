@@ -8,7 +8,7 @@ abstract interface class LocationCoordinator {
   Future<SavedLocationOutcome> save(SaveLocationRequest request);
   Future<SavedLocationOutcome> deleteSavedLocation(String savedLocationId);
   Stream<SavedLocationsSnapshot> watchSavedLocations();
-  Future<SavedLocationsSnapshot> synchronizeSavedLocations();
+  Future<SavedLocationsSnapshot> loadSavedLocations();
 }
 
 enum LocationRole { single, locationA, locationB, property }
@@ -118,12 +118,6 @@ final class SavedLocationSaved extends SavedLocationOutcome {
     : savedLocation = savedLocation;
 }
 
-final class SavedLocationQueued extends SavedLocationOutcome {
-  final SavedLocation savedLocation;
-  const SavedLocationQueued({required SavedLocation savedLocation})
-    : savedLocation = savedLocation;
-}
-
 final class SavedLocationRejected extends SavedLocationOutcome {
   final SavedLocationFailure failure;
   const SavedLocationRejected({required SavedLocationFailure failure})
@@ -135,22 +129,17 @@ final class SavedLocation {
   final String name;
   final ValidLocationReference location;
   final DateTime createdAt;
-  final SavedLocationSyncState syncState;
 
   const SavedLocation({
     required String id,
     required String name,
     required ValidLocationReference location,
     required DateTime createdAt,
-    required SavedLocationSyncState syncState,
   }) : id = id,
        name = name,
        location = location,
-       createdAt = createdAt,
-       syncState = syncState;
+       createdAt = createdAt;
 }
-
-enum SavedLocationSyncState { synchronized, queued, retryableFailure }
 
 enum SavedLocationFailure {
   invalidName,
@@ -208,18 +197,36 @@ final class MapLayerContribution {
 
 enum MapLayerVisibility { visible, hidden }
 
+/// Presentation categories shared by providers without exposing Flutter icons.
+enum MapMarkerKind {
+  generic,
+  facilityHealth,
+  facilityEducation,
+  facilityDailyLiving,
+  facilityTransport,
+  facilityLeisureGreen,
+  hazardFlood,
+  hazardCrime,
+  hazardTraffic,
+  hazardInfrastructure,
+  hazardOther,
+}
+
 final class MapLayerItem {
   final String stableItemId;
   final GeographicPoint point;
   final MapLayerIntent intent;
+  final MapMarkerKind markerKind;
 
   const MapLayerItem({
     required String stableItemId,
     required GeographicPoint point,
     required MapLayerIntent intent,
+    MapMarkerKind markerKind = MapMarkerKind.generic,
   }) : stableItemId = stableItemId,
        point = point,
-       intent = intent;
+       intent = intent,
+       markerKind = markerKind;
 }
 
 sealed class MapLayerIntent {

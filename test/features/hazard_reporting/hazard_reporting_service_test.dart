@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
 import 'package:locatemy/features/hazard_reporting/hazard_reporting.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
@@ -14,8 +13,8 @@ void main() {
   test('nearby count rejects an empty location reference id', () async {
     final HazardRiskCounter counter = createHazardRiskCounter(
       store: RecordingHazardStore(),
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
     final HazardNearbyCountOutcome outcome = await counter.countPending(
@@ -35,8 +34,8 @@ void main() {
   test('closed account cannot submit a report', () async {
     final HazardReporting hazards = createHazardReporting(
       store: RecordingHazardStore(),
-      readScope: () {
-        return const AccountScopeClosed(AccountScope('a'));
+      currentAccountId: () {
+        return null;
       },
     );
     final HazardCreateOutcome outcome = await hazards.create(
@@ -58,8 +57,8 @@ void main() {
       final RecordingHazardStore store = RecordingHazardStore();
       final HazardReporting hazards = createHazardReporting(
         store: store,
-        readScope: () {
-          return const AccountScopeOpened(AccountScope('test'));
+        currentAccountId: () {
+          return 'test';
         },
       );
 
@@ -81,8 +80,7 @@ void main() {
   );
 
   test('closing account discards a late detail response', () async {
-    final AccountScope scope = AccountScope('a');
-    AccountScopeSnapshot current = AccountScopeOpened(scope);
+    String? current = 'a';
     final Completer<HazardDetailOutcome> pending =
         Completer<HazardDetailOutcome>();
     final RecordingHazardStore store = RecordingHazardStore(
@@ -90,14 +88,14 @@ void main() {
     );
     final HazardReporting hazards = createHazardReporting(
       store: store,
-      readScope: () {
+      currentAccountId: () {
         return current;
       },
     );
     final Future<HazardDetailOutcome> response = hazards.loadDetail(
       const HazardReportId('report'),
     );
-    current = AccountScopeClosing(scope);
+    current = null;
     pending.complete(const HazardDetailUnavailable(HazardReadFailure.notFound));
     expect(
       (await response as HazardDetailUnavailable).failure,
@@ -108,16 +106,14 @@ void main() {
   test(
     'a retained service cannot read private reports after account switch',
     () async {
-      final AccountScope a = AccountScope('a');
-      final AccountScope b = AccountScope('b');
-      AccountScopeSnapshot scope = AccountScopeOpened(a);
+      String? accountId = 'a';
       final HazardReporting hazards = createHazardReporting(
         store: RecordingHazardStore(),
-        readScope: () {
-          return scope;
+        currentAccountId: () {
+          return accountId;
         },
       );
-      scope = AccountScopeOpened(b);
+      accountId = 'b';
       final HazardDetailOutcome result = await hazards.loadDetail(
         const HazardReportId('a-report'),
       );
@@ -134,8 +130,8 @@ void main() {
       final List<Map<String, Object>> events = [];
       final HazardReporting hazards = createHazardReporting(
         store: RecordingHazardStore(),
-        readScope: () {
-          return const AccountScopeOpened(AccountScope('private-account'));
+        currentAccountId: () {
+          return 'private-account';
         },
         diagnosticSink: (Map<String, Object> event) {
           events.add(event);
@@ -164,8 +160,8 @@ void main() {
     );
     final HazardRiskCounter counter = createHazardRiskCounter(
       store: store,
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
 

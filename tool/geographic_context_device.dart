@@ -1,5 +1,5 @@
 // Opt-in device acceptance harness. Build only with disposable test credentials.
-// No private data is accessed. The real Privacy/Shell gate is due in Wave 3.
+// Uses the SDK current user; no private data is accessed.
 import 'package:flutter/material.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
@@ -57,11 +57,11 @@ class _GeographicVerificationState extends State<GeographicVerification> {
       }
       record('PASS: signed-out scopeUnavailable');
       await login();
-      if (client.auth.currentUser?.emailConfirmedAt == null) {
-        throw StateError('confirmation gate');
+      if (client.auth.currentUser == null) {
+        throw StateError('login required');
       }
       // The harness has no account-private capabilities. Authentication is real;
-      // production consumers must additionally wait for Privacy/Shell opened.
+      // production consumers use the ordinary signed-in page lifetime.
       final samples = [
         ('single', 3.103135, 101.550947699441),
         ('boundary', 3.22238, 101.56576),

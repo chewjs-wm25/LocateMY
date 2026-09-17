@@ -16,25 +16,13 @@ final class UnauthenticatedSession extends SessionSnapshot {
   const UnauthenticatedSession();
 }
 
-final class SessionUnavailable extends SessionSnapshot {
-  final SessionFailure failure;
-  const SessionUnavailable(SessionFailure failure) : failure = failure;
-}
-
 final class AuthenticatedAccount {
   final String accountId;
   final String email;
-  final EmailConfirmation confirmation;
-  const AuthenticatedAccount({
-    required String accountId,
-    required String email,
-    required EmailConfirmation confirmation,
-  }) : accountId = accountId,
-       email = email,
-       confirmation = confirmation;
+  const AuthenticatedAccount({required String accountId, required String email})
+    : accountId = accountId,
+      email = email;
 }
-
-enum EmailConfirmation { confirmed, verificationRequired, unavailable }
 
 sealed class SignInOutcome {
   const SignInOutcome();
@@ -61,16 +49,6 @@ final class RegistrationAuthenticated extends RegistrationOutcome {
     AuthenticatedAccount account,
     ProfileRegistrationOutcome profile,
   ) : account = account,
-      profile = profile;
-}
-
-final class RegistrationVerificationRequired extends RegistrationOutcome {
-  final String email;
-  final ProfileRegistrationOutcome profile;
-  const RegistrationVerificationRequired(
-    String email,
-    ProfileRegistrationOutcome profile,
-  ) : email = email,
       profile = profile;
 }
 
@@ -108,8 +86,6 @@ final class SignOutRejected extends SignOutOutcome {
   final SignOutFailure failure;
   const SignOutRejected(SignOutFailure failure) : failure = failure;
 }
-
-enum SessionFailure { retryableUnavailable, unsupportedClient, remoteRejected }
 
 enum SignInFailure {
   invalidInput,

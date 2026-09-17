@@ -152,7 +152,6 @@ final class PublicTransportationService implements PublicTransportation {
       if (a[i].feedId != b[i].feedId ||
           a[i].sourceId != b[i].sourceId ||
           a[i].sourceUrl != b[i].sourceUrl ||
-          a[i].capturedAt != b[i].capturedAt ||
           a[i].availability != b[i].availability) {
         return false;
       }
@@ -242,8 +241,7 @@ final class PublicTransportationService implements PublicTransportation {
     }
     int usable = 0;
     for (final FeedStatus feed in feeds) {
-      if (feed.availability == FeedAvailability.usable ||
-          feed.availability == FeedAvailability.stale) {
+      if (feed.availability == FeedAvailability.usable) {
         usable++;
       }
     }
@@ -269,8 +267,7 @@ final class PublicTransportationService implements PublicTransportation {
       bool hasUsableFeed = false;
       for (final FeedStatus feed in feeds) {
         if (feed.feedId == station.feedId &&
-            (feed.availability == FeedAvailability.usable ||
-                feed.availability == FeedAvailability.stale)) {
+            feed.availability == FeedAvailability.usable) {
           hasUsableFeed = true;
           break;
         }
@@ -443,7 +440,7 @@ final class PublicTransportationService implements PublicTransportation {
           availability = FeedAvailability.usable;
           break;
         case 'stale':
-          availability = FeedAvailability.stale;
+          availability = FeedAvailability.usable;
           break;
         case 'missing':
           availability = FeedAvailability.missing;
@@ -457,21 +454,11 @@ final class PublicTransportationService implements PublicTransportation {
         default:
           throw const FormatException('Unknown feed status');
       }
-      DateTime? capturedAt;
-      if (row['captured_at'] != null) {
-        capturedAt = DateTime.parse(_string(row, 'captured_at')).toUtc();
-      }
-      if ((availability == FeedAvailability.usable ||
-              availability == FeedAvailability.stale) &&
-          capturedAt == null) {
-        throw const FormatException('Missing feed capture provenance');
-      }
       feeds.add(
         FeedStatus(
           feedId: id,
           sourceId: _string(row, 'source_id'),
           sourceUrl: source,
-          capturedAt: capturedAt,
           availability: availability,
           reason: row['reason'] as String?,
         ),

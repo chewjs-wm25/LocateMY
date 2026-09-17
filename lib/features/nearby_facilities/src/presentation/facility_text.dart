@@ -43,7 +43,7 @@ final class FacilityText {
       case FacilityFailure.rateLimited:
         return pick('数据来源请求过多，请稍后重试。', 'Too many requests. Try again later.');
       case FacilityFailure.invalidPayload:
-        return pick('数据来源返回了无效资料。', 'The data source returned invalid data.');
+        return pick('设施资料暂不可用，请重试。', 'Facility data unavailable. Retry.');
       case FacilityFailure.incompleteResponse:
         return pick(
           '查询结果不完整，无法确认设施覆盖。',
@@ -67,7 +67,7 @@ final class FacilityText {
       case FacilityComparisonFailure.incompatibleRadius:
         return pick('分析半径不同', 'Different radii');
       case FacilityComparisonFailure.incompatibleMappingVersion:
-        return pick('分类版本不同', 'Different mapping versions');
+        return pick('资料口径不同', 'Incompatible data');
     }
   }
 }

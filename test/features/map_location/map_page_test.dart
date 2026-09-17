@@ -7,20 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
-import 'package:locatemy/app/application_shell.dart';
 
-import '../../support/fake_application_shell.dart';
 import 'location_coordinator_test.dart' show MemoryStorage;
 
 void main() {
   testWidgets('private save dialog disappears with account Navigator', (
     tester,
   ) async {
-    final AccountScope scope = AccountScope('a');
     final LocationCoordinator map = createLocationCoordinator(
-      scope: scope,
-      readScope: () => AccountScopeOpened(scope),
+      accountId: 'a',
       validatePoint: (_) async => true,
       storage: MemoryStorage(),
     );
@@ -39,7 +34,12 @@ void main() {
               locations: map,
               layerHost: locationLayerHost(map),
               workspace: locationWorkspace(map),
-              applicationShell: FakeApplicationShell(),
+              onAnalysis: (ValidLocationReference location) {},
+              onComparison: (
+                ValidLocationReference a,
+                ValidLocationReference b,
+              ) {},
+              onLayerSelected: (MapLayerIntent intent) {},
               search: createLocationSearch(apiKey: ''),
               showTiles: false,
             ),
@@ -59,11 +59,9 @@ void main() {
   testWidgets(
     'late selected-point rejection cannot overwrite current feedback',
     (tester) async {
-      final AccountScope scope = AccountScope('a');
       final Completer<bool> pending = Completer<bool>();
       final LocationCoordinator map = createLocationCoordinator(
-        scope: scope,
-        readScope: () => AccountScopeOpened(scope),
+        accountId: 'a',
         validatePoint: (point) =>
             point.latitude == 3 ? pending.future : Future.value(true),
       );
@@ -73,7 +71,12 @@ void main() {
             locations: map,
             layerHost: locationLayerHost(map),
             workspace: locationWorkspace(map),
-            applicationShell: FakeApplicationShell(),
+            onAnalysis: (ValidLocationReference location) {},
+            onComparison: (
+              ValidLocationReference a,
+              ValidLocationReference b,
+            ) {},
+            onLayerSelected: (MapLayerIntent intent) {},
             search: createLocationSearch(apiKey: ''),
             showTiles: false,
           ),
@@ -104,10 +107,8 @@ void main() {
   testWidgets('invalid saved name keeps dialog open and focuses name', (
     tester,
   ) async {
-    final AccountScope scope = AccountScope('a');
     final LocationCoordinator map = createLocationCoordinator(
-      scope: scope,
-      readScope: () => AccountScopeOpened(scope),
+      accountId: 'a',
       validatePoint: (_) async => true,
       storage: MemoryStorage(),
     );
@@ -123,7 +124,9 @@ void main() {
           locations: map,
           layerHost: locationLayerHost(map),
           workspace: locationWorkspace(map),
-          applicationShell: FakeApplicationShell(),
+          onAnalysis: (ValidLocationReference location) {},
+          onComparison: (ValidLocationReference a, ValidLocationReference b) {},
+          onLayerSelected: (MapLayerIntent intent) {},
           search: createLocationSearch(apiKey: ''),
           showTiles: false,
         ),
@@ -148,10 +151,8 @@ void main() {
     'page uses injected layer host and exposes localized map alternative',
     (tester) async {
       final SemanticsHandle semantics = tester.ensureSemantics();
-      final AccountScope scope = AccountScope('a');
       final LocationCoordinator service = createLocationCoordinator(
-        scope: scope,
-        readScope: () => AccountScopeOpened(scope),
+        accountId: 'a',
         validatePoint: (_) async => true,
       );
       final RecordingLayerHost host = RecordingLayerHost();
@@ -161,9 +162,12 @@ void main() {
             locations: ForwardingLocations(service),
             layerHost: host,
             workspace: locationWorkspace(service),
-            applicationShell: FakeApplicationShell(
-              intents: [ShellIntentAccepted()],
-            ),
+            onAnalysis: (ValidLocationReference location) {},
+            onComparison: (
+              ValidLocationReference a,
+              ValidLocationReference b,
+            ) {},
+            onLayerSelected: (MapLayerIntent intent) {},
             search: createLocationSearch(apiKey: ''),
             showTiles: false,
           ),
@@ -184,10 +188,8 @@ void main() {
   testWidgets(
     'map has no default analysis and supports accessible coordinate selection',
     (tester) async {
-      final AccountScope scope = AccountScope('a');
       final LocationCoordinator map = createLocationCoordinator(
-        scope: scope,
-        readScope: () => AccountScopeOpened(scope),
+        accountId: 'a',
         validatePoint: (_) async => true,
       );
       await tester.pumpWidget(
@@ -196,7 +198,12 @@ void main() {
             locations: map,
             layerHost: locationLayerHost(map),
             workspace: locationWorkspace(map),
-            applicationShell: FakeApplicationShell(),
+            onAnalysis: (ValidLocationReference location) {},
+            onComparison: (
+              ValidLocationReference a,
+              ValidLocationReference b,
+            ) {},
+            onLayerSelected: (MapLayerIntent intent) {},
             search: createLocationSearch(apiKey: ''),
             showTiles: false,
           ),
@@ -213,16 +220,13 @@ void main() {
       await tester.tap(find.text('Select'));
       await tester.pumpAndSettle();
       expect(find.text('View full analysis'), findsOneWidget);
-      expect(find.text('Crime & security'), findsOneWidget);
     },
   );
   testWidgets('comparison requires explicit A/B and search empty is readable', (
     tester,
   ) async {
-    final AccountScope scope = AccountScope('a');
     final LocationCoordinator map = createLocationCoordinator(
-      scope: scope,
-      readScope: () => AccountScopeOpened(scope),
+      accountId: 'a',
       validatePoint: (_) async => true,
     );
     await tester.pumpWidget(
@@ -231,7 +235,9 @@ void main() {
           locations: map,
           layerHost: locationLayerHost(map),
           workspace: locationWorkspace(map),
-          applicationShell: FakeApplicationShell(),
+          onAnalysis: (ValidLocationReference location) {},
+          onComparison: (ValidLocationReference a, ValidLocationReference b) {},
+          onLayerSelected: (MapLayerIntent intent) {},
           search: createLocationSearch(apiKey: ''),
           showTiles: false,
         ),
@@ -262,10 +268,8 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
-        final AccountScope scope = AccountScope('a');
         final LocationCoordinator map = createLocationCoordinator(
-          scope: scope,
-          readScope: () => AccountScopeOpened(scope),
+          accountId: 'a',
           validatePoint: (_) async => true,
         );
         await map.select(
@@ -288,7 +292,12 @@ void main() {
               locations: map,
               layerHost: locationLayerHost(map),
               workspace: locationWorkspace(map),
-              applicationShell: FakeApplicationShell(),
+              onAnalysis: (ValidLocationReference location) {},
+              onComparison: (
+                ValidLocationReference a,
+                ValidLocationReference b,
+              ) {},
+              onLayerSelected: (MapLayerIntent intent) {},
               search: createLocationSearch(apiKey: ''),
               showTiles: false,
             ),
@@ -296,29 +305,36 @@ void main() {
         );
         await tester.pump();
         expect(tester.takeException(), isNull);
-        final Finder layersText = find.text(
-          locale.languageCode == 'zh' ? '图层' : 'Layers',
+        final String label = locale.languageCode == 'zh' ? '图层' : 'Layers';
+        final Finder layersButton = find.byTooltip(label);
+        expect(layersButton, findsOneWidget);
+        expect(find.text(label), findsNothing);
+        final Rect buttonRect = tester.getRect(layersButton);
+        expect(buttonRect.width, greaterThanOrEqualTo(48));
+        expect(buttonRect.height, greaterThanOrEqualTo(48));
+        await tester.tap(layersButton);
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(
+          tester
+              .widget<IconButton>(
+                find.ancestor(
+                  of: layersButton,
+                  matching: find.byType(IconButton),
+                ),
+              )
+              .isSelected,
+          isFalse,
         );
-        final Finder layersButton = find.widgetWithText(
-          TextButton,
-          locale.languageCode == 'zh' ? '图层' : 'Layers',
-        );
-        final Rect textRect = tester.getRect(layersText),
-            buttonRect = tester.getRect(layersButton);
-        expect(textRect.top, greaterThanOrEqualTo(buttonRect.top));
-        expect(textRect.bottom, lessThanOrEqualTo(buttonRect.bottom));
-        final Text label = tester.widget<Text>(layersText);
-        final Element element = tester.element(layersText);
-        final TextPainter painter = TextPainter(
-          text: TextSpan(
-            text: label.data,
-            style: DefaultTextStyle.of(element).style.merge(label.style),
-          ),
-          textDirection: TextDirection.ltr,
-          textScaler: MediaQuery.textScalerOf(element),
-        )..layout(maxWidth: textRect.width);
-        expect(painter.height, lessThanOrEqualTo(buttonRect.height));
-        painter.dispose();
+        final String saveLabel = locale.languageCode == 'zh'
+            ? '收藏地点'
+            : 'Save location';
+        expect(find.text('3.00000, 101.00000'), findsOneWidget);
+        await tester.ensureVisible(find.text(saveLabel));
+        await tester.tap(find.text(saveLabel));
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
       },
     );
@@ -326,10 +342,8 @@ void main() {
   testWidgets(
     'invalid coordinate keeps dialog open and focuses the invalid field',
     (tester) async {
-      final AccountScope scope = AccountScope('a');
       final LocationCoordinator map = createLocationCoordinator(
-        scope: scope,
-        readScope: () => AccountScopeOpened(scope),
+        accountId: 'a',
         validatePoint: (_) async => true,
       );
       await tester.pumpWidget(
@@ -338,7 +352,12 @@ void main() {
             locations: map,
             layerHost: locationLayerHost(map),
             workspace: locationWorkspace(map),
-            applicationShell: FakeApplicationShell(),
+            onAnalysis: (ValidLocationReference location) {},
+            onComparison: (
+              ValidLocationReference a,
+              ValidLocationReference b,
+            ) {},
+            onLayerSelected: (MapLayerIntent intent) {},
             search: createLocationSearch(apiKey: ''),
             showTiles: false,
           ),
@@ -413,7 +432,7 @@ class ForwardingLocations implements LocationCoordinator {
   }
 
   @override
-  Future<SavedLocationsSnapshot> synchronizeSavedLocations() {
-    return delegate.synchronizeSavedLocations();
+  Future<SavedLocationsSnapshot> loadSavedLocations() {
+    return delegate.loadSavedLocations();
   }
 }

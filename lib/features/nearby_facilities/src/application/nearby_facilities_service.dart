@@ -11,7 +11,6 @@ import 'package:locatemy/features/map_location/map_location.dart';
 import '../domain/facility_models.dart';
 
 final class NearbyFacilitiesService implements NearbyFacilities {
-  static final Object _defaultScope = Object();
   static const int _radiusMetres = 2000;
   static const String _mappingVersion = 'osm-facility-v1';
   static final FacilityAttribution _attribution = FacilityAttribution(
@@ -21,25 +20,19 @@ final class NearbyFacilitiesService implements NearbyFacilities {
   final OverpassFacilitySource source;
   final DateTime Function() clock;
   final MapLayerHost Function()? mapLayerHost;
-  final Object? Function() scopeToken;
   final FacilityCache _cache;
   final Map<String, int> _requests = <String, int>{};
-  final Expando<Object> _analysisScopes = Expando<Object>();
   final Expando<List<NearbyFacility>> _layerItems =
       Expando<List<NearbyFacility>>();
+  final Expando<Map<String, MapMarkerKind>> _markerKinds =
+      Expando<Map<String, MapMarkerKind>>();
   NearbyFacilitiesService(
     OverpassFacilitySource source, {
     required FacilityCache cache,
-    Object? Function()? scopeToken,
     DateTime Function()? clock,
     MapLayerHost Function()? mapLayerHost,
   }) : source = source,
        mapLayerHost = mapLayerHost,
-       scopeToken =
-           scopeToken ??
-           (() {
-             return _defaultScope;
-           }),
        clock = clock ?? DateTime.now,
        _cache = cache;
 
@@ -53,12 +46,6 @@ final class NearbyFacilitiesService implements NearbyFacilities {
   Future<FacilityAnalysisOutcome> _analyse(
     FacilityAnalysisRequest request,
   ) async {
-    final Object? scope = scopeToken();
-    if (scope == null) {
-      return const FacilityAnalysisUnavailable(
-        failure: FacilityFailure.scopeUnavailable,
-      );
-    }
     if (!_valid(request.location.point)) {
       return const FacilityAnalysisUnavailable(
         failure: FacilityFailure.invalidLocation,
@@ -66,11 +53,6 @@ final class NearbyFacilitiesService implements NearbyFacilities {
     }
     final String key = _cacheKey(request.location.point);
     final OverpassFacilityComplete? cached = await _cache.read(key);
-    if (!identical(scope, scopeToken())) {
-      return const FacilityAnalysisUnavailable(
-        failure: FacilityFailure.scopeUnavailable,
-      );
-    }
     if (request.refreshPolicy == FacilityRefreshPolicy.cacheAllowed &&
         cached != null &&
         _validCache(cached)) {
@@ -90,11 +72,6 @@ final class NearbyFacilitiesService implements NearbyFacilities {
         mappingVersion: _mappingVersion,
       ),
     );
-    if (!identical(scope, scopeToken())) {
-      return const FacilityAnalysisUnavailable(
-        failure: FacilityFailure.scopeUnavailable,
-      );
-    }
     if (sourceOutcome is OverpassFacilityComplete) {
       final FacilityAnalysis result = _makeAnalysis(
         request.location,
@@ -102,11 +79,6 @@ final class NearbyFacilitiesService implements NearbyFacilities {
       );
       if (_requests[key] == generation) {
         await _cache.write(key, sourceOutcome);
-      }
-      if (!identical(scope, scopeToken())) {
-        return const FacilityAnalysisUnavailable(
-          failure: FacilityFailure.scopeUnavailable,
-        );
       }
       return FacilityAnalysisAvailable(analysis: result);
     }
@@ -131,12 +103,6 @@ final class NearbyFacilitiesService implements NearbyFacilities {
   Future<FacilityComparisonOutcome> _compare(
     FacilityComparisonRequest request,
   ) async {
-    final Object? scope = scopeToken();
-    if (scope == null) {
-      return const FacilityComparisonUnavailable(
-        failure: FacilityFailure.scopeUnavailable,
-      );
-    }
     if (!_valid(request.locationA.point) || !_valid(request.locationB.point)) {
       return const FacilityComparisonUnavailable(
         failure: FacilityFailure.invalidLocation,
@@ -153,22 +119,12 @@ final class NearbyFacilitiesService implements NearbyFacilities {
         refreshPolicy: request.refreshPolicy,
       ),
     );
-    if (!identical(scope, scopeToken())) {
-      return const FacilityComparisonUnavailable(
-        failure: FacilityFailure.scopeUnavailable,
-      );
-    }
     final FacilityAnalysisOutcome second = await analyse(
       FacilityAnalysisRequest(
         location: request.locationB,
         refreshPolicy: request.refreshPolicy,
       ),
     );
-    if (!identical(scope, scopeToken())) {
-      return const FacilityComparisonUnavailable(
-        failure: FacilityFailure.scopeUnavailable,
-      );
-    }
     if (first is! FacilityAnalysisAvailable) {
       return FacilityComparisonNotComparable(
         locationA: first,
@@ -222,20 +178,9 @@ final class NearbyFacilitiesService implements NearbyFacilities {
   Future<FacilityLayerOutcome> _contributeLayer(
     FacilityLayerRequest request,
   ) async {
-    final Object? scope = scopeToken();
-    if (scope == null) {
-      return const FacilityLayerNotPublished(
-        failure: FacilityLayerFailure.scopeUnavailable,
-      );
-    }
     if (!_complete(request.analysis)) {
       return const FacilityLayerNotPublished(
         failure: FacilityLayerFailure.analysisIncomplete,
-      );
-    }
-    if (!identical(_analysisScopes[request.analysis], scope)) {
-      return const FacilityLayerNotPublished(
-        failure: FacilityLayerFailure.scopeUnavailable,
       );
     }
     final MapLayerHost Function()? hostFactory = mapLayerHost;
@@ -256,6 +201,9 @@ final class NearbyFacilitiesService implements NearbyFacilities {
               return MapLayerItem(
                 stableItemId: facility.stableId,
                 point: facility.point,
+                markerKind:
+                    _markerKinds[request.analysis]?[facility.stableId] ??
+                    MapMarkerKind.generic,
                 intent: ProviderDefinedIntent(
                   providerId: 'nearby-facilities',
                   action: 'facilitySelected',
@@ -266,11 +214,6 @@ final class NearbyFacilitiesService implements NearbyFacilities {
             .toList(growable: false),
       ),
     );
-    if (!identical(scope, scopeToken())) {
-      return const FacilityLayerNotPublished(
-        failure: FacilityLayerFailure.scopeUnavailable,
-      );
-    }
     if (outcome is MapLayerAccepted) {
       return const FacilityLayerPublished();
     }
@@ -301,6 +244,7 @@ final class NearbyFacilitiesService implements NearbyFacilities {
             category: <NearbyFacility>[],
         };
     final Set<String> seen = <String>{};
+    final Map<String, MapMarkerKind> markerKinds = <String, MapMarkerKind>{};
     for (final OverpassElement element in sourceOutcome.elements) {
       final String stableId = '${element.elementType}_${element.osmId}';
       final FacilityCategory? category = _category(element.tags);
@@ -323,6 +267,7 @@ final class NearbyFacilitiesService implements NearbyFacilities {
           distanceMetres: distance,
         ),
       );
+      markerKinds[stableId] = _markerKind(category);
     }
     final List<NearbyFacility> layerItems = <NearbyFacility>[];
     final List<FacilityCategoryResult> categories = <FacilityCategoryResult>[];
@@ -356,8 +301,10 @@ final class NearbyFacilitiesService implements NearbyFacilities {
       attribution: _attribution,
       categories: List<FacilityCategoryResult>.unmodifiable(categories),
     );
-    _analysisScopes[analysis] = scopeToken();
     _layerItems[analysis] = List<NearbyFacility>.unmodifiable(layerItems);
+    _markerKinds[analysis] = Map<String, MapMarkerKind>.unmodifiable(
+      markerKinds,
+    );
     return analysis;
   }
 
@@ -374,9 +321,24 @@ final class NearbyFacilitiesService implements NearbyFacilities {
       attribution: value.attribution,
       categories: value.categories,
     );
-    _analysisScopes[result] = _analysisScopes[value];
     _layerItems[result] = _layerItems[value];
+    _markerKinds[result] = _markerKinds[value];
     return result;
+  }
+
+  MapMarkerKind _markerKind(FacilityCategory category) {
+    switch (category) {
+      case FacilityCategory.health:
+        return MapMarkerKind.facilityHealth;
+      case FacilityCategory.education:
+        return MapMarkerKind.facilityEducation;
+      case FacilityCategory.dailyLiving:
+        return MapMarkerKind.facilityDailyLiving;
+      case FacilityCategory.transport:
+        return MapMarkerKind.facilityTransport;
+      case FacilityCategory.leisureGreen:
+        return MapMarkerKind.facilityLeisureGreen;
+    }
   }
 
   bool _complete(FacilityAnalysis value) {

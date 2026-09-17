@@ -1,5 +1,3 @@
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
-
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -34,8 +32,8 @@ void main() {
       );
       final HazardReporting reports = createHazardReporting(
         store: createSupabaseHazardStore(client),
-        readScope: () {
-          return const AccountScopeOpened(AccountScope('test'));
+        currentAccountId: () {
+          return 'test';
         },
       );
       final HazardPageOutcome outcome = await reports.loadPublic(
@@ -70,8 +68,8 @@ void main() {
     );
     final HazardReporting reports = createHazardReporting(
       store: createSupabaseHazardStore(client),
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
     expect(
@@ -105,8 +103,8 @@ void main() {
       );
       final HazardReporting hazards = createHazardReporting(
         store: createSupabaseHazardStore(client),
-        readScope: () {
-          return const AccountScopeOpened(AccountScope('test'));
+        currentAccountId: () {
+          return 'test';
         },
       );
       final HazardCreateOutcome outcome = await hazards.create(
@@ -150,8 +148,8 @@ void main() {
       );
       final HazardReporting hazards = createHazardReporting(
         store: createSupabaseHazardStore(client),
-        readScope: () {
-          return const AccountScopeOpened(AccountScope('test'));
+        currentAccountId: () {
+          return 'test';
         },
       );
       final HazardPageOutcome result = await hazards.loadPublic(
@@ -245,8 +243,8 @@ void main() {
     );
     final HazardReporting hazards = createHazardReporting(
       store: createSupabaseHazardStore(client),
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
     final HazardReportId id = HazardReportId(reportJson['id']! as String);
@@ -287,8 +285,8 @@ void main() {
     );
     final HazardReporting hazards = createHazardReporting(
       store: createSupabaseHazardStore(client),
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
     final MyHazardsAvailable result = await hazards.loadMine(
@@ -320,8 +318,8 @@ void main() {
     );
     final HazardRiskCounter counter = createHazardRiskCounter(
       store: createSupabaseHazardStore(client),
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
     final HazardNearbyCountOutcome result = await counter.countPending(
@@ -355,8 +353,8 @@ void main() {
     );
     final HazardRiskCounter counter = createHazardRiskCounter(
       store: createSupabaseHazardStore(client),
-      readScope: () {
-        return const AccountScopeOpened(AccountScope('test'));
+      currentAccountId: () {
+        return 'test';
       },
     );
     final HazardNearbyCountOutcome result = await counter.countPending(

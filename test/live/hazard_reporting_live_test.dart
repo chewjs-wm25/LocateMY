@@ -4,10 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:locatemy/features/hazard_reporting/hazard_reporting.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
-import 'package:locatemy/features/authentication_session/authentication_session.dart';
-import 'package:locatemy/app/app.dart';
-import 'package:locatemy/app/application_shell.dart';
 
 void main() {
   test('two live accounts publish, vote, manage and enforce author-only immutable reports', () async {
@@ -34,18 +30,18 @@ void main() {
         email: env['LOCATEMY_OTHER_EMAIL']!,
         password: env['LOCATEMY_OTHER_PASSWORD']!,
       );
-      final AccountScope aScope = AccountScope(a.auth.currentUser!.id);
-      final AccountScope bScope = AccountScope(b.auth.currentUser!.id);
+      final String aScope = a.auth.currentUser!.id;
+      final String bScope = b.auth.currentUser!.id;
       final HazardReporting author = createHazardReporting(
         store: createSupabaseHazardStore(a),
-        readScope: () {
-          return AccountScopeOpened(aScope);
+        currentAccountId: () {
+          return aScope;
         },
       );
       final HazardReporting other = createHazardReporting(
         store: createSupabaseHazardStore(b),
-        readScope: () {
-          return AccountScopeOpened(bScope);
+        currentAccountId: () {
+          return bScope;
         },
       );
       final HazardCreateOutcome outside = await author.create(
@@ -135,8 +131,8 @@ void main() {
       );
       final HazardRiskCounter counter = createHazardRiskCounter(
         store: createSupabaseHazardStore(a),
-        readScope: () {
-          return AccountScopeOpened(aScope);
+        currentAccountId: () {
+          return aScope;
         },
       );
       final HazardNearbyCountOutcome invalidCount = await counter.countPending(
@@ -193,18 +189,17 @@ void main() {
         email: env['LOCATEMY_EMAIL']!,
         password: env['LOCATEMY_PASSWORD']!,
       );
-      final AccountScope scope = AccountScope(client.auth.currentUser!.id);
-      AccountScopeSnapshot readScope() {
-        return AccountScopeOpened(scope);
+      String? currentAccountId() {
+        return client.auth.currentUser?.id;
       }
 
       final HazardReporting reports = createHazardReporting(
         store: createSupabaseHazardStore(client),
-        readScope: readScope,
+        currentAccountId: currentAccountId,
       );
       final HazardRiskCounter counter = createHazardRiskCounter(
         store: createSupabaseHazardStore(client),
-        readScope: readScope,
+        currentAccountId: currentAccountId,
       );
       const ValidLocationReference center = ValidLocationReference(
         locationId: 'center',
@@ -260,166 +255,6 @@ void main() {
         await client.from('crowdsourced_hazards').delete().eq('id', id.value);
       }
       await client.dispose();
-    }
-  }, skip: Platform.environment['LOCATEMY_HAZARD_LIVE'] != '1');
-
-  test('real Shell, Map and Privacy route validated creation, contribute layers and invalidate old scope', () async {
-    HttpOverrides.global = null;
-    final Map<String, String> env = Platform.environment;
-    final SupabaseClient client = SupabaseClient(
-      env['SUPABASE_URL']!,
-      env['SUPABASE_PUBLISHABLE_KEY']!,
-      authOptions: const AuthClientOptions(autoRefreshToken: false),
-    );
-    final Directory directory = Directory.systemTemp.createTempSync(
-      'hazard-integration-',
-    );
-    final AuthenticationSession auth = createAuthenticationSession(client);
-    late AccountPrivacy privacy;
-    late ShellRuntime shell;
-    HazardReportId? id;
-    await auth.signIn(
-      email: env['LOCATEMY_EMAIL']!,
-      password: env['LOCATEMY_PASSWORD']!,
-    );
-    final HazardReportingRuntime hazards = HazardReportingRuntime(
-      store: createSupabaseHazardStore(client),
-      readScope: () {
-        return privacy.readScope();
-      },
-    );
-    shell = ShellRuntime.compose(
-      authentication: auth,
-      privacy: () {
-        return privacy;
-      },
-      intents: [
-        ...mapShellBindings(() {
-          return shell;
-        }),
-        ...hazardShellBindings(() {
-          return shell;
-        }),
-      ],
-    );
-    privacy = createAccountPrivacy(
-      authenticationSession: auth,
-      participants: [
-        createAuthenticationPrivacyParticipant(auth),
-        shell,
-        hazards,
-      ],
-      requiredParticipants: const {
-        AccountPrivacyParticipantId.authenticationSession,
-        AccountPrivacyParticipantId.applicationShell,
-        AccountPrivacyParticipantId.hazardReporting,
-      },
-      stateDirectory: directory,
-    );
-    try {
-      await shell.initialize();
-      expect(shell.state.gate, ShellGate.opened);
-      final AccountScope scope = shell.state.scope!;
-      final LocationCoordinator locations = createLocationCoordinator(
-        scope: scope,
-        readScope: () {
-          return privacy.readScope();
-        },
-        validatePoint: (GeographicPoint point) {
-          return validateLocationInMalaysia(client, point);
-        },
-      );
-      final MapLayerHost host = locationLayerHost(locations);
-      final MapLayerIntentAccepted picked = await host.requestLongPress(
-        const GeographicPoint(latitude: 3.0738, longitude: 101.6072),
-      ) as MapLayerIntentAccepted;
-      final ValidLocationReference location =
-          (picked.intent as CreateHazardIntent).location;
-      expect(
-        await shell.submit(OpenMapLayerIntent(picked.intent)),
-        isA<ShellIntentAccepted>(),
-      );
-      expect(shell.state.routes.last.destination, 'hazard-map-intent');
-      final HazardReporting retained = hazards.reporting;
-      final HazardCreated created = await retained.create(
-        HazardCreateRequest(
-          location: location,
-          type: HazardType.traffic,
-          title: "${env['LOCATEMY_HAZARD_FIXTURE']!}-integration",
-        ),
-      ) as HazardCreated;
-      id = created.report.id;
-      final HazardPageAvailable page = await retained.loadPublic(
-        const HazardPageRequest(
-          viewportVersion: 'integration',
-          viewport: HazardViewport(
-            GeographicPoint(latitude: 3, longitude: 101),
-            GeographicPoint(latitude: 4, longitude: 102),
-          ),
-        ),
-      ) as HazardPageAvailable;
-      expect(
-        page.page.reports.any((HazardReport report) {
-          return report.id.value == id!.value;
-        }),
-        true,
-      );
-      setLocationViewport(locations, 'integration');
-      expect(
-        await host.contribute(
-          MapLayerContribution(
-            providerId: 'hazard-reporting',
-            layerId: 'public-hazards',
-            viewportVersion: 'integration',
-            visibility: MapLayerVisibility.visible,
-            items: [
-              MapLayerItem(
-                stableItemId: id.value,
-                point: created.report.location,
-                intent: ProviderDefinedIntent(
-                  providerId: 'hazard-reporting',
-                  action: 'detail',
-                  stableItemId: id.value,
-                ),
-              ),
-            ],
-          ),
-        ),
-        isA<MapLayerAccepted>(),
-      );
-      expect(locations.read(LocationRole.single), isA<LocationAbsent>());
-      expect(
-        await shell.submit(
-          OpenHazardDetailIntent(id: id, returnContextId: 'map'),
-        ),
-        isA<ShellIntentAccepted>(),
-      );
-      shell.back();
-      expect(shell.state.routes.last.destination, 'hazard-map-intent');
-      expect(
-        await shell.submit(const ReturnToHazardMapIntent('map')),
-        isA<ShellIntentAccepted>(),
-      );
-      expect(shell.state.selectedTab, ShellTab.map);
-      // Delete fixture before sign-out, then prove old service cannot operate.
-      await retained.deleteMine(id);
-      id = null;
-      await shell.signOut();
-      expect(shell.state.gate, ShellGate.authentication);
-      expect(
-        (await retained.loadDetail(
-          const HazardReportId('old'),
-        ) as HazardDetailUnavailable).failure,
-        HazardReadFailure.scopeUnavailable,
-      );
-    } finally {
-      if (id != null) {
-        await client.from('crowdsourced_hazards').delete().eq('id', id.value);
-      }
-      await shell.dispose();
-      await disposeAccountPrivacy(privacy);
-      await client.dispose();
-      directory.deleteSync(recursive: true);
     }
   }, skip: Platform.environment['LOCATEMY_HAZARD_LIVE'] != '1');
 }

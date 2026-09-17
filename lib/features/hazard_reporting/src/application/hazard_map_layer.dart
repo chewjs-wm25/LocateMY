@@ -81,6 +81,7 @@ final class HazardMapLayer extends ChangeNotifier {
           MapLayerItem(
             stableItemId: report.id.value,
             point: report.location,
+            markerKind: _markerKind(report.type),
             intent: ProviderDefinedIntent(
               providerId: 'hazard-reporting',
               action: 'detail',
@@ -134,6 +135,21 @@ final class HazardMapLayer extends ChangeNotifier {
         request,
         more: _retryMore && failure != HazardReadFailure.invalidViewport,
       );
+    }
+  }
+
+  MapMarkerKind _markerKind(HazardType type) {
+    switch (type) {
+      case HazardType.flood:
+        return MapMarkerKind.hazardFlood;
+      case HazardType.crime:
+        return MapMarkerKind.hazardCrime;
+      case HazardType.traffic:
+        return MapMarkerKind.hazardTraffic;
+      case HazardType.infrastructure:
+        return MapMarkerKind.hazardInfrastructure;
+      case HazardType.other:
+        return MapMarkerKind.hazardOther;
     }
   }
 

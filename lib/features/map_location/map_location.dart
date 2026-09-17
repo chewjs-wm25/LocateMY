@@ -1,8 +1,6 @@
 export 'src/application/map_runtime.dart' show MapLocationRuntime;
-export 'src/domain/location_intents.dart';
 export 'src/presentation/map_location_page.dart';
 
-import 'package:sqflite/sqflite.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/data/location_store.dart';
@@ -22,32 +20,23 @@ export 'src/application/location_search.dart'
         LocationSearchCandidate;
 export 'src/domain/location_models.dart';
 
-import '../account_privacy/account_privacy.dart';
 import 'src/domain/location_models.dart';
 import 'src/application/location_service.dart';
 import 'src/application/location_storage.dart';
 export 'src/application/location_storage.dart';
 
 LocationCoordinator createLocationCoordinator({
-  required AccountScope scope,
-  required AccountScopeSnapshot Function() readScope,
+  required String accountId,
   required Future<bool> Function(GeographicPoint) validatePoint,
   LocationStorage? storage,
   void Function(Map<String, Object>)? diagnosticSink,
 }) {
   return LocationService(
-    scope: scope,
-    readScope: readScope,
+    accountId: accountId,
     validatePoint: validatePoint,
     storage: storage,
     diagnosticSink: diagnosticSink,
   );
-}
-
-AccountPrivacyParticipant locationPrivacyParticipant(
-  LocationCoordinator locations,
-) {
-  return locations as LocationService;
 }
 
 MapLayerHost locationLayerHost(LocationCoordinator locations) {
@@ -71,10 +60,9 @@ LocationSearch createLocationSearch({
 
 LocationStorage createLocationStorage({
   required SupabaseClient client,
-  required Database database,
   required String accountId,
 }) {
-  return LocationStore(client, database, accountId);
+  return LocationStore(client, accountId);
 }
 
 Future<bool> validateLocationInMalaysia(

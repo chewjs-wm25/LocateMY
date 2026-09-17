@@ -1,9 +1,7 @@
 // Explicit constructors follow Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/facility_models.dart';
@@ -14,20 +12,14 @@ final class NearbyFacilitiesPage extends StatefulWidget {
   final NearbyFacilities facilities;
   final ValidLocationReference location;
   final ValidLocationReference? locationB;
-  final ApplicationShell? applicationShell;
-  final Object? returnContext;
   const NearbyFacilitiesPage({
     required NearbyFacilities facilities,
     required ValidLocationReference location,
     ValidLocationReference? locationB,
-    ApplicationShell? applicationShell,
-    Object? returnContext,
     super.key,
   }) : facilities = facilities,
        location = location,
-       locationB = locationB,
-       applicationShell = applicationShell,
-       returnContext = returnContext;
+       locationB = locationB;
   @override
   State<NearbyFacilitiesPage> createState() {
     return _NearbyFacilitiesPageState();
@@ -47,8 +39,6 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
       facilities: widget.facilities,
       location: widget.location,
       locationB: widget.locationB,
-      shell: widget.applicationShell,
-      returnContext: widget.returnContext,
     );
     _model.load();
   }
@@ -58,9 +48,7 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.location, widget.location) ||
         !identical(oldWidget.locationB, widget.locationB) ||
-        !identical(oldWidget.facilities, widget.facilities) ||
-        !identical(oldWidget.applicationShell, widget.applicationShell) ||
-        !identical(oldWidget.returnContext, widget.returnContext)) {
+        !identical(oldWidget.facilities, widget.facilities)) {
       _model.dispose();
       _createModel();
     }
@@ -110,6 +98,7 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
                         _model.outcome,
                         widget.location,
                       ),
+                    if (!_model.loading) ..._disclosure(text),
                   ],
                 ),
               );
@@ -176,7 +165,7 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
       ),
       const SizedBox(height: 4),
       Text(
-        text.pick('固定半径 2 公里 · OSM', 'Fixed 2 km radius · OSM'),
+        text.pick('固定半径 2 公里', 'Fixed 2 km radius'),
         style: const TextStyle(color: Color(0xFF667085), fontSize: 13),
       ),
       const SizedBox(height: 20),
@@ -210,7 +199,6 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
             child: Text(text.pick('重试', 'Retry')),
           ),
         ),
-        ..._disclosure(text, _model.attemptedAt, null),
       ]);
     }
     return widgets;
@@ -287,7 +275,6 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
     for (final FacilityCategoryResult category in analysis.categories) {
       widgets.add(_categoryCard(text, category));
     }
-    widgets.addAll(_disclosure(text, analysis.observedAt, analysis.dataState));
     return widgets;
   }
 
@@ -376,31 +363,9 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
     );
   }
 
-  List<Widget> _disclosure(
-    FacilityText text,
-    DateTime? at,
-    FacilityDataState? state,
-  ) {
-    String timestamp = text.pick('尚无成功查询时间', 'No successful query yet');
-    if (at != null) {
-      timestamp = DateFormat('yyyy-MM-dd HH:mm').format(at.toLocal());
-    }
-    String status = text.pick('查询尝试', 'Query attempted');
-    if (state == FacilityDataState.cached) {
-      status = text.pick('缓存数据', 'Cached data');
-    } else if (state == FacilityDataState.fresh) {
-      status = text.pick('实时查询', 'Live query');
-    }
+  List<Widget> _disclosure(FacilityText text) {
     return <Widget>[
       const SizedBox(height: 14),
-      Text(
-        '$status: $timestamp',
-        style: const TextStyle(color: Color(0xFF667085), fontSize: 12),
-      ),
-      Text(
-        text.pick('数据来源：OpenStreetMap', 'Data source: OpenStreetMap'),
-        style: const TextStyle(color: Color(0xFF667085), fontSize: 12),
-      ),
       Align(
         alignment: Alignment.centerLeft,
         child: TextButton(
@@ -442,8 +407,8 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
         ),
         child: Text(
           text.pick(
-            '未收录不代表现实中不存在；不提供详情或路线。',
-            'Missing records do not mean facilities do not exist; details and directions are unavailable.',
+            '仅显示已收录设施；未收录不代表不存在。',
+            'Only recorded facilities are shown; missing records do not mean facilities do not exist.',
           ),
           style: const TextStyle(
             color: Color(0xFFB76E00),

@@ -3,35 +3,27 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/transit_models.dart';
-import '../domain/transit_shell_models.dart';
 import 'transit_view_model.dart';
 
 final class PublicTransportationPage extends StatefulWidget {
   final PublicTransportation transportation;
   final ValidLocationReference location;
   final DateTime analysisDate;
-  final ApplicationShell? applicationShell;
-  final AnalysisReturnContext? returnContext;
   final MapLayerHost? mapLayerHost;
   final MapWorkspace? mapWorkspace;
   const PublicTransportationPage({
     required PublicTransportation transportation,
     required ValidLocationReference location,
     required DateTime analysisDate,
-    ApplicationShell? applicationShell,
-    AnalysisReturnContext? returnContext,
     MapLayerHost? mapLayerHost,
     MapWorkspace? mapWorkspace,
     super.key,
   }) : transportation = transportation,
        location = location,
        analysisDate = analysisDate,
-       applicationShell = applicationShell,
-       returnContext = returnContext,
        mapLayerHost = mapLayerHost,
        mapWorkspace = mapWorkspace;
   @override
@@ -65,8 +57,6 @@ final class _PublicTransportationPageState
       transportation: widget.transportation,
       location: widget.location,
       analysisDate: widget.analysisDate,
-      applicationShell: widget.applicationShell,
-      returnContext: widget.returnContext,
       mapLayerHost: widget.mapLayerHost,
       mapWorkspace: widget.mapWorkspace,
     );
@@ -77,8 +67,6 @@ final class _PublicTransportationPageState
   void didUpdateWidget(covariant PublicTransportationPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.transportation != widget.transportation ||
-        oldWidget.applicationShell != widget.applicationShell ||
-        oldWidget.returnContext != widget.returnContext ||
         oldWidget.mapLayerHost != widget.mapLayerHost ||
         oldWidget.mapWorkspace != widget.mapWorkspace) {
       _model.dispose();
@@ -117,12 +105,7 @@ final class _PublicTransportationPageState
                       IconButton(
                         tooltip: _t('返回', 'Back'),
                         onPressed: () {
-                          if (widget.applicationShell != null &&
-                              widget.returnContext != null) {
-                            _model.returnToMap();
-                          } else {
-                            Navigator.maybePop(context);
-                          }
+                          Navigator.maybePop(context);
                         },
                         icon: const Icon(Icons.chevron_left),
                         padding: EdgeInsets.zero,
@@ -170,41 +153,12 @@ final class _PublicTransportationPageState
                         'Refresh failed. Showing the previous successful result.',
                       ),
                     ),
-                  if (_model.publicationOutcome
-                      is ShellContributionAuthenticationRequired)
-                    _notice(
-                      _t(
-                        '请重新登录后分享结果。当前结果仍保留在本页。',
-                        'Sign in again to share this result. The current result remains visible.',
-                      ),
-                    ),
-                  if (_model.publicationOutcome is ShellContributionRejected)
-                    _notice(
-                      _shellRejection(
-                        (_model.publicationOutcome as ShellContributionRejected)
-                            .reason,
-                      ),
-                    ),
-                  if (_model.returnOutcome is ShellAuthenticationRequired)
-                    _notice(
-                      _t(
-                        '会话不可用，请重新登录。当前结果仍保留在本页。',
-                        'The session is unavailable. Sign in again; the current result remains visible.',
-                      ),
-                    ),
-                  if (_model.returnOutcome is ShellIntentRejected)
-                    _notice(
-                      _shellRejection(
-                        (_model.returnOutcome as ShellIntentRejected).reason,
-                      ),
-                    ),
                   if (outcome is TransitAvailable)
                     ..._available(outcome.snapshot),
                   if (outcome is TransitIncomplete)
                     ..._partial(outcome.snapshot),
                   if (outcome is TransitUnavailable) ...<Widget>[
                     _notice(_reason(outcome.reason)),
-                    ..._feeds(outcome.feeds),
                   ],
                   const SizedBox(height: 14),
                   Text(
@@ -220,19 +174,6 @@ final class _PublicTransportationPageState
           ),
         );
       },
-    );
-  }
-
-  String _shellRejection(ShellRejectionReason reason) {
-    if (reason == ShellRejectionReason.staleInput) {
-      return _t(
-        '原请求已过期。请使用系统返回手势，从地图重新打开公共交通。',
-        'The original request has expired. Use the system back gesture and reopen transportation from the map.',
-      );
-    }
-    return _t(
-      '结果保留在本页，但暂时无法分享或返回地图。请使用系统返回手势重试。',
-      'The result remains visible, but sharing or returning to the map is unavailable. Use the system back gesture to retry.',
     );
   }
 
@@ -307,8 +248,6 @@ final class _PublicTransportationPageState
         snapshot.stations,
         snapshot.uniqueStopCount,
       ),
-      ..._provenance(snapshot.provenance),
-      ..._feeds(snapshot.feeds),
     ];
   }
 
@@ -334,8 +273,6 @@ final class _PublicTransportationPageState
         snapshot.stations,
         snapshot.uniqueStopCount,
       ),
-      ..._provenance(snapshot.provenance),
-      ..._feeds(snapshot.feeds),
     ];
   }
 
@@ -521,50 +458,6 @@ final class _PublicTransportationPageState
     );
   }
 
-  List<Widget> _provenance(TransitProvenance provenance) {
-    return <Widget>[
-      const SizedBox(height: 12),
-      Text(
-        '${_t('本次结果生成', 'Result generated')} ${provenance.generatedAt.toIso8601String()}\n${_t('快照', 'Snapshot')}: ${provenance.snapshotId}\n${_t('参照网格', 'Reference grid')}: ${provenance.referenceGridVersion}',
-        style: _style(12, FontWeight.w400, const Color(0xFF667085)),
-      ),
-    ];
-  }
-
-  List<Widget> _feeds(List<FeedStatus> feeds) {
-    final List<Widget> result = <Widget>[];
-    for (final FeedStatus feed in feeds) {
-      String status;
-      switch (feed.availability) {
-        case FeedAvailability.usable:
-          status = _t('可用', 'Usable');
-          break;
-        case FeedAvailability.stale:
-          status = _t('资料可能过期', 'Data may be outdated');
-          break;
-        case FeedAvailability.failed:
-          status = _t('读取或解析失败', 'Read or parse failed');
-          break;
-        case FeedAvailability.missing:
-          status = _t('来源缺失', 'Source missing');
-          break;
-        case FeedAvailability.outOfServiceRange:
-          status = _t('分析日超出服务日期范围', 'Analysis date outside service range');
-          break;
-      }
-      result.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(
-            '${feed.sourceId} · $status\n${feed.sourceUrl}\n${_t('采集时间', 'Captured')}: ${feed.capturedAt?.toIso8601String() ?? _t('未知', 'Unknown')}${feed.reason == null ? '' : '\n${feed.reason}'}',
-            style: _style(12, FontWeight.w400, const Color(0xFF667085)),
-          ),
-        ),
-      );
-    }
-    return result;
-  }
-
   Widget _notice(String text) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -628,13 +521,13 @@ final class _PublicTransportationPageState
     switch (reason) {
       case TransitUnavailableReason.noUsableFeed:
         return _t(
-          '没有可用的 GTFS 来源。可刷新重试。',
-          'No usable GTFS feed. Refresh to retry.',
+          '交通资料暂不可用，请刷新重试。',
+          'Transportation data unavailable. Refresh to retry.',
         );
       case TransitUnavailableReason.analysisDateOutsideServiceRange:
         return _t(
-          '分析日超出来源的服务日期范围。',
-          'Analysis date is outside feed service ranges.',
+          '分析日期没有可用交通资料。',
+          'Transportation data unavailable for the analysis date.',
         );
       case TransitUnavailableReason.retryableUnavailable:
         return _t(
@@ -642,10 +535,7 @@ final class _PublicTransportationPageState
           'Transportation data could not be read. Restore connectivity and refresh.',
         );
       case TransitUnavailableReason.sourceUnverifiable:
-        return _t(
-          '来源或参照网格无法核实，交通分不可用。',
-          'Source or reference grid could not be verified; score unavailable.',
-        );
+        return _t('资料不完整，交通分暂不可用。', 'Data is incomplete; score unavailable.');
     }
   }
 

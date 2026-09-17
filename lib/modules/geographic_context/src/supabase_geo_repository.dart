@@ -18,9 +18,7 @@ final class SupabaseGeoRepository implements GeographicContextRepository {
     double lng,
   ) async {
     final Session? session = _supabase.auth.currentSession;
-    if (session == null ||
-        session.user.emailConfirmedAt == null ||
-        session.user.isAnonymous) {
+    if (session == null || session.user.isAnonymous) {
       throw GeographicContextFailure.scopeUnavailable;
     }
     try {
@@ -28,7 +26,7 @@ final class SupabaseGeoRepository implements GeographicContextRepository {
         'read_administrative_boundary_candidates',
         params: {'latitude': lat, 'longitude': lng},
       );
-      if (!identical(session, _supabase.auth.currentSession)) {
+      if (session.user.id != _supabase.auth.currentUser?.id) {
         throw GeographicContextFailure.scopeUnavailable;
       }
       if (response is! List || _containsInvalidRow(response)) {

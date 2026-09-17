@@ -1,7 +1,6 @@
 // Explicit parameter types and initialization follow Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 abstract interface class NearbyFacilities {
@@ -284,57 +283,4 @@ final class OverpassElement {
        osmId = osmId,
        representativePoint = representativePoint,
        tags = tags;
-}
-
-final class OpenNearbyFacilitiesIntent implements ShellIntent {
-  final ValidLocationReference location;
-  final Object? returnContext;
-  const OpenNearbyFacilitiesIntent({
-    required ValidLocationReference location,
-    Object? returnContext,
-  }) : location = location,
-       returnContext = returnContext;
-}
-
-final class OpenNearbyFacilitiesComparisonIntent implements ShellIntent {
-  final ValidLocationReference locationA;
-  final ValidLocationReference locationB;
-  final Object? returnContext;
-  const OpenNearbyFacilitiesComparisonIntent({
-    required ValidLocationReference locationA,
-    required ValidLocationReference locationB,
-    Object? returnContext,
-  }) : locationA = locationA,
-       locationB = locationB,
-       returnContext = returnContext;
-}
-
-final class NearbyFacilitiesSummaryContribution implements ShellContribution {
-  final ValidLocationReference location;
-  final FacilityAnalysisOutcome outcome;
-  final Object? returnContext;
-  const NearbyFacilitiesSummaryContribution({
-    required ValidLocationReference location,
-    required FacilityAnalysisOutcome outcome,
-    Object? returnContext,
-  }) : location = location,
-       outcome = outcome,
-       returnContext = returnContext;
-}
-
-final class NearbyFacilitiesComparisonContribution
-    implements ShellContribution {
-  final ValidLocationReference locationA;
-  final ValidLocationReference locationB;
-  final FacilityComparisonOutcome outcome;
-  final Object? returnContext;
-  const NearbyFacilitiesComparisonContribution({
-    required ValidLocationReference locationA,
-    required ValidLocationReference locationB,
-    required FacilityComparisonOutcome outcome,
-    Object? returnContext,
-  }) : locationA = locationA,
-       locationB = locationB,
-       outcome = outcome,
-       returnContext = returnContext;
 }

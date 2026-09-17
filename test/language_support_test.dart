@@ -108,34 +108,8 @@ void main() {
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Check your email and verify your address before signing in.'),
-      findsOneWidget,
-    );
+    expect(find.text('Signed in'), findsOneWidget);
   });
-
-  testWidgets(
-    'English unavailable session retry and sign out preserve language',
-    (tester) async {
-      fake.restored = const SessionUnavailable(
-        SessionFailure.retryableUnavailable,
-      );
-      await language.select('en');
-      await launch(tester);
-      expect(find.text('Sign-in status unavailable'), findsOneWidget);
-      fake.restored = const AuthenticatedSession(accountA);
-      await tester.tap(find.text('Retry'));
-      await tester.pumpAndSettle();
-      expect(find.text('Email verified'), findsOneWidget);
-      await tester.tap(find.text('Sign out of this device'));
-      await tester.pumpAndSettle();
-      expect(find.text('End your session on this device?'), findsOneWidget);
-      await tester.tap(find.widgetWithText(FilledButton, 'Sign out'));
-      await tester.pumpAndSettle();
-      expect(find.text('Welcome back'), findsOneWidget);
-      expect(language.locale, const Locale('en'));
-    },
-  );
 
   testWidgets('English registration fits small screen with 200 percent text', (
     tester,

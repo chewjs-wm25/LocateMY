@@ -57,7 +57,7 @@ void main() {
       expect(find.text('0 / 5 类'), findsOneWidget);
       expect(find.text('医疗健康'), findsOneWidget);
       expect(
-        find.text('未收录不代表现实中不存在；不提供详情或路线。', skipOffstage: false),
+        find.text('仅显示已收录设施；未收录不代表不存在。', skipOffstage: false),
         findsOneWidget,
       );
     },
@@ -137,13 +137,72 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Too many requests. Try again later.'), findsOneWidget);
-      expect(find.text('Data source: OpenStreetMap'), findsOneWidget);
+      expect(find.text('Data source: OpenStreetMap'), findsNothing);
+      expect(find.text('Retry'), findsOneWidget);
       expect(
         find.widgetWithText(TextButton, '© OpenStreetMap contributors'),
         findsOneWidget,
       );
     },
   );
+
+  testWidgets('A/B shares one attribution and disclaimer and permits retry', (
+    WidgetTester tester,
+  ) async {
+    const ValidLocationReference a = ValidLocationReference(
+      locationId: 'a',
+      point: GeographicPoint(latitude: 3, longitude: 101),
+    );
+    const ValidLocationReference b = ValidLocationReference(
+      locationId: 'b',
+      point: GeographicPoint(latitude: 4, longitude: 101),
+    );
+    final FakeNearbyFacilities facilities = FakeNearbyFacilities(
+      analysisOutcome: const FacilityAnalysisUnavailable(
+        failure: FacilityFailure.invalidPayload,
+      ),
+      comparisonOutcome: const FacilityComparisonNotComparable(
+        locationA: FacilityAnalysisUnavailable(
+          failure: FacilityFailure.invalidPayload,
+        ),
+        locationB: FacilityAnalysisUnavailable(
+          failure: FacilityFailure.invalidPayload,
+        ),
+        failure: FacilityComparisonFailure.incompleteResult,
+      ),
+      layerOutcome: const FacilityLayerNotPublished(
+        failure: FacilityLayerFailure.analysisUnavailable,
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyFacilitiesPage(
+          facilities: facilities,
+          location: a,
+          locationB: b,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('© OpenStreetMap contributors'),
+      200,
+    );
+    expect(find.text('© OpenStreetMap contributors'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('Only recorded facilities'),
+      100,
+    );
+    expect(find.textContaining('Only recorded facilities'), findsOneWidget);
+    expect(find.text('Data source: OpenStreetMap'), findsNothing);
+    facilities.comparisonOutcome = const FacilityComparisonUnavailable(
+      failure: FacilityFailure.rateLimited,
+    );
+    await tester.scrollUntilVisible(find.text('Retry').first, -200);
+    await tester.tap(find.text('Retry').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Too many requests. Try again later.'), findsOneWidget);
+  });
 
   testWidgets(
     'unknown categories suppress definitive coverage and total at 360dp with 200 percent text',

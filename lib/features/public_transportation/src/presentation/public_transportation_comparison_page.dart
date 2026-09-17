@@ -1,30 +1,26 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/transit_models.dart';
-import '../domain/transit_shell_models.dart';
+import '../domain/transit_analysis_context.dart';
 import 'transit_comparison_view_model.dart';
 
 final class PublicTransportationComparisonPage extends StatefulWidget {
   final PublicTransportation transportation;
   final AnalysisReturnContext a;
   final AnalysisReturnContext b;
-  final ApplicationShell? applicationShell;
   final void Function(AnalysisReturnContext)? onOpenStations;
   const PublicTransportationComparisonPage({
     required PublicTransportation transportation,
     required AnalysisReturnContext a,
     required AnalysisReturnContext b,
-    ApplicationShell? applicationShell,
     void Function(AnalysisReturnContext)? onOpenStations,
     super.key,
   }) : transportation = transportation,
        a = a,
        b = b,
-       applicationShell = applicationShell,
        onOpenStations = onOpenStations;
   @override
   State<PublicTransportationComparisonPage> createState() {
@@ -70,7 +66,6 @@ final class _TransitComparisonPageState
       transportation: widget.transportation,
       a: widget.a,
       b: widget.b,
-      applicationShell: widget.applicationShell,
     );
     _model.load(TransitLoadPolicy.cacheAllowed);
   }
@@ -81,7 +76,7 @@ final class _TransitComparisonPageState
     if (oldWidget.transportation != widget.transportation ||
         oldWidget.a != widget.a ||
         oldWidget.b != widget.b ||
-        oldWidget.applicationShell != widget.applicationShell) {
+        false) {
       _model.dispose();
       _createModel();
     }
@@ -134,11 +129,7 @@ final class _TransitComparisonPageState
                       IconButton(
                         tooltip: _t('返回', 'Back'),
                         onPressed: () {
-                          if (widget.applicationShell != null) {
-                            _model.returnToMap();
-                          } else {
-                            Navigator.maybePop(context);
-                          }
+                          Navigator.maybePop(context);
                         },
                         icon: const Icon(Icons.chevron_left),
                       ),
@@ -183,18 +174,6 @@ final class _TransitComparisonPageState
                       _comparisonReason(outcome.reason),
                       style: _style(14, FontWeight.w600),
                     ),
-                  if (_model.publication
-                          is ShellContributionAuthenticationRequired ||
-                      _model.publication is ShellContributionRejected ||
-                      _model.navigation is ShellAuthenticationRequired ||
-                      _model.navigation is ShellIntentRejected)
-                    Text(
-                      _t(
-                        '结果仍保留在本页。请重新登录或使用系统返回手势，从地图重新打开。',
-                        'The results remain visible. Sign in again or use the system back gesture to reopen from the map.',
-                      ),
-                      style: _style(13, FontWeight.w400),
-                    ),
                   const SizedBox(height: 12),
                   if (_model.retainedPreviousResult)
                     Text(
@@ -225,15 +204,10 @@ final class _TransitComparisonPageState
   Widget _side(AnalysisReturnContext context, TransitLoadOutcome outcome) {
     TransitSnapshot? complete;
     TransitPartialSnapshot? partial;
-    List<FeedStatus> feeds = <FeedStatus>[];
     if (outcome is TransitAvailable) {
       complete = outcome.snapshot;
-      feeds = complete.feeds;
     } else if (outcome is TransitIncomplete) {
       partial = outcome.snapshot;
-      feeds = partial.feeds;
-    } else if (outcome is TransitUnavailable) {
-      feeds = outcome.feeds;
     }
     final String role = context.role == LocationRole.locationA ? 'A' : 'B';
     return Container(
@@ -264,17 +238,6 @@ final class _TransitComparisonPageState
               context.location.displayName ?? context.location.locationId,
               style: _style(18, FontWeight.w700),
             ),
-            if (complete != null &&
-                feeds.any((FeedStatus feed) {
-                  return feed.availability == FeedAvailability.stale;
-                }))
-              Text(
-                _t(
-                  '资料可能过期；覆盖读数仍可用。',
-                  'Data may be outdated; the coverage reading remains available.',
-                ),
-                style: _style(13, FontWeight.w600),
-              ),
             if (complete != null) ...<Widget>[
               if (complete.score != null)
                 Semantics(
@@ -304,10 +267,6 @@ final class _TransitComparisonPageState
                 ),
                 style: _style(12, FontWeight.w400),
               ),
-              Text(
-                _provenance(complete.provenance),
-                style: _style(12, FontWeight.w400),
-              ),
             ],
             if (partial != null) ...<Widget>[
               Text(
@@ -325,10 +284,6 @@ final class _TransitComparisonPageState
                 ),
                 style: _style(12, FontWeight.w400),
               ),
-              Text(
-                _provenance(partial.provenance),
-                style: _style(12, FontWeight.w400),
-              ),
             ],
             if (outcome is TransitUnavailable)
               Text(
@@ -341,24 +296,6 @@ final class _TransitComparisonPageState
                   widget.onOpenStations!(context);
                 },
                 child: Text(_t('查看站点', 'View stations')),
-              ),
-            if (feeds.isNotEmpty)
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text(
-                  _t('来源与采集日期', 'Sources and capture dates'),
-                  style: _style(12, FontWeight.w600),
-                ),
-                children: <Widget>[
-                  for (final FeedStatus feed in feeds)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        '${feed.feedId}\n${feed.sourceUrl}\n${feed.capturedAt?.toIso8601String() ?? _t('无采集日期', 'No capture date')}\n${_feedStatus(feed.availability)}${feed.reason == null ? '' : ' · ${feed.reason}'}',
-                        style: _style(12, FontWeight.w400),
-                      ),
-                    ),
-                ],
               ),
           ],
         ),
@@ -375,10 +312,6 @@ final class _TransitComparisonPageState
       '$stops 个站点 · $routes 条有效路线 · 最近 ${nearest == null ? '—' : '$nearest m'}',
       '$stops stops · $routes active routes · nearest ${nearest == null ? '—' : '$nearest m'}',
     );
-  }
-
-  String _provenance(TransitProvenance provenance) {
-    return '${_t('快照', 'Snapshot')} ${provenance.snapshotId}\n${_t('参照网格', 'Reference grid')} ${provenance.referenceGridVersion}\n${_t('生成', 'Generated')} ${provenance.generatedAt.toIso8601String()}';
   }
 
   String _service(TransitServiceOutcome service) {
@@ -399,27 +332,12 @@ final class _TransitComparisonPageState
       return _t('暂时无法读取，请刷新重试', 'Temporarily unavailable. Refresh to retry');
     }
     if (reason == TransitUnavailableReason.sourceUnverifiable) {
-      return _t(
-        '来源或参照网格无法核实',
-        'Source or reference grid could not be verified',
-      );
+      return _t('资料不完整，交通分暂不可用', 'Data is incomplete; score unavailable');
     }
-    return _t('没有可用于分析日期的 feed', 'No usable feeds for the analysis date');
-  }
-
-  String _feedStatus(FeedAvailability availability) {
-    switch (availability) {
-      case FeedAvailability.usable:
-        return _t('可用', 'Usable');
-      case FeedAvailability.stale:
-        return _t('资料可能过期', 'Data may be outdated');
-      case FeedAvailability.missing:
-        return _t('缺失', 'Missing');
-      case FeedAvailability.failed:
-        return _t('读取或解析失败', 'Fetch or parse failed');
-      case FeedAvailability.outOfServiceRange:
-        return _t('超出服务日期范围', 'Outside service date range');
-    }
+    return _t(
+      '分析日期没有可用交通资料',
+      'Transportation data unavailable for the analysis date',
+    );
   }
 
   String _comparisonReason(TransitComparisonReason reason) {
@@ -436,10 +354,7 @@ final class _TransitComparisonPageState
       case TransitComparisonReason.radiusMismatch:
         return _t('分析半径不同，无法比较', 'Cannot compare: analysis radii differ');
       case TransitComparisonReason.provenanceMismatch:
-        return _t(
-          '快照、网格或来源不同，无法比较',
-          'Cannot compare: snapshots, grids or sources differ',
-        );
+        return _t('资料口径不同，无法比较', 'Cannot compare: data is incompatible');
       case TransitComparisonReason.serviceOutcomeNotScored:
         return _t(
           '包含未评分服务结果，无法比较',

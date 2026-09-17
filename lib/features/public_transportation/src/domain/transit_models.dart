@@ -58,7 +58,7 @@ enum TransitServiceOutcome { served, noStops, noActiveRoutes }
 
 enum TransitStationType { bus, rail, ferry, other }
 
-enum FeedAvailability { usable, stale, missing, failed, outOfServiceRange }
+enum FeedAvailability { usable, missing, failed, outOfServiceRange }
 
 final class TransitScore {
   final int value;
@@ -94,20 +94,17 @@ final class FeedStatus {
   final String feedId;
   final String sourceId;
   final Uri sourceUrl;
-  final DateTime? capturedAt;
   final FeedAvailability availability;
   final String? reason;
   const FeedStatus({
     required String feedId,
     required String sourceId,
     required Uri sourceUrl,
-    required DateTime? capturedAt,
     required FeedAvailability availability,
     required String? reason,
   }) : feedId = feedId,
        sourceId = sourceId,
        sourceUrl = sourceUrl,
-       capturedAt = capturedAt,
        availability = availability,
        reason = reason;
 }

@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
 
 import 'location_coordinator_test.dart' show MemoryStorage;
 
@@ -14,11 +13,9 @@ void main() {
       final List<String> lines = <String>[];
       await runZoned(
         () async {
-          final AccountScope scope = AccountScope('private-account');
           final DiagnosticStorage store = DiagnosticStorage();
           final LocationCoordinator map = createLocationCoordinator(
-            scope: scope,
-            readScope: () => AccountScopeOpened(scope),
+            accountId: 'a',
             validatePoint: (_) async => true,
             storage: store,
           );
@@ -39,14 +36,18 @@ void main() {
               name: 'private-name',
             ),
           );
-          await map.synchronizeSavedLocations();
+          await map.loadSavedLocations();
           store.offline = false;
+          await map.save(
+            SaveLocationRequest(
+              location: selected.location,
+              name: 'private-name',
+            ),
+          );
           final SavedLocationsAvailable synced =
-              await map.synchronizeSavedLocations() as SavedLocationsAvailable;
+              await map.loadSavedLocations() as SavedLocationsAvailable;
           store.conflict = true;
           await map.deleteSavedLocation(synced.locations.single.id);
-          store.clearFailure = true;
-          await locationPrivacyParticipant(map).clearPrivateState(scope);
         },
         zoneSpecification: ZoneSpecification(
           print: (self, parent, zone, line) => lines.add(line),
@@ -60,11 +61,8 @@ void main() {
         containsAll([
           'success',
           'invalidName',
-          'queued',
           'retryableUnavailable',
-          'cached',
           'conflict',
-          'localStoreUnavailable',
         ]),
       );
       for (final Map<String, dynamic> e in events) {
@@ -101,13 +99,5 @@ class DiagnosticStorage extends MemoryStorage {
       throw SavedLocationFailure.conflict;
     }
     return super.deleteRemote(record);
-  }
-
-  @override
-  Future<void> clearLocal() async {
-    if (clearFailure) {
-      throw StateError('private-name');
-    }
-    await super.clearLocal();
   }
 }

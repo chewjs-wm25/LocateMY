@@ -8,9 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../../app/application_shell.dart';
 import '../domain/location_models.dart';
-import '../domain/location_intents.dart';
 import '../application/location_search.dart';
 import '../application/map_workspace.dart';
 import 'map_view_model.dart';
@@ -22,29 +20,40 @@ class MapLocationPage extends StatefulWidget {
   final LocationCoordinator locations;
   final MapLayerHost layerHost;
   final MapWorkspace workspace;
-  final ApplicationShell applicationShell;
+  final void Function(ValidLocationReference) onAnalysis;
+  final void Function(ValidLocationReference, ValidLocationReference)
+  onComparison;
+  final void Function(MapLayerIntent) onLayerSelected;
   final LocationSearch search;
   final bool showTiles;
   final void Function(String, GeographicPoint, GeographicPoint)? onViewport;
   final ValueNotifier<GeographicPoint?>? layerFocus;
+  final Widget? detailAction;
   const MapLocationPage({
     required LocationCoordinator locations,
     required MapLayerHost layerHost,
     required MapWorkspace workspace,
-    required ApplicationShell applicationShell,
+    required void Function(ValidLocationReference) onAnalysis,
+    required void Function(ValidLocationReference, ValidLocationReference)
+    onComparison,
+    required void Function(MapLayerIntent) onLayerSelected,
     required LocationSearch search,
     bool showTiles = true,
     void Function(String, GeographicPoint, GeographicPoint)? onViewport,
     ValueNotifier<GeographicPoint?>? layerFocus,
+    Widget? detailAction,
     super.key,
   }) : locations = locations,
        layerHost = layerHost,
        workspace = workspace,
-       applicationShell = applicationShell,
+       onAnalysis = onAnalysis,
+       onComparison = onComparison,
+       onLayerSelected = onLayerSelected,
        search = search,
        showTiles = showTiles,
        onViewport = onViewport,
-       layerFocus = layerFocus;
+       layerFocus = layerFocus,
+       detailAction = detailAction;
   @override
   State<MapLocationPage> createState() {
     return _MapLocationPageState();
@@ -55,10 +64,12 @@ class _MapLocationPageState extends State<MapLocationPage>
     with WidgetsBindingObserver {
   late final MapViewModel vm = MapViewModel(
     widget.locations,
-    widget.applicationShell,
     widget.search,
     widget.layerHost,
     widget.workspace,
+    onAnalysis: widget.onAnalysis,
+    onComparison: widget.onComparison,
+    onLayerSelected: widget.onLayerSelected,
   );
   final MapController controller = MapController();
   AppLocalizations get l10n {
@@ -86,16 +97,14 @@ class _MapLocationPageState extends State<MapLocationPage>
         return l10n.mapTheLocationChangedOnAnotherDevice;
       case 'notFound':
         return l10n.mapThisSavedLocationNoLongerExists;
-      case 'queued':
-        return l10n.mapQueuedOnThisDeviceNotSynchronized;
       case 'saved':
-        return l10n.mapSavedAndSynchronized;
+        return l10n.mapSavedOnline;
       case 'deleted':
-        return l10n.mapDeletedAndSynchronized;
+        return l10n.mapDeletedOnline;
       case 'scopeUnavailable':
       case 'authenticationRequired':
       case 'unauthenticated':
-        return l10n.mapAccountScopeUnavailableSignInAgain;
+        return l10n.mapAccountUnavailableSignInAgain;
       case 'staleInput':
       case 'staleViewport':
         return l10n.mapThisRequestIsOutdatedSelectOr;
@@ -195,18 +204,6 @@ class _MapLocationPageState extends State<MapLocationPage>
     }
   }
 
-  void toolbarAction(String action) {
-    if (action == l10n.mapSaved) {
-      savedLocations();
-    } else if (action == l10n.mapRefresh) {
-      vm.refresh();
-    } else if (action == l10n.mapClear) {
-      vm.clear();
-    } else {
-      toggleLayers();
-    }
-  }
-
   void toggleLayers() {
     setState(() => vm.layerVisible = !vm.layerVisible);
   }
@@ -274,20 +271,13 @@ class _MapLocationPageState extends State<MapLocationPage>
                     ),
                   ),
                   if (vm.saved is SavedLocationsUnavailable)
-                    Text(l10n.mapSavedLocationsUnavailableRetrySynchronization),
+                    Text(l10n.mapSavedLocationsUnavailable),
                   if (vm.saved is SavedLocationsAvailable &&
                       (vm.saved as SavedLocationsAvailable).locations.isEmpty)
                     Text(l10n.mapNoSavedLocations),
                   for (final saved in vm.savedRows)
                     ListTile(
                       title: Text(saved.name),
-                      subtitle: Text(
-                        saved.syncState == SavedLocationSyncState.synchronized
-                            ? vm.saved is SavedLocationsUnavailable
-                                  ? l10n.mapCachedRetrySynchronization
-                                  : l10n.mapSynchronized
-                            : l10n.mapQueuedNotSynchronized,
-                      ),
                       onTap: () async {
                         Navigator.pop(c);
                         final bool selected = await vm.select(
@@ -312,7 +302,7 @@ class _MapLocationPageState extends State<MapLocationPage>
                     ),
                   TextButton(
                     onPressed: vm.busy ? null : vm.refresh,
-                    child: Text(l10n.mapRetrySynchronization),
+                    child: Text(l10n.mapRetryLoading),
                   ),
                 ],
               ),
@@ -355,6 +345,7 @@ class _MapLocationPageState extends State<MapLocationPage>
                 side: const BorderSide(color: Color(0xFFD9E0EA)),
                 showCheckmark: false,
                 labelStyle: const TextStyle(
+                  fontFamily: 'SourceSansPro',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF155EEF),
@@ -365,12 +356,13 @@ class _MapLocationPageState extends State<MapLocationPage>
               child: SafeArea(
                 child: Column(
                   children: [
-                    _mapWorkspace(textScale, extraHeight),
+                    _mapWorkspace(extraHeight),
                     if (vm.message != null)
                       Semantics(
                         liveRegion: true,
                         child: Text(message(vm.message!)),
                       ),
+                    if (widget.detailAction != null) widget.detailAction!,
                     _detailCard(location),
                   ],
                 ),
@@ -382,185 +374,305 @@ class _MapLocationPageState extends State<MapLocationPage>
     );
   }
 
-  Widget _detailCard(ValidLocationReference? location) {
-    return Flexible(
-      flex: 1,
-      child: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  String _locationTitle(ValidLocationReference location) {
+    final String name = location.displayName?.trim() ?? '';
+    if (name.isNotEmpty) {
+      return name;
+    }
+    return l10n.mapSelectedLocation;
+  }
+
+  String _coordinates(ValidLocationReference location) {
+    return '${location.point.latitude.toStringAsFixed(5)}, ${location.point.longitude.toStringAsFixed(5)}';
+  }
+
+  Widget _locationHeader(ValidLocationReference? location) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF2FF),
+            borderRadius: BorderRadius.circular(14),
           ),
+          child: const Icon(Icons.place_outlined, color: Color(0xFF155EEF)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 52,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9E0EA),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
+            children: <Widget>[
+              Text(
+                location == null
+                    ? l10n.mapSelectALocation
+                    : _locationTitle(location),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 16),
-              if (vm.compare) ...[
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    for (final role in [
-                      LocationRole.locationA,
-                      LocationRole.locationB,
-                    ])
-                      ChoiceChip(
-                        label: Text(
-                          '${role == LocationRole.locationA ? l10n.mapLocationA : l10n.mapLocationB}${vm.read(role) == null ? '' : ' ✓'}',
-                        ),
-                        selected: vm.role == role,
-                        onSelected: (_) => vm.setRole(role),
-                      ),
-                    IconButton(
-                      tooltip: l10n.mapSwapAB,
-                      onPressed: vm.swap,
-                      icon: const Icon(Icons.swap_horiz),
-                    ),
-                  ],
-                ),
-                for (final role in [
-                  LocationRole.locationA,
-                  LocationRole.locationB,
-                ])
-                  Text(
-                    '${role == LocationRole.locationA ? 'A' : 'B'}: ${vm.read(role)?.displayName ?? vm.read(role)?.locationId ?? l10n.mapNotSelected}',
-                  ),
-                FilledButton(
-                  onPressed:
-                      vm.read(LocationRole.locationA) != null &&
-                          vm.read(LocationRole.locationB) != null
-                      ? vm.comparison
-                      : null,
-                  child: Text(l10n.mapViewComparison),
-                ),
-              ] else ...[
+              if (location != null) ...<Widget>[
+                const SizedBox(height: 4),
                 Text(
-                  location == null
-                      ? l10n.mapSelectALocation
-                      : location.displayName ??
-                            '${location.point.latitude}, ${location.point.longitude}',
+                  _coordinates(location),
                   style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF667085),
+                    fontSize: 13,
                   ),
                 ),
-                if (location != null) ...[
-                  const SizedBox(height: 8),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _locationActions(ValidLocationReference location) {
+    final Widget analyse = FilledButton.icon(
+      style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+      onPressed: vm.analyze,
+      icon: const Icon(Icons.analytics_outlined, size: 20),
+      label: Text(
+        l10n.mapViewFullAnalysis,
+        style: const TextStyle(fontFamily: 'SourceSansPro'),
+      ),
+    );
+    final Widget save = OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+      onPressed: vm.busy
+          ? null
+          : () {
+              saveLocation(location);
+            },
+      icon: const Icon(Icons.bookmark_add_outlined, size: 20),
+      label: Text(l10n.mapSaveLocation),
+    );
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+        if (constraints.maxWidth < 300 || scale > 1.3) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[analyse, const SizedBox(height: 8), save],
+          );
+        }
+        return Row(
+          children: <Widget>[
+            Expanded(flex: 3, child: analyse),
+            const SizedBox(width: 10),
+            Expanded(flex: 2, child: save),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _comparisonLocation(LocationRole role) {
+    final ValidLocationReference? location = vm.read(role);
+    final String label;
+    if (role == LocationRole.locationA) {
+      label = l10n.mapLocationA;
+    } else {
+      label = l10n.mapLocationB;
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Icon(Icons.place_outlined, size: 20, color: Color(0xFF155EEF)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '$label: ${location == null ? l10n.mapNotSelected : _locationTitle(location)}',
+                ),
+                if (location != null)
                   Text(
-                    l10n.mapSelectedAnalysisLocation,
+                    _coordinates(location),
                     style: const TextStyle(
+                      fontSize: 12,
                       color: Color(0xFF667085),
-                      fontSize: 13,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEAF2FF),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      l10n.mapPersonalizedSuitabilityUnavailable,
-                      style: const TextStyle(color: Color(0xFF155EEF)),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size(0, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailCard(ValidLocationReference? location) {
+    return Flexible(
+      flex: 2,
+      child: Material(
+        key: const ValueKey('map-location-detail-card'),
+        color: Colors.white,
+        elevation: 8,
+        shadowColor: const Color(0x26000000),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                if (vm.compare) ...<Widget>[
+                  Wrap(
+                    spacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: <Widget>[
+                      for (final LocationRole role in <LocationRole>[
+                        LocationRole.locationA,
+                        LocationRole.locationB,
+                      ])
+                        ChoiceChip(
+                          label: Text(
+                            role == LocationRole.locationA
+                                ? l10n.mapLocationA
+                                : l10n.mapLocationB,
                           ),
-                          onPressed: vm.analyze,
-                          child: Text(l10n.mapViewFullAnalysis),
+                          selected: vm.role == role,
+                          onSelected: (bool selected) {
+                            vm.setRole(role);
+                          },
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 4,
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(0, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: const BorderSide(color: Color(0xFFD9E0EA)),
-                          ),
-                          onPressed: vm.busy
-                              ? null
-                              : () => saveLocation(location),
-                          child: Text(l10n.mapSaveLocation),
-                        ),
+                      IconButton(
+                        tooltip: l10n.mapSwapAB,
+                        onPressed: vm.swap,
+                        icon: const Icon(Icons.swap_horiz),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  _comparisonLocation(LocationRole.locationA),
+                  _comparisonLocation(LocationRole.locationB),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 48),
                       ),
-                    ),
-                    onPressed: vm.busy ? null : vm.openCrimeSecurity,
-                    child: Text(
-                      Localizations.localeOf(context).languageCode == 'zh'
-                          ? '治安与犯罪'
-                          : 'Crime & security',
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => chooseComparisonRole(location),
-                    child: Text(l10n.mapStartComparison),
-                  ),
-                  TextButton(
-                    onPressed: () => setState(() => vm.expanded = !vm.expanded),
-                    child: Text(
-                      vm.expanded ? l10n.mapHideSummary : l10n.mapShowSummary,
+                      onPressed:
+                          vm.read(LocationRole.locationA) != null &&
+                              vm.read(LocationRole.locationB) != null
+                          ? vm.comparison
+                          : null,
+                      child: Text(l10n.mapViewComparison),
                     ),
                   ),
-                  if (vm.expanded)
-                    for (final name in [
-                      l10n.mapSafetyIndex,
-                      l10n.mapCostOfLivingIndex,
-                      l10n.mapNearbyFacilities2Km,
-                      l10n.mapPublicTransportation15Km,
-                      l10n.mapInfrastructure,
-                    ])
-                      Text(
-                        '$name: ${l10n.mapProviderNotConnectedDateSourceUnavailable}',
-                      ),
+                ] else ...<Widget>[
+                  _locationHeader(location),
+                  if (location != null) ...<Widget>[
+                    const SizedBox(height: 16),
+                    _locationActions(location),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      children: <Widget>[
+                        TextButton.icon(
+                          onPressed: () {
+                            chooseComparisonRole(location);
+                          },
+                          icon: const Icon(Icons.compare_arrows, size: 18),
+                          label: Text(l10n.mapStartComparison),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              vm.expanded = !vm.expanded;
+                            });
+                          },
+                          icon: Icon(
+                            vm.expanded ? Icons.expand_less : Icons.expand_more,
+                            size: 18,
+                          ),
+                          label: Text(
+                            vm.expanded
+                                ? l10n.mapHideSummary
+                                : l10n.mapShowSummary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (vm.expanded) ...<Widget>[
+                      const SizedBox(height: 12),
+                      for (final String name in <String>[
+                        l10n.mapSafetyIndex,
+                        l10n.mapCostOfLivingIndex,
+                        l10n.mapNearbyFacilities2Km,
+                        l10n.mapPublicTransportation15Km,
+                        l10n.mapInfrastructure,
+                      ])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                l10n.mapSummaryUnavailable,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF667085),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ],
                 ],
               ],
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _mapWorkspace(double textScale, double extraHeight) {
+  Widget _toolbarButton(
+    String label,
+    IconData icon,
+    VoidCallback onPressed, {
+    bool selected = false,
+  }) {
+    return IconButton(
+      tooltip: label,
+      isSelected: selected,
+      style: IconButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        foregroundColor: const Color(0xFF344054),
+        backgroundColor: selected
+            ? const Color(0xFFEAF2FF)
+            : Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: onPressed,
+      icon: Icon(icon, size: 22),
+      selectedIcon: Icon(icon, size: 22, color: const Color(0xFF155EEF)),
+    );
+  }
+
+  Widget _mapWorkspace(double extraHeight) {
     return Expanded(
-      flex: 2,
+      flex: 3,
       child: Stack(
         children: [
           FlutterMap(
@@ -631,7 +743,7 @@ class _MapLocationPageState extends State<MapLocationPage>
                 items: vm.layerItems,
                 controller: controller,
                 onSelected: (MapLayerIntent intent) {
-                  vm.navigate(OpenMapLayerIntent(intent));
+                  widget.onLayerSelected(intent);
                 },
               ),
             ],
@@ -660,6 +772,7 @@ class _MapLocationPageState extends State<MapLocationPage>
           ),
           Positioned(
             left: 16,
+            right: 88,
             top: 82 + extraHeight,
             child: Wrap(
               spacing: 8,
@@ -679,42 +792,40 @@ class _MapLocationPageState extends State<MapLocationPage>
           ),
           Positioned(
             right: 16,
-            top: 144 + extraHeight,
+            top: 82 + extraHeight,
             bottom: 36,
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  for (final action in [
-                    l10n.mapLayers,
-                    l10n.mapSaved,
-                    l10n.mapRefresh,
-                    l10n.mapClear,
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: SizedBox(
-                        width: 64 * textScale,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 48),
-                          child: Material(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                minimumSize: const Size(0, 48),
-                                padding: const EdgeInsets.all(12),
-                              ),
-                              onPressed: () => toolbarAction(action),
-                              child: Text(
-                                action,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ),
-                        ),
+              child: Material(
+                elevation: 4,
+                shadowColor: const Color(0x26000000),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      _toolbarButton(
+                        l10n.mapLayers,
+                        Icons.layers_outlined,
+                        toggleLayers,
+                        selected: vm.layerVisible,
                       ),
-                    ),
-                ],
+                      _toolbarButton(
+                        l10n.mapSaved,
+                        Icons.bookmarks_outlined,
+                        savedLocations,
+                      ),
+                      const SizedBox(width: 32, child: Divider(height: 8)),
+                      _toolbarButton(
+                        l10n.mapRefresh,
+                        Icons.refresh,
+                        vm.refresh,
+                      ),
+                      _toolbarButton(l10n.mapClear, Icons.deselect, vm.clear),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

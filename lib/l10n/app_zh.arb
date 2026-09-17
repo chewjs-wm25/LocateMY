@@ -2,19 +2,9 @@
   "@@locale": "zh",
   "signingOut": "正在退出",
   "restoringSession": "正在检查登录状态",
-  "signOutIncomplete": "退出未完成",
-  "retrySignOut": "重试退出",
-  "sessionUnavailableTitle": "登录状态暂不可用",
-  "sessionRetryHint": "请连接网络后重试，以确认登录状态。",
-  "sessionRejectedHint": "登录状态已失效，请退出当前设备后重新登录。",
-  "sessionUnsupportedHint": "暂不支持登录，请检查应用配置或联系支持。",
   "retry": "重试",
   "signOutDevice": "退出当前设备",
   "signedIn": "已登录",
-  "emailConfirmed": "邮箱已验证",
-  "emailVerificationRequired": "需要验证邮箱",
-  "emailConfirmationUnavailable": "邮箱验证状态暂不可用",
-  "retryUsername": "重试保存用户名",
   "createAccount": "创建账户",
   "welcomeBack": "欢迎回来",
   "registrationSubtitle": "创建账户，开始规划更适合你的生活。",
@@ -45,15 +35,10 @@
   "serviceUnavailable": "服务暂不可用，请重试。",
   "signInUnsupportedClient": "当前设备暂时无法登录。",
   "registrationAuthenticated": "账户创建成功。",
-  "registrationProfileFailed": "账户已创建，用户名保存失败，可稍后重试。",
-  "verificationEmailSent": "请查看邮件，完成邮箱验证后再登录。",
-  "verificationProfileRetryNeeded": "请验证邮箱，再登录以完成用户名设置。",
+  "registrationProfileFailed": "账号已创建，但用户名未能保存。",
   "registrationInvalidInput": "请检查必填项和确认密码。",
   "registrationAccountExists": "该邮箱已注册。",
   "registrationUnsupportedClient": "当前设备暂时无法注册。",
-  "profileRetrySucceeded": "用户名已保存。",
-  "profileRetryFailed": "用户名未保存，请检查格式或重试。",
-  "profileRetrySkipped": "当前设备没有待保存的用户名。",
   "signOutRetryableUnavailable": "退出未完成，请连接网络后重试。",
   "signOutRemoteRejected": "退出请求被拒绝，请重试或联系支持。",
   "signOutUnsupportedClient": "当前设备无法完成退出，请检查应用配置。",
@@ -66,15 +51,6 @@
   "shellHome": "首页",
   "shellMap": "地图",
   "shellAccount": "账户",
-  "shellTask": "任务",
-  "shellPreparing": "正在准备应用，请稍候。",
-  "shellRecovery": "应用暂时不可用，请重试。",
-  "shellCleanupPending": "旧账户清理尚未完成，私有内容已关闭。请重试完成清理。",
-  "shellScopeUnavailable": "暂时无法确认账户范围，请重试。",
-  "shellFutureTask": "此功能将在后续开发阶段接入。",
-  "shellHomePending": "首页功能尚未接入。",
-  "shellMapPending": "地图功能尚未接入。当前没有选择地点。",
-  "shellAccountPending": "账户中心尚未接入。你可以在此退出当前设备。",
   "homeTiming": "搬家时机",
   "homeCost": "成本压力",
   "homeEmployment": "就业稳定度",
@@ -90,44 +66,11 @@
   "homeLaborCaveat": "人口普查基准变化可能影响比较。",
   "homePartial": "部分指标暂不可用；保留其他可用结果。",
   "homeUnavailable": "暂不可用",
-  "homeObservedUnknown": "观测日期不可用",
   "homeCooling": "{seconds} 秒后可再次刷新",
   "@homeCooling": {
     "placeholders": {
       "seconds": {
         "type": "int"
-      }
-    }
-  },
-  "crimeSafetyIndex": "安全指数",
-  "crimeAnnualCases": "年度已定罪案件数",
-  "crimeTrendTitle": "最近5年犯罪趋势",
-  "crimeCategoryAll": "全部",
-  "crimeCategoryAssault": "暴力犯罪",
-  "crimeCategoryProperty": "财产犯罪",
-  "crimeTrendNote": "案件数，不代表实际犯罪率",
-  "crimeSourceYear": "数据年份：{year}",
-  "@crimeSourceYear": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "crimeFresh": "最新",
-  "crimeCached": "缓存",
-  "crimeStale": "可能过期",
-  "crimeUnavailable": "暂不可用",
-  "crimeStateUnresolved": "地点在支持区域外",
-  "crimePartialData": "部分数据",
-  "crimeViewPortfolio": "房产档案",
-  "crimeAddProperty": "新增房产",
-  "crimeBackToMap": "返回主地图",
-  "homeFetched": "上次成功读取：{date}",
-  "@homeFetched": {
-    "placeholders": {
-      "date": {
-        "type": "String"
       }
     }
   },
@@ -138,17 +81,6 @@
         "type": "String"
       },
       "year": {
-        "type": "String"
-      }
-    }
-  },
-  "homeSource": "来源：DOSM / data.gov.my · {dataset} · {date}",
-  "@homeSource": {
-    "placeholders": {
-      "dataset": {
-        "type": "String"
-      },
-      "date": {
         "type": "String"
       }
     }
@@ -169,16 +101,8 @@
       }
     }
   },
-  "homeReason": "{code, select, sourceMissing {来源资料缺失} sourceSchemaChanged {来源字段已变化} insufficientHistory {有效历史样本不足} sourceDataUnverifiable {来源资料无法验证} retryableUnavailable {连接暂不可用，请重试} noCachedResult {没有可用观测或缓存结果} authenticationRequired {请重新登录} missingInput {缺少必需输入} staleInput {此请求已过期} inapplicableDestination {目标页面不可用} scopeUnavailable {账户范围已关闭} other {暂不可用}}",
+  "homeReason": "{code, select, sourceMissing {来源资料缺失} sourceSchemaChanged {资料暂不可用，请重试} insufficientHistory {有效历史样本不足} sourceDataUnverifiable {来源资料无法验证} retryableUnavailable {连接暂不可用，请重试} noCachedResult {没有可用资料，请重试} authenticationRequired {请重新登录} missingInput {缺少必需输入} staleInput {此请求已过期} inapplicableDestination {目标页面不可用} scopeUnavailable {账户范围已关闭} other {暂不可用}}",
   "@homeReason": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "homeFreshness": "{code, select, fresh {已验证在线读取；日期为资料观测日期} cached {缓存资料；刷新未替换已保存结果} stale {已过期缓存资料；请联网重试} other {暂不可用}}",
-  "@homeFreshness": {
     "placeholders": {
       "code": {
         "type": "String"
@@ -197,7 +121,6 @@
   "homeTrendUnavailable": "历史趋势暂不可用；请参阅上方方向说明。",
   "homeGreeting": "准备看看搬家时机吗？",
   "homeIndicators": "主要指标",
-  "homeDataDetails": "数据与说明",
   "mapEnterAValidWGS84LatitudeAnd": "请输入合法 WGS84 纬度和经度。",
   "mapChooseAPointOnMalaysianLand": "请选择马来西亚陆地范围内的地点。",
   "mapAAndBMustBeDifferent": "地点 A 与地点 B 必须不同。",
@@ -205,12 +128,8 @@
   "mapSelectAValidatedLocationFirst": "请先选择合法地点。",
   "mapDeletionRequiresAConnectionTheLocation": "删除需要联网；原收藏仍保留。",
   "mapPermissionDeniedSignInAgain": "无访问权限，请重新登录。",
-  "mapTheLocationChangedOnAnotherDevice": "收藏已在其他设备改变，请重试同步。",
+  "mapTheLocationChangedOnAnotherDevice": "收藏已改变，请重新读取后重试。",
   "mapThisSavedLocationNoLongerExists": "此收藏已不存在。",
-  "mapQueuedOnThisDeviceNotSynchronized": "已在本机排队 · 尚未同步。",
-  "mapSavedAndSynchronized": "已收藏并同步。",
-  "mapDeletedAndSynchronized": "已删除并同步。",
-  "mapAccountScopeUnavailableSignInAgain": "账户范围不可用，请重新登录。",
   "mapThisRequestIsOutdatedSelectOr": "此请求已过期，请重新选择或刷新。",
   "mapTemporarilyUnavailableTryAgain": "暂不可用，请重试。",
   "mapSaveLocation": "收藏地点",
@@ -221,13 +140,8 @@
   "mapLocationA": "地点 A",
   "mapLocationB": "地点 B",
   "mapSavedLocations": "收藏地点",
-  "mapSavedLocationsUnavailableRetrySynchronization": "收藏暂不可用，请重试同步。",
   "mapNoSavedLocations": "尚无收藏地点",
-  "mapCachedRetrySynchronization": "缓存记录 · 请重试同步",
-  "mapSynchronized": "已同步",
-  "mapQueuedNotSynchronized": "已排队 · 尚未同步",
   "mapDelete": "删除",
-  "mapRetrySynchronization": "重试同步",
   "mapSearchPlacesInMalaysia": "搜索马来西亚地点",
   "mapEnterCoordinates": "输入坐标",
   "mapSingle": "单点",
@@ -241,9 +155,9 @@
   "mapSwapAB": "交换 A/B",
   "mapNotSelected": "未选择",
   "mapViewComparison": "查看地点比较",
+  "mapSelectedLocation": "所选地点",
   "mapSelectALocation": "先选择地点",
   "mapSelectedAnalysisLocation": "已选择分析地点",
-  "mapPersonalizedSuitabilityUnavailable": "个人化地点适配度暂不可用",
   "mapViewFullAnalysis": "查看完整分析",
   "mapStartComparison": "发起比较",
   "mapSafetyIndex": "地区安全指数",
@@ -251,7 +165,6 @@
   "mapNearbyFacilities2Km": "周边设施 · 2 km",
   "mapPublicTransportation15Km": "公共交通 · 1.5 km",
   "mapInfrastructure": "基础设施",
-  "mapProviderNotConnectedDateSourceUnavailable": "提供方未接入；日期／来源不可用",
   "mapLatitudeMustBeBetween90And": "纬度须介于 −90 与 90。",
   "mapLongitudeMustBeBetween180And": "经度须介于 −180 与 180。",
   "mapLatitude": "纬度",
@@ -278,5 +191,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mapSavedOnline": "已在线收藏。",
+  "mapDeletedOnline": "已在线删除。",
+  "mapSavedLocationsUnavailable": "收藏暂不可用，请重新读取。",
+  "mapRetryLoading": "重新读取",
+  "mapAccountUnavailableSignInAgain": "无法读取当前账户或地点，请重试。",
+  "mapSummaryUnavailable": "摘要暂不可用，请打开完整分析。"
 }

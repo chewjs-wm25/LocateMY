@@ -7,14 +7,12 @@ import 'data/facility_cache.dart';
 
 NearbyFacilities createNearbyFacilities({
   required OverpassFacilitySource source,
-  Object? Function()? scopeToken,
   Database? database,
   DateTime Function()? clock,
   MapLayerHost Function()? mapLayerHost,
 }) {
   return NearbyFacilitiesService(
     source,
-    scopeToken: scopeToken,
     cache: PublicFacilityCache(database),
     clock: clock,
     mapLayerHost: mapLayerHost,

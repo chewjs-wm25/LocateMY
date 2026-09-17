@@ -121,10 +121,9 @@ void main() {
     expect(district.area.stableId, 'b1');
     expect(district.provenance.importedAt.isUtc, isTrue);
   });
-  test('missing, unconfirmed and anonymous sessions never read RPC', () async {
+  test('missing and anonymous sessions never read RPC', () async {
     for (final setup in [
       () async {},
-      () => seed(confirmed: false),
       () => seed(anonymous: true),
     ]) {
       await setup();
@@ -133,6 +132,11 @@ void main() {
       expect(result.failure, GeographicContextFailure.scopeUnavailable);
     }
     expect(calls, isEmpty);
+  });
+  test('SDK signed-in session does not require email confirmation', () async {
+    await seed(confirmed: false);
+    expect(await geo.resolve(request()), isA<GeographicContextAvailable>());
+    expect(calls, hasLength(1));
   });
   test(
     'empty mutated levels are a programming error and do not read source',

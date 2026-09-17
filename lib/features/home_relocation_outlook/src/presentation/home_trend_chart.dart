@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
 import '../domain/home_trends.dart';
@@ -18,13 +18,10 @@ final class HomeTrendChart extends StatelessWidget {
         style: HomeVisualStyle.text(11, color: HomeVisualStyle.muted),
       );
     }
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final range =
-        '${DateFormat.yMMM(locale).format(points.first.observedAt)} – ${DateFormat.yMMM(locale).format(points.last.observedAt)}';
     final List<String> summaries = <String>[];
     for (final HomeTrendPoint point in points) {
       summaries.add(
-        '${DateFormat.yMMM(locale).format(point.observedAt)}: ${point.score} / 100',
+        '${DateFormat.yMMM(Localizations.localeOf(context).languageCode).format(point.observedAt)}: ${point.score} / 100',
       );
     }
     final String summary = summaries.join('; ');
@@ -40,13 +37,6 @@ final class HomeTrendChart extends StatelessWidget {
               color: HomeVisualStyle.muted,
             ),
           ),
-          Text(
-            range,
-            style: HomeVisualStyle.text(
-              compact ? 11 : 13,
-              color: HomeVisualStyle.muted,
-            ),
-          ),
           ExcludeSemantics(
             child: SizedBox(
               height: compact ? 44 : 72,
@@ -54,6 +44,19 @@ final class HomeTrendChart extends StatelessWidget {
                 painter: _TrendPainter(points, HomeVisualStyle.primary),
               ),
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                DateFormat.yMMM(Localizations.localeOf(context).languageCode)
+                    .format(points.first.observedAt),
+              ),
+              Text(
+                DateFormat.yMMM(Localizations.localeOf(context).languageCode)
+                    .format(points.last.observedAt),
+              ),
+            ],
           ),
           if (!compact) Text(l.homeTrendApproximation),
         ],

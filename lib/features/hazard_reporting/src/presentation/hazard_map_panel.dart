@@ -66,11 +66,17 @@ final class _HazardMapPanelState extends State<HazardMapPanel> {
     final HazardStrings l = HazardStrings(context);
     return Column(
       children: [
+        Expanded(child: widget.child),
         AnimatedBuilder(
           animation: layer,
           builder: (BuildContext context, Widget? child) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            return Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFEAECF0))),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Column(
                 children: [
                   Wrap(
@@ -78,9 +84,10 @@ final class _HazardMapPanelState extends State<HazardMapPanel> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (widget.onMine != null)
-                        TextButton(
+                        IconButton(
+                          tooltip: l.text('My hazard reports', '我的隐患报告'),
                           onPressed: widget.onMine,
-                          child: Text(l.text('My hazard reports', '我的隐患报告')),
+                          icon: const Icon(Icons.assignment_outlined),
                         ),
                       if (layer.loading)
                         const SizedBox(
@@ -88,25 +95,12 @@ final class _HazardMapPanelState extends State<HazardMapPanel> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                      if (!layer.loading &&
-                          layer.failure == null &&
-                          widget.viewport.value != null)
-                        Text(
-                          l.text(
-                            '${layer.reports.length} hazards loaded',
-                            '已加载 ${layer.reports.length} 项隐患',
-                          ),
-                          style: const TextStyle(fontSize: 12),
-                        ),
                       if (layer.nextCursor != null)
-                        TextButton(
+                        TextButton.icon(
                           onPressed: layer.loading ? null : layer.more,
-                          child: Text(l.text('Load more hazards', '加载更多隐患')),
+                          icon: const Icon(Icons.expand_more, size: 18),
+                          label: Text(l.text('Load more hazards', '加载更多隐患')),
                         ),
-                      TextButton(
-                        onPressed: layer.loading ? null : _refresh,
-                        child: Text(l.text('Refresh hazards', '刷新隐患')),
-                      ),
                     ],
                   ),
                   if (layer.failure != null)
@@ -132,7 +126,6 @@ final class _HazardMapPanelState extends State<HazardMapPanel> {
             );
           },
         ),
-        Expanded(child: widget.child),
       ],
     );
   }

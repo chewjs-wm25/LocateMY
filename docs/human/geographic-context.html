@@ -1,4 +1,5 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Geographic Context 开发协作契约</title><style>body{font-family:system-ui,sans-serif;color:#172033;background:#f6f8fb;line-height:1.7;margin:0}main{max-width:1080px;margin:24px auto;padding:32px;background:white}h1,h2,h3{line-height:1.3}h2{margin-top:2.2em}a{color:#155eef}pre{overflow:auto;background:#f1f4f8;padding:18px;border-radius:8px}code{font-family:monospace}table{display:block;overflow:auto;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #d9e0ea;padding:10px;min-width:120px;vertical-align:top}th{background:#eff4fc}blockquote{border-left:4px solid #155eef;padding-left:16px;color:#475467}@media(max-width:600px){main{margin:0;padding:18px}}</style></head><body><main><h1 id="geographic-context">Geographic Context 开发协作契约</h1>
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Geographic Context 开发协作契约</title><style>body{max-width:1050px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#172033}h1,h2,h3{line-height:1.3}table{border-collapse:collapse;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;text-align:left;vertical-align:top}pre{background:#f6f8fb;padding:16px;overflow:auto}code{font-size:.9em}a{color:#155eef}@media(max-width:600px){body{margin:16px auto;padding:0 12px}}</style></head><body><p><a href="../design/modules/geographic-context.md">权威 Markdown 契约</a></p><h1 id="geographic-context-开发协作契约">Geographic Context 开发协作契约</h1>
 <blockquote>
 <p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）
 实现：<code>Implemented</code>（2026-09-16；本期证据与后续联合项见第 5.1 节）
@@ -7,11 +8,11 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 定义完成：四个消费者可只经一个 Dart seam，以同一合法地点取得逐层、可追溯且不猜测的行政区/统计州事实；fake 与生产 Adapter 的结果语义相同。</p>
 </blockquote>
 <p>本文件是 Geographic Context 唯一的跨 Owner 开发协作契约，也是同名 HTML 的权威 Markdown 源。它冻结公开 Dart 声明、资料读取、顺序和联合验收；<code>lib/modules/geographic_context/</code> 内的文件、空间库、缓存、Supabase SDK 映射、并发/取消/重试及测试组织由 B 决定。不得以本文件规定函数体、私有实现、迁移或测试实现。</p>
-<h2 id="0-readiness">0. 固定阅读顺序与四项 Readiness</h2>
+<h2 id="0-固定阅读顺序与四项-readiness">0. 固定阅读顺序与四项 Readiness</h2>
 <ol>
 <li><a href="../../CONTEXT.md#行政地理语境">领域词汇</a>及下游<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">生活成本</a>、<a href="../knowledge_base/locatemy_product/features/crime_security.md">治安</a>、<a href="../knowledge_base/locatemy_product/features/socio_economic.md">社会经济</a>、<a href="../knowledge_base/locatemy_product/features/infrastructure.md">基础设施</a>事实；</li>
-<li><a href="../design/system/feature-map.md#fm-geo">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-02单点选址地点摘要与六类分析">FLOW-02</a>及<a href="../design/system/flows.md#flow-03地点-ab-比较">FLOW-03</a>；</li>
-<li><a href="../design/system/data-ownership.md#公共资料镜像与缓存">数据所有权</a>、<a href="../design/data/schema-catalog.md#稳定公共读取对象">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-geo-02-资料决定与未关闭证据"><code>RISK-GEO-02</code></a>；</li>
+<li><a href="../design/system/feature-map.md">Feature map</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md">FLOW-02</a>及<a href="../design/system/flows.md">FLOW-03</a>；</li>
+<li><a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md#稳定公共读取对象">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#risk-geo-02-资料决定与未关闭证据"><code>RISK-GEO-02</code></a>；</li>
 <li>本契约与同名 HTML 导出。</li>
 </ol>
 <table>
@@ -45,7 +46,7 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tr>
 </tbody>
 </table>
-<h2 id="1">1. 任务成果、责任与协作顺序</h2>
+<h2 id="1-任务成果责任与协作顺序">1. 任务成果、责任与协作顺序</h2>
 <ul>
 <li>对 <code>LOCATION-001</code> 已验证的不可变坐标，逐个请求层级返回 <code>resolved</code>、<code>unresolved</code> 或 <code>ambiguous</code>，并回带同一读取批次的来源与版本事实。</li>
 <li>行政区用于收入、供水、供电、医疗、教育等地区统计；统计州只供 Crime 按 <code>crime_district.state</code> 聚合。Geo 不解析警区，也不决定任一 Feature 的统计回退。</li>
@@ -82,12 +83,12 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tbody>
 </table>
 <p><strong>协作顺序。</strong> (1) Map 已合入 <code>LOCATION-001</code> 声明；(2) B 先合入本节唯一公开入口、声明和最小 fake；(3) 四个消费者以该 fake 并行实现，绝不 import B 的 <code>src/</code>；(4) B 接真实 <code>GEO-002</code> Adapter；(5) 只保留第 5 节必要的 joint flows。公开 seam 变化须由 B 说明影响、所有受影响消费者确认，并在同一 PR 更新声明、契约、HTML 和受影响测试。</p>
-<h2 id="2-b-interface">2. B 需要调用的 Interface 与读取对象</h2>
-<h3 id="interface-location-001">Interface 卡：合法地点（<code>LOCATION-001</code>）</h3>
+<h2 id="2-b-需要调用的-interface-与读取对象">2. B 需要调用的 Interface 与读取对象</h2>
+<h3 id="interface-卡合法地点location-001">Interface 卡：合法地点（<code>LOCATION-001</code>）</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> B；<strong>唯一 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
 <p>Geo 只接受该 Interface 已成功产生的 <code>ValidLocationReference</code>；<code>locationId</code> 非空，<code>point.latitude</code>/<code>point.longitude</code> 为有限 WGS84 数，且已通过 Malaysia 范围校验。<code>displayName</code> 可为 null，绝不参与解析或缓存键。absence、非法坐标、范围外和 A/B 同点均由 Map 拒绝，B 不重验为另一种地点、更不读取边界。Geo 的解析只读，不改 Map 的任何角色或地点状态。</p>
 <p><strong>最小使用：</strong> <code>GeographicContextRequest(location: selectedLocation, levels: {GeographicLevel.district})</code>，其中 <code>selectedLocation</code> 必为 Map 成功结果。<strong>fake 场景：</strong> fake Map 给合法单点、合法 A/B 与 absence；只有合法引用进入 Geo，A/B 的原始引用和角色归消费者保持，不被 Geo 替换。</p>
-<h3 id="interface-geo-002-b">Interface 卡：版本化边界候选读取（<code>GEO-002</code>，仅 B）</h3>
+<h3 id="interface-卡版本化边界候选读取geo-002仅-b">Interface 卡：版本化边界候选读取（<code>GEO-002</code>，仅 B）</h3>
 <p><strong>提供者 / 消费者：</strong> <code>read_administrative_boundary_candidates</code> / Geographic Context（B）。这是 B 的外部来源 seam，不是其他 Owner 的 Dart import；生产与 B 的固定样本 Adapter 必须满足相同候选事实。</p>
 <table>
 <thead>
@@ -106,8 +107,8 @@ Owner：<code>B</code>；系统基线：<code>Baselined — 5d11769</code>；依
 </tbody>
 </table>
 <p>资料对象、字段权限和 migration 唯一权威为 <a href="../design/data/schema-catalog.md#稳定公共读取对象">Schema Catalog</a>；固定资料、hash、离岛和重叠证据为 <a href="../design/system/risks-and-decisions.md#risk-geo-02-资料决定与未关闭证据"><code>RISK-GEO-02</code></a>。</p>
-<h2 id="3-b-interface">3. B 必须提供的 Interface</h2>
-<h3 id="interface-geo-001">Interface 卡：行政统计地理语境（<code>GEO-001</code>）</h3>
+<h2 id="3-b-必须提供的-interface">3. B 必须提供的 Interface</h2>
+<h3 id="interface-卡行政统计地理语境geo-001">Interface 卡：行政统计地理语境（<code>GEO-001</code>）</h3>
 <p><strong>提供者：</strong> Geographic Context（B）；<strong>消费者：</strong> Cost、Crime、Socio-economic、Infrastructure。
 <strong>唯一公开 import：</strong> <code>package:locatemy/modules/geographic_context/geographic_context.dart</code></p>
 <p>消费者只能 import 此入口，不得 import <code>lib/modules/geographic_context/src/</code>、B 的 Adapter 或 Supabase SDK。B 应先合入下列<strong>声明</strong>与最小 fake；它们是跨 Owner 形状，而不是函数体。</p>
@@ -159,7 +160,7 @@ final class BoundaryProvenance {
 enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiable, scopeUnavailable }
 </code></pre>
 <p><code>GeographicContextAvailable.results</code> 的键<strong>恰好</strong>等于 request 的 <code>levels</code>；map 和 <code>candidates</code> 均为不可变快照。<code>levels</code> 必须非空且仅含 enum 值。所有 ID、名称和 provenance 字符串非空；<code>sourceUri</code> 必为绝对 URI；<code>importedAt</code> 为 UTC。<code>BoundaryProvenance?</code> 仅可在来源不可读/不可验证时为 null；它不允许以 <code>DateTime.now()</code> 或缓存读取时间代替资料版本。<code>AdministrativeArea(level: district)</code> 的 reporting-state 字段描述其所属统计州；<code>AdministrativeArea(level: reportingState)</code> 的 <code>stableId</code> 必等于 <code>reportingStateId</code>，<code>name</code> 必等于 <code>reportingStateName</code>。</p>
-<h4 id="_1">输入、结果、失败与调用者处理</h4>
+<h4 id="输入结果失败与调用者处理">输入、结果、失败与调用者处理</h4>
 <table>
 <thead>
 <tr>
@@ -202,14 +203,14 @@ enum GeographicContextFailure { noCoverage, sourceUnavailable, versionUnverifiab
 </tbody>
 </table>
 <p>预期资料/权限故障一律用上述 typed result，消费者不得解析异常文字；编程错误不属于资料结果契约。B 不提供 <code>resolveState</code> 等第二公开入口，消费者一律调用 <code>resolve</code>。</p>
-<h4 id="_2">状态、副作用、权限与生命周期</h4>
+<h4 id="状态副作用权限与生命周期">状态、副作用、权限与生命周期</h4>
 <ul>
 <li>这是公共只读 Interface：不读/写账户、收藏名、Map 状态、消费者结果或远端边界资料。可维护无账户公共缓存，但缓存值及键不得含 account id、收藏名或私有 payload；退出可保留。</li>
-<li>调用只允许已 opened 主应用路径。Geo 本身不打开/关闭账户 scope；<code>scopeUnavailable</code> 说明认证/RPC 权限无法安全满足，绝不降级为匿名表读。</li>
+<li>调用只允许已登录主应用路径。Geo 不参与账号页面生命周期协调；<code>scopeUnavailable</code> 说明认证/RPC 权限无法安全满足，绝不降级为匿名表读。</li>
 <li>同一 location 坐标、levels 和 <code>BoundaryProvenance</code> 必有确定性逐层结果。版本不同的结果不宣称可比；地点、请求层级或版本在请求期间改变时，消费者丢弃晚到结果，不覆盖新地点/A-B 端。</li>
 <li>先由 Map 成功产生 immutable 地点，再调用一次 <code>resolve</code>，再仅用 resolved 层级读自己的资料。公开 Interface 不承诺缓存、网络、并发、取消、超时或重试策略。</li>
 </ul>
-<h4 id="crime">最小调用示例（Crime）</h4>
+<h4 id="最小调用示例crime">最小调用示例（Crime）</h4>
 <pre><code class="language-dart">final outcome = await geographicContext.resolve(GeographicContextRequest(
   location: selectedLocation, levels: {GeographicLevel.reportingState},
 ));
@@ -222,9 +223,9 @@ switch (outcome) {
 }
 </code></pre>
 <p>这是 seam 用法说明，不是可提交的 Crime 实现。</p>
-<h4 id="fake-adapter">Fake Adapter 场景</h4>
+<h4 id="fake-adapter-场景">Fake Adapter 场景</h4>
 <p>消费者用 fake <code>GeographicContext</code> 实现相同 <code>resolve</code> 声明：(a) 两个 resolved：Cost/Socio/Infrastructure 只将 district 用于地区资料、Crime 只用 reporting state；(b) state resolved + district <code>GeographicLevelUnresolved(noCoverage)</code>：Socio 仅按自己的事实源显示州级参考，其他消费者不伪造 district；(c) <code>GeographicLevelAmbiguous</code>（完整候选）或 <code>GeographicContextUnavailable(scopeUnavailable)</code>：不读下游资料、不选候选、不显示零；(d) 同坐标不同 <code>sourceVersion</code>：不称可比，晚到旧版不覆盖当前。fake 不需要 Supabase、空间库或 B 的生产 Adapter；B 的真实 Adapter 须证明满足同一 Interface。</p>
-<h2 id="4">4. 直接资料与确定性口径</h2>
+<h2 id="4-直接资料与确定性口径">4. 直接资料与确定性口径</h2>
 <table>
 <thead>
 <tr>
@@ -252,7 +253,7 @@ switch (outcome) {
 </tbody>
 </table>
 <p><code>ST_Covers</code> 使边界点成为所有覆盖边界的候选；候选数为零/一/多分别映射为 unresolved/resolved/ambiguous。对于 reporting state，B 从完整 district candidates 派生州候选：不同 state id 多个即 ambiguous；恰一个才 resolved；不能由候选的第一项或 district 名称猜测。该派生规则仅分类已经返回的候选，不改变资料、边界或下游事实。</p>
-<h2 id="5">5. 联调与验收情景</h2>
+<h2 id="5-联调与验收情景">5. 联调与验收情景</h2>
 <table>
 <thead>
 <tr>
@@ -284,7 +285,7 @@ switch (outcome) {
 <tr>
 <td>RPC 权限或来源不可用</td>
 <td>B、四个消费者</td>
-<td>未 opened、认证/RPC 拒绝、provenance 不完整</td>
+<td>未登录、认证/RPC 拒绝、provenance 不完整</td>
 <td><code>scopeUnavailable</code>、<code>sourceUnavailable</code> 或 <code>versionUnverifiable</code> 可区分；不伪装为空资料。</td>
 </tr>
 <tr>
@@ -296,13 +297,13 @@ switch (outcome) {
 </tbody>
 </table>
 <p>追踪：<code>D09</code>、<code>D13</code>、<code>D23</code>、<code>D27</code>；<code>AT-ANALYSIS-01</code>、<code>AT-COMPARE-01</code>、<code>AT-COMPARE-03</code>。</p>
-<h3 id="51-wave-1-2026-09-16">5.1 Wave 1 验收分配（2026-09-16）</h3>
+<h3 id="51-wave-1-验收分配2026-09-16">5.1 Wave 1 验收分配（2026-09-16）</h3>
 <p>实现门槛依 <a href="../design/development-standard.md">开发与完成判定规范</a> 第 3 节。
 设计 Ready 与实现状态分别记录；本模块无页面，通过 <code>GEO-001.resolve</code> 验证。
 本期真实依赖为 Supabase Auth 和 <code>GEO-002</code>；<code>LOCATION-001</code> 使用已合入公开类型的合法固定样本，
 Map 的真实选点及四个消费者属于后续 Wave 槽位。测试 HTTP Adapter 只提供确定性错误、边界和并发证据，
 不能替代真实开发环境调用。设备 harness 只访问公共地理资料，先验证真实确认会话；
-不创建私有 Feature、缓存或队列。Privacy/Shell 的真实 <code>opened</code> 门控仍由 A 在 Wave 3 接入验证。</p>
+不创建私有 Feature、缓存或队列。应用入口的普通登录门控由 A 接线；不依赖 Privacy 或 opened scope。</p>
 <table>
 <thead>
 <tr>
@@ -350,9 +351,9 @@ Map 的真实选点及四个消费者属于后续 Wave 槽位。测试 HTTP Adap
 <tr>
 <td>GEO-W1-04 来源/权限/版本故障、离线与恢复：四种失败可区分</td>
 <td>两者</td>
-<td>本期真实 Auth/RPC/底表权限；HTTP 故障/缺字段/错类型/混批；后续 Shell/Privacy 和消费者</td>
-<td>未确认/匿名/无会话不调用 RPC；真实 anon RPC deny、底表客户端读写 deny；每行 provenance 校验；离线 sourceUnavailable；重试恢复</td>
-<td>B；opened 门控主责 A，B 参与；指标消费按各 owning contract</td>
+<td>本期真实 Auth/RPC/底表权限；HTTP 故障/缺字段/错类型/混批；后续应用入口和消费者</td>
+<td>匿名/无会话不调用 RPC；真实 anon RPC deny、底表客户端读写 deny；每行 provenance 校验；离线 sourceUnavailable；重试恢复</td>
+<td>B；登录门控主责 A，B 参与；指标消费按各 owning contract</td>
 <td>本模块 1；门控 3；Cost/Crime 5；Socio/Infrastructure 6</td>
 <td>已通过；见 GEO-W1-04</td>
 <td>待接入，Wave 3/5/6</td>
@@ -382,7 +383,7 @@ Map 的真实选点及四个消费者属于后续 Wave 槽位。测试 HTTP Adap
 <p>上述“已通过”以 <a href="geographic-context-wave1-acceptance-2026-09-16.md">Wave 1 实现验收报告</a>
 中的最终验证证据为准。Wave 1 没有到期的跨模块联合场景；以后到期项不可用本期 HTTP/fixed-location
 证据代替真实模块联验。<code>Integrated</code> 仍由项目负责人批准。</p>
-<h2 id="6">6. 实现自由、阻塞项与完成检查</h2>
+<h2 id="6-实现自由阻塞项与完成检查">6. 实现自由、阻塞项与完成检查</h2>
 <p>B 可决定内部 Adapter、缓存、空间匹配库、状态管理、并发/取消/重试及真实/fake 测试组织。以下情况必须暂停协商：变更唯一公开入口、任何公开声明/失败/顺序/权限，修改 RPC 行形状或 authenticated-only 例外，或资料版本使 <code>RISK-GEO-02</code> 结论失效。</p>
 <p>设计阻塞项：无。实现验收状态与证据见第 5.1 节及 Wave 1 报告。边界资料、导入审计、固定空间样本和权限证据已关闭 <code>RISK-GEO-02</code>；来源/依赖版本变化时重新打开。</p>
 <ul>
@@ -396,4 +397,4 @@ Map 的真实选点及四个消费者属于后续 Wave 槽位。测试 HTTP Adap
 | --- | --- | --- | --- |
 | 2026-09-14 | <code>Ready for Development</code> | 固定边界资料、导入、空间验证及 authenticated-only 例外 | <code>GEO-001</code>、<code>GEO-002</code>、四个消费者 | 项目负责人 |
 | 2026-09-15 | <code>Ready for Development</code> | Issue #23 将 owning design 返工为单一开发协作契约；冻结唯一公开 Dart seam 与 fakeable 结果模型 | <code>GEO-001</code>、<code>GEO-002</code>、Cost、Crime、Socio、Infrastructure | 设计 AI〔项目负责人授权〕，ADR 0013 |
-| 2026-09-16 | <code>Ready for Development</code>；实现验收见第 5.1 节 | 按 Wave 开发规范补齐当期验收分配及后续联合 Owner/期限；不改变公开声明、产品范围或数据模型 | Wave 1 Geographic Context、后续 Wave 3–6 门控/地点/四个消费者 | 实现 AI〔当前任务授权〕 |</p></main></body></html>
+| 2026-09-16 | <code>Ready for Development</code>；实现验收见第 5.1 节 | 按 Wave 开发规范补齐当期验收分配及后续联合 Owner/期限；不改变公开声明、产品范围或数据模型 | Wave 1 Geographic Context、后续 Wave 3–6 门控/地点/四个消费者 | 实现 AI〔当前任务授权〕 |</p></body></html>

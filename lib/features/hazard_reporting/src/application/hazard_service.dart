@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
 
 import '../domain/hazard_models.dart';
 
@@ -22,55 +21,34 @@ abstract interface class HazardStore {
 
 HazardReporting createHazardReporting({
   required HazardStore store,
-  required AccountScopeSnapshot Function() readScope,
+  required String? Function() currentAccountId,
   void Function(Map<String, Object>)? diagnosticSink,
 }) {
-  return HazardService(store, readScope, diagnosticSink: diagnosticSink);
+  return HazardService(store, currentAccountId, diagnosticSink: diagnosticSink);
 }
 
 HazardRiskCounter createHazardRiskCounter({
   required HazardStore store,
-  required AccountScopeSnapshot Function() readScope,
+  required String? Function() currentAccountId,
   void Function(Map<String, Object>)? diagnosticSink,
 }) {
-  return HazardService(store, readScope, diagnosticSink: diagnosticSink);
+  return HazardService(store, currentAccountId, diagnosticSink: diagnosticSink);
 }
 
-AccountPrivacyParticipant hazardPrivacyParticipant(HazardReporting reporting) {
-  return reporting as HazardService;
-}
-
-final class HazardService
-    implements HazardReporting, HazardRiskCounter, AccountPrivacyParticipant {
+final class HazardService implements HazardReporting, HazardRiskCounter {
   final HazardStore _store;
-  final AccountScopeSnapshot Function() _readScope;
+  final String? Function() _currentAccountId;
   final void Function(Map<String, Object>)? _diagnosticSink;
   int _serial = 0;
-  int _generation = 0;
-  AccountScope? _boundScope;
+  final String? _accountId;
   HazardService(
     HazardStore store,
-    AccountScopeSnapshot Function() readScope, {
+    String? Function() currentAccountId, {
     void Function(Map<String, Object>)? diagnosticSink,
   }) : _store = store,
-       _readScope = readScope,
-       _diagnosticSink = diagnosticSink {
-    final AccountScopeSnapshot initial = readScope();
-    if (initial is AccountScopeOpened) {
-      _boundScope = initial.scope;
-    }
-  }
-
-  @override
-  AccountPrivacyParticipantId get participantId {
-    return AccountPrivacyParticipantId.hazardReporting;
-  }
-
-  @override
-  Future<PrivateStateClearOutcome> clearPrivateState(AccountScope scope) async {
-    _generation++;
-    return PrivateStateCleared(participantId, scope);
-  }
+       _currentAccountId = currentAccountId,
+       _accountId = currentAccountId(),
+       _diagnosticSink = diagnosticSink;
 
   String _resultName(Object? result) {
     if (result is HazardCreateRejected) {
@@ -112,19 +90,16 @@ final class HazardService
     final Stopwatch timer = Stopwatch();
     timer.start();
     final int serial = ++_serial;
-    final AccountScopeSnapshot before = _readScope();
+    final String? before = _currentAccountId();
     T result = unavailable;
-    if (before is AccountScopeOpened && identical(before.scope, _boundScope)) {
-      final int generation = _generation;
+    if (before != null && before == _accountId) {
       try {
         result = await operation();
       } catch (_) {
         result = retryable;
       }
-      final AccountScopeSnapshot after = _readScope();
-      if (generation != _generation ||
-          after is! AccountScopeOpened ||
-          !identical(before.scope, after.scope)) {
+      final String? after = _currentAccountId();
+      if (before != after) {
         result = unavailable;
       }
     }

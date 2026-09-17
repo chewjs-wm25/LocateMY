@@ -44,7 +44,31 @@ class GroupedMapLayer extends StatelessWidget {
     }
   }
 
-  IconData _icon(String provider) {
+  IconData _icon(String provider, MapMarkerKind kind) {
+    switch (kind) {
+      case MapMarkerKind.facilityHealth:
+        return Icons.local_hospital_outlined;
+      case MapMarkerKind.facilityEducation:
+        return Icons.school_outlined;
+      case MapMarkerKind.facilityDailyLiving:
+        return Icons.shopping_basket_outlined;
+      case MapMarkerKind.facilityTransport:
+        return Icons.directions_bus_outlined;
+      case MapMarkerKind.facilityLeisureGreen:
+        return Icons.park_outlined;
+      case MapMarkerKind.hazardFlood:
+        return Icons.flood_outlined;
+      case MapMarkerKind.hazardCrime:
+        return Icons.gpp_bad_outlined;
+      case MapMarkerKind.hazardTraffic:
+        return Icons.car_crash_outlined;
+      case MapMarkerKind.hazardInfrastructure:
+        return Icons.construction_outlined;
+      case MapMarkerKind.hazardOther:
+        return Icons.report_problem_outlined;
+      case MapMarkerKind.generic:
+        break;
+    }
     switch (provider) {
       case 'nearby-facilities':
         return Icons.storefront;
@@ -68,7 +92,59 @@ class GroupedMapLayer extends StatelessWidget {
   }
 
   String _pointLabel(MapLayerItem item, AppLocalizations l10n) {
-    return '${_name(_provider(item), l10n)}: ${l10n.mapLayerPoint(item.point.latitude.toStringAsFixed(5), item.point.longitude.toStringAsFixed(5))}';
+    final String category = _category(item.markerKind, l10n);
+    final String name = _name(_provider(item), l10n);
+    String label = name;
+    if (category.isNotEmpty) {
+      label = '$name · $category';
+    }
+    return '$label: ${l10n.mapLayerPoint(item.point.latitude.toStringAsFixed(5), item.point.longitude.toStringAsFixed(5))}';
+  }
+
+  String _category(MapMarkerKind kind, AppLocalizations l10n) {
+    if (kind == MapMarkerKind.generic) {
+      return '';
+    }
+    const List<String> english = <String>[
+      '',
+      'Health',
+      'Education',
+      'Daily living',
+      'Transport',
+      'Leisure and green space',
+      'Flood',
+      'Crime',
+      'Traffic',
+      'Infrastructure',
+      'Other',
+    ];
+    const List<String> chinese = <String>[
+      '',
+      '医疗健康',
+      '教育资源',
+      '日常生活',
+      '交通出行',
+      '休闲与绿地',
+      '水灾',
+      '治安',
+      '交通',
+      '基础设施',
+      '其他',
+    ];
+    if (l10n.localeName.startsWith('zh')) {
+      return chinese[kind.index];
+    }
+    return english[kind.index];
+  }
+
+  MapMarkerKind _groupKind(_MarkerGroup group) {
+    final MapMarkerKind first = group.items.first.markerKind;
+    for (final MapLayerItem item in group.items) {
+      if (item.markerKind != first) {
+        return MapMarkerKind.generic;
+      }
+    }
+    return first;
   }
 
   void _openGroup(
@@ -97,7 +173,7 @@ class GroupedMapLayer extends StatelessWidget {
               final MapLayerItem item = group.items[index];
               return ListTile(
                 leading: Icon(
-                  _icon(group.provider),
+                  _icon(group.provider, item.markerKind),
                   color: _color(group.provider),
                 ),
                 title: Text(_pointLabel(item, l10n)),
@@ -120,7 +196,7 @@ class GroupedMapLayer extends StatelessWidget {
     final AppLocalizations l10n =
         AppLocalizations.of(context) ??
         lookupAppLocalizations(Localizations.localeOf(context));
-    final Rect visible = (Offset.zero & camera.nonRotatedSize).inflate(24);
+    final Rect visible = (Offset.zero & camera.nonRotatedSize).inflate(48);
     final Map<String, _MarkerGroup> groups = <String, _MarkerGroup>{};
     const double cellSize = 96;
     for (final MapLayerItem item in items) {
@@ -146,15 +222,31 @@ class GroupedMapLayer extends StatelessWidget {
         markers.add(
           Marker(
             point: LatLng(item.point.latitude, item.point.longitude),
-            width: 32,
-            height: 32,
+            width: 48,
+            height: 48,
             child: IconButton(
               tooltip: _pointLabel(item, l10n),
               padding: EdgeInsets.zero,
               onPressed: () {
                 onSelected(item.intent);
               },
-              icon: Icon(_icon(group.provider), color: color, size: 18),
+              icon: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color, width: 1.5),
+                  boxShadow: const <BoxShadow>[
+                    BoxShadow(color: Color(0x26000000), blurRadius: 6),
+                  ],
+                ),
+                child: Icon(
+                  _icon(group.provider, item.markerKind),
+                  color: color,
+                  size: 21,
+                ),
+              ),
             ),
           ),
         );
@@ -162,8 +254,8 @@ class GroupedMapLayer extends StatelessWidget {
         markers.add(
           Marker(
             point: camera.screenOffsetToLatLng(group.center),
-            width: 44,
-            height: 32,
+            width: 52,
+            height: 48,
             child: Semantics(
               button: true,
               excludeSemantics: true,
@@ -197,7 +289,11 @@ class GroupedMapLayer extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Icon(_icon(group.provider), color: color, size: 12),
+                            Icon(
+                              _icon(group.provider, _groupKind(group)),
+                              color: color,
+                              size: 18,
+                            ),
                             const SizedBox(width: 2),
                             Text(
                               '${group.items.length}',

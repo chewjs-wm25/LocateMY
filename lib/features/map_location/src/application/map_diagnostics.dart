@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import '../../../account_privacy/account_privacy.dart';
 import '../domain/location_models.dart';
 
 int _sequence = 0;
@@ -58,10 +57,6 @@ Future<T> observeMap<T>(
     result = outcome.failure.name;
   } else if (outcome is MapLayerIntentRejected) {
     result = outcome.failure.name;
-  } else if (outcome is PrivateStateClearIncomplete) {
-    result = outcome.failure.name;
-  } else if (outcome is SavedLocationQueued) {
-    result = 'queued';
   } else if (outcome is MapLayerHidden) {
     result = 'hidden';
   }

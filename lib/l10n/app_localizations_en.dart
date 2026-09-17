@@ -16,27 +16,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoringSession => 'Checking sign-in status';
 
   @override
-  String get signOutIncomplete => 'Sign-out incomplete';
-
-  @override
-  String get retrySignOut => 'Retry sign-out';
-
-  @override
-  String get sessionUnavailableTitle => 'Sign-in status unavailable';
-
-  @override
-  String get sessionRetryHint =>
-      'Connect to the internet and retry to check your sign-in status.';
-
-  @override
-  String get sessionRejectedHint =>
-      'Your session has expired. Sign out of this device and sign in again.';
-
-  @override
-  String get sessionUnsupportedHint =>
-      'Sign-in is unavailable. Check the app configuration or contact support.';
-
-  @override
   String get retry => 'Retry';
 
   @override
@@ -44,19 +23,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signedIn => 'Signed in';
-
-  @override
-  String get emailConfirmed => 'Email verified';
-
-  @override
-  String get emailVerificationRequired => 'Email verification required';
-
-  @override
-  String get emailConfirmationUnavailable =>
-      'Email verification status unavailable';
-
-  @override
-  String get retryUsername => 'Retry saving username';
 
   @override
   String get createAccount => 'Create account';
@@ -153,15 +119,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registrationProfileFailed =>
-      'Account created, but your username could not be saved. Retry later.';
-
-  @override
-  String get verificationEmailSent =>
-      'Check your email and verify your address before signing in.';
-
-  @override
-  String get verificationProfileRetryNeeded =>
-      'Verify your email, then sign in to finish setting your username.';
+      'Account created, but your username could not be saved.';
 
   @override
   String get registrationInvalidInput =>
@@ -173,17 +131,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get registrationUnsupportedClient =>
       'Registration is unavailable on this device.';
-
-  @override
-  String get profileRetrySucceeded => 'Username saved.';
-
-  @override
-  String get profileRetryFailed =>
-      'Username not saved. Check the format or retry.';
-
-  @override
-  String get profileRetrySkipped =>
-      'There is no username to save on this device.';
 
   @override
   String get signOutRetryableUnavailable =>
@@ -226,39 +173,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellAccount => 'Account';
-
-  @override
-  String get shellTask => 'Task';
-
-  @override
-  String get shellPreparing => 'Preparing the app. Please wait.';
-
-  @override
-  String get shellRecovery =>
-      'The app is temporarily unavailable. Please retry.';
-
-  @override
-  String get shellCleanupPending =>
-      'Previous account cleanup is incomplete. Private content is closed. Retry to finish cleanup.';
-
-  @override
-  String get shellScopeUnavailable =>
-      'The account scope cannot be confirmed. Please retry.';
-
-  @override
-  String get shellFutureTask =>
-      'This feature will be connected in a later development wave.';
-
-  @override
-  String get shellHomePending => 'Home features are not connected yet.';
-
-  @override
-  String get shellMapPending =>
-      'Map features are not connected yet. No location is selected.';
-
-  @override
-  String get shellAccountPending =>
-      'Account Center is not connected yet. You can sign out of this device here.';
 
   @override
   String get homeTiming => 'Relocation timing';
@@ -311,79 +225,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeUnavailable => 'Temporarily unavailable';
 
   @override
-  String get homeObservedUnknown => 'Observation date unavailable';
-
-  @override
   String homeCooling(int seconds) {
     return 'Refresh available in $seconds seconds';
   }
 
   @override
-  String get crimeSafetyIndex => 'Safety Index';
-
-  @override
-  String get crimeAnnualCases => 'Annual convicted cases';
-
-  @override
-  String get crimeTrendTitle => '5-year trend';
-
-  @override
-  String get crimeCategoryAll => 'All';
-
-  @override
-  String get crimeCategoryAssault => 'Violent crime';
-
-  @override
-  String get crimeCategoryProperty => 'Property crime';
-
-  @override
-  String get crimeTrendNote => 'Total convicted cases, not actual crime rate.';
-
-  @override
-  String crimeSourceYear(int year) {
-    return 'Data year: $year';
-  }
-
-  @override
-  String get crimeFresh => 'Fresh';
-
-  @override
-  String get crimeCached => 'Cached';
-
-  @override
-  String get crimeStale => 'Stale';
-
-  @override
-  String get crimeUnavailable => 'Temporarily unavailable';
-
-  @override
-  String get crimeStateUnresolved => 'Location outside supported area';
-
-  @override
-  String get crimePartialData => 'Partial data';
-
-  @override
-  String get crimeViewPortfolio => 'View Portfolio';
-
-  @override
-  String get crimeAddProperty => 'Add Property';
-
-  @override
-  String get crimeBackToMap => 'Back to Map';
-
-  @override
-  String homeFetched(String date) {
-    return 'Last successful read: $date';
-  }
-
-  @override
   String homeIncomeAmount(String amount, String year) {
     return 'RM $amount / month · Survey $year';
-  }
-
-  @override
-  String homeSource(String dataset, String date) {
-    return 'Source: DOSM / data.gov.my · $dataset · $date';
   }
 
   @override
@@ -418,27 +266,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeReason(String code) {
     String _temp0 = intl.Intl.selectLogic(code, {
       'sourceMissing': 'Source data missing',
-      'sourceSchemaChanged': 'Source fields have changed',
+      'sourceSchemaChanged': 'Data temporarily unavailable; please retry',
       'insufficientHistory': 'Insufficient valid historical observations',
       'sourceDataUnverifiable': 'Source data cannot be verified',
       'retryableUnavailable': 'Connection unavailable; please retry',
-      'noCachedResult': 'No available observations or cached result',
+      'noCachedResult': 'No available data; please retry',
       'authenticationRequired': 'Sign in again',
       'missingInput': 'Required input missing',
       'staleInput': 'This request has expired',
       'inapplicableDestination': 'Destination not available',
       'scopeUnavailable': 'Account scope is closed',
-      'other': 'Temporarily unavailable',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String homeFreshness(String code) {
-    String _temp0 = intl.Intl.selectLogic(code, {
-      'fresh': 'Verified online read; dates are dataset observation dates',
-      'cached': 'Cached data; refresh did not replace the saved result',
-      'stale': 'Expired cached data; please reconnect and retry',
       'other': 'Temporarily unavailable',
     });
     return '$_temp0';
@@ -462,9 +299,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeIndicators => 'Key indicators';
-
-  @override
-  String get homeDataDetails => 'Data and methodology';
 
   @override
   String get mapEnterAValidWGS84LatitudeAnd =>
@@ -495,25 +329,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapTheLocationChangedOnAnotherDevice =>
-      'The location changed on another device. Retry synchronization.';
+      'This location changed. Reload and retry.';
 
   @override
   String get mapThisSavedLocationNoLongerExists =>
       'This saved location no longer exists.';
-
-  @override
-  String get mapQueuedOnThisDeviceNotSynchronized =>
-      'Queued on this device · not synchronized.';
-
-  @override
-  String get mapSavedAndSynchronized => 'Saved and synchronized.';
-
-  @override
-  String get mapDeletedAndSynchronized => 'Deleted and synchronized.';
-
-  @override
-  String get mapAccountScopeUnavailableSignInAgain =>
-      'Account scope unavailable. Sign in again.';
 
   @override
   String get mapThisRequestIsOutdatedSelectOr =>
@@ -548,26 +368,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapSavedLocations => 'Saved locations';
 
   @override
-  String get mapSavedLocationsUnavailableRetrySynchronization =>
-      'Saved locations unavailable. Retry synchronization.';
-
-  @override
   String get mapNoSavedLocations => 'No saved locations';
 
   @override
-  String get mapCachedRetrySynchronization => 'Cached · retry synchronization';
-
-  @override
-  String get mapSynchronized => 'Synchronized';
-
-  @override
-  String get mapQueuedNotSynchronized => 'Queued · not synchronized';
-
-  @override
   String get mapDelete => 'Delete';
-
-  @override
-  String get mapRetrySynchronization => 'Retry synchronization';
 
   @override
   String get mapSearchPlacesInMalaysia => 'Search places in Malaysia';
@@ -609,14 +413,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapViewComparison => 'View comparison';
 
   @override
+  String get mapSelectedLocation => 'Selected location';
+
+  @override
   String get mapSelectALocation => 'Select a location';
 
   @override
   String get mapSelectedAnalysisLocation => 'Selected analysis location';
-
-  @override
-  String get mapPersonalizedSuitabilityUnavailable =>
-      'Personalized suitability unavailable';
 
   @override
   String get mapViewFullAnalysis => 'View full analysis';
@@ -638,10 +441,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapInfrastructure => 'Infrastructure';
-
-  @override
-  String get mapProviderNotConnectedDateSourceUnavailable =>
-      'Provider not connected; date/source unavailable';
 
   @override
   String get mapLatitudeMustBeBetween90And =>
@@ -707,4 +506,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String mapLayerCluster(String layer, int count) {
     return '$layer: $count points. Tap to explore.';
   }
+
+  @override
+  String get mapSavedOnline => 'Saved online.';
+
+  @override
+  String get mapDeletedOnline => 'Deleted online.';
+
+  @override
+  String get mapSavedLocationsUnavailable =>
+      'Saved locations unavailable. Retry loading.';
+
+  @override
+  String get mapRetryLoading => 'Retry loading';
+
+  @override
+  String get mapAccountUnavailableSignInAgain =>
+      'Unable to read the current account or location. Retry.';
+
+  @override
+  String get mapSummaryUnavailable =>
+      'Summary unavailable. Open full analysis.';
 }

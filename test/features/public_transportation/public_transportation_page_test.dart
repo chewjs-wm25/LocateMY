@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:locatemy/app/application_shell.dart';
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
@@ -105,58 +103,11 @@ void main() {
   );
 
   testWidgets(
-    'Shell authentication rejection leaves the canonical score visible with a recovery message',
-    (WidgetTester tester) async {
-      final PendingReader reader = PendingReader();
-      final RecordingTransitShell shell = RecordingTransitShell();
-      shell.publication = ShellContributionAuthenticationRequired();
-      final ValidLocationReference location = ValidLocationReference(
-        locationId: 'sunway',
-        point: const GeographicPoint(latitude: 3.0738, longitude: 101.6077),
-      );
-      final AnalysisReturnContext context = AnalysisReturnContext(
-        location: location,
-        role: LocationRole.single,
-        analysisDate: DateTime(2026, 9, 17),
-        originalRequestIdentity: Object(),
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PublicTransportationPage(
-            transportation: createPublicTransportation(reader),
-            location: location,
-            analysisDate: context.analysisDate,
-            applicationShell: shell,
-            returnContext: context,
-          ),
-        ),
-      );
-      reader.pending['sunway']!.complete(stationPayload('Mentari BRT'));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'Sign in again to share this result. The current result remains visible.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.text('68'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
     'real local Map host receives all stations and is cleared after scope closes without changing the global selection',
     (WidgetTester tester) async {
-      final AccountScope scope = AccountScope('transit-test');
-      bool opened = true;
       LocationCoordinator map() {
         return createLocationCoordinator(
-          scope: scope,
-          readScope: () {
-            if (opened) {
-              return AccountScopeOpened(scope);
-            }
-            return AccountScopeClosed(scope);
-          },
+          accountId: 'a',
           validatePoint: (GeographicPoint point) async {
             return true;
           },
@@ -199,51 +150,9 @@ void main() {
         same(selected.location),
       );
       expect(locationWorkspace(global).visibleLayerItems, isEmpty);
-      opened = false;
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
       expect(locationWorkspace(local).visibleLayerItems, isEmpty);
-    },
-  );
-
-  testWidgets(
-    'current page publishes canonical facts and returns through the original context',
-    (WidgetTester tester) async {
-      final PendingReader reader = PendingReader();
-      final RecordingTransitShell shell = RecordingTransitShell();
-      final ValidLocationReference location = ValidLocationReference(
-        locationId: 'sunway',
-        point: const GeographicPoint(latitude: 3.0738, longitude: 101.6077),
-      );
-      final AnalysisReturnContext context = AnalysisReturnContext(
-        location: location,
-        role: LocationRole.single,
-        analysisDate: DateTime(2026, 9, 17),
-        originalRequestIdentity: Object(),
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PublicTransportationPage(
-            transportation: createPublicTransportation(reader),
-            location: location,
-            analysisDate: context.analysisDate,
-            applicationShell: shell,
-            returnContext: context,
-          ),
-        ),
-      );
-      reader.pending['sunway']!.complete(stationPayload('Mentari BRT'));
-      await tester.pumpAndSettle();
-      final PublicTransportationContribution contribution =
-          shell.contributions.single as PublicTransportationContribution;
-      expect(contribution.returnContext, same(context));
-      expect(contribution.outcome, isA<TransitAvailable>());
-      await tester.tap(find.byTooltip('Back'));
-      await tester.pumpAndSettle();
-      expect(
-        (shell.intents.single as ReturnToMapIntent).returnContext,
-        same(context),
-      );
     },
   );
 
@@ -277,7 +186,7 @@ void main() {
   });
 
   testWidgets(
-    'Chinese page exposes the fixed radius, provenance and all coordinate markers',
+    'Chinese page exposes the fixed radius and all coordinate markers without technical metadata',
     (WidgetTester tester) async {
       final PendingReader reader = PendingReader();
       await tester.pumpWidget(
@@ -307,11 +216,9 @@ void main() {
         ),
         findsOneWidget,
       );
-      await tester.scrollUntilVisible(
-        find.textContaining('test-snapshot'),
-        180,
-      );
-      expect(find.textContaining('test-snapshot'), findsWidgets);
+      expect(find.textContaining('test-snapshot'), findsNothing);
+      expect(find.textContaining('test-grid'), findsNothing);
+      expect(find.textContaining('https://'), findsNothing);
     },
   );
 
@@ -448,26 +355,6 @@ Map<String, Object?> stationPayload(String name) {
       },
     ],
   };
-}
-
-final class RecordingTransitShell implements ApplicationShell {
-  final List<ShellContribution> contributions = <ShellContribution>[];
-  final List<ShellIntent> intents = <ShellIntent>[];
-  ShellContributionOutcome publication = ShellContributionAccepted();
-  ShellIntentOutcome navigation = ShellIntentAccepted();
-  @override
-  Future<ShellContributionOutcome> publish(
-    ShellContribution contribution,
-  ) async {
-    contributions.add(contribution);
-    return publication;
-  }
-
-  @override
-  Future<ShellIntentOutcome> submit(ShellIntent intent) async {
-    intents.add(intent);
-    return navigation;
-  }
 }
 
 final class RejectedTransitLayer implements MapLayerHost {

@@ -1,23 +1,17 @@
 // Explicit constructor initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/transit_models.dart';
-import '../domain/transit_shell_models.dart';
 
 /// Owns request identity and selection for one page, never global Map state.
 final class TransitViewModel extends ChangeNotifier {
   final PublicTransportation _transportation;
-  final ApplicationShell? _shell;
-  final AnalysisReturnContext? _returnContext;
   final MapLayerHost? _mapLayerHost;
   final MapWorkspace? _mapWorkspace;
   MapLayerContributionOutcome? _layerOutcome;
   String _viewportVersion = '';
-  ShellContributionOutcome? _publicationOutcome;
-  ShellIntentOutcome? _returnOutcome;
   ValidLocationReference _location;
   DateTime _analysisDate;
   TransitLoadOutcome? _outcome;
@@ -31,28 +25,16 @@ final class TransitViewModel extends ChangeNotifier {
     required PublicTransportation transportation,
     required ValidLocationReference location,
     required DateTime analysisDate,
-    ApplicationShell? applicationShell,
-    AnalysisReturnContext? returnContext,
     MapLayerHost? mapLayerHost,
     MapWorkspace? mapWorkspace,
   }) : _transportation = transportation,
        _location = location,
        _analysisDate = analysisDate,
-       _shell = applicationShell,
-       _returnContext = returnContext,
        _mapLayerHost = mapLayerHost,
        _mapWorkspace = mapWorkspace;
 
   MapLayerContributionOutcome? get layerOutcome {
     return _layerOutcome;
-  }
-
-  ShellContributionOutcome? get publicationOutcome {
-    return _publicationOutcome;
-  }
-
-  ShellIntentOutcome? get returnOutcome {
-    return _returnOutcome;
   }
 
   TransitLoadOutcome? get outcome {
@@ -96,7 +78,6 @@ final class TransitViewModel extends ChangeNotifier {
     _viewportVersion = 'transit:${identityHashCode(this)}:$revision';
     _mapWorkspace?.setViewport(_viewportVersion);
     _layerOutcome = null;
-    _publicationOutcome = null;
     final TransitRequest request = TransitRequest(
       location: _location,
       analysisDate: _analysisDate,
@@ -184,56 +165,6 @@ final class TransitViewModel extends ChangeNotifier {
       _layerOutcome = layer;
       notifyListeners();
     }
-    final ApplicationShell? shell = _shell;
-    final AnalysisReturnContext? context = _returnContext;
-    if (shell != null && context != null && _matchesContext(context)) {
-      ShellContributionOutcome publication;
-      try {
-        publication = await shell.publish(
-          PublicTransportationContribution(result, context),
-        );
-      } catch (_) {
-        publication = const ShellContributionRejected(
-          ShellRejectionReason.scopeUnavailable,
-        );
-      }
-      if (_closed || revision != _revision) {
-        return;
-      }
-      _publicationOutcome = publication;
-      notifyListeners();
-    }
-  }
-
-  bool _matchesContext(AnalysisReturnContext context) {
-    return context.location.locationId == _location.locationId &&
-        context.location.point.latitude == _location.point.latitude &&
-        context.location.point.longitude == _location.point.longitude &&
-        context.analysisDate.year == _analysisDate.year &&
-        context.analysisDate.month == _analysisDate.month &&
-        context.analysisDate.day == _analysisDate.day;
-  }
-
-  Future<void> returnToMap() async {
-    final ApplicationShell? shell = _shell;
-    final AnalysisReturnContext? context = _returnContext;
-    if (_closed ||
-        shell == null ||
-        context == null ||
-        !_matchesContext(context)) {
-      return;
-    }
-    ShellIntentOutcome result;
-    try {
-      result = await shell.submit(ReturnToMapIntent(context));
-    } catch (_) {
-      result = const ShellIntentRejected(ShellRejectionReason.scopeUnavailable);
-    }
-    if (_closed) {
-      return;
-    }
-    _returnOutcome = result;
-    notifyListeners();
   }
 
   void select(String stableId) {

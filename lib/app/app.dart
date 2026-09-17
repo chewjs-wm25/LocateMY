@@ -1,55 +1,28 @@
-// Explicit parameter types and initialization follow Development Standard §7.
+// Explicit constructor initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 
-export 'src/presentation/shell_host.dart'
-    show ShellViews, ShellTaskView, ShellContributionView;
-export 'src/domain/shell_routes.dart';
-export 'transit_composition.dart';
-export 'src/application/shell_runtime.dart';
-export 'src/domain/shell_state.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
 
+import '../config/supabase_config.dart';
+import '../l10n/language_controller.dart';
 import '../l10n/app_localizations.dart';
-import 'application_shell.dart';
-
-import 'src/application/shell_runtime.dart';
-import 'src/domain/shell_routes.dart';
-import 'src/domain/shell_state.dart';
+import '../features/authentication_session/authentication_session.dart';
 import '../features/home_relocation_outlook/home_relocation_outlook.dart';
 import '../features/map_location/map_location.dart';
 import '../features/nearby_facilities/nearby_facilities.dart';
 import '../features/hazard_reporting/hazard_reporting.dart';
 import '../features/public_transportation/public_transportation.dart';
-import 'transit_composition.dart';
 
-import 'package:sqflite/sqflite.dart';
-
-import 'src/presentation/shell_view_model.dart';
-import 'src/presentation/shell_host.dart';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../config/supabase_config.dart';
-import '../l10n/language_controller.dart';
-
-import 'dart:io';
-
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-
-import '../features/authentication_session/authentication_session.dart';
-import '../features/account_privacy/account_privacy.dart';
-import '../features/crime_and_security/src/domain/safety_models.dart';
-import '../features/crime_and_security/crime_and_security.dart';
-import '../modules/geographic_context/geographic_context.dart';
 Future<void> startLocateMy() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env', isOptional: true);
-  final languageController = LanguageController(
+  final LanguageController language = LanguageController(
     preferences: await SharedPreferences.getInstance(),
   );
   try {
@@ -57,28 +30,27 @@ Future<void> startLocateMy() async {
   } on StateError {
     runApp(
       ChangeNotifierProvider.value(
-        value: languageController,
+        value: language,
         child: Builder(
-          builder: (context) => MaterialApp(
-            locale: context.watch<LanguageController>().locale,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) => Scaffold(
-                appBar: AppBar(actions: const [LanguageButton()]),
-                body: SafeArea(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
+          builder: (BuildContext context) {
+            return MaterialApp(
+              locale: context.watch<LanguageController>().locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: Builder(
+                builder: (BuildContext context) {
+                  return Scaffold(
+                    appBar: AppBar(actions: const [LanguageButton()]),
+                    body: Center(
                       child: Text(
                         AppLocalizations.of(context)!.configurationMissing,
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -88,984 +60,735 @@ Future<void> startLocateMy() async {
     url: SupabaseConfig.url,
     publishableKey: SupabaseConfig.publishableKey,
   );
-
-  final sessionAdapter = createAuthenticationSession(Supabase.instance.client);
-  final viewModel = createAuthenticationViewModel(sessionAdapter);
-  late final AccountPrivacy privacy;
-  late final ShellRuntime shell;
-  final Database mapDatabase = await openDatabase(
+  final SupabaseClient client = Supabase.instance.client;
+  final AuthenticationSession authentication = createAuthenticationSession(
+    client,
+  );
+  final Database database = await openDatabase(
     '${await getDatabasesPath()}/locatemy-map-private.db',
   );
-  final MapLocationRuntime mapRuntime = MapLocationRuntime(
-    readScope: () {
-      return privacy.readScope();
-    },
-    validatePoint: (GeographicPoint point) {
-      return validateLocationInMalaysia(Supabase.instance.client, point);
-    },
-    storageForAccount: (String id) {
-      return createLocationStorage(
-        client: Supabase.instance.client,
-        database: mapDatabase,
-        accountId: id,
-      );
-    },
-  );
-  final HazardReportingRuntime hazardRuntime = HazardReportingRuntime(
-    store: createSupabaseHazardStore(Supabase.instance.client),
-    readScope: () {
-      return privacy.readScope();
-    },
-  );
-  final NearbyFacilities nearbyFacilities = createNearbyFacilities(
-    source: createOverpassFacilitySource(http.Client()),
-    database: mapDatabase,
-    scopeToken: () {
-      final AccountScopeSnapshot snapshot = privacy.readScope();
-      if (snapshot is AccountScopeOpened &&
-          shell.state.gate == ShellGate.opened) {
-        return snapshot.scope;
-      }
-      return null;
-    },
-    mapLayerHost: () => locationLayerHost(mapRuntime.locations),
+  // One-time removal of the obsolete private cache. Public facility data stays.
+  await database.execute('DROP TABLE IF EXISTS map_saved_records');
+  final LocationSearch search = createLocationSearch(
+    apiKey: const String.fromEnvironment('GEOAPIFY_API_KEY').isNotEmpty
+        ? const String.fromEnvironment('GEOAPIFY_API_KEY')
+        : dotenv.env['GEOAPIFY_API_KEY'] ?? '',
   );
   final PublicTransportation transportation = createPublicTransportation(
-    SupabaseTransitReader(Supabase.instance.client),
-  );
-  final CrimeAndSecurity crimeSecurity = createCrimeAndSecurity(
-    supabaseClient: Supabase.instance.client,
-    database: mapDatabase,
-    geographicContext: createGeographicContext(Supabase.instance.client),
-  );
-  shell = ShellRuntime.compose(
-    authentication: sessionAdapter,
-    privacy: () => privacy,
-    intents: [
-      homeExploreMapBinding(() => shell),
-      ...mapShellBindings(() => shell),
-      ...crimeShellBindings(() => shell),
-      ...facilityShellBindings(() {
-        return shell;
-      }),
-      ...hazardShellBindings(() => shell),
-      ...transitShellBindings(
-        () {
-          return shell;
-        },
-        locations: () {
-          return mapRuntime.locations;
-        },
-      ),
-    ],
-    contributions: [
-      ...facilityShellContributions(),
-      ...transitShellContributions(() {
-        return shell;
-      }),
-    ],
-  );
-  privacy = createAccountPrivacy(
-    authenticationSession: sessionAdapter,
-    participants: [
-      createAuthenticationPrivacyParticipant(sessionAdapter),
-      shell,
-      mapRuntime,
-      hazardRuntime,
-    ],
-    // Only these owners can create private state in the current app. Add each
-    // future feature here when wiring its views/storage, even if its participant
-    // is missing, so a registration defect still blocks logout.
-    requiredParticipants: const {
-      AccountPrivacyParticipantId.authenticationSession,
-      AccountPrivacyParticipantId.applicationShell,
-      AccountPrivacyParticipantId.mapLocation,
-      AccountPrivacyParticipantId.hazardReporting,
-    },
-    stateDirectory: Directory(
-      '${(await getApplicationSupportDirectory()).path}/account-privacy',
-    ),
+    SupabaseTransitReader(client),
   );
   runApp(
     LocateMyApp(
-      authenticationViewModel: viewModel,
-      shellRuntime: shell,
-      languageController: languageController,
-      shellViews: mapAndHomeShellViews(
-        () => createHomeRelocationOutlook(Supabase.instance.client),
-        mapRuntime,
-        nearbyFacilities,
-        createLocationSearch(
-          apiKey: const String.fromEnvironment('GEOAPIFY_API_KEY').isNotEmpty
-              ? const String.fromEnvironment('GEOAPIFY_API_KEY')
-              : dotenv.env['GEOAPIFY_API_KEY'] ?? '',
-        ),
-        hazards: hazardRuntime,
-        transportation: transportation,
-        crimeSecurity: crimeSecurity,
-        runtime: () {
-          return shell;
-        },
-      ),
-      onRetryProfile: () => viewModel.retryProfile(
-        () => retryAuthenticationOptionalProfile(sessionAdapter),
-      ),
+      authenticationViewModel: createAuthenticationViewModel(authentication),
+      languageController: language,
+      signedInBuilder: (BuildContext context, AuthenticatedAccount account) {
+        return _ProductionPages(
+          client: client,
+          database: database,
+          search: search,
+          transportation: transportation,
+          account: account,
+        );
+      },
     ),
   );
 }
 
+/// Page entry seam used by the app and its existing Widget test harness.
 final class LocateMyApp extends StatefulWidget {
   final LanguageController? languageController;
   final AuthenticationViewModel authenticationViewModel;
-  final Future<void> Function()? onRetryProfile;
-  final ShellRuntime? shellRuntime;
-  final ShellViews shellViews;
-
+  final Widget Function(BuildContext, AuthenticatedAccount)? signedInBuilder;
   const LocateMyApp({
-    required this.authenticationViewModel,
-    this.onRetryProfile,
-    this.languageController,
-    this.shellRuntime,
-    this.shellViews = const ShellViews(),
+    required AuthenticationViewModel authenticationViewModel,
+    LanguageController? languageController,
+    Widget Function(BuildContext, AuthenticatedAccount)? signedInBuilder,
     super.key,
-  });
-
+  }) : authenticationViewModel = authenticationViewModel,
+       languageController = languageController,
+       signedInBuilder = signedInBuilder;
   @override
-  State<LocateMyApp> createState() => _LocateMyAppState();
+  State<LocateMyApp> createState() {
+    return _LocateMyAppState();
+  }
 }
 
 final class _LocateMyAppState extends State<LocateMyApp> {
-  late final LanguageController _languageController =
+  late final LanguageController _language =
       widget.languageController ?? LanguageController();
-
-  ShellViewModel? _shellViewModel;
   @override
   void initState() {
     super.initState();
-    if (widget.shellRuntime != null) {
-      _shellViewModel = ShellViewModel(widget.shellRuntime!);
-      _shellViewModel!.initialize();
-    }
+    widget.authenticationViewModel.initialize();
   }
 
   @override
   void dispose() {
-    _shellViewModel?.dispose();
-    if (widget.languageController == null) _languageController.dispose();
+    if (widget.languageController == null) {
+      _language.dispose();
+    }
     super.dispose();
   }
 
-  Widget _authenticationPage() => AuthenticationPage(
-    viewModel: widget.authenticationViewModel,
-    onSignOut:
-        _shellViewModel?.signOut ?? widget.authenticationViewModel.signOut,
-    onRetryProfile: widget.onRetryProfile,
-  );
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider.value(
-    value: _languageController,
-    child: ListenableBuilder(
-      listenable: Listenable.merge([?_shellViewModel]),
-      builder: (context, _) => MaterialApp(
-        locale: context.watch<LanguageController>().locale,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        title: 'LocateMY',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF155EEF))
-              .copyWith(
-                primary: const Color(0xFF155EEF),
-                onPrimary: Colors.white,
-                surface: Colors.white,
-                error: const Color(0xFFC9362B),
-                onSurface: const Color(0xFF172033),
-              ),
-          scaffoldBackgroundColor: const Color(0xFFF6F8FB),
-          textTheme: ThemeData.light().textTheme.apply(
-            fontFamily: 'SourceSansPro',
-            bodyColor: const Color(0xFF172033),
-            displayColor: const Color(0xFF172033),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 16,
-            ),
-            hintStyle: const TextStyle(fontSize: 15, color: Color(0xFF667085)),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFD9E0EA)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF155EEF), width: 2),
-            ),
-            errorMaxLines: 3,
-          ),
-          filledButtonTheme: FilledButtonThemeData(
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              textStyle: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          useMaterial3: true,
-        ),
-        home: _shellViewModel == null
-            ? _authenticationPage()
-            : ShellHost(
-                viewModel: _shellViewModel!,
-                authentication: _authenticationPage(),
-                views: widget.shellViews,
-              ),
-      ),
-    ),
-  );
-}
-
-/// Root projects the provider's fieldless marker into Shell navigation only.
-ShellIntentBinding<ExploreMapIntent> homeExploreMapBinding(
-  ShellRuntime Function() runtime,
-) => ShellIntentBinding<ExploreMapIntent>(
-  (_) => ShellRouteRequest.tab(
-    context: runtime().currentContext,
-    tab: ShellTab.map,
-  ),
-);
-
-/// Each opened scope gets independent requests and refresh state; only durable
-/// public SQLite data is shared. Weak keys do not retain closed account scopes.
-ShellViews homeShellViews(HomeRelocationOutlook Function() createHome) {
-  final providers = Expando<HomeRelocationOutlook>();
-  return ShellViews(
-    home: (context, shell) => HomeOutlookPage(
-      home: providers[shell] ??= createHome(),
-      applicationShell: shell,
-    ),
-  );
-}
-
-List<ShellIntentBinding> mapShellBindings(ShellRuntime Function() runtime) {
-  return [
-    ShellIntentBinding<OpenAnalysisIntent>(
-      (intent) => ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'location-analysis',
-      ),
-    ),
-    ShellIntentBinding<OpenLocationComparisonIntent>(
-      (intent) => ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'location-comparison',
-      ),
-    ),
-    ShellIntentBinding<OpenMapLayerIntent>(
-      (intent) => ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination:
-            intent.intent is CreateHazardIntent ||
-                (intent.intent is ProviderDefinedIntent &&
-                    (intent.intent as ProviderDefinedIntent).providerId ==
-                        'hazard-reporting')
-            ? 'hazard-map-intent'
-            : 'map-layer',
-      ),
-    ),
-  ];
-}
-
-List<ShellIntentBinding> crimeShellBindings(ShellRuntime Function() runtime) {
-  return [
-    ShellIntentBinding<OpenCrimeSecurityIntent>((intent) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'crime-security',
-      );
-    }),
-    ShellIntentBinding<OpenCrimeSecurityComparisonIntent>((intent) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'crime-comparison',
-      );
-    }),
-    ShellIntentBinding<CrimeReturnToMapIntent>((intent) {
-      return ShellRouteRequest.tab(
-        context: runtime().currentContext,
-        tab: ShellTab.map,
-      );
-    }),
-  ];
-}
-
-List<ShellTaskView> crimeTaskViews(
-  CrimeAndSecurity service,
-  ShellRuntime Function() runtime,
-) {
-  return [
-    ShellTaskView<OpenCrimeSecurityIntent>(
-      'crime-security',
-      (context, intent) => CrimeSecurityPage(
-        location: intent.location,
-        service: service,
-        shell: runtime().applicationShell!,
-        returnContext: intent.returnContext,
-      ),
-      ownsScaffold: true,
-    ),
-    ShellTaskView<OpenCrimeSecurityComparisonIntent>(
-      'crime-comparison',
-      (context, intent) => const MapFutureDestination(locations: []), // Comparison to be implemented in Wave 5/6
-      ownsScaffold: true,
-    ),
-  ];
-}
-
-ShellViews mapAndHomeShellViews(
-  HomeRelocationOutlook Function() createHome,
-  MapLocationRuntime map,
-  NearbyFacilities nearbyFacilities,
-  LocationSearch search, {
-  HazardReportingRuntime? hazards,
-  PublicTransportation? transportation,
-  CrimeAndSecurity? crimeSecurity,
-  ShellRuntime Function()? runtime,
-}) {
-  final ShellViews home = homeShellViews(createHome);
-  final Expando<ApplicationShell> facilityShells = Expando<ApplicationShell>();
-  ApplicationShell? facilityShell() {
-    final ShellRuntime? active = runtime?.call();
-    final ShellRequestContext? request = active?.currentContext;
-    if (active == null || request == null) {
-      return null;
-    }
-    return facilityShells[request] ??= active.applicationShell!;
-  }
-
-  final Expando<ValueNotifier<String?>> facilityViewports =
-      Expando<ValueNotifier<String?>>();
-  final Expando<_HazardMapSession> hazardSessions =
-      Expando<_HazardMapSession>();
-  _HazardMapSession session() {
-    // The opened AccountScope is stable; scoped Shell wrappers are ephemeral.
-    final AccountScope scope = runtime!().state.scope!;
-    final _HazardMapSession? previous = hazardSessions[scope];
-    if (previous != null) {
-      return previous;
-    }
-    final _HazardMapSession value = _HazardMapSession();
-    hazardSessions[scope] = value;
-    return value;
-  }
-
-  ShellRequestContext analysisRequest(ShellIntent intent) {
-    return runtime!().state.routes.firstWhere((ShellNavigationEntry entry) {
-      return identical(entry.intent, intent);
-    }).context;
-  }
-
-  return ShellViews(
-    home: home.home,
-    map: (BuildContext context, ApplicationShell scoped) {
-      if (runtime == null) {
-        return MapLocationPage(
-          locations: map.locations,
-          layerHost: locationLayerHost(map.locations),
-          workspace: locationWorkspace(map.locations),
-          applicationShell: scoped,
-          search: search,
-        );
-      }
-      final AccountScope scope = runtime().state.scope!;
-      final ValueNotifier<String?> viewport = facilityViewports[scope] ??=
-          ValueNotifier<String?>(null);
-      _HazardMapSession? current;
-      if (hazards != null) {
-        current = session();
-      }
-      final Widget mapPage = MapLocationPage(
-        locations: map.locations,
-        layerHost: locationLayerHost(map.locations),
-        workspace: locationWorkspace(map.locations),
-        applicationShell: scoped,
-        search: search,
-        layerFocus: current?.focus,
-        onViewport:
-            (
-              String version,
-              GeographicPoint southWest,
-              GeographicPoint northEast,
-            ) {
-              viewport.value = version;
-              current?.viewport.value = HazardPageRequest(
-                viewportVersion: version,
-                viewport: HazardViewport(southWest, northEast),
-              );
-            },
-      );
-      Widget child = mapPage;
-      if (hazards != null && current != null) {
-        child = HazardMapPanel(
-          hazards: hazards.reporting,
-          host: locationLayerHost(map.locations),
-          viewport: current.viewport,
-          revision: current.revision,
-          onMine: () {
-            scoped.submit(const OpenMyHazardsIntent('map'));
-          },
-          child: _HazardCreationPanel(
-            locations: map.locations,
-            session: current,
-            shell: scoped,
-            child: mapPage,
-          ),
-        );
-      }
-      return NearbyFacilitiesMapPanel(
-        key: ValueKey(scope),
-        facilities: nearbyFacilities,
-        locations: map.locations,
-        workspace: locationWorkspace(map.locations),
-        viewport: viewport,
-        child: child,
-      );
-    },
-    contributions: <ShellContributionView>[
-      ShellContributionView<NearbyFacilitiesSummaryContribution>((
-        BuildContext context,
-        NearbyFacilitiesSummaryContribution contribution,
-      ) {
-        return NearbyFacilitiesSummaryCard(contribution: contribution);
-      }),
-      ShellContributionView<NearbyFacilitiesComparisonContribution>((
-        BuildContext context,
-        NearbyFacilitiesComparisonContribution contribution,
-      ) {
-        return NearbyFacilitiesComparisonCard(contribution: contribution);
-      }),
-    ],
-    tasks: [
-      if (transportation != null && runtime != null)
-        ...transitTaskViews(transportation, map, runtime),
-      ShellTaskView<OpenNearbyFacilitiesIntent>('nearby-facilities', (
-        BuildContext context,
-        OpenNearbyFacilitiesIntent intent,
-      ) {
-        return NearbyFacilitiesPage(
-          facilities: nearbyFacilities,
-          location: intent.location,
-          applicationShell: facilityShell(),
-          returnContext: intent.returnContext ?? runtime?.call().currentContext,
-        );
-      }, ownsScaffold: true),
-      ShellTaskView<OpenNearbyFacilitiesComparisonIntent>(
-        'nearby-facilities-comparison',
-        (BuildContext context, OpenNearbyFacilitiesComparisonIntent intent) {
-          return NearbyFacilitiesPage(
-            facilities: nearbyFacilities,
-            location: intent.locationA,
-            locationB: intent.locationB,
-            applicationShell: facilityShell(),
-            returnContext:
-                intent.returnContext ?? runtime?.call().currentContext,
-          );
-        },
-        ownsScaffold: true,
-      ),
-      if (hazards != null && runtime != null)
-        ..._hazardTaskViews(hazards, runtime, session),
-      if (crimeSecurity != null && runtime != null)
-        ...crimeTaskViews(crimeSecurity, runtime),
-      if (crimeSecurity != null && runtime != null)
-        ...crimeTaskViews(crimeSecurity, runtime),
-
-      ShellTaskView<OpenAnalysisIntent>(
-        'location-analysis',
-        (context, intent) => transportation != null && runtime != null
-            ? TransportationAnalysisMenu(
-                a: intent.location,
-                runtime: runtime(),
-                request: analysisRequest(intent),
-                onNearby: () {
-                  runtime().submit(
-                    OpenNearbyFacilitiesIntent(location: intent.location),
-                  );
-                },
-              )
-            : NearbyFacilitiesPage(
-                facilities: nearbyFacilities,
-                location: intent.location,
-                applicationShell: facilityShell(),
-                returnContext: runtime?.call().currentContext,
-              ),
-        ownsScaffold: true,
-      ),
-      ShellTaskView<OpenLocationComparisonIntent>('location-comparison', (
-        BuildContext context,
-        OpenLocationComparisonIntent intent,
-      ) {
-        if (transportation != null && runtime != null) {
-          return TransportationAnalysisMenu(
-            a: intent.locationA,
-            b: intent.locationB,
-            runtime: runtime(),
-            request: analysisRequest(intent),
-            onNearby: () {
-              runtime().submit(
-                OpenNearbyFacilitiesComparisonIntent(
-                  locationA: intent.locationA,
-                  locationB: intent.locationB,
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: _language,
+      child: AnimatedBuilder(
+        animation: widget.authenticationViewModel,
+        builder: (BuildContext context, Widget? child) {
+          return Builder(
+            builder: (BuildContext context) {
+              final SessionSnapshot? identity =
+                  widget.authenticationViewModel.state.session;
+              final String accountKey = identity is AuthenticatedSession
+                  ? identity.account.accountId
+                  : 'signed-out';
+              return MaterialApp(
+                key: ValueKey(accountKey),
+                locale: context.watch<LanguageController>().locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                title: 'LocateMY',
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(
+                  colorScheme:
+                      ColorScheme.fromSeed(seedColor: const Color(0xFF155EEF))
+                          .copyWith(
+                            primary: const Color(0xFF155EEF),
+                            onPrimary: Colors.white,
+                            surface: Colors.white,
+                            error: const Color(0xFFC9362B),
+                            onSurface: const Color(0xFF172033),
+                          ),
+                  scaffoldBackgroundColor: const Color(0xFFF6F8FB),
+                  textTheme: ThemeData.light().textTheme.apply(
+                    fontFamily: 'SourceSansPro',
+                    bodyColor: const Color(0xFF172033),
+                    displayColor: const Color(0xFF172033),
+                  ),
+                  inputDecorationTheme: InputDecorationTheme(
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 16,
+                    ),
+                    hintStyle: const TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF667085),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFD9E0EA)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF155EEF),
+                        width: 2,
+                      ),
+                    ),
+                    errorMaxLines: 3,
+                  ),
+                  filledButtonTheme: FilledButtonThemeData(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  useMaterial3: true,
+                ),
+                home: AnimatedBuilder(
+                  animation: widget.authenticationViewModel,
+                  builder: (BuildContext context, Widget? child) {
+                    final SessionSnapshot? session =
+                        widget.authenticationViewModel.state.session;
+                    if (session is AuthenticatedSession &&
+                        widget.signedInBuilder != null) {
+                      // The account-keyed MaterialApp owns the ordinary route stack.
+                      return InheritedAuthentication(
+                        viewModel: widget.authenticationViewModel,
+                        child: widget.signedInBuilder!(
+                          context,
+                          session.account,
+                        ),
+                      );
+                    }
+                    return AuthenticationPage(
+                      viewModel: widget.authenticationViewModel,
+                      onSignOut: widget.authenticationViewModel.signOut,
+                    );
+                  },
                 ),
               );
             },
           );
-        }
-        return NearbyFacilitiesPage(
-          facilities: nearbyFacilities,
-          location: intent.locationA,
-          locationB: intent.locationB,
-          applicationShell: facilityShell(),
-          returnContext: runtime?.call().currentContext,
-        );
-      }, ownsScaffold: true),
-      ShellTaskView<OpenMapLayerIntent>(
-        'map-layer',
-        (c, i) => MapFutureDestination(
-          locations: i.intent is CreateHazardIntent
-              ? [(i.intent as CreateHazardIntent).location]
-              : [],
-        ),
+        },
       ),
-    ],
-  );
+    );
+  }
 }
 
-/// Development slot until Wave 5/6 providers register their real task views.
-class MapFutureDestination extends StatelessWidget {
-  final List<ValidLocationReference> locations;
-  const MapFutureDestination({
-    required List<ValidLocationReference> locations,
+class InheritedAuthentication extends InheritedWidget {
+  final AuthenticationViewModel viewModel;
+  const InheritedAuthentication({
+    required AuthenticationViewModel viewModel,
+    required super.child,
     super.key,
-  }) : locations = locations;
+  }) : viewModel = viewModel;
+  static AuthenticationViewModel of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<InheritedAuthentication>()!
+        .viewModel;
+  }
+
+  @override
+  bool updateShouldNotify(InheritedAuthentication oldWidget) {
+    return viewModel != oldWidget.viewModel;
+  }
+}
+
+final class _ProductionPages extends StatefulWidget {
+  final SupabaseClient client;
+  final Database database;
+  final LocationSearch search;
+  final PublicTransportation transportation;
+  final AuthenticatedAccount account;
+  const _ProductionPages({
+    required SupabaseClient client,
+    required Database database,
+    required LocationSearch search,
+    required PublicTransportation transportation,
+    required AuthenticatedAccount account,
+  }) : client = client,
+       database = database,
+       search = search,
+       transportation = transportation,
+       account = account;
+  @override
+  State<_ProductionPages> createState() {
+    return _ProductionPagesState();
+  }
+}
+
+final class _ProductionPagesState extends State<_ProductionPages> {
+  late final MapLocationRuntime _map = MapLocationRuntime(
+    accountId: widget.account.accountId,
+    validatePoint: (GeographicPoint point) {
+      return validateLocationInMalaysia(widget.client, point);
+    },
+    storageForAccount: (String accountId) {
+      return createLocationStorage(client: widget.client, accountId: accountId);
+    },
+  );
+  late final HazardReportingRuntime _hazards = HazardReportingRuntime(
+    store: createSupabaseHazardStore(widget.client),
+    currentAccountId: () {
+      return widget.client.auth.currentUser?.id;
+    },
+  );
+  late final http.Client _http = http.Client();
+  late final NearbyFacilities _facilities = createNearbyFacilities(
+    source: createOverpassFacilitySource(_http),
+    database: widget.database,
+    mapLayerHost: () {
+      return locationLayerHost(_map.locations);
+    },
+  );
+  late final HomeRelocationOutlook _home = createHomeRelocationOutlook(
+    widget.client,
+  );
+  @override
+  void dispose() {
+    _http.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations l10n =
-        AppLocalizations.of(context) ??
-        lookupAppLocalizations(Localizations.localeOf(context));
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        Text(l10n.mapFeatureNotConnected),
-        for (final location in locations)
+    return LocateMyPages(
+      locations: _map.locations,
+      hazards: _hazards.reporting,
+      facilities: _facilities,
+      home: _home,
+      search: widget.search,
+      transportation: widget.transportation,
+    );
+  }
+}
+
+/// Signed-in production pages composed from the existing business services.
+final class LocateMyPages extends StatefulWidget {
+  final LocationCoordinator locations;
+  final HazardReporting hazards;
+  final NearbyFacilities facilities;
+  final HomeRelocationOutlook home;
+  final LocationSearch search;
+  final PublicTransportation transportation;
+  final bool showTiles;
+  const LocateMyPages({
+    required LocationCoordinator locations,
+    required HazardReporting hazards,
+    required NearbyFacilities facilities,
+    required HomeRelocationOutlook home,
+    required LocationSearch search,
+    required PublicTransportation transportation,
+    bool showTiles = true,
+    super.key,
+  }) : locations = locations,
+       hazards = hazards,
+       facilities = facilities,
+       home = home,
+       search = search,
+       transportation = transportation,
+       showTiles = showTiles;
+  @override
+  State<LocateMyPages> createState() {
+    return _LocateMyPagesState();
+  }
+}
+
+final class _LocateMyPagesState extends State<LocateMyPages> {
+  final ValueNotifier<HazardPageRequest?> _viewport = ValueNotifier(null);
+  final ValueNotifier<String?> _facilityViewport = ValueNotifier(null);
+  final ValueNotifier<int> _revision = ValueNotifier(0);
+  final ValueNotifier<GeographicPoint?> _focus = ValueNotifier(null);
+  int _tab = 0;
+  bool _choosingHazard = false;
+  String _text(String en, String zh) {
+    if (Localizations.localeOf(context).languageCode == 'zh') {
+      return zh;
+    }
+    return en;
+  }
+
+  void _changed() {
+    _revision.value++;
+  }
+
+  void _push(Widget page, [String? title]) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          if (title == null) {
+            return page;
+          }
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(title),
+              actions: const [LanguageButton()],
+            ),
+            body: page,
+          );
+        },
+      ),
+    );
+  }
+
+  void _locate(HazardReport report) {
+    _focus.value = report.location;
+    Navigator.of(context).popUntil((Route<dynamic> route) {
+      return route.isFirst;
+    });
+    setState(() {
+      _tab = 1;
+    });
+  }
+
+  void _detail(HazardReportId id) {
+    _push(
+      HazardDetailLoader(
+        showHeading: false,
+        hazards: widget.hazards,
+        id: id,
+        onChanged: _changed,
+        onDeleted: () {
+          Navigator.of(context).pop();
+        },
+        onLocate: _locate,
+      ),
+      _text('Hazard details', '隐患详情'),
+    );
+  }
+
+  void _composer(ValidLocationReference location) {
+    setState(() {
+      _choosingHazard = false;
+    });
+    _push(
+      HazardComposerPage(
+        showHeading: false,
+        hazards: widget.hazards,
+        location: location,
+        request: (HazardType type, String title, String? description) {
+          return HazardCreateRequest(
+            location: location,
+            type: type,
+            title: title,
+            description: description,
+          );
+        },
+        onCreated: () {
+          _changed();
+          Navigator.of(context).pop();
+          _mine();
+        },
+      ),
+      _text('Report hazard', '上报隐患'),
+    );
+  }
+
+  void _mine() {
+    _push(
+      MyHazardsPage(
+        showHeading: false,
+        hazards: widget.hazards,
+        request: const HazardPageRequest(
+          viewportVersion: 'mine',
+          viewport: HazardViewport(
+            GeographicPoint(latitude: -90, longitude: -180),
+            GeographicPoint(latitude: 90, longitude: 180),
+          ),
+        ),
+        onOpen: (HazardReport report) {
+          _detail(report.id);
+        },
+        onLocate: _locate,
+        onCreate: () {
+          Navigator.of(context).popUntil((Route<dynamic> route) {
+            return route.isFirst;
+          });
+          setState(() {
+            _tab = 1;
+            _choosingHazard = true;
+          });
+        },
+      ),
+      _text('My hazards', '我的隐患'),
+    );
+  }
+
+  void _layer(MapLayerIntent intent) {
+    if (intent is CreateHazardIntent) {
+      _composer(intent.location);
+    }
+    if (intent is ProviderDefinedIntent &&
+        intent.providerId == 'hazard-reporting' &&
+        intent.action == 'detail') {
+      _detail(HazardReportId(intent.stableItemId));
+    }
+  }
+
+  void _analysis(ValidLocationReference a, [ValidLocationReference? b]) {
+    _push(
+      LocationAnalysisMenu(
+        location: a,
+        locationB: b,
+        facilities: widget.facilities,
+        transportation: widget.transportation,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _viewport.dispose();
+    _facilityViewport.dispose();
+    _revision.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l = AppLocalizations.of(context)!;
+    final Widget map = MapLocationPage(
+      locations: widget.locations,
+      layerHost: locationLayerHost(widget.locations),
+      workspace: locationWorkspace(widget.locations),
+      search: widget.search,
+      showTiles: widget.showTiles,
+      layerFocus: _focus,
+      onAnalysis: _analysis,
+      onComparison: (ValidLocationReference a, ValidLocationReference b) {
+        _analysis(a, b);
+      },
+      onLayerSelected: _layer,
+      onViewport: (String version, GeographicPoint sw, GeographicPoint ne) {
+        _viewport.value = HazardPageRequest(
+          viewportVersion: version,
+          viewport: HazardViewport(sw, ne),
+        );
+        _facilityViewport.value = version;
+      },
+      detailAction: StreamBuilder<void>(
+        stream: locationWorkspace(widget.locations).changes,
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          final LocationRoleSnapshot selected = widget.locations.read(
+            LocationRole.single,
+          );
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                if (_choosingHazard)
+                  Text(_text('Choose a location, then confirm.', '选择位置后确认。')),
+                FilledButton.tonalIcon(
+                  key: ValueKey(
+                    _choosingHazard
+                        ? 'hazard-confirm-location'
+                        : 'hazard-start-report',
+                  ),
+                  onPressed: _choosingHazard
+                      ? selected is LocationPresent
+                            ? () {
+                                _composer(selected.location);
+                              }
+                            : null
+                      : () {
+                          setState(() {
+                            _choosingHazard = true;
+                          });
+                        },
+                  icon: const Icon(Icons.add_location_alt_outlined),
+                  label: Text(
+                    _text(
+                      _choosingHazard
+                          ? 'Report at this location'
+                          : 'Report hazard',
+                      _choosingHazard ? '在此位置上报' : '上报隐患',
+                    ),
+                  ),
+                ),
+                if (_choosingHazard)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _choosingHazard = false;
+                      });
+                    },
+                    child: Text(l.cancel),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+    return PopScope(
+      canPop: _tab == 0,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          setState(() {
+            _tab = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_tab == 0 ? 'LocateMY' : l.shellMap),
+          actions: [
+            const LanguageButton(),
+            TextButton(
+              key: const ValueKey('shell-account'),
+              onPressed: () {
+                _push(
+                  AuthenticationPage(
+                    viewModel: InheritedAuthentication.of(context),
+                    onSignOut: InheritedAuthentication.of(context).signOut,
+                  ),
+                );
+              },
+              child: Text(l.shellAccount),
+            ),
+          ],
+        ),
+        body: IndexedStack(
+          index: _tab,
+          children: [
+            HomeOutlookPage(
+              home: widget.home,
+              onExploreMap: () {
+                setState(() {
+                  _tab = 1;
+                });
+              },
+            ),
+            Column(
+              children: [
+                Expanded(
+                  child: HazardMapPanel(
+                    hazards: widget.hazards,
+                    host: locationLayerHost(widget.locations),
+                    viewport: _viewport,
+                    revision: _revision,
+                    onMine: _mine,
+                    child: NearbyFacilitiesMapPanel(
+                      facilities: widget.facilities,
+                      locations: widget.locations,
+                      workspace: locationWorkspace(widget.locations),
+                      viewport: _facilityViewport,
+                      child: map,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _tab,
+          onDestinationSelected: (int tab) {
+            setState(() {
+              _tab = tab;
+            });
+          },
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              label: l.shellHome,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.map_outlined),
+              label: l.shellMap,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Ordinary routes carry validated coordinates; pending analyses stay explicit.
+final class LocationAnalysisMenu extends StatelessWidget {
+  final ValidLocationReference location;
+  final ValidLocationReference? locationB;
+  final NearbyFacilities facilities;
+  final PublicTransportation transportation;
+  const LocationAnalysisMenu({
+    required ValidLocationReference location,
+    ValidLocationReference? locationB,
+    required NearbyFacilities facilities,
+    required PublicTransportation transportation,
+    super.key,
+  }) : location = location,
+       locationB = locationB,
+       facilities = facilities,
+       transportation = transportation;
+  @override
+  Widget build(BuildContext context) {
+    final bool zh = Localizations.localeOf(context).languageCode == 'zh';
+    final ValidLocationReference? second = locationB;
+    final DateTime date = DateTime.now();
+    void open(Widget page) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) {
+            return page;
+          },
+        ),
+      );
+    }
+
+    AnalysisReturnContext input(
+      ValidLocationReference point,
+      LocationRole role,
+    ) {
+      return AnalysisReturnContext(
+        location: point,
+        role: role,
+        analysisDate: date,
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(zh ? '地点分析' : 'Location analysis'),
+        actions: const [LanguageButton()],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
           Text(
             location.displayName ??
                 '${location.point.latitude}, ${location.point.longitude}',
           ),
-        Text(l10n.mapLocationRetained),
-      ],
-    );
-  }
-}
-
-final class _HazardMapSession {
-  final ValueNotifier<HazardPageRequest?> viewport = ValueNotifier(null);
-  final ValueNotifier<int> revision = ValueNotifier(0);
-  final ValueNotifier<String?> creationContext = ValueNotifier(null);
-  bool openingComposer = false;
-  final ValueNotifier<GeographicPoint?> focus = ValueNotifier(null);
-}
-
-/// Makes report creation discoverable while Map owns coordinate validation.
-final class _HazardCreationPanel extends StatelessWidget {
-  final LocationCoordinator locations;
-  final _HazardMapSession session;
-  final ApplicationShell shell;
-  final Widget child;
-  const _HazardCreationPanel({
-    required LocationCoordinator locations,
-    required _HazardMapSession session,
-    required ApplicationShell shell,
-    required Widget child,
-  }) : locations = locations,
-       session = session,
-       shell = shell,
-       child = child;
-
-  String text(BuildContext context, String english, String chinese) {
-    if (Localizations.localeOf(context).languageCode == 'zh') {
-      return chinese;
-    }
-    return english;
-  }
-
-  Future<void> confirm(
-    BuildContext context,
-    ValidLocationReference location,
-    String returnContextId,
-  ) async {
-    if (session.openingComposer ||
-        session.creationContext.value != returnContextId) {
-      return;
-    }
-    session.openingComposer = true;
-    final ShellIntentOutcome outcome;
-    try {
-      outcome = await shell.submit(
-        OpenHazardComposerIntent(
-          location: location,
-          returnContextId: returnContextId,
-        ),
-      );
-    } finally {
-      session.openingComposer = false;
-    }
-    if (outcome is ShellIntentAccepted) {
-      session.creationContext.value = null;
-    } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            text(
-              context,
-              'Unable to open the report. Please retry or sign in again.',
-              '无法打开报告，请重试或重新登录。',
+          if (second != null)
+            Text(
+              second.displayName ??
+                  '${second.point.latitude}, ${second.point.longitude}',
             ),
+          ListTile(
+            title: Text(zh ? '周边设施' : 'Nearby facilities'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              open(
+                NearbyFacilitiesPage(
+                  facilities: facilities,
+                  location: location,
+                  locationB: second,
+                ),
+              );
+            },
           ),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<String?>(
-      valueListenable: session.creationContext,
-      builder: (BuildContext context, String? returnContextId, Widget? unused) {
-        return LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return Column(
-              children: [
-                if (returnContextId == null)
-                  TextButton.icon(
-                    key: const ValueKey('hazard-start-report'),
-                    onPressed: () {
-                      session.creationContext.value = 'map';
-                    },
-                    icon: const Icon(Icons.add_location_alt_outlined),
-                    label: Text(text(context, 'Report hazard', '上报隐患')),
-                  )
-                else
-                  StreamBuilder<void>(
-                    stream: locationWorkspace(locations).changes,
-                    builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-                      final LocationRoleSnapshot selected = locations.read(
-                        LocationRole.single,
-                      );
-                      ValidLocationReference? location;
-                      if (selected is LocationPresent) {
-                        location = selected.location;
-                      }
-                      return ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: constraints.maxHeight / 2,
-                        ),
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: Column(
-                              children: [
-                                Semantics(
-                                  liveRegion: true,
-                                  child: Text(
-                                    text(
-                                      context,
-                                      'Choose a hazard location, then confirm to open the report form.',
-                                      '选择隐患位置，然后确认进入报告表单。',
-                                    ),
-                                  ),
-                                ),
-                                if (location != null)
-                                  Text(
-                                    '${location.point.latitude.toStringAsFixed(5)}, ${location.point.longitude.toStringAsFixed(5)}',
-                                  ),
-                                Wrap(
-                                  spacing: 8,
-                                  children: [
-                                    FilledButton(
-                                      key: const ValueKey(
-                                        'hazard-confirm-location',
-                                      ),
-                                      onPressed: location == null
-                                          ? null
-                                          : () {
-                                              confirm(
-                                                context,
-                                                location!,
-                                                returnContextId,
-                                              );
-                                            },
-                                      child: Text(
-                                        text(
-                                          context,
-                                          'Report at this location',
-                                          '在此位置上报',
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      key: const ValueKey(
-                                        'hazard-cancel-report',
-                                      ),
-                                      onPressed: () {
-                                        session.creationContext.value = null;
-                                      },
-                                      child: Text(
-                                        text(context, 'Cancel', '取消'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+          ListTile(
+            title: Text(zh ? '公共交通' : 'Public transportation'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              if (second == null) {
+                open(
+                  PublicTransportationPage(
+                    transportation: transportation,
+                    location: location,
+                    analysisDate: date,
+                  ),
+                );
+              } else {
+                open(
+                  PublicTransportationComparisonPage(
+                    transportation: transportation,
+                    a: input(location, LocationRole.locationA),
+                    b: input(second, LocationRole.locationB),
+                    onOpenStations: (AnalysisReturnContext selected) {
+                      open(
+                        PublicTransportationPage(
+                          transportation: transportation,
+                          location: selected.location,
+                          analysisDate: selected.analysisDate,
                         ),
                       );
                     },
                   ),
-                Expanded(child: child),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-List<ShellIntentBinding> hazardShellBindings(ShellRuntime Function() runtime) {
-  return [
-    ShellIntentBinding<OpenHazardComposerIntent>((
-      OpenHazardComposerIntent intent,
-    ) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'hazard-composer',
-      );
-    }),
-    ShellIntentBinding<OpenHazardDetailIntent>((OpenHazardDetailIntent intent) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'hazard-detail',
-      );
-    }),
-    ShellIntentBinding<OpenMyHazardsIntent>((OpenMyHazardsIntent intent) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'my-hazards',
-      );
-    }),
-    ShellIntentBinding<ReturnToHazardMapIntent>((
-      ReturnToHazardMapIntent intent,
-    ) {
-      return ShellRouteRequest.tab(
-        context: runtime().currentContext,
-        tab: ShellTab.map,
-      );
-    }),
-  ];
-}
-
-List<ShellTaskView> _hazardTaskViews(
-  HazardReportingRuntime hazards,
-  ShellRuntime Function() runtime,
-  _HazardMapSession Function() session,
-) {
-  void changed() {
-    session().revision.value++;
-  }
-
-  void locate(HazardReport report, String returnContextId) {
-    session().focus.value = report.location;
-    runtime().submit(ReturnToHazardMapIntent(returnContextId));
-  }
-
-  Widget detail(HazardReportId id, String returnContextId) {
-    return HazardDetailLoader(
-      showHeading: false,
-      hazards: hazards.reporting,
-      id: id,
-      onChanged: changed,
-      onDeleted: () {
-        runtime().back();
-      },
-      onLocate: (HazardReport report) {
-        locate(report, returnContextId);
-      },
-    );
-  }
-
-  Widget composer(ValidLocationReference location, String returnContextId) {
-    return HazardComposerPage(
-      showHeading: false,
-      hazards: hazards.reporting,
-      location: location,
-      request: (HazardType type, String title, String? description) {
-        return HazardCreateRequest(
-          location: location,
-          type: type,
-          title: title,
-          description: description,
-        );
-      },
-      onCreated: () {
-        changed();
-        runtime().back();
-        runtime().submit(OpenMyHazardsIntent(returnContextId));
-      },
-    );
-  }
-
-  return [
-    ShellTaskView<OpenHazardComposerIntent>(
-      'hazard-composer',
-      (BuildContext context, OpenHazardComposerIntent intent) {
-        return composer(intent.location, intent.returnContextId);
-      },
-      title: (BuildContext context, OpenHazardComposerIntent intent) {
-        return hazardPageTitle(context, HazardPageKind.composer);
-      },
-    ),
-    ShellTaskView<OpenHazardDetailIntent>(
-      'hazard-detail',
-      (BuildContext context, OpenHazardDetailIntent intent) {
-        return detail(intent.id, intent.returnContextId);
-      },
-      title: (BuildContext context, OpenHazardDetailIntent intent) {
-        return hazardPageTitle(context, HazardPageKind.detail);
-      },
-    ),
-    ShellTaskView<OpenMyHazardsIntent>(
-      'my-hazards',
-      (BuildContext context, OpenMyHazardsIntent intent) {
-        return MyHazardsPage(
-          showHeading: false,
-          hazards: hazards.reporting,
-          refreshSignal: session().revision,
-          request: const HazardPageRequest(
-            viewportVersion: 'mine',
-            viewport: HazardViewport(
-              GeographicPoint(latitude: -90, longitude: -180),
-              GeographicPoint(latitude: 90, longitude: 180),
-            ),
+                );
+              }
+            },
           ),
-          onLocate: (HazardReport report) {
-            locate(report, intent.returnContextId);
-          },
-          onOpen: (HazardReport report) {
-            runtime().submit(
-              OpenHazardDetailIntent(
-                id: report.id,
-                returnContextId: intent.returnContextId,
-              ),
-            );
-          },
-          onCreate: () {
-            session().creationContext.value = intent.returnContextId;
-            runtime().submit(ReturnToHazardMapIntent(intent.returnContextId));
-          },
-        );
-      },
-      title: (BuildContext context, OpenMyHazardsIntent intent) {
-        return hazardPageTitle(context, HazardPageKind.mine);
-      },
-    ),
-    ShellTaskView<OpenMapLayerIntent>(
-      'hazard-map-intent',
-      (BuildContext context, OpenMapLayerIntent intent) {
-        final MapLayerIntent marker = intent.intent;
-        if (marker is CreateHazardIntent) {
-          return composer(marker.location, 'map');
-        }
-        if (marker is ProviderDefinedIntent &&
-            marker.providerId == 'hazard-reporting' &&
-            marker.action == 'detail') {
-          return detail(HazardReportId(marker.stableItemId), 'map');
-        }
-        return const SizedBox();
-      },
-      title: (BuildContext context, OpenMapLayerIntent intent) {
-        return hazardPageTitle(
-          context,
-          intent.intent is CreateHazardIntent
-              ? HazardPageKind.composer
-              : HazardPageKind.detail,
-        );
-      },
-    ),
-  ];
-}
-
-List<ShellIntentBinding> facilityShellBindings(
-  ShellRuntime Function() runtime,
-) {
-  return <ShellIntentBinding>[
-    ShellIntentBinding<OpenNearbyFacilitiesIntent>((
-      OpenNearbyFacilitiesIntent intent,
-    ) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'nearby-facilities',
-      );
-    }),
-    ShellIntentBinding<OpenNearbyFacilitiesComparisonIntent>((
-      OpenNearbyFacilitiesComparisonIntent intent,
-    ) {
-      return ShellRouteRequest.task(
-        context: runtime().currentContext,
-        destination: 'nearby-facilities-comparison',
-      );
-    }),
-  ];
-}
-
-List<ShellContributionBinding> facilityShellContributions() {
-  return <ShellContributionBinding>[
-    ShellContributionBinding<NearbyFacilitiesSummaryContribution>((
-      NearbyFacilitiesSummaryContribution input,
-    ) {
-      if (input.returnContext is! ShellRequestContext) {
-        return const ShellSlotRequest.rejected(
-          ShellRejectionReason.missingInput,
-        );
-      }
-      return ShellSlotRequest(
-        context: input.returnContext as ShellRequestContext,
-        slot: 'nearby-facilities-summary',
-      );
-    }),
-    ShellContributionBinding<NearbyFacilitiesComparisonContribution>((
-      NearbyFacilitiesComparisonContribution input,
-    ) {
-      if (input.returnContext is! ShellRequestContext) {
-        return const ShellSlotRequest.rejected(
-          ShellRejectionReason.missingInput,
-        );
-      }
-      return ShellSlotRequest(
-        context: input.returnContext as ShellRequestContext,
-        slot: 'nearby-facilities-comparison',
-      );
-    }),
-  ];
+          for (final String name
+              in zh
+                  ? ['生活成本', '治安', '社会经济', '基础设施']
+                  : [
+                      'Cost of living',
+                      'Crime and security',
+                      'Socio-economic',
+                      'Infrastructure',
+                    ])
+            ListTile(
+              title: Text(name),
+              subtitle: Text(zh ? '尚未实现' : 'Not implemented yet'),
+            ),
+        ],
+      ),
+    );
+  }
 }

@@ -1,33 +1,6 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:locatemy/features/map_location/map_location.dart';
-import 'package:locatemy/app/application_shell.dart';
-
-final class OpenHazardComposerIntent implements ShellIntent {
-  final ValidLocationReference location;
-  final String returnContextId;
-  const OpenHazardComposerIntent({
-    required ValidLocationReference location,
-    required String returnContextId,
-  }) : location = location,
-       returnContextId = returnContextId;
-}
-
-final class OpenHazardDetailIntent implements ShellIntent {
-  final HazardReportId id;
-  final String returnContextId;
-  const OpenHazardDetailIntent({
-    required HazardReportId id,
-    required String returnContextId,
-  }) : id = id,
-       returnContextId = returnContextId;
-}
-
-final class OpenMyHazardsIntent implements ShellIntent {
-  final String returnContextId;
-  const OpenMyHazardsIntent(String returnContextId)
-    : returnContextId = returnContextId;
-}
 
 abstract interface class HazardReporting {
   Future<HazardCreateOutcome> create(HazardCreateRequest request);
@@ -333,26 +306,4 @@ final class HazardNearbyCountUnavailable extends HazardNearbyCountOutcome {
   final HazardNearbyCountFailure failure;
   const HazardNearbyCountUnavailable(HazardNearbyCountFailure failure)
     : failure = failure;
-}
-
-final class ReturnToHazardMapIntent implements ShellIntent {
-  final String returnContextId;
-  const ReturnToHazardMapIntent(String returnContextId)
-    : returnContextId = returnContextId;
-}
-
-final class HazardShellContribution implements ShellContribution {
-  final String contributionId;
-  final String source;
-  final DateTime observedAt;
-  final String availability;
-  const HazardShellContribution({
-    required String contributionId,
-    required String source,
-    required DateTime observedAt,
-    required String availability,
-  }) : contributionId = contributionId,
-       source = source,
-       observedAt = observedAt,
-       availability = availability;
 }

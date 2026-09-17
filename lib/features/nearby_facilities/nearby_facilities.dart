@@ -6,6 +6,3 @@ export 'src/fake_nearby_facilities.dart';
 export 'src/presentation/nearby_facilities_page.dart' show NearbyFacilitiesPage;
 export 'src/presentation/nearby_facilities_map_panel.dart'
     show NearbyFacilitiesMapPanel;
-
-export 'src/presentation/nearby_facilities_contribution_card.dart'
-    show NearbyFacilitiesSummaryCard, NearbyFacilitiesComparisonCard;

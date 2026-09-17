@@ -2,19 +2,9 @@
   "@@locale": "en",
   "signingOut": "Signing out",
   "restoringSession": "Checking sign-in status",
-  "signOutIncomplete": "Sign-out incomplete",
-  "retrySignOut": "Retry sign-out",
-  "sessionUnavailableTitle": "Sign-in status unavailable",
-  "sessionRetryHint": "Connect to the internet and retry to check your sign-in status.",
-  "sessionRejectedHint": "Your session has expired. Sign out of this device and sign in again.",
-  "sessionUnsupportedHint": "Sign-in is unavailable. Check the app configuration or contact support.",
   "retry": "Retry",
   "signOutDevice": "Sign out of this device",
   "signedIn": "Signed in",
-  "emailConfirmed": "Email verified",
-  "emailVerificationRequired": "Email verification required",
-  "emailConfirmationUnavailable": "Email verification status unavailable",
-  "retryUsername": "Retry saving username",
   "createAccount": "Create account",
   "welcomeBack": "Welcome back",
   "registrationSubtitle": "Create an account to plan a life that suits you.",
@@ -45,15 +35,10 @@
   "serviceUnavailable": "Service unavailable. Please retry.",
   "signInUnsupportedClient": "Sign-in is unavailable on this device.",
   "registrationAuthenticated": "Account created successfully.",
-  "registrationProfileFailed": "Account created, but your username could not be saved. Retry later.",
-  "verificationEmailSent": "Check your email and verify your address before signing in.",
-  "verificationProfileRetryNeeded": "Verify your email, then sign in to finish setting your username.",
+  "registrationProfileFailed": "Account created, but your username could not be saved.",
   "registrationInvalidInput": "Check the required fields and confirm your password.",
   "registrationAccountExists": "This email is already registered.",
   "registrationUnsupportedClient": "Registration is unavailable on this device.",
-  "profileRetrySucceeded": "Username saved.",
-  "profileRetryFailed": "Username not saved. Check the format or retry.",
-  "profileRetrySkipped": "There is no username to save on this device.",
   "signOutRetryableUnavailable": "Sign-out incomplete. Connect to the internet and retry.",
   "signOutRemoteRejected": "Sign-out rejected. Retry or contact support.",
   "signOutUnsupportedClient": "Sign-out unavailable on this device. Check the app configuration.",
@@ -66,15 +51,6 @@
   "shellHome": "Home",
   "shellMap": "Map",
   "shellAccount": "Account",
-  "shellTask": "Task",
-  "shellPreparing": "Preparing the app. Please wait.",
-  "shellRecovery": "The app is temporarily unavailable. Please retry.",
-  "shellCleanupPending": "Previous account cleanup is incomplete. Private content is closed. Retry to finish cleanup.",
-  "shellScopeUnavailable": "The account scope cannot be confirmed. Please retry.",
-  "shellFutureTask": "This feature will be connected in a later development wave.",
-  "shellHomePending": "Home features are not connected yet.",
-  "shellMapPending": "Map features are not connected yet. No location is selected.",
-  "shellAccountPending": "Account Center is not connected yet. You can sign out of this device here.",
   "homeTiming": "Relocation timing",
   "homeCost": "Cost pressure",
   "homeEmployment": "Employment stability",
@@ -90,44 +66,11 @@
   "homeLaborCaveat": "Census benchmark changes may affect comparisons.",
   "homePartial": "Some indicators are unavailable; available results are retained.",
   "homeUnavailable": "Temporarily unavailable",
-  "homeObservedUnknown": "Observation date unavailable",
   "homeCooling": "Refresh available in {seconds} seconds",
   "@homeCooling": {
     "placeholders": {
       "seconds": {
         "type": "int"
-      }
-    }
-  },
-  "crimeSafetyIndex": "Safety Index",
-  "crimeAnnualCases": "Annual convicted cases",
-  "crimeTrendTitle": "5-year trend",
-  "crimeCategoryAll": "All",
-  "crimeCategoryAssault": "Violent crime",
-  "crimeCategoryProperty": "Property crime",
-  "crimeTrendNote": "Total convicted cases, not actual crime rate.",
-  "crimeSourceYear": "Data year: {year}",
-  "@crimeSourceYear": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "crimeFresh": "Fresh",
-  "crimeCached": "Cached",
-  "crimeStale": "Stale",
-  "crimeUnavailable": "Temporarily unavailable",
-  "crimeStateUnresolved": "Location outside supported area",
-  "crimePartialData": "Partial data",
-  "crimeViewPortfolio": "View Portfolio",
-  "crimeAddProperty": "Add Property",
-  "crimeBackToMap": "Back to Map",
-  "homeFetched": "Last successful read: {date}",
-  "@homeFetched": {
-    "placeholders": {
-      "date": {
-        "type": "String"
       }
     }
   },
@@ -138,17 +81,6 @@
         "type": "String"
       },
       "year": {
-        "type": "String"
-      }
-    }
-  },
-  "homeSource": "Source: DOSM / data.gov.my · {dataset} · {date}",
-  "@homeSource": {
-    "placeholders": {
-      "dataset": {
-        "type": "String"
-      },
-      "date": {
         "type": "String"
       }
     }
@@ -169,16 +101,8 @@
       }
     }
   },
-  "homeReason": "{code, select, sourceMissing {Source data missing} sourceSchemaChanged {Source fields have changed} insufficientHistory {Insufficient valid historical observations} sourceDataUnverifiable {Source data cannot be verified} retryableUnavailable {Connection unavailable; please retry} noCachedResult {No available observations or cached result} authenticationRequired {Sign in again} missingInput {Required input missing} staleInput {This request has expired} inapplicableDestination {Destination not available} scopeUnavailable {Account scope is closed} other {Temporarily unavailable}}",
+  "homeReason": "{code, select, sourceMissing {Source data missing} sourceSchemaChanged {Data temporarily unavailable; please retry} insufficientHistory {Insufficient valid historical observations} sourceDataUnverifiable {Source data cannot be verified} retryableUnavailable {Connection unavailable; please retry} noCachedResult {No available data; please retry} authenticationRequired {Sign in again} missingInput {Required input missing} staleInput {This request has expired} inapplicableDestination {Destination not available} scopeUnavailable {Account scope is closed} other {Temporarily unavailable}}",
   "@homeReason": {
-    "placeholders": {
-      "code": {
-        "type": "String"
-      }
-    }
-  },
-  "homeFreshness": "{code, select, fresh {Verified online read; dates are dataset observation dates} cached {Cached data; refresh did not replace the saved result} stale {Expired cached data; please reconnect and retry} other {Temporarily unavailable}}",
-  "@homeFreshness": {
     "placeholders": {
       "code": {
         "type": "String"
@@ -197,7 +121,6 @@
   "homeTrendUnavailable": "Historical trend unavailable; see the direction summary above.",
   "homeGreeting": "Ready to plan your next move?",
   "homeIndicators": "Key indicators",
-  "homeDataDetails": "Data and methodology",
   "mapEnterAValidWGS84LatitudeAnd": "Enter a valid WGS84 latitude and longitude.",
   "mapChooseAPointOnMalaysianLand": "Choose a point on Malaysian land.",
   "mapAAndBMustBeDifferent": "A and B must be different locations.",
@@ -205,12 +128,8 @@
   "mapSelectAValidatedLocationFirst": "Select a validated location first.",
   "mapDeletionRequiresAConnectionTheLocation": "Deletion requires a connection. The location is retained.",
   "mapPermissionDeniedSignInAgain": "Permission denied. Sign in again.",
-  "mapTheLocationChangedOnAnotherDevice": "The location changed on another device. Retry synchronization.",
+  "mapTheLocationChangedOnAnotherDevice": "This location changed. Reload and retry.",
   "mapThisSavedLocationNoLongerExists": "This saved location no longer exists.",
-  "mapQueuedOnThisDeviceNotSynchronized": "Queued on this device · not synchronized.",
-  "mapSavedAndSynchronized": "Saved and synchronized.",
-  "mapDeletedAndSynchronized": "Deleted and synchronized.",
-  "mapAccountScopeUnavailableSignInAgain": "Account scope unavailable. Sign in again.",
   "mapThisRequestIsOutdatedSelectOr": "This request is outdated. Select or refresh again.",
   "mapTemporarilyUnavailableTryAgain": "Temporarily unavailable. Try again.",
   "mapSaveLocation": "Save location",
@@ -221,13 +140,8 @@
   "mapLocationA": "Location A",
   "mapLocationB": "Location B",
   "mapSavedLocations": "Saved locations",
-  "mapSavedLocationsUnavailableRetrySynchronization": "Saved locations unavailable. Retry synchronization.",
   "mapNoSavedLocations": "No saved locations",
-  "mapCachedRetrySynchronization": "Cached · retry synchronization",
-  "mapSynchronized": "Synchronized",
-  "mapQueuedNotSynchronized": "Queued · not synchronized",
   "mapDelete": "Delete",
-  "mapRetrySynchronization": "Retry synchronization",
   "mapSearchPlacesInMalaysia": "Search places in Malaysia",
   "mapEnterCoordinates": "Enter coordinates",
   "mapSingle": "Single",
@@ -241,9 +155,9 @@
   "mapSwapAB": "Swap A/B",
   "mapNotSelected": "Not selected",
   "mapViewComparison": "View comparison",
+  "mapSelectedLocation": "Selected location",
   "mapSelectALocation": "Select a location",
   "mapSelectedAnalysisLocation": "Selected analysis location",
-  "mapPersonalizedSuitabilityUnavailable": "Personalized suitability unavailable",
   "mapViewFullAnalysis": "View full analysis",
   "mapStartComparison": "Start comparison",
   "mapSafetyIndex": "Safety index",
@@ -251,7 +165,6 @@
   "mapNearbyFacilities2Km": "Nearby facilities · 2 km",
   "mapPublicTransportation15Km": "Public transportation · 1.5 km",
   "mapInfrastructure": "Infrastructure",
-  "mapProviderNotConnectedDateSourceUnavailable": "Provider not connected; date/source unavailable",
   "mapLatitudeMustBeBetween90And": "Latitude must be between −90 and 90.",
   "mapLongitudeMustBeBetween180And": "Longitude must be between −180 and 180.",
   "mapLatitude": "Latitude",
@@ -304,5 +217,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mapSavedOnline": "Saved online.",
+  "mapDeletedOnline": "Deleted online.",
+  "mapSavedLocationsUnavailable": "Saved locations unavailable. Retry loading.",
+  "mapRetryLoading": "Retry loading",
+  "mapAccountUnavailableSignInAgain": "Unable to read the current account or location. Retry.",
+  "mapSummaryUnavailable": "Summary unavailable. Open full analysis."
 }

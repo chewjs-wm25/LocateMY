@@ -110,42 +110,6 @@ abstract class AppLocalizations {
   /// **'Checking sign-in status'**
   String get restoringSession;
 
-  /// No description provided for @signOutIncomplete.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign-out incomplete'**
-  String get signOutIncomplete;
-
-  /// No description provided for @retrySignOut.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry sign-out'**
-  String get retrySignOut;
-
-  /// No description provided for @sessionUnavailableTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign-in status unavailable'**
-  String get sessionUnavailableTitle;
-
-  /// No description provided for @sessionRetryHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect to the internet and retry to check your sign-in status.'**
-  String get sessionRetryHint;
-
-  /// No description provided for @sessionRejectedHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Your session has expired. Sign out of this device and sign in again.'**
-  String get sessionRejectedHint;
-
-  /// No description provided for @sessionUnsupportedHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign-in is unavailable. Check the app configuration or contact support.'**
-  String get sessionUnsupportedHint;
-
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:
@@ -163,30 +127,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed in'**
   String get signedIn;
-
-  /// No description provided for @emailConfirmed.
-  ///
-  /// In en, this message translates to:
-  /// **'Email verified'**
-  String get emailConfirmed;
-
-  /// No description provided for @emailVerificationRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Email verification required'**
-  String get emailVerificationRequired;
-
-  /// No description provided for @emailConfirmationUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Email verification status unavailable'**
-  String get emailConfirmationUnavailable;
-
-  /// No description provided for @retryUsername.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry saving username'**
-  String get retryUsername;
 
   /// No description provided for @createAccount.
   ///
@@ -371,20 +311,8 @@ abstract class AppLocalizations {
   /// No description provided for @registrationProfileFailed.
   ///
   /// In en, this message translates to:
-  /// **'Account created, but your username could not be saved. Retry later.'**
+  /// **'Account created, but your username could not be saved.'**
   String get registrationProfileFailed;
-
-  /// No description provided for @verificationEmailSent.
-  ///
-  /// In en, this message translates to:
-  /// **'Check your email and verify your address before signing in.'**
-  String get verificationEmailSent;
-
-  /// No description provided for @verificationProfileRetryNeeded.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify your email, then sign in to finish setting your username.'**
-  String get verificationProfileRetryNeeded;
 
   /// No description provided for @registrationInvalidInput.
   ///
@@ -403,24 +331,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Registration is unavailable on this device.'**
   String get registrationUnsupportedClient;
-
-  /// No description provided for @profileRetrySucceeded.
-  ///
-  /// In en, this message translates to:
-  /// **'Username saved.'**
-  String get profileRetrySucceeded;
-
-  /// No description provided for @profileRetryFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Username not saved. Check the format or retry.'**
-  String get profileRetryFailed;
-
-  /// No description provided for @profileRetrySkipped.
-  ///
-  /// In en, this message translates to:
-  /// **'There is no username to save on this device.'**
-  String get profileRetrySkipped;
 
   /// No description provided for @signOutRetryableUnavailable.
   ///
@@ -493,60 +403,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account'**
   String get shellAccount;
-
-  /// No description provided for @shellTask.
-  ///
-  /// In en, this message translates to:
-  /// **'Task'**
-  String get shellTask;
-
-  /// No description provided for @shellPreparing.
-  ///
-  /// In en, this message translates to:
-  /// **'Preparing the app. Please wait.'**
-  String get shellPreparing;
-
-  /// No description provided for @shellRecovery.
-  ///
-  /// In en, this message translates to:
-  /// **'The app is temporarily unavailable. Please retry.'**
-  String get shellRecovery;
-
-  /// No description provided for @shellCleanupPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Previous account cleanup is incomplete. Private content is closed. Retry to finish cleanup.'**
-  String get shellCleanupPending;
-
-  /// No description provided for @shellScopeUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'The account scope cannot be confirmed. Please retry.'**
-  String get shellScopeUnavailable;
-
-  /// No description provided for @shellFutureTask.
-  ///
-  /// In en, this message translates to:
-  /// **'This feature will be connected in a later development wave.'**
-  String get shellFutureTask;
-
-  /// No description provided for @shellHomePending.
-  ///
-  /// In en, this message translates to:
-  /// **'Home features are not connected yet.'**
-  String get shellHomePending;
-
-  /// No description provided for @shellMapPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Map features are not connected yet. No location is selected.'**
-  String get shellMapPending;
-
-  /// No description provided for @shellAccountPending.
-  ///
-  /// In en, this message translates to:
-  /// **'Account Center is not connected yet. You can sign out of this device here.'**
-  String get shellAccountPending;
 
   /// No description provided for @homeTiming.
   ///
@@ -638,137 +494,17 @@ abstract class AppLocalizations {
   /// **'Temporarily unavailable'**
   String get homeUnavailable;
 
-  /// No description provided for @homeObservedUnknown.
-  ///
-  /// In en, this message translates to:
-  /// **'Observation date unavailable'**
-  String get homeObservedUnknown;
-
   /// No description provided for @homeCooling.
   ///
   /// In en, this message translates to:
   /// **'Refresh available in {seconds} seconds'**
   String homeCooling(int seconds);
 
-  /// No description provided for @crimeSafetyIndex.
-  ///
-  /// In en, this message translates to:
-  /// **'Safety Index'**
-  String get crimeSafetyIndex;
-
-  /// No description provided for @crimeAnnualCases.
-  ///
-  /// In en, this message translates to:
-  /// **'Annual convicted cases'**
-  String get crimeAnnualCases;
-
-  /// No description provided for @crimeTrendTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'5-year trend'**
-  String get crimeTrendTitle;
-
-  /// No description provided for @crimeCategoryAll.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get crimeCategoryAll;
-
-  /// No description provided for @crimeCategoryAssault.
-  ///
-  /// In en, this message translates to:
-  /// **'Violent crime'**
-  String get crimeCategoryAssault;
-
-  /// No description provided for @crimeCategoryProperty.
-  ///
-  /// In en, this message translates to:
-  /// **'Property crime'**
-  String get crimeCategoryProperty;
-
-  /// No description provided for @crimeTrendNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Total convicted cases, not actual crime rate.'**
-  String get crimeTrendNote;
-
-  /// No description provided for @crimeSourceYear.
-  ///
-  /// In en, this message translates to:
-  /// **'Data year: {year}'**
-  String crimeSourceYear(int year);
-
-  /// No description provided for @crimeFresh.
-  ///
-  /// In en, this message translates to:
-  /// **'Fresh'**
-  String get crimeFresh;
-
-  /// No description provided for @crimeCached.
-  ///
-  /// In en, this message translates to:
-  /// **'Cached'**
-  String get crimeCached;
-
-  /// No description provided for @crimeStale.
-  ///
-  /// In en, this message translates to:
-  /// **'Stale'**
-  String get crimeStale;
-
-  /// No description provided for @crimeUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Temporarily unavailable'**
-  String get crimeUnavailable;
-
-  /// No description provided for @crimeStateUnresolved.
-  ///
-  /// In en, this message translates to:
-  /// **'Location outside supported area'**
-  String get crimeStateUnresolved;
-
-  /// No description provided for @crimePartialData.
-  ///
-  /// In en, this message translates to:
-  /// **'Partial data'**
-  String get crimePartialData;
-
-  /// No description provided for @crimeViewPortfolio.
-  ///
-  /// In en, this message translates to:
-  /// **'View Portfolio'**
-  String get crimeViewPortfolio;
-
-  /// No description provided for @crimeAddProperty.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Property'**
-  String get crimeAddProperty;
-
-  /// No description provided for @crimeBackToMap.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to Map'**
-  String get crimeBackToMap;
-
-  /// No description provided for @homeFetched.
-  ///
-  /// In en, this message translates to:
-  /// **'Last successful read: {date}'**
-  String homeFetched(String date);
-
   /// No description provided for @homeIncomeAmount.
   ///
   /// In en, this message translates to:
   /// **'RM {amount} / month · Survey {year}'**
   String homeIncomeAmount(String amount, String year);
-
-  /// No description provided for @homeSource.
-  ///
-  /// In en, this message translates to:
-  /// **'Source: DOSM / data.gov.my · {dataset} · {date}'**
-  String homeSource(String dataset, String date);
 
   /// No description provided for @homeNavigation.
   ///
@@ -785,14 +521,8 @@ abstract class AppLocalizations {
   /// No description provided for @homeReason.
   ///
   /// In en, this message translates to:
-  /// **'{code, select, sourceMissing {Source data missing} sourceSchemaChanged {Source fields have changed} insufficientHistory {Insufficient valid historical observations} sourceDataUnverifiable {Source data cannot be verified} retryableUnavailable {Connection unavailable; please retry} noCachedResult {No available observations or cached result} authenticationRequired {Sign in again} missingInput {Required input missing} staleInput {This request has expired} inapplicableDestination {Destination not available} scopeUnavailable {Account scope is closed} other {Temporarily unavailable}}'**
+  /// **'{code, select, sourceMissing {Source data missing} sourceSchemaChanged {Data temporarily unavailable; please retry} insufficientHistory {Insufficient valid historical observations} sourceDataUnverifiable {Source data cannot be verified} retryableUnavailable {Connection unavailable; please retry} noCachedResult {No available data; please retry} authenticationRequired {Sign in again} missingInput {Required input missing} staleInput {This request has expired} inapplicableDestination {Destination not available} scopeUnavailable {Account scope is closed} other {Temporarily unavailable}}'**
   String homeReason(String code);
-
-  /// No description provided for @homeFreshness.
-  ///
-  /// In en, this message translates to:
-  /// **'{code, select, fresh {Verified online read; dates are dataset observation dates} cached {Cached data; refresh did not replace the saved result} stale {Expired cached data; please reconnect and retry} other {Temporarily unavailable}}'**
-  String homeFreshness(String code);
 
   /// No description provided for @homeTrendSummary.
   ///
@@ -823,12 +553,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Key indicators'**
   String get homeIndicators;
-
-  /// No description provided for @homeDataDetails.
-  ///
-  /// In en, this message translates to:
-  /// **'Data and methodology'**
-  String get homeDataDetails;
 
   /// No description provided for @mapEnterAValidWGS84LatitudeAnd.
   ///
@@ -875,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @mapTheLocationChangedOnAnotherDevice.
   ///
   /// In en, this message translates to:
-  /// **'The location changed on another device. Retry synchronization.'**
+  /// **'This location changed. Reload and retry.'**
   String get mapTheLocationChangedOnAnotherDevice;
 
   /// No description provided for @mapThisSavedLocationNoLongerExists.
@@ -883,30 +607,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This saved location no longer exists.'**
   String get mapThisSavedLocationNoLongerExists;
-
-  /// No description provided for @mapQueuedOnThisDeviceNotSynchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Queued on this device · not synchronized.'**
-  String get mapQueuedOnThisDeviceNotSynchronized;
-
-  /// No description provided for @mapSavedAndSynchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved and synchronized.'**
-  String get mapSavedAndSynchronized;
-
-  /// No description provided for @mapDeletedAndSynchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Deleted and synchronized.'**
-  String get mapDeletedAndSynchronized;
-
-  /// No description provided for @mapAccountScopeUnavailableSignInAgain.
-  ///
-  /// In en, this message translates to:
-  /// **'Account scope unavailable. Sign in again.'**
-  String get mapAccountScopeUnavailableSignInAgain;
 
   /// No description provided for @mapThisRequestIsOutdatedSelectOr.
   ///
@@ -968,47 +668,17 @@ abstract class AppLocalizations {
   /// **'Saved locations'**
   String get mapSavedLocations;
 
-  /// No description provided for @mapSavedLocationsUnavailableRetrySynchronization.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved locations unavailable. Retry synchronization.'**
-  String get mapSavedLocationsUnavailableRetrySynchronization;
-
   /// No description provided for @mapNoSavedLocations.
   ///
   /// In en, this message translates to:
   /// **'No saved locations'**
   String get mapNoSavedLocations;
 
-  /// No description provided for @mapCachedRetrySynchronization.
-  ///
-  /// In en, this message translates to:
-  /// **'Cached · retry synchronization'**
-  String get mapCachedRetrySynchronization;
-
-  /// No description provided for @mapSynchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Synchronized'**
-  String get mapSynchronized;
-
-  /// No description provided for @mapQueuedNotSynchronized.
-  ///
-  /// In en, this message translates to:
-  /// **'Queued · not synchronized'**
-  String get mapQueuedNotSynchronized;
-
   /// No description provided for @mapDelete.
   ///
   /// In en, this message translates to:
   /// **'Delete'**
   String get mapDelete;
-
-  /// No description provided for @mapRetrySynchronization.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry synchronization'**
-  String get mapRetrySynchronization;
 
   /// No description provided for @mapSearchPlacesInMalaysia.
   ///
@@ -1088,6 +758,12 @@ abstract class AppLocalizations {
   /// **'View comparison'**
   String get mapViewComparison;
 
+  /// No description provided for @mapSelectedLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected location'**
+  String get mapSelectedLocation;
+
   /// No description provided for @mapSelectALocation.
   ///
   /// In en, this message translates to:
@@ -1099,12 +775,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Selected analysis location'**
   String get mapSelectedAnalysisLocation;
-
-  /// No description provided for @mapPersonalizedSuitabilityUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Personalized suitability unavailable'**
-  String get mapPersonalizedSuitabilityUnavailable;
 
   /// No description provided for @mapViewFullAnalysis.
   ///
@@ -1147,12 +817,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Infrastructure'**
   String get mapInfrastructure;
-
-  /// No description provided for @mapProviderNotConnectedDateSourceUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Provider not connected; date/source unavailable'**
-  String get mapProviderNotConnectedDateSourceUnavailable;
 
   /// No description provided for @mapLatitudeMustBeBetween90And.
   ///
@@ -1260,6 +924,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{layer}: {count} points. Tap to explore.'**
   String mapLayerCluster(String layer, int count);
+
+  /// No description provided for @mapSavedOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved online.'**
+  String get mapSavedOnline;
+
+  /// No description provided for @mapDeletedOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted online.'**
+  String get mapDeletedOnline;
+
+  /// No description provided for @mapSavedLocationsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved locations unavailable. Retry loading.'**
+  String get mapSavedLocationsUnavailable;
+
+  /// No description provided for @mapRetryLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry loading'**
+  String get mapRetryLoading;
+
+  /// No description provided for @mapAccountUnavailableSignInAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to read the current account or location. Retry.'**
+  String get mapAccountUnavailableSignInAgain;
+
+  /// No description provided for @mapSummaryUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary unavailable. Open full analysis.'**
+  String get mapSummaryUnavailable;
 }
 
 class _AppLocalizationsDelegate

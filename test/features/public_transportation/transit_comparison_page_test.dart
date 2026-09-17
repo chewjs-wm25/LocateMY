@@ -6,68 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
-import 'public_transportation_page_test.dart' show RecordingTransitShell;
-
-import 'public_transportation_test.dart' show expectedTestFeeds;
-
 import 'package:locatemy/features/public_transportation/public_transportation.dart';
+
+const List<List<String>> expectedTestFeeds = <List<String>>[
+  <String>['gtfs_static_ktmb', 'https://example.com/ktmb'],
+];
 
 void main() {
   testWidgets(
-    'comparison shows a visible stale warning while keeping both scores and source dates',
+    'refresh failure preserves the previous pair and readable recovery',
     (WidgetTester tester) async {
-      final Object identity = Object();
       final AnalysisReturnContext a = comparisonContext(
         'Mentari',
         LocationRole.locationA,
-        identity,
       );
       final AnalysisReturnContext b = comparisonContext(
         'Subang',
         LocationRole.locationB,
-        identity,
-      );
-      final PendingComparisonTransportation provider =
-          PendingComparisonTransportation();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PublicTransportationComparisonPage(
-            transportation: provider,
-            a: a,
-            b: b,
-          ),
-        ),
-      );
-      provider.pending.complete(
-        TransitComparable(
-          comparisonSnapshot(a, 68, stale: true),
-          comparisonSnapshot(b, 74),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'Data may be outdated; the coverage reading remains available.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.text('68'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'refresh failure preserves the previous pair, canonical publication and readable recovery',
-    (WidgetTester tester) async {
-      final Object identity = Object();
-      final AnalysisReturnContext a = comparisonContext(
-        'Mentari',
-        LocationRole.locationA,
-        identity,
-      );
-      final AnalysisReturnContext b = comparisonContext(
-        'Subang',
-        LocationRole.locationB,
-        identity,
       );
       final SequenceComparisonTransportation provider =
           SequenceComparisonTransportation(
@@ -76,24 +31,16 @@ void main() {
               comparisonSnapshot(b, 74),
             ),
           );
-      final RecordingTransitShell shell = RecordingTransitShell();
       await tester.pumpWidget(
         MaterialApp(
           home: PublicTransportationComparisonPage(
             transportation: provider,
             a: a,
             b: b,
-            applicationShell: shell,
           ),
         ),
       );
       await tester.pumpAndSettle();
-      expect(
-        (shell.contributions.single
-                as PublicTransportationComparisonContribution)
-            .a,
-        same(a),
-      );
       await tester.tap(find.byTooltip('Refresh'));
       await tester.pumpAndSettle();
       expect(find.text('68'), findsOneWidget);
@@ -101,12 +48,6 @@ void main() {
       expect(
         find.text('Refresh failed. Previous results remain visible.'),
         findsOneWidget,
-      );
-      await tester.tap(find.byTooltip('Back'));
-      await tester.pumpAndSettle();
-      expect(
-        (shell.intents.single as ReturnToMapIntent).returnContext,
-        same(a),
       );
     },
   );
@@ -116,16 +57,13 @@ void main() {
     (WidgetTester tester) async {
       final PendingComparisonTransportation transportation =
           PendingComparisonTransportation();
-      final Object identity = Object();
       final AnalysisReturnContext a = comparisonContext(
         'Mentari',
         LocationRole.locationA,
-        identity,
       );
       final AnalysisReturnContext b = comparisonContext(
         'Subang',
         LocationRole.locationB,
-        identity,
       );
       await tester.pumpWidget(
         MaterialApp(
@@ -146,6 +84,10 @@ void main() {
       expect(find.text('68'), findsOneWidget);
       expect(find.text('74'), findsOneWidget);
       expect(find.text('Comparable coverage readings'), findsOneWidget);
+      expect(find.textContaining('Snapshot'), findsNothing);
+      expect(find.textContaining('Reference grid'), findsNothing);
+      expect(find.textContaining('https://'), findsNothing);
+      expect(find.text('Sources'), findsNothing);
       expect(find.textContaining('winner'), findsNothing);
       await tester.tap(find.byTooltip('Swap display order'));
       await tester.pumpAndSettle();
@@ -158,11 +100,7 @@ void main() {
   );
 }
 
-AnalysisReturnContext comparisonContext(
-  String id,
-  LocationRole role,
-  Object identity,
-) {
+AnalysisReturnContext comparisonContext(String id, LocationRole role) {
   return AnalysisReturnContext(
     location: ValidLocationReference(
       locationId: id,
@@ -174,15 +112,10 @@ AnalysisReturnContext comparisonContext(
     ),
     role: role,
     analysisDate: DateTime(2026, 9, 17),
-    originalRequestIdentity: identity,
   );
 }
 
-TransitSnapshot comparisonSnapshot(
-  AnalysisReturnContext context,
-  int score, {
-  bool stale = false,
-}) {
+TransitSnapshot comparisonSnapshot(AnalysisReturnContext context, int score) {
   return TransitSnapshot(
     location: context.location,
     analysisDate: context.analysisDate,
@@ -211,10 +144,7 @@ TransitSnapshot comparisonSnapshot(
           feedId: feed[0],
           sourceId: feed[0],
           sourceUrl: Uri.parse(feed[1]),
-          capturedAt: DateTime.utc(2026, 8, 1),
-          availability: stale && feed[0] == 'gtfs_static_ktmb'
-              ? FeedAvailability.stale
-              : FeedAvailability.usable,
+          availability: FeedAvailability.usable,
           reason: null,
         ),
     ],

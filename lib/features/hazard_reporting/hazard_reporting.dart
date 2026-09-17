@@ -1,10 +1,6 @@
 export 'src/domain/hazard_models.dart';
 export 'src/application/hazard_service.dart'
-    show
-        HazardStore,
-        createHazardReporting,
-        createHazardRiskCounter,
-        hazardPrivacyParticipant;
+    show HazardStore, createHazardReporting, createHazardRiskCounter;
 export 'src/presentation/hazard_pages.dart'
     show
         HazardPageKind,

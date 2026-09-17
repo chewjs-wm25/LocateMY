@@ -5,9 +5,7 @@ import 'package:locatemy/features/public_transportation/public_transportation.da
 import 'package:locatemy/l10n/app_localizations.dart';
 
 import 'public_transportation_page_test.dart'
-    show PendingReader, stationPayload, RecordingTransitShell;
-import 'transit_comparison_page_test.dart'
-    show comparisonContext, comparisonSnapshot, PendingComparisonTransportation;
+    show PendingReader, stationPayload;
 
 void main() {
   for (final String language in <String>['en', 'zh']) {
@@ -101,84 +99,12 @@ void main() {
           ),
           findsNothing,
         );
-        await tester.scrollUntilVisible(find.textContaining('test-grid'), 200);
+        expect(find.textContaining('test-grid'), findsNothing);
+        expect(find.textContaining('https://'), findsNothing);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
         semantics.dispose();
       },
     );
   }
-  testWidgets(
-    'late comparison after date/context replacement never publishes the old pair',
-    (WidgetTester tester) async {
-      final RecordingTransitShell shell = RecordingTransitShell();
-      final PendingComparisonTransportation old =
-          PendingComparisonTransportation();
-      final PendingComparisonTransportation current =
-          PendingComparisonTransportation();
-      final Object oldIdentity = Object();
-      final Object currentIdentity = Object();
-      final AnalysisReturnContext oldA = comparisonContext(
-        'old-A',
-        LocationRole.locationA,
-        oldIdentity,
-      );
-      final AnalysisReturnContext oldB = comparisonContext(
-        'old-B',
-        LocationRole.locationB,
-        oldIdentity,
-      );
-      final AnalysisReturnContext a = comparisonContext(
-        'current-A',
-        LocationRole.locationA,
-        currentIdentity,
-      );
-      final AnalysisReturnContext b = comparisonContext(
-        'current-B',
-        LocationRole.locationB,
-        currentIdentity,
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PublicTransportationComparisonPage(
-            transportation: old,
-            a: oldA,
-            b: oldB,
-            applicationShell: shell,
-          ),
-        ),
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PublicTransportationComparisonPage(
-            transportation: current,
-            a: a,
-            b: b,
-            applicationShell: shell,
-          ),
-        ),
-      );
-      current.pending.complete(
-        TransitComparable(comparisonSnapshot(a, 68), comparisonSnapshot(b, 74)),
-      );
-      await tester.pumpAndSettle();
-      old.pending.complete(
-        TransitComparable(
-          comparisonSnapshot(oldA, 10),
-          comparisonSnapshot(oldB, 20),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(shell.contributions, hasLength(1));
-      expect(
-        (shell.contributions.single
-                as PublicTransportationComparisonContribution)
-            .a,
-        same(a),
-      );
-      expect(find.text('10'), findsNothing);
-      await tester.pumpWidget(const SizedBox());
-      expect(tester.takeException(), isNull);
-    },
-  );
 }

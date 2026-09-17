@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
 import '../domain/home_models.dart';
@@ -10,10 +9,10 @@ import 'home_visual_style.dart';
 
 final class HomeOutlookPage extends StatefulWidget {
   final HomeRelocationOutlook home;
-  final ApplicationShell applicationShell;
+  final void Function() onExploreMap;
   const HomeOutlookPage({
     required this.home,
-    required this.applicationShell,
+    required this.onExploreMap,
     super.key,
   });
   @override
@@ -21,10 +20,7 @@ final class HomeOutlookPage extends StatefulWidget {
 }
 
 final class _HomeOutlookPageState extends State<HomeOutlookPage> {
-  late final HomeViewModel vm = HomeViewModel(
-    widget.home,
-    widget.applicationShell,
-  );
+  late final HomeViewModel vm = HomeViewModel(widget.home, widget.onExploreMap);
   @override
   void initState() {
     super.initState();
@@ -44,24 +40,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
       final l = AppLocalizations.of(context)!;
       final snapshot = vm.snapshot;
       final locale = Localizations.localeOf(context).toLanguageTag();
-      String date(DateTime at, {bool annual = false}) => annual
-          ? DateFormat.y(locale).format(at)
-          : DateFormat.yMMM(locale).format(at);
-      String observed(MetricSource s) => s.observedAt.year == 1970
-          ? l.homeObservedUnknown
-          : date(s.observedAt, annual: s.datasetId == 'hh_income');
-      String shortSource(MetricSource s) =>
-          '${switch (s.datasetId) {
-            'cpi_headline_inflation' => 'CPI',
-            'lfs_month_sa' => 'LFS',
-            'economic_indicators' => 'EI',
-            'gdp_qtr_real_sa' => 'GDP',
-            _ => 'DOSM',
-          }} · ${observed(s)}';
-      Widget source(MetricSource s) => Text(
-        l.homeSource(s.datasetId, observed(s)),
-        style: HomeVisualStyle.text(12, color: HomeVisualStyle.muted),
-      );
       Widget score(int value, {bool hero = false}) => Text.rich(
         TextSpan(
           children: [
@@ -115,10 +93,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
             l.homeDirection(c.directionExplanation!.replaceAll('.', '_')),
             style: HomeVisualStyle.text(12, weight: FontWeight.w600),
           ),
-        Text(
-          shortSource(c.source),
-          style: HomeVisualStyle.text(11, color: HomeVisualStyle.muted),
-        ),
         if (c.source.datasetId == 'cpi_headline_inflation')
           Text(
             l.homeCostDirection,
@@ -209,13 +183,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
                 style: HomeVisualStyle.text(
                   12,
                   color: HomeVisualStyle.heroLabel,
-                ),
-              ),
-              Text(
-                timing.sources.map(shortSource).join('  ·  '),
-                style: HomeVisualStyle.text(
-                  12,
-                  color: HomeVisualStyle.heroUnit,
                 ),
               ),
             ],
@@ -320,20 +287,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
                     TextButton(onPressed: vm.refresh, child: Text(l.retry)),
                   ],
                   if (snapshot != null) ...[
-                    if (snapshot.freshness != HomeDataFreshness.fresh)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            l.homeFreshness(snapshot.freshness.name),
-                            style: HomeVisualStyle.text(
-                              13,
-                              color: HomeVisualStyle.warning,
-                            ),
-                          ),
-                        ),
-                      ),
                     if (snapshot.completeness == HomeCompleteness.partial)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -461,7 +414,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
                           color: HomeVisualStyle.muted,
                         ),
                       ),
-                      source(snapshot.householdMedianIncome.source),
                     ]),
                     const SizedBox(height: 12),
                     if (vm.trendHistory.metrics.values.any(
@@ -474,65 +426,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
                           color: HomeVisualStyle.muted,
                         ),
                       ),
-                    const SizedBox(height: 8),
-                    if (snapshot.freshness == HomeDataFreshness.fresh)
-                      Text(
-                        l.homeFreshness(snapshot.freshness.name),
-                        style: HomeVisualStyle.text(
-                          12,
-                          color: HomeVisualStyle.muted,
-                        ),
-                      ),
-                    Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        tilePadding: EdgeInsets.zero,
-                        title: Text(
-                          l.homeDataDetails,
-                          style: HomeVisualStyle.text(
-                            13,
-                            weight: FontWeight.w600,
-                          ),
-                        ),
-                        subtitle: Text(
-                          l.homeFetched(
-                            DateFormat.yMMMd(locale)
-                                .add_Hm()
-                                .format(snapshot.fetchedAt.toLocal()),
-                          ),
-                          style: HomeVisualStyle.text(
-                            12,
-                            color: HomeVisualStyle.muted,
-                          ),
-                        ),
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              for (final s in snapshot.relocationTiming.sources)
-                                source(s),
-                              source(snapshot.householdMedianIncome.source),
-                              const SizedBox(height: 8),
-                              Text(
-                                l.homeCostDirection,
-                                style: HomeVisualStyle.text(
-                                  12,
-                                  color: HomeVisualStyle.muted,
-                                ),
-                              ),
-                              Text(
-                                l.homeLaborCaveat,
-                                style: HomeVisualStyle.text(
-                                  12,
-                                  color: HomeVisualStyle.muted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ],
               ),

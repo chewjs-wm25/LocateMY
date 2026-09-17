@@ -320,46 +320,6 @@ void main() {
     await database.close();
   });
 
-  test('closing a scope discards an in-flight analysis and refuses further queries', () async {
-    Object? scope = Object();
-    final Completer<OverpassFacilityOutcome> response =
-        Completer<OverpassFacilityOutcome>();
-    final _DelayedSource source = _DelayedSource(response);
-    final NearbyFacilities facilities = createNearbyFacilities(
-      source: source,
-      scopeToken: () {
-        return scope;
-      },
-    );
-    const FacilityAnalysisRequest request = FacilityAnalysisRequest(
-      location: ValidLocationReference(
-        locationId: 'a',
-        point: GeographicPoint(latitude: 3, longitude: 101),
-      ),
-      refreshPolicy: FacilityRefreshPolicy.refresh,
-    );
-    final Future<FacilityAnalysisOutcome> pending = facilities.analyse(request);
-    await Future<void>.delayed(Duration.zero);
-    scope = null;
-    response.complete(
-      OverpassFacilityComplete(
-        elements: const <OverpassElement>[],
-        queriedAt: DateTime.utc(2026, 9, 17),
-      ),
-    );
-    expect(
-      (await pending as FacilityAnalysisUnavailable).failure,
-      FacilityFailure.scopeUnavailable,
-    );
-    expect(
-      (await facilities.analyse(
-        request,
-      ) as FacilityAnalysisUnavailable).failure,
-      FacilityFailure.scopeUnavailable,
-    );
-    expect(source.calls, 1);
-  });
-
   test('a future-dated observation is not a valid fallback cache', () async {
     final _QueueSource source = _QueueSource(<OverpassFacilityOutcome>[
       OverpassFacilityComplete(
@@ -387,40 +347,6 @@ void main() {
       isA<FacilityAnalysisUnavailable>(),
     );
   });
-
-  test(
-    'an old comparison cannot combine results across an account switch',
-    () async {
-      Object scope = Object();
-      final _SwitchSource source = _SwitchSource(() {
-        scope = Object();
-      });
-      final NearbyFacilities facilities = createNearbyFacilities(
-        source: source,
-        scopeToken: () {
-          return scope;
-        },
-      );
-      final FacilityComparisonOutcome outcome = await facilities.compare(
-        const FacilityComparisonRequest(
-          locationA: ValidLocationReference(
-            locationId: 'a',
-            point: GeographicPoint(latitude: 3, longitude: 101),
-          ),
-          locationB: ValidLocationReference(
-            locationId: 'b',
-            point: GeographicPoint(latitude: 4, longitude: 101),
-          ),
-          refreshPolicy: FacilityRefreshPolicy.refresh,
-        ),
-      );
-      expect(
-        (outcome as FacilityComparisonUnavailable).failure,
-        FacilityFailure.scopeUnavailable,
-      );
-      expect(source.calls, 1);
-    },
-  );
 
   test(
     'late older refresh cannot overwrite the latest observation in the cache',
@@ -692,33 +618,6 @@ final class _QueueSource implements OverpassFacilitySource {
   @override
   Future<OverpassFacilityOutcome> query(OverpassFacilityQuery query) async {
     return outcomes.removeAt(0);
-  }
-}
-
-final class _DelayedSource implements OverpassFacilitySource {
-  final Completer<OverpassFacilityOutcome> response;
-  int calls = 0;
-  _DelayedSource(Completer<OverpassFacilityOutcome> response)
-    : response = response;
-  @override
-  Future<OverpassFacilityOutcome> query(OverpassFacilityQuery query) {
-    calls += 1;
-    return response.future;
-  }
-}
-
-final class _SwitchSource implements OverpassFacilitySource {
-  final void Function() switchScope;
-  int calls = 0;
-  _SwitchSource(void Function() switchScope) : switchScope = switchScope;
-  @override
-  Future<OverpassFacilityOutcome> query(OverpassFacilityQuery query) async {
-    calls += 1;
-    switchScope();
-    return OverpassFacilityComplete(
-      elements: const <OverpassElement>[],
-      queriedAt: DateTime.now(),
-    );
   }
 }
 

@@ -1,7 +1,6 @@
 export 'src/presentation/home_outlook_page.dart' show HomeOutlookPage;
 export 'src/domain/home_models.dart';
 
-import 'package:locatemy/app/application_shell.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -10,10 +9,6 @@ import 'src/domain/home_models.dart';
 import 'src/application/home_service.dart';
 import 'src/data/supabase_home_reader.dart';
 import 'src/data/sqlite_home_cache.dart';
-
-final class ExploreMapIntent implements ShellIntent {
-  const ExploreMapIntent();
-}
 
 HomeRelocationOutlook createHomeRelocationOutlook(
   SupabaseClient client, {

@@ -53,7 +53,6 @@ void main() {
         );
         final LocationStorage store = createLocationStorage(
           client: client,
-          database: db,
           accountId: 'a',
         );
         await expectLater(

@@ -1,33 +1,27 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
-import 'package:locatemy/app/application_shell.dart';
 
 import '../domain/transit_models.dart';
-import '../domain/transit_shell_models.dart';
+import '../domain/transit_analysis_context.dart';
 
 final class TransitComparisonViewModel extends ChangeNotifier {
   final PublicTransportation _transportation;
   final AnalysisReturnContext a;
   final AnalysisReturnContext b;
-  final ApplicationShell? _shell;
   TransitComparisonOutcome? _outcome;
   bool _loading = false;
   bool _closed = false;
   bool _reversed = false;
   bool _retained = false;
   int _revision = 0;
-  ShellContributionOutcome? _publication;
-  ShellIntentOutcome? _navigation;
   TransitComparisonViewModel({
     required PublicTransportation transportation,
     required AnalysisReturnContext a,
     required AnalysisReturnContext b,
-    ApplicationShell? applicationShell,
   }) : _transportation = transportation,
        a = a,
-       b = b,
-       _shell = applicationShell;
+       b = b;
 
   TransitComparisonOutcome? get outcome {
     return _outcome;
@@ -45,21 +39,12 @@ final class TransitComparisonViewModel extends ChangeNotifier {
     return _reversed;
   }
 
-  ShellContributionOutcome? get publication {
-    return _publication;
-  }
-
-  ShellIntentOutcome? get navigation {
-    return _navigation;
-  }
-
   Future<void> load(TransitLoadPolicy policy) async {
     if (_closed) {
       return;
     }
     final int revision = ++_revision;
     _loading = true;
-    _publication = null;
     _retained = false;
     notifyListeners();
     TransitComparisonOutcome result;
@@ -113,24 +98,6 @@ final class TransitComparisonViewModel extends ChangeNotifier {
     _outcome = result;
     _loading = false;
     notifyListeners();
-    final ApplicationShell? shell = _shell;
-    if (shell != null) {
-      ShellContributionOutcome publication;
-      try {
-        publication = await shell.publish(
-          PublicTransportationComparisonContribution(result, a, b),
-        );
-      } catch (_) {
-        publication = const ShellContributionRejected(
-          ShellRejectionReason.scopeUnavailable,
-        );
-      }
-      if (_closed || revision != _revision) {
-        return;
-      }
-      _publication = publication;
-      notifyListeners();
-    }
   }
 
   void swapDisplayOrder() {
@@ -138,26 +105,6 @@ final class TransitComparisonViewModel extends ChangeNotifier {
       return;
     }
     _reversed = !_reversed;
-    notifyListeners();
-  }
-
-  Future<void> returnToMap() async {
-    final ApplicationShell? shell = _shell;
-    if (_closed || shell == null) {
-      return;
-    }
-    ShellIntentOutcome navigation;
-    try {
-      navigation = await shell.submit(ReturnToMapIntent(a));
-    } catch (_) {
-      navigation = const ShellIntentRejected(
-        ShellRejectionReason.scopeUnavailable,
-      );
-    }
-    if (_closed) {
-      return;
-    }
-    _navigation = navigation;
     notifyListeners();
   }
 

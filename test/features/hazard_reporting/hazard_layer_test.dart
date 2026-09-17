@@ -8,6 +8,59 @@ import 'package:locatemy/features/hazard_reporting/hazard_reporting.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 void main() {
+  testWidgets('all five hazard types reach the map with category metadata', (
+    WidgetTester tester,
+  ) async {
+    final PagingReports reports = PagingReports();
+    reports.allTypes = true;
+    final LayerHost host = LayerHost();
+    final ValueNotifier<HazardPageRequest?> current = ValueNotifier(
+      const HazardPageRequest(
+        viewportVersion: 'categories',
+        viewport: HazardViewport(
+          GeographicPoint(latitude: 3, longitude: 101),
+          GeographicPoint(latitude: 4, longitude: 102),
+        ),
+      ),
+    );
+    final ValueNotifier<int> revision = ValueNotifier(0);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: HazardMapPanel(
+            hazards: reports,
+            host: host,
+            viewport: current,
+            revision: revision,
+            child: const SizedBox(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      host.published.single.items.map((MapLayerItem item) {
+        return item.markerKind;
+      }).toSet(),
+      <MapMarkerKind>{
+        MapMarkerKind.hazardFlood,
+        MapMarkerKind.hazardCrime,
+        MapMarkerKind.hazardTraffic,
+        MapMarkerKind.hazardInfrastructure,
+        MapMarkerKind.hazardOther,
+      },
+    );
+    for (final MapLayerItem item in host.published.single.items) {
+      expect((item.intent as ProviderDefinedIntent).action, 'detail');
+      expect(
+        (item.intent as ProviderDefinedIntent).stableItemId,
+        item.stableItemId,
+      );
+    }
+    await tester.pumpWidget(const SizedBox());
+    current.dispose();
+    revision.dispose();
+  });
   testWidgets('an expired cursor retries from a fresh first page', (
     WidgetTester tester,
   ) async {
@@ -44,7 +97,8 @@ void main() {
     await tester.tap(find.text('Retry'));
     await tester.pumpAndSettle();
     expect(reports.cursors, [null, 'one', null]);
-    expect(find.text('1 hazards loaded'), findsOneWidget);
+    expect(find.text('1 hazards loaded'), findsNothing);
+    expect(find.byTooltip('Refresh hazards'), findsNothing);
     await tester.pumpWidget(const SizedBox());
     current.dispose();
     revision.dispose();
@@ -80,7 +134,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('1 hazards loaded'), findsOneWidget);
+      expect(find.text('1 hazards loaded'), findsNothing);
       expect(find.text('Retry'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       current.dispose();
@@ -131,7 +185,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(reports.cursors, [null, 'one', 'two', 'two']);
       expect(host.published.last.items.length, 3);
-      await tester.tap(find.text('Refresh hazards'));
+      revision.value++;
       await tester.pumpAndSettle();
       expect(reports.cursors.last, isNull);
       expect(host.published.last.items.length, 1);
@@ -230,11 +284,12 @@ final class LayerHost implements MapLayerHost {
 
 final class PagingReports implements HazardReporting {
   bool expiredCursor = false;
+  bool allTypes = false;
   final List<String?> cursors = [];
-  HazardReport report(String id) {
+  HazardReport report(String id, {HazardType type = HazardType.flood}) {
     return HazardReport(
       id: HazardReportId(id),
-      type: HazardType.flood,
+      type: type,
       title: id,
       location: const GeographicPoint(latitude: 3.5, longitude: 101.5),
       status: HazardAuthorStatus.pending,
@@ -247,6 +302,15 @@ final class PagingReports implements HazardReporting {
   @override
   Future<HazardPageOutcome> loadPublic(HazardPageRequest request) async {
     cursors.add(request.cursor);
+    if (allTypes) {
+      final List<HazardReport> reports = <HazardReport>[];
+      for (final HazardType type in HazardType.values) {
+        reports.add(report(type.name, type: type));
+      }
+      return HazardPageAvailable(
+        HazardPage(reports, null, request.viewportVersion),
+      );
+    }
     if (request.cursor == null) {
       return HazardPageAvailable(
         HazardPage([report('one')], 'one', request.viewportVersion),
