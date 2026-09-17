@@ -1,7 +1,7 @@
 # Infrastructure Coverage 开发契约
 
 > Owner：B；依赖顺序参考 Wave 6；2026-09-17 Issue #31 修订。
-> 状态：Ready；生产实现及验收证据已交付，待 Luna High 独立审查判定 Implemented。
+> 状态：Implemented；GPT‑5.6 Luna High 规格与规范复审通过（2026-09-18，代码 `659cf08`）；Integrated 未批准。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。
@@ -66,6 +66,6 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 | 离线公共缓存/刷新恢复、短错误重试、中英文/放大文字/读屏 | 本模块 | SQLite公开输入3日缓存；真实设备 | 缓存/Widget测试/设备 | B | 6 | 已通过，见报告 | 不适用 |
 | 格式/analyze/tests/debug APK/Java可读性 | 本模块 | Flutter工具链 | 命令与版本证据 | B | 6 | 已通过，见报告 | 不适用 |
 
-本期证据：[Infrastructure Wave 6 报告](../../human/evidence/infrastructure-coverage-wave6-2026-09-18/report.md)。声明/SDK Adapter/页面均通过唯一入口导出；Implemented 独立审查待主Agent安排，Integrated 不自动批准。
+本期证据：[Infrastructure Wave 6 报告](../../human/evidence/infrastructure-coverage-wave6-2026-09-18/report.md)。声明/SDK Adapter/页面均通过唯一入口导出；Implemented 独立审查已通过，Integrated 不自动批准。
 
-Luna Spec三项阻塞修复证据见报告复审节：每数据集独立最新有效完整聚合、每cache key串行写防旧完成覆盖、分项/人口真实年份及必要呈现；待复审，不提前宣告Implemented。
+Luna Spec三项阻塞修复证据见报告复审节：每数据集独立最新有效完整聚合、每cache key串行写防旧完成覆盖、分项/人口真实年份及必要呈现；Luna High 复审已确认三项解除；公开模型防御性不可变拷贝亦通过规范复审。
