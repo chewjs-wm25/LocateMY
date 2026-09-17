@@ -32,6 +32,9 @@ final class CostViewModel extends ChangeNotifier {
     _subscription = budget?.watchCurrent().listen((
       BudgetScenariosOutcome event,
     ) {
+      if (_disposed) {
+        return;
+      }
       if (event is BudgetScenariosAvailable) {
         String signature = 'none';
         final CurrentBudgetScenarioSnapshot current = event.current;
@@ -46,6 +49,9 @@ final class CostViewModel extends ChangeNotifier {
     });
   }
   Future<void> load({bool refresh = false}) async {
+    if (_disposed) {
+      return;
+    }
     final int version = ++_version;
     loading = true;
     notifyListeners();
@@ -78,6 +84,9 @@ final class CostViewModel extends ChangeNotifier {
   }
 
   Future<void> convert(String input) async {
+    if (_disposed) {
+      return;
+    }
     final int version = ++_cpiVersion;
     final double? amount = double.tryParse(input.trim());
     if (amount == null || !amount.isFinite || amount < 0) {

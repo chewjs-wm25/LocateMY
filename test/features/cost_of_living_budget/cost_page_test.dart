@@ -13,6 +13,39 @@ import '../infrastructure_coverage/infrastructure_behavior_test.dart'
 
 void main() {
   testWidgets(
+    'queued current observation after page disposal starts no request or notification',
+    (WidgetTester tester) async {
+      final LateCurrentReader current = LateCurrentReader();
+      final CountingPrices prices = CountingPrices();
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: CostBudgetPage(
+            location: location,
+            service: createCostOfLivingBudget(
+              geographicContext: GeoFixture(),
+              reader: prices,
+            ),
+            currentBudget: current,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(prices.requests, 1);
+      await tester.pumpWidget(const SizedBox());
+      current.events.deliverAlreadyQueued(
+        BudgetScenariosAvailable(
+          scenarios: <BudgetScenario>[],
+          current: const NoCurrentBudgetScenario(version: 0),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(prices.requests, 1);
+    },
+  );
+  testWidgets(
     'Chinese cost report separates unitless index from monthly money and offers temporary input',
     (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -103,6 +136,57 @@ final class CurrentEvents implements CurrentBudgetReader {
   @override
   Stream<BudgetScenariosOutcome> watchCurrent() {
     return events.stream;
+  }
+
+  @override
+  Future<BudgetScenariosOutcome> readCurrent() async {
+    return BudgetScenariosAvailable(
+      scenarios: <BudgetScenario>[],
+      current: const NoCurrentBudgetScenario(version: 0),
+    );
+  }
+}
+
+final class CountingPrices implements CostPublicReader {
+  final Prices _prices = Prices();
+  int requests = 0;
+  @override
+  Future<Map<String, Object?>> read(String state, String district) {
+    requests++;
+    return _prices.read(state, district);
+  }
+}
+
+// External current stream seam: cancellation cannot retract a callback that a
+// source has already queued. Deliver that callback after the page leaves.
+final class LateCurrentStream extends Stream<BudgetScenariosOutcome> {
+  void Function(BudgetScenariosOutcome)? _queued;
+  @override
+  StreamSubscription<BudgetScenariosOutcome> listen(
+    void Function(BudgetScenariosOutcome)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    _queued = onData;
+    return const Stream<BudgetScenariosOutcome>.empty().listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
+  }
+
+  void deliverAlreadyQueued(BudgetScenariosOutcome event) {
+    _queued!(event);
+  }
+}
+
+final class LateCurrentReader implements CurrentBudgetReader {
+  final LateCurrentStream events = LateCurrentStream();
+  @override
+  Stream<BudgetScenariosOutcome> watchCurrent() {
+    return events;
   }
 
   @override

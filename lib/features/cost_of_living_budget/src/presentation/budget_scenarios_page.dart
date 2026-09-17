@@ -2,7 +2,9 @@
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:locatemy/features/home_relocation_outlook/src/presentation/home_visual_style.dart';
+
+import 'cost_visual_style.dart';
+
 import 'package:locatemy/l10n/language_controller.dart';
 
 import '../../cost_of_living_budget.dart';
@@ -122,7 +124,7 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HomeVisualStyle.canvas,
+      backgroundColor: CostVisualStyle.canvas,
       appBar: AppBar(
         title: Text(_t('Budget scenarios', '预算预案')),
         actions: const <Widget>[LanguageButton()],
@@ -204,14 +206,14 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: HomeVisualStyle.border),
+                    border: Border.all(color: CostVisualStyle.border),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Text(
                         scenario.name,
-                        style: HomeVisualStyle.text(
+                        style: CostVisualStyle.text(
                           20,
                           weight: FontWeight.w700,
                         ),
@@ -219,9 +221,9 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
                       if (scenario.isCurrent)
                         Text(
                           _t('Current assessment scenario', '当前评估预案'),
-                          style: HomeVisualStyle.text(
+                          style: CostVisualStyle.text(
                             15,
-                            color: HomeVisualStyle.primary,
+                            color: CostVisualStyle.primary,
                           ),
                         ),
                       ...budgetAmountWidgets(context, scenario),
@@ -341,7 +343,7 @@ List<Widget> budgetAmountWidgets(
     result.add(
       Padding(
         padding: const EdgeInsets.only(top: 8),
-        child: Text('${labels[i]}: $amount', style: HomeVisualStyle.text(15)),
+        child: Text('${labels[i]}: $amount', style: CostVisualStyle.text(15)),
       ),
     );
   }
@@ -543,7 +545,7 @@ final class _BudgetEditorPageState extends State<BudgetEditorPage> {
       ),
     );
     return Scaffold(
-      backgroundColor: HomeVisualStyle.canvas,
+      backgroundColor: CostVisualStyle.canvas,
       appBar: AppBar(
         title: Text(_t('Edit budget scenario', '编辑预算预案')),
         actions: const <Widget>[LanguageButton()],
@@ -705,7 +707,7 @@ final class _BudgetExportViewerState extends State<BudgetExportViewer> {
       children.add(
         Text(
           outcome.copy.scenario.name,
-          style: HomeVisualStyle.text(22, weight: FontWeight.w700),
+          style: CostVisualStyle.text(22, weight: FontWeight.w700),
         ),
       );
       final String locale = Localizations.localeOf(context).languageCode;

@@ -35,3 +35,8 @@ Home 六类摘要消费由 A 主责、B 参与，最迟 Wave 6；不以当前独
 Penpot 实际读取 Mobile UI 的05生活成本与UI Foundations，并导出截图核对。使用 SourceSansPro、canvas #F6F8FB、ink #172033、primary #155EEF、hero #0B1F44、16px边距/圆角；按知识库修正原型fixture单位和压力读数，按精简边界不显示技术来源元数据。
 
 [证据目录](evidence/cost-budget-2026-09-18/)。source JSON将代码摘要与构建/设备/live结果关联，最终提交由交付消息提供。
+
+
+## Luna 标准审查修复
+
+已修复取消订阅后仍可能到达的排队 current callback：回调及公开 load/convert 入口在 dispose 后立即返回。最高 CostBudgetPage seam red→green 验证离页后无通知异常及后续公开价格请求。两页的样式改由 Cost 自有局部 CostVisualStyle 提供，所有 Penpot token 保持等值，移除跨 Feature 私有 src 导入。Cost相关20 tests、analyze与一次更新代码的安全生产debug APK构建/秘密扫描PASS；此次不重复无变化的live或整套设备流程。更新构建证据以 `review-fixes-production-build.source.json` 为准，此前设备与live记录仍按分段证据归属保留。

@@ -1,7 +1,9 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
-import 'package:locatemy/features/home_relocation_outlook/src/presentation/home_visual_style.dart';
+
+import 'cost_visual_style.dart';
+
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/l10n/language_controller.dart';
 
@@ -95,12 +97,12 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HomeVisualStyle.canvas,
+      backgroundColor: CostVisualStyle.canvas,
       appBar: AppBar(
-        backgroundColor: HomeVisualStyle.canvas,
+        backgroundColor: CostVisualStyle.canvas,
         title: Text(
           _t('Cost of living', '生活成本'),
-          style: HomeVisualStyle.text(20, weight: FontWeight.w700),
+          style: CostVisualStyle.text(20, weight: FontWeight.w700),
         ),
         actions: <Widget>[
           if (widget.budgetStore != null)
@@ -142,7 +144,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
                       'Locations are not comparable: incomplete basket or different data dates.',
                       '两地点不可比较：篮子资料不完整或统计日期不同。',
                     ),
-                    style: HomeVisualStyle.text(15),
+                    style: CostVisualStyle.text(15),
                   ),
                 );
               }
@@ -162,7 +164,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
             reports.add(
               Text(
                 _t('Unable to load cost data. Please retry.', '暂无法读取生活成本，请重试。'),
-                style: HomeVisualStyle.text(16),
+                style: CostVisualStyle.text(16),
               ),
             );
           }
@@ -196,7 +198,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
         color: color,
         borderRadius: BorderRadius.circular(16),
         border: color == Colors.white
-            ? Border.all(color: HomeVisualStyle.border)
+            ? Border.all(color: CostVisualStyle.border)
             : null,
       ),
       child: Column(
@@ -217,15 +219,15 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
             children: <Widget>[
               Text(
                 item.name,
-                style: HomeVisualStyle.text(14, weight: FontWeight.w600),
+                style: CostVisualStyle.text(14, weight: FontWeight.w600),
               ),
               Text(
                 '${_rm(item.localPrice)} / ${item.unit} · ${_t('Monthly quantity', '月数量')} ${item.monthlyQuantity}',
-                style: HomeVisualStyle.text(14, color: HomeVisualStyle.muted),
+                style: CostVisualStyle.text(14, color: CostVisualStyle.muted),
               ),
               Text(
                 '${_rm(item.observedSpend)} ${_t('/month', '/月')}',
-                style: HomeVisualStyle.text(14),
+                style: CostVisualStyle.text(14),
               ),
             ],
           ),
@@ -245,36 +247,36 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
       children: <Widget>[
         Text(
           a.location.displayName ?? _t('Selected location', '选定地点'),
-          style: HomeVisualStyle.text(20, weight: FontWeight.w700),
+          style: CostVisualStyle.text(20, weight: FontWeight.w700),
         ),
         Text(
           '${a.district?.name ?? ''} · ${_t('Single adult estimate', '单身成年人估算')}',
-          style: HomeVisualStyle.text(14, color: HomeVisualStyle.muted),
+          style: CostVisualStyle.text(14, color: CostVisualStyle.muted),
         ),
         const SizedBox(height: 16),
         _card(<Widget>[
           Text(
             _t('Cost index', '生活成本指数'),
-            style: HomeVisualStyle.text(14, color: HomeVisualStyle.muted),
+            style: CostVisualStyle.text(14, color: CostVisualStyle.muted),
           ),
           Text(
             a.costIndex?.toStringAsFixed(1) ?? _t('Unavailable', '不可计算'),
-            style: HomeVisualStyle.text(40, weight: FontWeight.w700),
+            style: CostVisualStyle.text(40, weight: FontWeight.w700),
           ),
           Text(
             _t('Fixed national baseline = 100', '固定全国基准 = 100'),
-            style: HomeVisualStyle.text(13, color: HomeVisualStyle.muted),
+            style: CostVisualStyle.text(13, color: CostVisualStyle.muted),
           ),
         ]),
         const SizedBox(height: 16),
         _card(<Widget>[
           Text(
             _t('Core market basket estimated monthly spending', '核心市场篮子估算月支出'),
-            style: HomeVisualStyle.text(14, color: HomeVisualStyle.heroLabel),
+            style: CostVisualStyle.text(14, color: CostVisualStyle.heroLabel),
           ),
           Text(
             '${_rm(a.observedSpend12)} ${_t('/month', '/月')}',
-            style: HomeVisualStyle.text(
+            style: CostVisualStyle.text(
               30,
               color: Colors.white,
               weight: FontWeight.w700,
@@ -282,7 +284,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
           ),
           Text(
             '$coverage · ${a.availableMonths} ${_t('months', '个月')}',
-            style: HomeVisualStyle.text(13, color: HomeVisualStyle.heroUnit),
+            style: CostVisualStyle.text(13, color: CostVisualStyle.heroUnit),
           ),
           if (a.costIndex == null)
             Text(
@@ -290,20 +292,20 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
                 'Partial basket amount; index and budget pressure unavailable.',
                 '部分篮子金额；指数与预算压力不可计算。',
               ),
-              style: HomeVisualStyle.text(14, color: Colors.white),
+              style: CostVisualStyle.text(14, color: Colors.white),
             ),
-        ], color: HomeVisualStyle.hero),
+        ], color: CostVisualStyle.hero),
         const SizedBox(height: 20),
         Text(
           _t('Main components', '主要分项'),
-          style: HomeVisualStyle.text(19, weight: FontWeight.w700),
+          style: CostVisualStyle.text(19, weight: FontWeight.w700),
         ),
         Text(
           _t(
             'Official observations · fixed model quantities · user budget inputs',
             '官方观测 · 固定模型数量 · 用户预算输入',
           ),
-          style: HomeVisualStyle.text(13, color: HomeVisualStyle.muted),
+          style: CostVisualStyle.text(13, color: CostVisualStyle.muted),
         ),
         const SizedBox(height: 12),
         _card(<Widget>[
@@ -333,7 +335,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
         const SizedBox(height: 16),
         Text(
           _t('Local unit prices', '本地商品单价'),
-          style: HomeVisualStyle.text(19, weight: FontWeight.w700),
+          style: CostVisualStyle.text(19, weight: FontWeight.w700),
         ),
         ...items,
       ],
@@ -344,7 +346,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
     final List<Widget> children = <Widget>[
       Text(
         _t('Temporary CPI equivalent budget', '临时 CPI 等效预算'),
-        style: HomeVisualStyle.text(18, weight: FontWeight.w700),
+        style: CostVisualStyle.text(18, weight: FontWeight.w700),
       ),
       Text(
         _t(
@@ -379,7 +381,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
       children.add(
         Text(
           '${_t('Equivalent', '等效金额')}: ${_rm(result.reading.equivalentRm)}',
-          style: HomeVisualStyle.text(22, weight: FontWeight.w700),
+          style: CostVisualStyle.text(22, weight: FontWeight.w700),
         ),
       );
     }
@@ -394,7 +396,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
       children.add(
         Text(
           message,
-          style: HomeVisualStyle.text(15, color: HomeVisualStyle.warning),
+          style: CostVisualStyle.text(15, color: CostVisualStyle.warning),
         ),
       );
     }
