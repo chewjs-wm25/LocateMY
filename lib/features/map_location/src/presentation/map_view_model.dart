@@ -5,6 +5,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:locatemy/features/crime_and_security/crime_and_security.dart'
+    as crime;
+
 import '../../../../app/application_shell.dart';
 import '../domain/location_models.dart';
 import '../domain/location_intents.dart';
@@ -190,6 +193,21 @@ class MapViewModel extends ChangeNotifier {
     final ValidLocationReference? selected = read(LocationRole.single);
     if (selected != null) {
       await navigate(OpenAnalysisIntent(location: selected));
+    }
+  }
+
+  Future<void> openCostOfLivingBudget() async {
+    // Intentionally excluded from the current UI contract. Keep a compatibility
+    // method so stale callers do not crash the app while the feature remains
+    // hidden per product guidance.
+    message = 'featureUnavailable';
+    _notify();
+  }
+
+  Future<void> openCrimeSecurity() async {
+    final ValidLocationReference? selected = read(LocationRole.single);
+    if (selected != null) {
+      await navigate(crime.OpenCrimeSecurityIntent(location: selected));
     }
   }
 

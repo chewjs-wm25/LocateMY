@@ -213,6 +213,7 @@ void main() {
       await tester.tap(find.text('Select'));
       await tester.pumpAndSettle();
       expect(find.text('View full analysis'), findsOneWidget);
+      expect(find.text('Crime & security'), findsOneWidget);
     },
   );
   testWidgets('comparison requires explicit A/B and search empty is readable', (

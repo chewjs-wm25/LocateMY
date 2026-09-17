@@ -513,6 +513,21 @@ class _MapLocationPageState extends State<MapLocationPage>
                       ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: vm.busy ? null : vm.openCrimeSecurity,
+                    child: Text(
+                      Localizations.localeOf(context).languageCode == 'zh'
+                          ? '治安与犯罪'
+                          : 'Crime & security',
+                    ),
+                  ),
                   TextButton(
                     onPressed: () => chooseComparisonRole(location),
                     child: Text(l10n.mapStartComparison),

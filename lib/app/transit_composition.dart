@@ -7,6 +7,7 @@ import 'src/presentation/shell_host.dart';
 
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/features/public_transportation/public_transportation.dart';
+import 'package:locatemy/features/crime_and_security/crime_and_security.dart' as crime;
 
 import 'src/application/shell_runtime.dart';
 import 'src/domain/shell_routes.dart';
@@ -422,6 +423,29 @@ final class _TransportationAnalysisMenuState
     }
   }
 
+  Future<void> _openCrime() async {
+    final ValidLocationReference? b = widget.b;
+    final ShellIntent intent;
+    if (b == null) {
+      intent = crime.OpenCrimeSecurityIntent(
+        location: widget.a,
+        returnContext: widget.request,
+      );
+    } else {
+      intent = crime.OpenCrimeSecurityComparisonIntent(
+        locationA: widget.a,
+        locationB: b,
+        returnContext: widget.request,
+      );
+    }
+    final ShellIntentOutcome outcome = await widget.runtime.submit(intent);
+    if (mounted) {
+      setState(() {
+        _navigation = outcome;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -465,6 +489,14 @@ final class _TransportationAnalysisMenuState
             FilledButton(
               onPressed: _open,
               child: Text(_t('公共交通', 'Public transportation')),
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: _openCrime,
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF16865C),
+              ),
+              child: Text(_t('治安与犯罪', 'Crime & security')),
             ),
             const SizedBox(height: 12),
             OutlinedButton(

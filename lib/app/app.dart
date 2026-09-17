@@ -43,7 +43,9 @@ import 'package:http/http.dart' as http;
 
 import '../features/authentication_session/authentication_session.dart';
 import '../features/account_privacy/account_privacy.dart';
-
+import '../features/crime_and_security/src/domain/safety_models.dart';
+import '../features/crime_and_security/crime_and_security.dart';
+import '../modules/geographic_context/geographic_context.dart';
 Future<void> startLocateMy() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env', isOptional: true);
@@ -131,12 +133,18 @@ Future<void> startLocateMy() async {
   final PublicTransportation transportation = createPublicTransportation(
     SupabaseTransitReader(Supabase.instance.client),
   );
+  final CrimeAndSecurity crimeSecurity = createCrimeAndSecurity(
+    supabaseClient: Supabase.instance.client,
+    database: mapDatabase,
+    geographicContext: createGeographicContext(Supabase.instance.client),
+  );
   shell = ShellRuntime.compose(
     authentication: sessionAdapter,
     privacy: () => privacy,
     intents: [
       homeExploreMapBinding(() => shell),
       ...mapShellBindings(() => shell),
+      ...crimeShellBindings(() => shell),
       ...facilityShellBindings(() {
         return shell;
       }),
@@ -194,6 +202,7 @@ Future<void> startLocateMy() async {
         ),
         hazards: hazardRuntime,
         transportation: transportation,
+        crimeSecurity: crimeSecurity,
         runtime: () {
           return shell;
         },
@@ -374,6 +383,52 @@ List<ShellIntentBinding> mapShellBindings(ShellRuntime Function() runtime) {
   ];
 }
 
+List<ShellIntentBinding> crimeShellBindings(ShellRuntime Function() runtime) {
+  return [
+    ShellIntentBinding<OpenCrimeSecurityIntent>((intent) {
+      return ShellRouteRequest.task(
+        context: runtime().currentContext,
+        destination: 'crime-security',
+      );
+    }),
+    ShellIntentBinding<OpenCrimeSecurityComparisonIntent>((intent) {
+      return ShellRouteRequest.task(
+        context: runtime().currentContext,
+        destination: 'crime-comparison',
+      );
+    }),
+    ShellIntentBinding<CrimeReturnToMapIntent>((intent) {
+      return ShellRouteRequest.tab(
+        context: runtime().currentContext,
+        tab: ShellTab.map,
+      );
+    }),
+  ];
+}
+
+List<ShellTaskView> crimeTaskViews(
+  CrimeAndSecurity service,
+  ShellRuntime Function() runtime,
+) {
+  return [
+    ShellTaskView<OpenCrimeSecurityIntent>(
+      'crime-security',
+      (context, intent) => CrimeSecurityPage(
+        location: intent.location,
+        service: service,
+        shell: runtime().applicationShell!,
+        returnContext: intent.returnContext,
+      ),
+      ownsScaffold: true,
+    ),
+    ShellTaskView<OpenCrimeSecurityComparisonIntent>(
+      'crime-comparison',
+      (context, intent) => const MapFutureDestination(locations: []), // Comparison to be implemented in Wave 5/6
+      ownsScaffold: true,
+    ),
+  ];
+}
+
 ShellViews mapAndHomeShellViews(
   HomeRelocationOutlook Function() createHome,
   MapLocationRuntime map,
@@ -381,6 +436,7 @@ ShellViews mapAndHomeShellViews(
   LocationSearch search, {
   HazardReportingRuntime? hazards,
   PublicTransportation? transportation,
+  CrimeAndSecurity? crimeSecurity,
   ShellRuntime Function()? runtime,
 }) {
   final ShellViews home = homeShellViews(createHome);
@@ -526,6 +582,10 @@ ShellViews mapAndHomeShellViews(
       ),
       if (hazards != null && runtime != null)
         ..._hazardTaskViews(hazards, runtime, session),
+      if (crimeSecurity != null && runtime != null)
+        ...crimeTaskViews(crimeSecurity, runtime),
+      if (crimeSecurity != null && runtime != null)
+        ...crimeTaskViews(crimeSecurity, runtime),
 
       ShellTaskView<OpenAnalysisIntent>(
         'location-analysis',

@@ -319,6 +319,59 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get crimeSafetyIndex => 'Safety Index';
+
+  @override
+  String get crimeAnnualCases => 'Annual convicted cases';
+
+  @override
+  String get crimeTrendTitle => '5-year trend';
+
+  @override
+  String get crimeCategoryAll => 'All';
+
+  @override
+  String get crimeCategoryAssault => 'Violent crime';
+
+  @override
+  String get crimeCategoryProperty => 'Property crime';
+
+  @override
+  String get crimeTrendNote => 'Total convicted cases, not actual crime rate.';
+
+  @override
+  String crimeSourceYear(int year) {
+    return 'Data year: $year';
+  }
+
+  @override
+  String get crimeFresh => 'Fresh';
+
+  @override
+  String get crimeCached => 'Cached';
+
+  @override
+  String get crimeStale => 'Stale';
+
+  @override
+  String get crimeUnavailable => 'Temporarily unavailable';
+
+  @override
+  String get crimeStateUnresolved => 'Location outside supported area';
+
+  @override
+  String get crimePartialData => 'Partial data';
+
+  @override
+  String get crimeViewPortfolio => 'View Portfolio';
+
+  @override
+  String get crimeAddProperty => 'Add Property';
+
+  @override
+  String get crimeBackToMap => 'Back to Map';
+
+  @override
   String homeFetched(String date) {
     return 'Last successful read: $date';
   }
