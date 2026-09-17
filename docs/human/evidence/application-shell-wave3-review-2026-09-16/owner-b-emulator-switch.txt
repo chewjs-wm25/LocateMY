@@ -1,0 +1,13 @@
+09-16 23:42:28.255  5771  5771 I flutter : SHELL_DEVICE: PASS real fixture sign-in
+09-16 23:42:28.601  5771  5771 I flutter : SHELL_DEVICE: INITIAL_READY
+09-16 23:42:45.786  5771  5771 I flutter : SHELL_DEVICE: PASS ordered immutable typed task input
+09-16 23:42:45.788  5771  5771 I flutter : SHELL_DEVICE: PASS provider metadata and unavailable retained
+09-16 23:42:45.788  5771  5771 I flutter : SHELL_DEVICE: PASS stale response does not cover current slot
+09-16 23:42:45.788  5771  5771 I flutter : SHELL_DEVICE: PASS original return context restored
+09-16 23:42:45.927  5771  5771 I flutter : SHELL_DEVICE: PASS close failure hides old private content
+09-16 23:42:45.927  5771  5771 I flutter : SHELL_DEVICE: PASS late old-scope task blocked
+09-16 23:42:45.927  5771  5771 I flutter : SHELL_DEVICE: RECOVERY_READY
+09-16 23:42:49.357  5771  5771 I flutter : SHELL_DEVICE: PASS real fixture sign-in
+09-16 23:42:49.499  5771  5771 I flutter : SHELL_DEVICE: PASS B has fresh navigation and slots
+09-16 23:42:49.499  5771  5771 I flutter : SHELL_DEVICE: PASS language survives account switch
+09-16 23:42:49.499  5771  5771 I flutter : SHELL_DEVICE: B_READY

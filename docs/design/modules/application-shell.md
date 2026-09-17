@@ -1,10 +1,12 @@
 # Application Shell 开发协作契约
 
 > 状态：`Ready for Development`
+> 实现：`Implemented`（Wave 3；未批准 `Integrated`）
+> 实现验收：[Wave 3 验收记录](../../human/application-shell-wave3-acceptance-2026-09-16.md)；[GPT-5.6 Luna High 双轴复审](../../human/application-shell-wave3-luna-review-2026-09-16.md)
 > Owner：`A`
 > 系统基线：`5d11769`
 > 消费者：Home & Relocation Outlook、Map / Location、Cost of Living & Budget、Crime & Security、Nearby Facilities、Public Transportation、Hazard Reporting、Socio-economic、Infrastructure Coverage、Property Inspection、Account Center、Personalized Location Suitability
-> 最后更新：`2026-09-15`
+> 最后更新：`2026-09-16`
 
 Application Shell 是所有 Feature 的唯一主应用协调 seam：在同账户已打开范围内执行首页/地图双 Tab、业务导航、返回语境和声明式组合；不拥有认证、地点、领域结果、缓存、队列或 Feature 业务写入。
 
@@ -50,7 +52,7 @@ abstract interface class ApplicationShell {
 abstract interface class ShellIntent {}
 abstract interface class ShellContribution {}
 
-sealed class ShellIntentOutcome {}
+sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
 final class ShellIntentAccepted extends ShellIntentOutcome {}
 final class ShellAuthenticationRequired extends ShellIntentOutcome {}
 final class ShellIntentRejected extends ShellIntentOutcome {
@@ -58,7 +60,7 @@ final class ShellIntentRejected extends ShellIntentOutcome {
   final ShellRejectionReason reason;
 }
 
-sealed class ShellContributionOutcome {}
+sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
 final class ShellContributionAccepted extends ShellContributionOutcome {}
 final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
 final class ShellContributionRejected extends ShellContributionOutcome {
@@ -126,6 +128,37 @@ final ShellIntentOutcome outcome = await applicationShell.submit(
 | Hazard、Property、Account（`AT-HAZARD-01/03/05`、`AT-PROP-01/04`） | 从入口/图层发起创建、详情、本人列表、返回式选点、档案和危险退出。 | typed intent 保留业务语境；拒绝不创建或重放私有任务；账户入口不是 Tab。 |
 | fake seam | 每消费者使用同一 public declaration 的 fake，返回三种 intent 和三种 contribution outcome。 | 只接受 canonical outcome 名称；submit-only 不需要 publish；无人 import 内部 Shell 或自定义结果类型。 |
 
+### 6.1 Wave 3 验收分配
+
+确认测试 seam：SHELL-001 的 submit/publish、Shell 页面可观察交互，以及 AUTH-001/PRIVACY-001 真实公开入口联合流程（项目负责人 2026-09-16 确认）。不测试私有 helper；逐个行为 red → green。
+
+| 场景 / 可观察结果 | 验证归属 | 依赖分类 | 证据要求 | Owner | 最迟 Wave | 本模块状态 | 联合状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SHELL-W3-01 启动/登录仅明确同账户 opened；无会话/不可确认/验证未完成/identity mismatch 无私有内容 | 两者 | 本期真实 Auth/Privacy；测试 fake 故障 | 公开 seam、页面、live、设备冷启动/重启 | A | 3 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 当前 Shell/Auth/Privacy 联合已通过 |
+| SHELL-W3-02 关闭开始即丢弃 UI/导航/组合/晚到响应；signOut → close，失败重试同旧 scope | 两者 | 本期真实 Auth/Privacy/Shell participant；未来六项只用标识测试 fake | 异步故障/顺序、真实缺项阻断、设备清理恢复 | A | Shell/Auth 3；全员 7 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 当前已通过；完整八项待 Wave 7 |
+| SHELL-W3-03 A→B 不继承 Tab/栈/返回/组合；closing 重启恢复旧 scope | 两者 | 本期真实 Auth/Privacy 持久屏障；测试完整八项 | 双账户与过期响应；真实持久重启；设备证据 | A；全员 A/B | 范围 3；全员 7 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 当前已通过；完整八项待 Wave 7 |
+| SHELL-W3-04 双 Tab 保留局部状态；账户任务非 Tab；探索地图不选点 | 两者 | 本期 Shell；后续 Home/Map 页面槽位 | Widget 交互、返回、双语/大字体/无障碍；真实 Feature 接入 | A | Shell 3；Home/Map 4 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 待 Wave 4 |
+| SHELL-W3-05 single/A-B typed intent 保留原输入/顺序/返回；无输入/过期/不适用拒绝不转场 | 两者 | 本期类型化组合根绑定；测试 Feature marker；后续分析/业务槽位 | canonical seam 结果及页面；真实 Feature 联验 | A；B 提供自身 marker | Shell 3；分析/业务 5–7 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 待各 owning Wave |
+| SHELL-W3-06 publish 渐进保留提供方原贡献与元数据/可用性；过期/错 scope 不覆盖 | 两者 | 本期组合槽位；测试 marker；未来真实提供方 | public publish、独立 partial/unavailable 与晚到响应 | A；提供方 A/B | Shell 3；提供方 4–7 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 待各 owning Wave |
+| SHELL-W3-07 语言在全部门控/任务可操作，跨退出/账户/重启；小屏 200%/可读状态 | 本模块 | 本期真实设备语言 Adapter | 双语 Widget、偏好持久化/失败、设备流程 | A | 3 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 不适用 |
+| SHELL-W3-08 消费者 fake 使用 canonical 三种 intent/contribution outcome；无内部 import/结果副本 | 两者 | 本期消费者测试 fake；未来全部消费者 | fake 可编译/结果检查；各 Feature 在自身 Wave 验证消费恢复行为 | A；消费者 A/B | Shell 3；消费者 4–7 | 已通过；证据见 [Wave 3 验收](../../human/application-shell-wave3-acceptance-2026-09-16.md) | 待各 owning Wave |
+
+本期承接 Auth 第 6.1 节 Wave 3 门控/退出责任、Privacy PRIV-W2-01–06 的 Shell 子项。不存在未来业务存储时不提供生产成功占位；生产只登记真实 Auth 与 Shell，缺少六项时必须保持清理恢复，不能声称全部退出完成。测试完整八项仅证明 Shell 协调/范围切换，不证明未来 payload 清理。完整八项和远端/公共缓存/业务 payload 保留最迟 Wave 7，由 A 主责、B 参与；Map Wave 4，Cost/Hazard Wave 5，Infrastructure/Property/Account Wave 6 提供各自证据。
+
+### 6.2 Wave 3 实现接线
+
+SHELL-001 唯一公开入口只含第 3 节声明。两个 sealed outcome 基类补齐 const 默认构造，使契约已有 const rejected 构造可编译；不改成员、结果或权限语义，消费者声明示例与 HTML 同步修正。
+
+`lib/app/app.dart` 是进程装配入口，并仅向组合根/测试导出 `ShellRuntime`、路由/槽位绑定和 `ShellViews`。这些是 Shell 自身装配辅助，不是 Feature 消费的第二套 SHELL-001。Application use case 只消费 Auth/Privacy 公开入口；ShellViewModel 绑定呈现状态，ShellHost 使用声明式私有 Navigator。Auth 增加公开的认证页面/ViewModel factory 与可选资料重试装配辅助，组合根不 import Auth 内部文件；AUTH-001 不变。
+
+生产创建真实 Auth → 带 support 目录持久屏障的 Privacy → Shell；通过延迟取得 Privacy 的装配函数处理 Shell participant 登记环。生产只登记真实 Auth 与 Shell，未开发六项不登记成功占位。Shell 在关闭开始同步封锁状态、清空导航/请求/组合；状态通知异步传递，避免订阅方续操作导致流重入。结束当前设备会话后，结算未完成 open，再关闭其原 scope；退出、范围关闭任一失败都保留无私有内容恢复及同旧 scope 重试。
+
+组合根对每个 Feature 的公开 marker 注册类型化投影与原输入 Widget builder；没有注册或重复匹配拒绝，不反射/动态猜测领域字段。opaque 请求语境区分同账户生命周期与仍当前的页面请求；贡献只存原 marker，不读、改写或解释元数据。任务返回恢复原页面语境，返回/刷新丢弃已结束请求，两个 Tab 的局部状态独立保留。Feature ViewModel 必须在 scope 打开后创建，并捕获 `runtime.applicationShell` 的 scope 绑定实例，不能注入全局 runtime：无字段 ExploreMapIntent 的旧回调也不能作用到新账户。未来 Home/Map/分析/业务输入仍由各 owning Feature 在指定 Wave 提供；Shell 不提前定义其 marker。
+
+中文/English 延用进程级 LanguageController 与真实 shared_preferences；关闭保留设备语言。所有当前门控、占位槽位、任务和确认文案双语。Home/Map Wave 4、Account Center Wave 6 明确显示开发槽位；无假地点、假统计或无回调业务按钮。账户入口是普通任务，Android 返回先关闭对话框/任务，再恢复原 Tab。
+
+公开 seam 与 Widget/真实 Privacy 联合测试在 `test/app/`；消费者 fake 在 `test/support/fake_application_shell.dart`。`test/live/application_shell_live_test.dart` 和 `tool/application_shell_device.dart` 使用真实 Auth/Privacy/Shell；六个未来证明仅为明确标识的测试 fake，不证明业务存储清理。`tool/verify_application_shell_live.py` 读取本地凭据、建立临时第二账户并清理；设备使用两个临时账户、独立偏好/屏障命名空间、限定 Supabase 的端到端 TLS CONNECT 隧道。结束后恢复扫描通过的普通 APK、设备设置并删除临时账户/隧道；高权限密钥和配置测试凭据不进入 APK/日志/截图。
+
 ## 7. Ready Gate、变更与参考
 
 - [x] Owner、消费者、依赖顺序及 `lib/app/` 公共边界明确。
@@ -143,3 +176,15 @@ final ShellIntentOutcome outcome = await applicationShell.submit(
 | --- | --- | --- | --- | --- |
 | 2026-09-14 | `Ready for Development` | Issue #9 冻结门控、导航、组合、语言与跨 Owner 工作流 | `NAV-01`–`NAV-03`、`SHELL-001` | 项目负责人 |
 | 2026-09-15 | `Ready for Development` | Issue #23 全审：冻结唯一 `application_shell.dart` 与 canonical `submit`/`publish` outcome，消除 submit-only、`ShellPublishOutcome` 和本地 contribution outcome 的不兼容副本；Markdown/HTML blocker 同步关闭 | `SHELL-001`、12 个消费者、`FLOW-01/02/03/05/06/07/08` | 设计 AI（项目负责人授权） |
+| 2026-09-16 | `Implemented` | Wave 3 TDD、真实 Auth/Privacy/Shell、双语导航/返回、两设备重启/故障恢复及扫描 APK；const 基类修正；Luna High 双轴复审及语言故障注入修复通过；未来集成期限不变 | SHELL-001、AT-AUTH/OUT/SWITCH；公开成员/结果/行为及 Schema 不变 | 实现 AI（项目负责人授权） |
+
+
+### 运行版本清理范围修正（2026-09-17）
+
+修复当前生产入口登出后永久 recovery 的接线缺陷。八个 participant ID 和默认完整八项屏障不变；`createAccountPrivacy` 新增可选装配参数 `Set<AccountPrivacyParticipantId> requiredParticipants`，默认包含八项，用于显式声明当前运行版本可能持有私有状态的 Owner。
+
+当前 `startLocateMy` 仅接入真实 Authentication 与 Shell；其余六项没有业务页面、私有存储或写入路径，因此当前版本 manifest 显式声明 Authentication 与 Shell。协调器始终要求这两项，并将所有实际登记的 participant 自动加入清理范围，不能通过 manifest 漏填绕过真实已登记 Owner 的清理。manifest 内缺项、重复登记、失败、超时、错误范围和 journal 故障继续保持 closing；不会登记生产成功占位。默认完整八项集成检查仍保持六项缺失时阻断。
+
+接入任何后续私有业务页面、存储或后台工作时，必须同步把 owning ID 加入生产 manifest，即使其 participant 尚未登记也不得省略。曾可写入私有状态的 Owner 不能从 manifest 移除，除非另行完成已持久化状态的清理/迁移；当前修正只排除从未接入的六项。完整八项联合验收最迟 Wave 7，不改变各 Owner 的清理责任或公开 AccountPrivacy 协议。
+
+当前版本可以经原有 signOut → close 顺序恢复此前由未接入项造成的持久 closing 屏障，不删除 journal 绕过恢复。回归证据：`flutter test test/app/application_shell_privacy_test.dart` 覆盖正常登出/重试/再次登录、旧版本 closing 重启恢复、必需项缺失阻断、已登记 Owner 即使不在 manifest 仍失败阻断，以及默认八项屏障。

@@ -62,7 +62,7 @@ final class ShellIntentRejected extends ShellIntentOutcome {
 }
 enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, scopeUnavailable }
 
-sealed class ShellContributionOutcome {}
+sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
 final class ShellContributionAccepted extends ShellContributionOutcome {}
 final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
 final class ShellContributionRejected extends ShellContributionOutcome {

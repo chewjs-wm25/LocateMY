@@ -1,31 +1,4 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Map / Location 开发协作契约</title>
-  <style>
-    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
-    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
-    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
-    h1 { margin-top: 0; }
-    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-    code { overflow-wrap: anywhere; }
-    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
-    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
-    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
-    th { background: #f3f4f6; }
-    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
-    @media (prefers-color-scheme: dark) {
-      pre, th { background: #1f2937; }
-      th, td { border-color: #4b5563; }
-      blockquote { background: #1f2937; }
-    }
-  </style>
-</head>
-<body>
-<main>
-<h1>Map / Location 开发协作契约</h1>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Map / Location 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Map / Location 开发协作契约</h1>
 <blockquote>
 <p>Owner：<code>A</code>
 依赖顺序：Wave 4。A 先合并唯一公开入口及本文件冻结的完整 <code>LOCATION-001</code>/<code>LOCATION-002</code> 声明；Application Shell、分析 Feature 和图层提供方随后以同一声明的 fake 并行开发。
@@ -39,7 +12,7 @@
 <li>地点详情只承载提供方摘要。<code>MAP-07</code> 的适配度计算、前提与结果归 Personalized Location Suitability；社会经济不进入地图摘要；用户隐患不进入地点摘要、<code>SAFETY-001</code> 或适配度。</li>
 <li>不包含：行政区/统计州解析（Geographic Context）、六类分析或可比性（各分析 Owner）、隐患内容/写入（Hazard Reporting）、认证与导航执行（Application Shell）。不申请 GPS，不使用默认城市，不把收藏当行政区 ID，不把图层点击静默变为分析地点。</li>
 </ul>
-<p>产品事实唯一来源：<a href="../knowledge_base/locatemy_product/features/map_location.md">地图、选址与收藏</a>、<a href="../knowledge_base/locatemy_product/submission_commitments.md#%E5%9C%B0%E5%9B%BE%E5%9C%B0%E7%82%B9%E4%B8%8E%E6%94%B6%E8%97%8F">提交承诺</a>、<a href="../knowledge_base/locatemy_product/ui_design_spec.md#%E5%9C%B0%E5%9B%BE%E5%92%8C%E5%88%86%E6%9E%90%E5%85%A5%E5%8F%A3">地图 UI 规则</a>。当前静态原型、预设地点与内存收藏不是实现依据。</p>
+<p>产品事实唯一来源：<a href="../knowledge_base/locatemy_product/features/map_location.md">地图、选址与收藏</a>、<a href="../knowledge_base/locatemy_product/submission_commitments.md#地图地点与收藏">提交承诺</a>、<a href="../knowledge_base/locatemy_product/ui_design_spec.md#地图和分析入口">地图 UI 规则</a>。当前静态原型、预设地点与内存收藏不是实现依据。</p>
 <h2>2. 责任与依赖</h2>
 <table>
 <thead>
@@ -50,7 +23,8 @@
 <th>协作边界</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>Map / Location：<code>lib/features/map_location/</code></td>
 <td><code>STATE-LOCATION</code>、最终马来西亚校验、地图手势/Marker、地点角色、收藏同步/本机 create queue、图层宿主</td>
 <td>分析、行政语境、图层领域内容、认证/全局路由</td>
@@ -74,7 +48,8 @@
 <td>底图、可变选点、其他图层解释</td>
 <td>通过 <code>LOCATION-002</code> 提交声明</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>直接依赖为 <code>SHELL-001</code>（<code>D05</code>）和 <code>PRIVACY-001</code>（<code>D06</code>）。Map 向 Cost、Crime、Facilities、Transit、Hazard、Socio-economic、Infrastructure、Property、Suitability 输出合法引用，覆盖 <code>D08</code>、<code>D12</code>、<code>D15</code>、<code>D17</code>、<code>D19</code>、<code>D22</code>、<code>D26</code>、<code>D31</code>、<code>D40</code>。系统登记在 <a href="../design/system/feature-map.md#fm-map">Feature map</a>、<a href="../design/system/interfaces.md">Interface registry</a> 与 <a href="../design/system/capability-traceability.md">Capability traceability</a>。</p>
 <h2>3. 需要调用的 Interface</h2>
 <h3><code>SHELL-001</code> Application Shell</h3>
@@ -85,13 +60,13 @@
 }
 abstract interface class ShellIntent {}
 abstract interface class ShellContribution {}
-sealed class ShellIntentOutcome {}
+sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
 final class ShellIntentAccepted extends ShellIntentOutcome {}
 final class ShellAuthenticationRequired extends ShellIntentOutcome {}
 final class ShellIntentRejected extends ShellIntentOutcome {
   final ShellRejectionReason reason;
 }
-sealed class ShellContributionOutcome {}
+sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
 final class ShellContributionAccepted extends ShellContributionOutcome {}
 final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
 final class ShellContributionRejected extends ShellContributionOutcome {
@@ -117,7 +92,8 @@ enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, s
 <th>顺序、权限与副作用</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>PRIVACY-001</code></td>
 <td>Account Privacy</td>
 <td>同账户 <code>opened</code> 是私有地点、收藏读取/同步的前提；关闭请求时 Map 报告自己的处理完成。</td>
@@ -129,7 +105,8 @@ enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, s
 <td>以地点名称取得马来西亚限定候选。空、失败、过期候选均是可解释状态，不产生默认城市。</td>
 <td>候选只是 <code>LOCATION-001.select</code> 输入；国家文字/来源不能替代空间校验。防抖、取消、网络策略和密钥隔离为内部实现。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>4. 必须提供的 Interface</h2>
 <h3><code>LOCATION-001</code>：合法地点与收藏</h3>
 <p><strong>提供者：</strong> Map / Location（A）
@@ -193,7 +170,8 @@ final class SavedLocationsUnavailable extends SavedLocationsSnapshot { final Sav
 <th>typed failure 与调用方处理</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>select</code></td>
 <td>显式 <code>role</code>；有限 WGS84 数值；候选须再次校验</td>
 <td><code>LocationSelected</code> 携带不可变引用，只更新指定角色</td>
@@ -229,7 +207,8 @@ final class SavedLocationsUnavailable extends SavedLocationsSnapshot { final Sav
 <td><code>SavedLocationsAvailable</code> 含远端权威记录与队列状态</td>
 <td><code>Unavailable</code> 需恢复路径；不以空列表表示失败/不完整</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>状态/副作用/顺序/权限：最终合法性使用版本可审计的 DOSM/OpenDOSM 行政区边界联合范围；边界点合法，海域/范围外拒绝，Map 不解析统计州/行政区。single/A/B/property 相互隔离；A/B 中性、不可相同；合法 select 只改请求角色。只有同账户 <code>PRIVACY-001.opened</code> 才可读私有地点/收藏或同步；closing 后丢弃旧账户响应。Supabase <code>user_saved_locations</code> 是权威；本机 cache/queue 按账户隔离；每次 create 使用同账户唯一客户端幂等键，远端版本解决冲突，在线删除写可同步墓碑，旧 cache 或晚到 create 不得复活删除项。仅 create 可离线；编辑/删除在线。</p>
 <p>最小调用：</p>
 <pre><code class="language-dart">final selected = await locations.select(
@@ -281,7 +260,8 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <th>契约</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>输入</td>
 <td>provider 提交稳定 id、坐标、viewport version、纯声明式点击意图。Transit 仅提交当前交通页的分析中心、1.5 km 圆、<code>feed_id + stop_id</code> Marker 与选中意图。</td>
 </tr>
@@ -297,7 +277,8 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <td>权限</td>
 <td>图层读取权限/内容归 provider；长按创建需 authenticated/opened。Map 不写隐患、设施或交通结果。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>fake 场景：Hazard fake 贡献 visible、hidden、分页不完整、stale viewport；Map 仅呈现声明，不把不完整称无内容。Transit fake 用两个 viewport version 证明晚到站点不覆盖新视口；合法长按只产生创建意图，范围外返回 <code>outsideMalaysia</code>。</p>
 <h2>5. 直接使用的数据</h2>
 <table>
@@ -308,7 +289,8 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <th>固定语义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>运行时地点</td>
 <td><code>STATE-LOCATION</code>（Map 内存、进程寿命）</td>
 <td>最近一次合法明确动作；关闭清空角色、Marker、摘要与 viewport。</td>
@@ -321,14 +303,15 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <tr>
 <td>收藏</td>
 <td><code>user_saved_locations</code>；<code>saved_location_cache</code>、<code>saved_location_create_queue</code></td>
-<td>字段、RLS、迁移唯一见 <a href="../design/data/schema-catalog.md#%E8%BA%AB%E4%BB%BD%E4%B8%8E%E8%B4%A6%E6%88%B7%E4%B8%9A%E5%8A%A1%E5%AF%B9%E8%B1%A1">Schema Catalog</a>，本契约不复制。</td>
+<td>字段、RLS、迁移唯一见 <a href="../design/data/schema-catalog.md#身份与账户业务对象">Schema Catalog</a>，本契约不复制。</td>
 </tr>
 <tr>
 <td>私有关闭</td>
-<td><a href="../design/system/data-ownership.md#privacy-barrier-%E5%8F%82%E4%B8%8E%E8%80%85%E6%B8%85%E5%8D%95">data ownership</a></td>
+<td><a href="../design/system/data-ownership.md#privacy-barrier-参与者清单">data ownership</a></td>
 <td>清除旧账户 Map 私有状态，保留公共地图/边界缓存。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>6. 推荐实现顺序</h2>
 <ol>
 <li>A 先合并唯一入口、两组声明与最小 fake；消费者不得依赖 Map <code>src/</code>。</li>
@@ -348,7 +331,8 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <th>Trace</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>马来西亚选点/搜索</td>
 <td>A、Shell</td>
 <td>点选/候选；边境、岛屿、海域、范围外、空/过期、快速换点</td>
@@ -390,7 +374,8 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <td>按 provider 语义；旧视口不覆盖新；意图不静默改地点</td>
 <td><code>LOCATION-002</code>；<code>AT-HAZARD-01</code>、<code>AT-ANALYSIS-01</code>、<code>AT-RACE-01</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>8. 内部自由</h2>
 <p>Owner 可自行决定底图包、Geoapify/空间 Adapter、点位内部映射、缓存读写、SQLite/Supabase 访问、同步算法、取消、排序、Widget/状态管理和测试组织。以下变化必须取得跨 Owner agreement：唯一公开 import、公开声明/result variant、输入约束、权限/副作用/顺序、角色隔离、范围校验结论，或收藏 Schema/RLS。变更在同一 PR 更新本 Development Contract、同名 HTML 导出与受影响 fake/Adapter 测试；不引入独立发布、版本锁定或同步治理流程。</p>
 <h2>9. 阻塞与权威参考</h2>
@@ -407,22 +392,21 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <th>批准者</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>2026-09-15</td>
 <td><code>Ready for Development</code></td>
 <td>依 Issue #23 收束为单一 Development Contract 与同名 HTML 语义等价导出；移除旧式多文件发布治理，并明确冻结两份接口的单一公开入口和完整 canonical 声明。</td>
 <td><code>MAP-01</code>–<code>MAP-06</code>、<code>LOCATION-001</code>、<code>LOCATION-002</code>、同名 HTML 导出；地点、权限、同步、数据与验收语义不变。</td>
 <td>项目负责人</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>10. 完成核对</h2>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> 按固定顺序：任务成果、责任/依赖、调用 Interface、提供 Interface、直接数据、实现顺序、联合验收、内部自由、阻塞/权威参考。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>LOCATION-001</code>/<code>LOCATION-002</code> 有唯一公开 import、完整 canonical 声明、输入、输出/typed failures、状态/副作用、顺序、权限、最小示例与 fake 场景；所有消费者与 fake 引用同一声明，不改形或 import 内部文件。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>MAP-01</code>–<code>MAP-06</code>、<code>D05/D06</code> 与下游 Map 边可追溯；<code>MAP-07</code> 明确不由本 Owner 重算。</li>
-<li><input checked="" disabled="" type="checkbox"> 范围、账户隔离、同步权威/墓碑、分析快照、A/B 中性、图层不改地点均有唯一权威；不复制 Schema、RLS、公式或可提交实现。</li>
-<li><input checked="" disabled="" type="checkbox"> 同名 HTML 与本 Markdown 在任务成果、依赖顺序、两份 canonical 声明、表格、链接、联合验收与 Change Log 上语义等价；无旧式多文件发布治理要求。</li>
-</ul>
-</main>
-</body>
-</html>
+<li>[x] 按固定顺序：任务成果、责任/依赖、调用 Interface、提供 Interface、直接数据、实现顺序、联合验收、内部自由、阻塞/权威参考。</li>
+<li>[x] <code>LOCATION-001</code>/<code>LOCATION-002</code> 有唯一公开 import、完整 canonical 声明、输入、输出/typed failures、状态/副作用、顺序、权限、最小示例与 fake 场景；所有消费者与 fake 引用同一声明，不改形或 import 内部文件。</li>
+<li>[x] <code>MAP-01</code>–<code>MAP-06</code>、<code>D05/D06</code> 与下游 Map 边可追溯；<code>MAP-07</code> 明确不由本 Owner 重算。</li>
+<li>[x] 范围、账户隔离、同步权威/墓碑、分析快照、A/B 中性、图层不改地点均有唯一权威；不复制 Schema、RLS、公式或可提交实现。</li>
+<li>[x] 同名 HTML 与本 Markdown 在任务成果、依赖顺序、两份 canonical 声明、表格、链接、联合验收与 Change Log 上语义等价；无旧式多文件发布治理要求。</li>
+</ul></body></html>

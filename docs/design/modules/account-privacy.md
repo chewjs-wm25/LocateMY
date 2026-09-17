@@ -229,3 +229,14 @@ A 可决定 `src/`、participant 注入、内部状态机、Adapter、并发、�
 | 2026-09-16 | `Ready for Development`；尚未实现 | Wave 2 开发准备：按开发规范分配全部场景、本期真实 Auth 与未来 participant、证据责任及最迟 Wave | PRIVACY-001、Auth participant、Wave 3–7 联合接入；公开声明及产品/Schema 不变 |
 | 2026-09-16 | 实现验证已通过；独立审查中 | Wave 2 真实状态机、固定八项证明、真实 Auth participant、持久恢复及公开入口/设备/live/APK 证据；后续联合期限不变 | PRIVACY-001、STATE-ACCOUNT-SCOPE；公开 declarations/Schema/产品范围不变 |
 | 2026-09-16 | `Implemented`；未 `Integrated` | 第 5.1 节本模块证据全部通过；GPT-5.6 Luna High 独立审查通过，无当前阻塞；后续真实七项 participant/Shell 仍依 owning Wave 联验 | PRIV-W2-01–06；公开 declarations/Schema/产品范围不变 |
+
+
+### 运行版本清理范围修正（2026-09-17）
+
+修复当前生产入口登出后永久 recovery 的接线缺陷。八个 participant ID 和默认完整八项屏障不变；`createAccountPrivacy` 新增可选装配参数 `Set<AccountPrivacyParticipantId> requiredParticipants`，默认包含八项，用于显式声明当前运行版本可能持有私有状态的 Owner。
+
+当前 `startLocateMy` 仅接入真实 Authentication 与 Shell；其余六项没有业务页面、私有存储或写入路径，因此当前版本 manifest 显式声明 Authentication 与 Shell。协调器始终要求这两项，并将所有实际登记的 participant 自动加入清理范围，不能通过 manifest 漏填绕过真实已登记 Owner 的清理。manifest 内缺项、重复登记、失败、超时、错误范围和 journal 故障继续保持 closing；不会登记生产成功占位。默认完整八项集成检查仍保持六项缺失时阻断。
+
+接入任何后续私有业务页面、存储或后台工作时，必须同步把 owning ID 加入生产 manifest，即使其 participant 尚未登记也不得省略。曾可写入私有状态的 Owner 不能从 manifest 移除，除非另行完成已持久化状态的清理/迁移；当前修正只排除从未接入的六项。完整八项联合验收最迟 Wave 7，不改变各 Owner 的清理责任或公开 AccountPrivacy 协议。
+
+当前版本可以经原有 signOut → close 顺序恢复此前由未接入项造成的持久 closing 屏障，不删除 journal 绕过恢复。回归证据：`flutter test test/app/application_shell_privacy_test.dart` 覆盖正常登出/重试/再次登录、旧版本 closing 重启恢复、必需项缺失阻断、已登记 Owner 即使不在 manifest 仍失败阻断，以及默认八项屏障。

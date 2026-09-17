@@ -48,14 +48,14 @@ abstract interface class ApplicationShell {
 }
 abstract interface class ShellIntent {}
 abstract interface class ShellContribution {}
-sealed class ShellIntentOutcome {}
+sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
 final class ShellIntentAccepted extends ShellIntentOutcome {}
 final class ShellAuthenticationRequired extends ShellIntentOutcome {}
 final class ShellIntentRejected extends ShellIntentOutcome {
   const ShellIntentRejected(this.reason);
   final ShellRejectionReason reason;
 }
-sealed class ShellContributionOutcome {}
+sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
 final class ShellContributionAccepted extends ShellContributionOutcome {}
 final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
 final class ShellContributionRejected extends ShellContributionOutcome {

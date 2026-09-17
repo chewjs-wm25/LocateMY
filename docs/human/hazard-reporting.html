@@ -1,40 +1,16 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hazard Reporting 开发协作契约</title>
-  <style>
-    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
-    body { margin: 0 auto; max-width: 1040px; padding: 2rem 1.25rem 4rem; }
-    h1, h2, h3 { line-height: 1.25; margin-top: 2rem; }
-    h1 { margin-top: 0; }
-    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-    code { overflow-wrap: anywhere; }
-    pre { overflow-x: auto; padding: 1rem; border-radius: .5rem; background: #f3f4f6; }
-    table { width: 100%; border-collapse: collapse; margin: 1rem 0; overflow-wrap: anywhere; }
-    th, td { text-align: left; vertical-align: top; padding: .55rem; border: 1px solid #d1d5db; }
-    th { background: #f3f4f6; }
-    blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 4px solid #64748b; background: #f8fafc; }
-    @media (prefers-color-scheme: dark) {
-      pre, th { background: #1f2937; }
-      th, td { border-color: #4b5563; }
-      blockquote { background: #1f2937; }
-    }
-  </style>
-</head>
-<body>
-<main>
-<h1>Hazard Reporting 开发协作契约</h1>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hazard Reporting 开发协作契约</title><style>body{font:16px/1.7 system-ui,sans-serif;color:#172033;background:#f6f8fb;margin:auto;padding:24px;max-width:1100px}table{display:block;overflow:auto;border-collapse:collapse;background:white}td,th{border:1px solid #d9e0ea;padding:8px;vertical-align:top}pre{overflow:auto;padding:16px;background:#172033;color:#fff;border-radius:8px}a{color:#155eef}code{font-family:monospace}h1,h2,h3{line-height:1.4}blockquote{border-left:4px solid #155eef;padding-left:16px}@media(max-width:600px){body{padding:12px}h1{font-size:26px}}</style></head><body><h1>Hazard Reporting 开发协作契约</h1>
 <blockquote>
-<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）<br>Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5<br>唯一公开入口：<code>package:locatemy/features/hazard_reporting/hazard_reporting.dart</code><br>完成定义：消费者仅凭本契约即可创建、读取、呈现及管理公共隐患、提交声明式图层，并取得可保存的附近隐患数；不会读取 Feature 内部状态、绕过 RLS，或把隐患混为官方治安结果。</p>
+<p>状态：<code>Ready for Development</code>（2026-09-15；设计 AI〔项目负责人授权〕，ADR 0013）<br />
+Owner：<code>A</code>；系统基线：<code>Baselined — 5d11769</code>；依赖波次：Wave 5<br />
+唯一公开入口：<code>package:locatemy/features/hazard_reporting/hazard_reporting.dart</code><br />
+完成定义：消费者仅凭本契约即可创建、读取、呈现及管理公共隐患、提交声明式图层，并取得可保存的附近隐患数；不会读取 Feature 内部状态、绕过 RLS，或把隐患混为官方治安结果。</p>
 </blockquote>
 <p>本文件是 Hazard Reporting 对 Issue #23 的唯一 Development Contract；本 Markdown 是权威来源，<a href="hazard-reporting.html">同名 HTML</a> 是语义等价的人类阅读导出，不是第二份规格或发布包。它固定公开 Dart 声明、输入约束、typed outcomes、权限/副作用、顺序、数据访问及联合验收；<code>lib/features/hazard_reporting/</code> 内的 Widget、状态管理、Supabase/空间 Adapter、分页、缓存、并发、取消、重试、文件拆分与测试组织由 A 决定。公式、字段、RLS、RPC SQL 和 migration 仍分别以产品知识库与 Schema Catalog 为唯一权威。</p>
 <h2>0. 固定阅读顺序与四项 Readiness</h2>
 <ol>
-<li><a href="../../CONTEXT.md#%E9%A1%B9%E7%9B%AE%E8%87%AA%E6%9C%89%E8%A1%A8">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/hazard_reporting.md">隐患产品事实</a>；</li>
-<li><a href="../design/system/feature-map.md#fm-hazard">Feature map（Hazard）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-05%E5%85%AC%E5%85%B1%E9%9A%90%E6%82%A3%E6%8A%95%E7%A5%A8%E4%B8%8E%E6%9C%AC%E4%BA%BA%E7%AE%A1%E7%90%86">FLOW-05</a>、<a href="../design/system/flows.md#flow-06%E6%88%BF%E4%BA%A7%E5%AE%9E%E5%8B%98%E7%85%A7%E7%89%87%E9%A3%8E%E9%99%A9%E5%BF%AB%E7%85%A7%E4%B8%8E%E5%9B%9E%E6%94%B6%E7%AB%99">FLOW-06</a>；</li>
-<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#%E9%A3%8E%E9%99%A9%E4%B8%8E%E5%85%B3%E9%97%AD%E6%9D%A1%E4%BB%B6">风险登记</a>；</li>
+<li><a href="../../CONTEXT.md#项目自有表">领域词汇</a>、<a href="../knowledge_base/locatemy_product/features/hazard_reporting.md">隐患产品事实</a>；</li>
+<li><a href="../design/system/feature-map.md#fm-hazard">Feature map（Hazard）</a>、<a href="../design/system/interfaces.md">Interface 注册表</a>、<a href="../design/system/flows.md#flow-05公共隐患投票与本人管理">FLOW-05</a>、<a href="../design/system/flows.md#flow-06房产实勘照片风险快照与回收站">FLOW-06</a>；</li>
+<li><a href="../design/system/capability-traceability.md">Capability Traceability</a>、<a href="../design/system/data-ownership.md">数据所有权</a>、<a href="../design/data/schema-catalog.md">Schema Catalog</a>、<a href="../design/system/risks-and-decisions.md#风险与关闭条件">风险登记</a>；</li>
 <li>本契约与同名 HTML；HTML 只是本 Markdown 的人类可读、语义等价导出，不另行引入发布治理。</li>
 </ol>
 <table>
@@ -45,7 +21,8 @@
 <th>结论</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>责任与范围</td>
 <td><code>HAZ-01</code>–<code>HAZ-04</code> 唯一归属 Hazard；地图、Shell、账户 scope、官方安全与 Property snapshot 属于其他 Owner</td>
 <td>已就绪</td>
@@ -65,7 +42,8 @@
 <td>第 5 节覆盖 canonical <code>AT-HAZARD-*</code>、<code>AT-PROP-03</code>；<code>RISK-HAZARD-01/02</code> 留作实现/集成运行时证据</td>
 <td>已就绪</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>1. 成果、责任与冻结边界</h2>
 <ul>
 <li>已开启账户范围的用户可在线创建五类公共报告、按 viewport 分页读取图层与详情、对每份报告投赞成/反对/撤回，并只管理自己的 <code>pending/resolved</code> 状态或删除自己的报告。</li>
@@ -81,7 +59,8 @@
 <th>协作</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>lib/features/hazard_reporting/</code>（A）</td>
 <td>报告、详情、图层读取/分页、作者状态/删除、本人投票、<code>HAZARD-001/002</code></td>
 <td>地图手势/底图、导航、账户 scope、官方犯罪、房产写入</td>
@@ -111,7 +90,8 @@
 <td>报告、计数口径、公共图层</td>
 <td>消费 <code>HAZARD-002</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <h2>2. 需要调用的 Interface</h2>
 <h3><code>SHELL-001</code> — Hazard 导航与组合</h3>
 <p><strong>提供者：</strong> Application Shell；<strong>消费者：</strong> Hazard Reporting；<strong>唯一公开 import：</strong> <code>package:locatemy/app/application_shell.dart</code>。</p>
@@ -121,14 +101,14 @@
 }
 abstract interface class ShellIntent {}
 abstract interface class ShellContribution {}
-sealed class ShellIntentOutcome {}
+sealed class ShellIntentOutcome { const ShellIntentOutcome(); }
 final class ShellIntentAccepted extends ShellIntentOutcome {}
 final class ShellAuthenticationRequired extends ShellIntentOutcome {}
 final class ShellIntentRejected extends ShellIntentOutcome {
   const ShellIntentRejected(this.reason);
   final ShellRejectionReason reason;
 }
-sealed class ShellContributionOutcome {}
+sealed class ShellContributionOutcome { const ShellContributionOutcome(); }
 final class ShellContributionAccepted extends ShellContributionOutcome {}
 final class ShellContributionAuthenticationRequired extends ShellContributionOutcome {}
 final class ShellContributionRejected extends ShellContributionOutcome {
@@ -147,13 +127,15 @@ enum ShellRejectionReason { missingInput, staleInput, inapplicableDestination, s
 <th>顺序、权限与最小示例</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>intent/contribution 是当前 opened scope 的未过期事实；贡献保留来源、时间、完整性。</td>
 <td><code>accepted</code>、<code>authenticationRequired</code>、<code>rejected(reason)</code>；后两者是 Shell 结果，不是 Hazard 资料失败。</td>
 <td>Shell 只改门控、栈和组合；Hazard 不改报告、投票、地点或房产。</td>
 <td>先收到 Map 合法 intent/stable id，再 submit；仅 accepted 进入目标。<code>await shell.submit(OpenHazardDetailIntent(id, context));</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p><strong>Fake 场景：</strong> fake Shell 回 accepted、authentication-required、stale-input rejected；rejected 时保留表单/已读页及原因，不创建/更新报告，不把导航拒绝显示为网络错误。</p>
 <h3><code>LOCATION-002</code> — 长按、图层宿主与点击意图</h3>
 <p><strong>提供者：</strong> Map / Location；<strong>消费者：</strong> Hazard Reporting；<strong>唯一公开 import：</strong> <code>package:locatemy/features/map_location/map_location.dart</code>。</p>
@@ -193,13 +175,15 @@ enum MapLayerFailure { invalidContribution, invalidCoordinate, outsideMalaysia, 
 <th>顺序、权限与最小示例</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>创建只接受 Map immutable location；图层 items 为当前 viewport 成功页，id 不复用。</td>
 <td>accepted、hidden、rejected(<code>invalidContribution/invalidCoordinate/outsideMalaysia/scopeUnavailable/staleViewport/unauthenticated</code>)；长按结果同 Map 契约。</td>
 <td>Map 只更新覆盖物/回传意图；点击、长按、贡献均不改 single/A/B/property，Hazard 不写 Map。</td>
 <td>先读页再 contribute；旧 viewport 不发布/覆盖新图层。<code>await host.contribute(hazardLayer);</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p><strong>Fake 场景：</strong> fake Map 给合法/范围外长按、visible/hidden/rejected、两个 viewport version；Hazard 仅对合法 intent 开表单，旧页不能覆盖新图层，partial 页不称范围为空。</p>
 <h3><code>PRIVACY-001</code> — 账户范围</h3>
 <p><strong>提供者：</strong> Account Privacy；<strong>消费者：</strong> Hazard Reporting；<strong>唯一公开 import：</strong> <code>package:locatemy/features/account_privacy/account_privacy.dart</code>。</p>
@@ -318,7 +302,8 @@ enum HazardWriteFailure { invalidType, emptyTitle, titleTooLong, descriptionTooL
 <th>状态、副作用、权限与顺序</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>create</code></td>
 <td>opened；type 必选；title trim 后 1–120；description 可空且 ≤2000；location 是 Map immutable reference；在线。</td>
 <td><code>HazardCreated</code> 或字段/权限/服务分类的 <code>HazardCreateRejected</code>。</td>
@@ -354,7 +339,8 @@ enum HazardWriteFailure { invalidType, emptyTitle, titleTooLong, descriptionTooL
 <td>changed（本人选择与 aggregate counts）或 rejected。</td>
 <td>只写本人 vote；none 撤回。counts 只经 <code>hazard_vote_counts</code> RPC 读，客户端不写 count、不读他人 vote/身份。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p><strong>最小调用：</strong> <code>await hazards.create(HazardCreateRequest(location: intent.location, type: HazardType.flood, title: title, description: description));</code>。只有 <code>HazardCreated</code> 才 publish 图层/详情贡献；其他 outcome 原样进入字段或恢复路径。</p>
 <p><strong>Fake 场景：</strong> Shell fake 消费 created、empty successful page、partial、authentication-required、permission、conflict、retryable；仅 successful empty 显示“暂无”。Map fake 验证 item 只有 id/location/provider-defined intent，旧 viewport 不发布。双账户 fake 改票/撤回并验证同一 counts、无匿名/他人 vote 枚举。author fake 验证仅本人 status/delete，A close 后成功不可落入 B。</p>
 <h3><code>HAZARD-002</code> — 房产风险附近 pending 数</h3>
@@ -375,13 +361,15 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <th>顺序、权限与最小示例</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>propertyLocation 是 <code>LOCATION-001</code> 合法 immutable property reference。</td>
 <td>available 带 count/radiusMeters/countedAt；unavailable 区分 invalid、partial、scope、retryable。</td>
 <td>只读公开 reports；不写报告、票、图层、官方安全或 Property snapshot。</td>
 <td>Haversine <code>d &lt;= 2,000m</code> 含边界；仅 pending。Property 仅在同坐标完整 <code>SAFETY-001</code> 也 available 时整体写 snapshot。<code>await counter.countPending(HazardNearbyCountRequest(location));</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p><strong>Fake 场景：</strong> Property fake 提供内/外/恰 2,000m、pending/resolved；仅内/边界 pending 计入。partial/failure 不返回 0，Property 保留旧原子快照并显示不可用。</p>
 <h2>4. 数据与固定流程</h2>
 <table>
@@ -392,7 +380,8 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <th>固定语义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>报告</td>
 <td><code>crowdsourced_hazards</code>；authenticated 读，author-only insert/delete/status update</td>
 <td>五类、WGS84、pending/resolved、report time；发布后内容/位置/时间/author 不可变；无审核/verified/rejected/维护者例外。</td>
@@ -409,10 +398,11 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 </tr>
 <tr>
 <td>私有本机状态</td>
-<td><code>PRIVACY-001</code> 与 <a href="../design/system/data-ownership.md#privacy-barrier-%E5%8F%82%E4%B8%8E%E8%80%85%E6%B8%85%E5%8D%95">data ownership</a></td>
+<td><code>PRIVACY-001</code> 与 <a href="../design/system/data-ownership.md#privacy-barrier-参与者清单">data ownership</a></td>
 <td>mine/vote view 与未完成请求按账户隔离并 close 清理；完全去身份公共缓存可留；业务写全在线。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>固定顺序：① Shell 确认 opened；② 入口或 Map 合法长按经 <code>SHELL-001.submit</code> 开 composer；③ create 写远端，成功才 publish 图层/详情；④ public page 成功后 <code>LOCATION-002.contribute</code>，点击稳定 id 经 Shell 开详情；⑤ status/delete/vote 先收权威 outcome 再刷新；⑥ close 即阻断私有操作与晚到响应；⑦ Property 仅消费 HAZARD-002 complete available，和同坐标 SAFETY-001 一起自行保存。对应 <code>FLOW-05/06</code>。</p>
 <h2>5. 联合验收、Ready Gate 与变更</h2>
 <table>
@@ -423,7 +413,8 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <th>可观察完成条件</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>HAZ-01</code> / <code>AT-HAZARD-01</code>、<code>AT-HAZARD-05</code></td>
 <td>入口和合法长按创建；未选 type、trim 空/超长、非法点、离线</td>
 <td>五类不预选；字段错误明确；online 成功才 created；失败留输入/重试，无离线伪队列。</td>
@@ -453,12 +444,13 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <td>内/外/恰 2km、pending/resolved、partial/failure</td>
 <td>只计含边界 pending；带半径/时间/available；partial/failure 非 0，不写部分 snapshot。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> <code>HAZ-01</code>–<code>04</code>、<code>HAZARD-001/002</code>、D18–D20、Schema、<code>FLOW-05/06</code>、canonical <code>AT-*</code> 可双向追踪。</li>
-<li><input checked="" disabled="" type="checkbox"> 唯一 import、声明、输入、typed outputs/failures、不可变、作者 status/delete、投票/RLS、账户隔离、顺序、示例/fake 均冻结；无函数体、SQL 或 SDK 实现。</li>
-<li><input checked="" disabled="" type="checkbox"> <code>RISK-HAZARD-01</code> 两账户/匿名/search-path 与 <code>RISK-HAZARD-02</code> status-only migration/跨视图证据为实现/集成 Gate，不阻塞 Ready。</li>
-<li><input checked="" disabled="" type="checkbox"> 独立 Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。</li>
+<li>[x] <code>HAZ-01</code>–<code>04</code>、<code>HAZARD-001/002</code>、D18–D20、Schema、<code>FLOW-05/06</code>、canonical <code>AT-*</code> 可双向追踪。</li>
+<li>[x] 唯一 import、声明、输入、typed outputs/failures、不可变、作者 status/delete、投票/RLS、账户隔离、顺序、示例/fake 均冻结；无函数体、SQL 或 SDK 实现。</li>
+<li>[x] <code>RISK-HAZARD-01</code> 两账户/匿名/search-path 与 <code>RISK-HAZARD-02</code> status-only migration/跨视图证据为实现/集成 Gate，不阻塞 Ready。</li>
+<li>[x] 独立 Standards/Spec 双轴复审通过；设计 AI 依 ADR 0013 批准 Ready。</li>
 </ul>
 <p>公共 Interface 变更由提供方说明原因和受影响消费者，所有受影响消费者确认；同一 PR 更新声明、本契约、同名 HTML 与受影响 fake/Adapter 测试。Git/PR 保存历史；不引入独立发布、版本锁定或同步治理流程。</p>
 <table>
@@ -471,7 +463,8 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <th>批准者</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>2026-09-14</td>
 <td><code>Ready for Development</code></td>
 <td>Issue #14：冻结五类公共报告、发布后不可变、作者 status/delete、单票和 2,000m pending-only count</td>
@@ -485,7 +478,5 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 <td><code>HAZ-01</code>–<code>04</code>、<code>HAZARD-001/002</code>、<code>SHELL-001</code>、<code>LOCATION-002</code>、<code>PRIVACY-001</code>、同名 HTML</td>
 <td>设计 AI（项目负责人授权）</td>
 </tr>
-</tbody></table>
-</main>
-</body>
-</html>
+</tbody>
+</table></body></html>

@@ -61,7 +61,10 @@ final class FakeAuthenticationSession implements AuthenticationSession {
 
   @override
   Future<SignOutOutcome> signOut() async {
-    changes.add(const UnauthenticatedSession());
+    if (signedOut is SignOutSucceeded) {
+      restored = const UnauthenticatedSession();
+      changes.add(restored);
+    }
     return signedOut;
   }
 }

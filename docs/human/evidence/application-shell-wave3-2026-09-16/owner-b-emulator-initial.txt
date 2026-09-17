@@ -1,0 +1,2 @@
+09-16 23:29:32.699  5265  5265 I flutter : SHELL_DEVICE: PASS real fixture sign-in
+09-16 23:29:33.019  5265  5265 I flutter : SHELL_DEVICE: INITIAL_READY

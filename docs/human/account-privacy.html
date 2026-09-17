@@ -434,3 +434,11 @@ final result = await privacy.close(oldScope, AccountScopeCloseReason.signOut);
 </tr>
 </tbody>
 </table></main></html>
+<!-- 2026-09-17: runtime privacy manifest correction -->
+<section aria-label="运行版本清理范围修正">
+<h3>运行版本清理范围修正（2026-09-17）</h3>
+<p>修复当前生产入口登出后永久 recovery 的接线缺陷。八个 participant ID 和默认完整八项屏障不变；`createAccountPrivacy` 新增可选装配参数 `Set&lt;AccountPrivacyParticipantId&gt; requiredParticipants`，默认包含八项，用于显式声明当前运行版本可能持有私有状态的 Owner。</p>
+<p>当前 `startLocateMy` 仅接入真实 Authentication 与 Shell；其余六项没有业务页面、私有存储或写入路径，因此当前版本 manifest 显式声明 Authentication 与 Shell。协调器始终要求这两项，并将所有实际登记的 participant 自动加入清理范围，不能通过 manifest 漏填绕过真实已登记 Owner 的清理。manifest 内缺项、重复登记、失败、超时、错误范围和 journal 故障继续保持 closing；不会登记生产成功占位。默认完整八项集成检查仍保持六项缺失时阻断。</p>
+<p>接入任何后续私有业务页面、存储或后台工作时，必须同步把 owning ID 加入生产 manifest，即使其 participant 尚未登记也不得省略。曾可写入私有状态的 Owner 不能从 manifest 移除，除非另行完成已持久化状态的清理/迁移；当前修正只排除从未接入的六项。完整八项联合验收最迟 Wave 7，不改变各 Owner 的清理责任或公开 AccountPrivacy 协议。</p>
+<p>当前版本可以经原有 signOut → close 顺序恢复此前由未接入项造成的持久 closing 屏障，不删除 journal 绕过恢复。回归证据：`flutter test test/app/application_shell_privacy_test.dart` 覆盖正常登出/重试/再次登录、旧版本 closing 重启恢复、必需项缺失阻断、已登记 Owner 即使不在 manifest 仍失败阻断，以及默认八项屏障。</p>
+</section>

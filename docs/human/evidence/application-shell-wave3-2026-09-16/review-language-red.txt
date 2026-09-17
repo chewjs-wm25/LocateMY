@@ -1,0 +1,120 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart
+00:00 +0: Shell keeps chosen language after refused save from zh and retries persistence
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Language preference could not be saved.
+Please retry.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart:81:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart line 81
+The test description was:
+  Shell keeps chosen language after refused save from zh and retries persistence
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: Shell keeps chosen language after refused save from zh and retries persistence [E]
+  Test failed. See exception logs above.
+  The test description was: Shell keeps chosen language after refused save from zh and retries persistence
+
+00:00 +0 -1: Shell keeps chosen language after refused save from en and retries persistence
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "语言偏好未保存，请重试。": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart:81:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart line 81
+The test description was:
+  Shell keeps chosen language after refused save from en and retries persistence
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: Shell keeps chosen language after refused save from en and retries persistence [E]
+  Test failed. See exception logs above.
+  The test description was: Shell keeps chosen language after refused save from en and retries persistence
+
+00:01 +0 -2: Shell keeps chosen language after throwing save from zh and retries persistence
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Language preference could not be saved.
+Please retry.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart:81:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart line 81
+The test description was:
+  Shell keeps chosen language after throwing save from zh and retries persistence
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -3: Shell keeps chosen language after throwing save from zh and retries persistence [E]
+  Test failed. See exception logs above.
+  The test description was: Shell keeps chosen language after throwing save from zh and retries persistence
+
+00:01 +0 -3: Shell keeps chosen language after throwing save from en and retries persistence
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "语言偏好未保存，请重试。": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart:81:11)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart line 81
+The test description was:
+  Shell keeps chosen language after throwing save from en and retries persistence
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -4: Shell keeps chosen language after throwing save from en and retries persistence [E]
+  Test failed. See exception logs above.
+  The test description was: Shell keeps chosen language after throwing save from en and retries persistence
+
+00:01 +0 -4: opened Shell has two stateful tabs and a returning account task
+00:01 +1 -4: session invalidation removes private task dialogs and keeps language
+00:02 +2 -4: task receives original ordered input and presents provider contribution
+00:02 +3 -4: small screen 200% text and recovery remain accessible (zh)
+00:02 +4 -4: small screen 200% text and recovery remain accessible (en)
+00:02 +5 -4: Auth rejection after scope closes reports the real sign-out failure
+00:02 +6 -4: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from en and retries persistence
+  /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after refused save from zh and retries persistence
+  /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after throwing save from en and retries persistence
+  /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: Shell keeps chosen language after throwing save from zh and retries persistence

@@ -475,6 +475,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'LocateMY is not configured. Set the Supabase project URL and publishable key, then restart the app.'**
   String get configurationMissing;
+
+  /// No description provided for @shellHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get shellHome;
+
+  /// No description provided for @shellMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get shellMap;
+
+  /// No description provided for @shellAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get shellAccount;
+
+  /// No description provided for @shellTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task'**
+  String get shellTask;
+
+  /// No description provided for @shellPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing the app. Please wait.'**
+  String get shellPreparing;
+
+  /// No description provided for @shellRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'The app is temporarily unavailable. Please retry.'**
+  String get shellRecovery;
+
+  /// No description provided for @shellCleanupPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous account cleanup is incomplete. Private content is closed. Retry to finish cleanup.'**
+  String get shellCleanupPending;
+
+  /// No description provided for @shellScopeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The account scope cannot be confirmed. Please retry.'**
+  String get shellScopeUnavailable;
+
+  /// No description provided for @shellFutureTask.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature will be connected in a later development wave.'**
+  String get shellFutureTask;
+
+  /// No description provided for @shellHomePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Home features are not connected yet.'**
+  String get shellHomePending;
+
+  /// No description provided for @shellMapPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Map features are not connected yet. No location is selected.'**
+  String get shellMapPending;
+
+  /// No description provided for @shellAccountPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Center is not connected yet. You can sign out of this device here.'**
+  String get shellAccountPending;
 }
 
 class _AppLocalizationsDelegate

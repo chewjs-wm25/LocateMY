@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/authentication_session/authentication_session.dart';
-import 'package:locatemy/features/authentication_session/src/application/authentication_use_case.dart';
-import 'package:locatemy/features/authentication_session/src/presentation/authentication_view_model.dart';
 import 'package:locatemy/l10n/language_controller.dart';
 import 'package:locatemy/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,7 +46,7 @@ void main() {
   late LanguageController language;
   setUp(() {
     fake = FakeAuthenticationSession();
-    vm = AuthenticationViewModel(AuthenticationUseCase(fake));
+    vm = createAuthenticationViewModel(fake);
     language = LanguageController();
   });
   tearDown(() async {
