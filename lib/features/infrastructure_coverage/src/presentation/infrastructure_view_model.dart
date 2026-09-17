@@ -38,7 +38,21 @@ final class InfrastructureViewModel extends ChangeNotifier {
       return;
     }
 
-    _outcome = outcome;
+    // preserve a previous successful result on refresh failures
+    final InfrastructureLoadOutcome? previous = _outcome;
+    if (policy == InfrastructureLoadPolicy.refresh) {
+      if (outcome is InfrastructureUnavailable && previous is InfrastructureAvailable) {
+        retainedPreviousResult = true;
+        _outcome = previous;
+      } else {
+        retainedPreviousResult = false;
+        _outcome = outcome;
+      }
+    } else {
+      retainedPreviousResult = false;
+      _outcome = outcome;
+    }
+
     _loading = false;
     notifyListeners();
   }

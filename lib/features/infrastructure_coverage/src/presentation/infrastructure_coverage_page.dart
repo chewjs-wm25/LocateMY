@@ -84,6 +84,13 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
                         child: const Center(child: CircularProgressIndicator()),
                       ),
                     ),
+                  if (_model.retainedPreviousResult)
+                    _notice(
+                      _t(
+                        '刷新失败，正在显示上次成功结果。',
+                        'Refresh failed. Showing the previous successful result.',
+                      ),
+                    ),
                   if (outcome is InfrastructureAvailable) ..._available(outcome.snapshot),
                   if (outcome is InfrastructurePartial) ..._partial(outcome.snapshot),
                   if (outcome is InfrastructureUnavailable) _notice(_service(outcome.reason)),
