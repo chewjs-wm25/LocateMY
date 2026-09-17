@@ -1,0 +1,26 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education reference percentiles use each target input year and reject entire invalid newest aggregate
+00:00 +1: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education reference percentiles use each target input year and reject entire invalid newest aggregate
+00:00 +2: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education reference percentiles use each target input year and reject entire invalid newest aggregate
+00:00 +3: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education reference percentiles use each target input year and reject entire invalid newest aggregate
+00:00 +4: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education reference percentiles use each target input year and reject entire invalid newest aggregate
+00:00 +5: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: single and A/B show necessary population-year difference without query metadata
+00:00 +6: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: single and A/B show necessary population-year difference without query metadata
+00:00 +7: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: single and A/B show necessary population-year difference without query metadata
+00:00 +8: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: actual component and population years survive weight preview and A/B evaluation
+00:00 +9: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: in-flight older cache writes finish before the newer write for shared coordinate or district key
+00:00 +10: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: invalid latest hospital aggregate falls back as a whole and preserves zero observation
+00:00 +11: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education combines latest valid schools and both-sex resources from their own years
+00:00 +12: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: amenities choose latest valid percentage independently without turning malformed input into zero
+00:00 +13: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: older public response cannot overwrite cache after a newer refresh
+00:00 +14: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: SQLite public cache expires after three days and survives offline only before expiry
+00:00 +15: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: education aggregates both-sex resources and valid zero beds remains a percentile observation
+00:00 +16: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: late results after location change and disposal never replace current observations
+00:00 +17: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: weights read failure disables preview and can be retried
+00:00 +18: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: failed refresh uses cache without extending its expiry
+00:00 +19: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: resolved district raw statistics use same-year national percentile and canonical transit scope
+00:00 +20: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: ambiguous district never chooses a candidate or substitutes state observations
+00:00 +21: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: population older than two years makes health missing and aggregate unavailable
+00:00 +22: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: preview changes aggregate without fetching or saving until explicit action; failed save can recover
+00:00 +23: /home/AC79/Desktop/LocateMY/test/features/infrastructure_coverage/infrastructure_behavior_test.dart: page shows raw components and save failure; comparison has neutral priorities
+00:01 +24: All tests passed!

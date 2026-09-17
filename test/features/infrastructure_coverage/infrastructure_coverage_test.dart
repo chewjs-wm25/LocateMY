@@ -7,6 +7,28 @@ void main() {
     locationId: 'test',
     point: const GeographicPoint(latitude: 3.139, longitude: 101.686),
   );
+  test('public coverage snapshot owns immutable statistical year maps', () {
+    final Map<String, int> sourceYears = <String, int>{'schools': 2025};
+    final Map<String, int> populationYears = <String, int>{'education': 2024};
+    final InfrastructureCoverage snapshot = InfrastructureCoverage(
+      score: null,
+      location: location,
+      analysisDate: DateTime(2026),
+      weights: const InfrastructureWeightSettings(),
+      categories: const <InfrastructureCategoryScore>[],
+      sourceYears: sourceYears,
+      populationYears: populationYears,
+    );
+    sourceYears['schools'] = 2000;
+    populationYears.clear();
+    expect(snapshot.sourceYears, <String, int>{'schools': 2025});
+    expect(snapshot.populationYears, <String, int>{'education': 2024});
+    expect(
+      () => snapshot.sourceYears['schools'] = 2001,
+      throwsUnsupportedError,
+    );
+    expect(() => snapshot.populationYears.clear(), throwsUnsupportedError);
+  });
   test('ICI uses known zeros and full precision before final rounding', () {
     final InfrastructureCoverage result = InfrastructureService.evaluate(
       location,

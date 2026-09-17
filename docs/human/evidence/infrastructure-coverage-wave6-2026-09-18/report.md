@@ -45,3 +45,7 @@ Java阅读习惯审查：本期手写Dart使用显式类型、完整函数体、
 `review-fix-tests.txt`：23项通过；`review-fix-analyze.txt`：无问题；`live-test.txt`：真实RPC/Geo/Transit/权重权限及新教育口径全部通过。模型live确认学校2025、教师2022、学生2022、教育人口2025，医疗缺失；没有再把教育日期不同声明为缺少组成。
 
 `owner-b-emulator-review-years-zh/en.png`及XML：最终源码debug APK真实生产路由基础启动/中英文集中统计年份呈现通过，APK secret scan PASS；对应版本见device-build.source.json与presentation-verification.json。复用了未改变的完整离线/恢复/A-B导航/200%/退出证据（保留full-device-build.source.json及旧完整verification版本），不重复完整长流程。模块仍等待Luna High复审判定Implemented；未宣告Integrated。
+
+### Luna Standards复审：公开年份Map不可变
+
+公开 `InfrastructureCoverage` 构造接收的 `sourceYears` / `populationYears` 现在以 `Map.unmodifiable` 防御性复制。移除该模型构造的const（仓库无const调用），不增加factory或包装层。最高公开模型seam新增行为测试：构造后改变原Map不能改变快照，快照Map写入及clear均抛出UnsupportedError。Red观察到schools由2025变为2000；Green本Feature24项通过（model-immutability-tests.txt），`flutter analyze`无问题。此修复仅模型所有权/可写性，不改变生产读取或UI行为；按主Agent指令不重复设备/live/APK。此前这些证据的版本仍保持原记录，当前等待Luna规范复审。

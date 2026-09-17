@@ -37,7 +37,7 @@ PublicTransportation 服务与 SDK 当前账号，不消费 AccountScope、Shell
 
 - `createInfrastructureCoverage(geographicContext, reader, transportation, weightsStore, database?, clock?)` 构造真实可注入的 `InfrastructureService`。
 - `InfrastructureService.fetch(location, analysisDate, {policy, weights})` 返回 `InfrastructureLoadOutcome`；`summary(location, date)` 和 `compare(a, b, date, {policy})` 永远使用中性三权重，不读取账户草稿。
-- `InfrastructureCoverage.score` 为可空整数；五项 `InfrastructureCategoryScore.score` 为可空完整精度读数，缺失列表及真实解析的州/行政区跟随结果。Coverage.sourceYears/populationYears保留分项及人口实际统计年，预览及A/B仍保留；统计年份差异按精简边界集中说明。`InfrastructureAvailable` 表示满足3/5门槛；`InfrastructurePartial` 保留可用分项且综合为null；`InfrastructureUnavailable` 是短可重试失败。
+- `InfrastructureCoverage.score` 为可空整数；五项 `InfrastructureCategoryScore.score` 为可空完整精度读数，缺失列表及真实解析的州/行政区跟随结果。Coverage.sourceYears/populationYears由公开构造防御性复制为不可变Map，保留分项及人口实际统计年，预览及A/B仍保留；统计年份差异按精简边界集中说明。`InfrastructureAvailable` 表示满足3/5门槛；`InfrastructurePartial` 保留可用分项且综合为null；`InfrastructureUnavailable` 是短可重试失败。
 - `InfrastructureInputsReader.read(state, district)` 隔离只读RPC；`InfrastructureWeightsStore.read/save` 隔离账户线上记录。SQLite公开缓存无需跨Owner业务消费。
 - `InfrastructureCoveragePage(service, location, analysisDate, {locationB})` 是实际普通路由页面；单点保存/预览，A/B不建立权重编辑器。ViewModel公开动作保留于同一入口便于现有消费者测试，跨Feature不得导入src。
 

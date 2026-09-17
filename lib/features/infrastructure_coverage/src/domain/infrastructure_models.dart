@@ -78,7 +78,7 @@ final class InfrastructureCoverage {
   final Map<String, int> sourceYears;
   final Map<String, int> populationYears;
 
-  const InfrastructureCoverage({
+  InfrastructureCoverage({
     required int? score,
     required ValidLocationReference location,
     required DateTime analysisDate,
@@ -97,8 +97,8 @@ final class InfrastructureCoverage {
        missingCategories = missingCategories,
        district = district,
        state = state,
-       sourceYears = sourceYears,
-       populationYears = populationYears;
+       sourceYears = Map<String, int>.unmodifiable(sourceYears),
+       populationYears = Map<String, int>.unmodifiable(populationYears);
 }
 
 sealed class InfrastructureLoadOutcome {
