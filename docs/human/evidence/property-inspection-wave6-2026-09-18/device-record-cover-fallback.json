@@ -1,0 +1,17 @@
+{
+  "stage": "cover-fallback",
+  "inspection_id": "fc05e50f-0f9b-4466-9528-4a1a11b18a31",
+  "snapshot_availability": "available",
+  "snapshot_captured_at": "2026-09-17T18:00:11.065945+00:00",
+  "deleted_at": null,
+  "photos": [
+    {
+      "photo_id": "336512c4-308a-480c-a518-864bd1b598a2",
+      "file_sha256": "d24d0031822d3b5a61a7aa42441c808b9d8535dc30c10ecd899ec4511e6acab7",
+      "byte_length": 26378,
+      "uploaded": true,
+      "cover": true,
+      "caption": null
+    }
+  ]
+}

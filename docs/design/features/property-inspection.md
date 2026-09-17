@@ -1,6 +1,6 @@
 # Property Inspection 开发契约
 
-> Owner B；Wave 6；实现已写完，验收进行中 — Issue #31 精简设计；设备照片证据仍待补齐。
+> Owner B；Wave 6；实现及既定验收完成，等待审查 — Issue #31 精简设计；真实照片/权限/生命周期/比较证据已取得，最终离线原页重试、保存notice即时语言切换已完成，Luna gate 待授予。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。

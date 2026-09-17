@@ -1,0 +1,13 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/property_live_test.dart
+00:00 +0: real CRUD risk snapshot photo Storage metadata owner deny and recycle lifecycle
+PROPERTY_LIVE: created
+PROPERTY_LIVE: edited
+PROPERTY_LIVE: owner deny done
+PROPERTY_LIVE: photo storage deny done
+PROPERTY_LIVE: caption done
+PROPERTY_LIVE: real Storage repeated missing object removal PASS, metadata retained for purge retry
+PROPERTY_LIVE: restored and trashed
+PROPERTY_LIVE: purged completed=1 remaining=0
+PROPERTY_LIVE: real CRUD complete risk persisted unchanged edit owner Storage metadata deny softdelete restore purge PASS
+00:04 +1: All tests passed!
+

@@ -23,8 +23,10 @@ def swipe(direction=1):
  run(ADB+['shell','input','swipe',str((b[0]+b[2])//2),str(start),str((b[0]+b[2])//2),str(end),'350']);time.sleep(.5);return True
 def tap(label):
  for i in range(12):
-  n=next((n for n in tree().iter('node') if text(n)==label or text(n).split('\n')[0]==label),None)
-  if n is not None:tap_node(n);return
+  n=next((n for n in tree().iter('node') if text(n)==label or label in text(n).split('\n')),None)
+  if n is not None:
+   if n.get('enabled')=='false':time.sleep(.5);continue
+   tap_node(n);return
   if not swipe():time.sleep(.5)
  raise RuntimeError('missing action '+label)
 def wait(label,seconds=45):

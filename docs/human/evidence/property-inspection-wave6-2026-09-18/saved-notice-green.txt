@@ -1,0 +1,9 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart
+00:00 +0: saved notice translates when active locale changes
+00:01 +1: detail photo reservation failure retains current selection for retry
+00:01 +2: empty cloud portfolio shows add and recycle bin without fabricated records
+00:01 +3: photo reservation failure retains selected bytes for visible current-page retry
+00:02 +4: disposed portfolio ignores late cloud response
+00:02 +5: en online save failure retains input and 320dp 200% page remains usable
+00:02 +6: zh online save failure retains input and 320dp 200% page remains usable
+00:02 +7: All tests passed!
