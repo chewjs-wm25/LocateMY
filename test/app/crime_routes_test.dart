@@ -50,6 +50,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text('Not implemented yet'), findsNWidgets(3));
+        await tester.ensureVisible(find.text('Crime and security'));
         await tester.tap(find.text('Crime and security'));
         await tester.pumpAndSettle();
         expect(find.byType(CrimeSecurityPage), findsOneWidget);

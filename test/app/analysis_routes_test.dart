@@ -37,6 +37,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text('Not implemented yet'), findsNWidgets(4));
+        await tester.ensureVisible(find.text('Nearby facilities'));
         await tester.tap(find.text('Nearby facilities'));
         await tester.pumpAndSettle();
         expect(find.byType(NearbyFacilitiesPage), findsOneWidget);
@@ -49,6 +50,7 @@ void main() {
         await tester.pageBack();
         await tester.pumpAndSettle();
         expect(find.byType(LocationAnalysisMenu), findsOneWidget);
+        await tester.ensureVisible(find.text('Public transportation'));
         await tester.tap(find.text('Public transportation'));
         await tester.pumpAndSettle();
         if (comparison) {
@@ -77,6 +79,46 @@ void main() {
         expect(tester.takeException(), isNull);
       },
     );
+  }
+  for (final String language in <String>['en', 'zh']) {
+    testWidgets('analysis remains usable at 320px and 200% text in $language', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: Locale(language),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (BuildContext context, Widget? child) {
+            return MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!,
+            );
+          },
+          home: LocationAnalysisMenu(
+            location: a,
+            locationB: b,
+            facilities: RecordingFacilities(),
+            transportation: RecordingTransportation(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final Finder transit = find.text(
+        language == 'zh' ? '公共交通' : 'Public transportation',
+      );
+      await tester.ensureVisible(transit);
+      await tester.tap(transit);
+      await tester.pumpAndSettle();
+      expect(find.byType(PublicTransportationComparisonPage), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   }
 }
 

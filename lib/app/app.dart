@@ -767,73 +767,23 @@ final class LocationAnalysisMenu extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(zh ? '地点分析' : 'Location analysis'),
-        actions: const [LanguageButton()],
+    final List<Widget> cards = <Widget>[
+      _AnalysisCategoryCard(
+        title: zh ? '生活成本' : 'Cost of living',
+        description: zh
+            ? '生活成本指数与估算月支出'
+            : 'Cost index and estimated monthly spending',
+        accent: const Color(0xFFB76E00),
+        icon: Icons.account_balance_wallet_outlined,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            location.displayName ??
-                '${location.point.latitude}, ${location.point.longitude}',
-          ),
-          if (second != null)
-            Text(
-              second.displayName ??
-                  '${second.point.latitude}, ${second.point.longitude}',
-            ),
-          ListTile(
-            title: Text(zh ? '周边设施' : 'Nearby facilities'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              open(
-                NearbyFacilitiesPage(
-                  facilities: facilities,
-                  location: location,
-                  locationB: second,
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: Text(zh ? '公共交通' : 'Public transportation'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              if (second == null) {
-                open(
-                  PublicTransportationPage(
-                    transportation: transportation,
-                    location: location,
-                    analysisDate: date,
-                  ),
-                );
-              } else {
-                open(
-                  PublicTransportationComparisonPage(
-                    transportation: transportation,
-                    a: input(location, LocationRole.locationA),
-                    b: input(second, LocationRole.locationB),
-                    onOpenStations: (AnalysisReturnContext selected) {
-                      open(
-                        PublicTransportationPage(
-                          transportation: transportation,
-                          location: selected.location,
-                          analysisDate: selected.analysisDate,
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }
-            },
-          ),
-          if (crime != null)
-            ListTile(
-              title: Text(zh ? '治安与犯罪' : 'Crime and security'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
+      _AnalysisCategoryCard(
+        title: zh ? '治安与犯罪' : 'Crime and security',
+        description: zh ? '州级安全指数与犯罪趋势' : 'State safety index and crime trends',
+        accent: const Color(0xFF16865C),
+        icon: Icons.shield_outlined,
+        onTap: crime == null
+            ? null
+            : () {
                 open(
                   CrimeSecurityPage(
                     crime: crime!,
@@ -843,21 +793,326 @@ final class LocationAnalysisMenu extends StatelessWidget {
                   ),
                 );
               },
+      ),
+      _AnalysisCategoryCard(
+        title: zh ? '社会经济' : 'Socio-economic',
+        description: zh
+            ? '家庭收入与收入分布'
+            : 'Household income and income distribution',
+        accent: const Color(0xFF155EEF),
+        icon: Icons.people_outline,
+      ),
+      _AnalysisCategoryCard(
+        title: zh ? '基础设施' : 'Infrastructure',
+        description: zh
+            ? '供水、供电与公共服务覆盖'
+            : 'Water, electricity and public service coverage',
+        accent: const Color(0xFF16865C),
+        icon: Icons.apartment_outlined,
+      ),
+      _AnalysisCategoryCard(
+        title: zh ? '周边设施' : 'Nearby facilities',
+        description: zh ? '2 km 范围内已收录设施' : 'Recorded facilities within 2 km',
+        accent: const Color(0xFF1E8A7A),
+        icon: Icons.local_hospital_outlined,
+        onTap: () {
+          open(
+            NearbyFacilitiesPage(
+              facilities: facilities,
+              location: location,
+              locationB: second,
             ),
-          for (final String name
-              in zh
-                  ? ['生活成本', if (crime == null) '治安', '社会经济', '基础设施']
-                  : [
-                      'Cost of living',
-                      if (crime == null) 'Crime and security',
-                      'Socio-economic',
-                      'Infrastructure',
-                    ])
-            ListTile(
-              title: Text(name),
-              subtitle: Text(zh ? '尚未实现' : 'Not implemented yet'),
+          );
+        },
+      ),
+      _AnalysisCategoryCard(
+        title: zh ? '公共交通' : 'Public transportation',
+        description: zh
+            ? '1.5 km 站点与交通连通性'
+            : 'Stops within 1.5 km and transit connectivity',
+        accent: const Color(0xFF155EEF),
+        icon: Icons.directions_transit_outlined,
+        onTap: () {
+          if (second == null) {
+            open(
+              PublicTransportationPage(
+                transportation: transportation,
+                location: location,
+                analysisDate: date,
+              ),
+            );
+          } else {
+            open(
+              PublicTransportationComparisonPage(
+                transportation: transportation,
+                a: input(location, LocationRole.locationA),
+                b: input(second, LocationRole.locationB),
+                onOpenStations: (AnalysisReturnContext selected) {
+                  open(
+                    PublicTransportationPage(
+                      transportation: transportation,
+                      location: selected.location,
+                      analysisDate: selected.analysisDate,
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        },
+      ),
+    ];
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FB),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6F8FB),
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: const Color(0xFF172033),
+        title: Text(
+          second == null
+              ? (zh ? '地点分析' : 'Location analysis')
+              : (zh ? '地点比较' : 'Location comparison'),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
+        actions: const [LanguageButton()],
+      ),
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  _locationHeading(location, second == null ? null : 'A'),
+                  if (second != null) ...<Widget>[
+                    const SizedBox(height: 16),
+                    _locationHeading(second, 'B'),
+                  ],
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0B1F44),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          zh
+                              ? '从六个角度了解地点'
+                              : 'Explore six aspects of a location',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          zh ? '选择下方类别，查看详细数据与覆盖情况。' : 'Choose a category below to explore detailed data and coverage.',
+                          style: const TextStyle(
+                            color: Color(0xFFC8D7F2),
+                            fontSize: 15,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    zh ? '六类地区分析' : 'Regional analysis',
+                    style: const TextStyle(
+                      color: Color(0xFF172033),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                          final bool twoColumns =
+                              constraints.maxWidth >= 328 &&
+                              MediaQuery.textScalerOf(context).scale(16) <= 20;
+                          final List<Widget> rows = <Widget>[];
+                          final int columns = twoColumns ? 2 : 1;
+                          for (
+                            int index = 0;
+                            index < cards.length;
+                            index += columns
+                          ) {
+                            if (index > 0) {
+                              rows.add(const SizedBox(height: 16));
+                            }
+                            if (twoColumns) {
+                              rows.add(
+                                IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Expanded(child: cards[index]),
+                                      const SizedBox(width: 16),
+                                      Expanded(child: cards[index + 1]),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              rows.add(cards[index]);
+                            }
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: rows,
+                          );
+                        },
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEAF2FF),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      zh ? '各类分析分别展示统计或覆盖情况，不合并为地点总分。' : 'Each category presents its own statistics or coverage, without a combined location score.',
+                      style: const TextStyle(
+                        color: Color(0xFF667085),
+                        fontSize: 13,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-        ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _locationHeading(ValidLocationReference point, String? role) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (role != null)
+          Text(
+            role,
+            style: const TextStyle(
+              color: Color(0xFF155EEF),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        Text(
+          point.displayName ??
+              '${point.point.latitude}, ${point.point.longitude}',
+          style: const TextStyle(
+            color: Color(0xFF172033),
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+final class _AnalysisCategoryCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final Color accent;
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _AnalysisCategoryCard({
+    required String title,
+    required String description,
+    required Color accent,
+    required IconData icon,
+    VoidCallback? onTap,
+  }) : title = title,
+       description = description,
+       accent = accent,
+       icon = icon,
+       onTap = onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool zh = Localizations.localeOf(context).languageCode == 'zh';
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFD9E0EA)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              SizedBox(width: 5, child: ColoredBox(color: accent)),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Icon(icon, color: accent, size: 22),
+                          const Spacer(),
+                          if (onTap != null)
+                            const Icon(
+                              Icons.chevron_right,
+                              color: Color(0xFF667085),
+                              size: 20,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Color(0xFF172033),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                          color: Color(0xFF667085),
+                          fontSize: 13,
+                          height: 1.5,
+                        ),
+                      ),
+                      if (onTap == null) ...<Widget>[
+                        const SizedBox(height: 8),
+                        Text(
+                          zh ? '尚未实现' : 'Not implemented yet',
+                          style: const TextStyle(
+                            color: Color(0xFF667085),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
