@@ -74,6 +74,27 @@
       }
     }
   },
+  "crimeSafetyIndex": "Safety Index",
+  "crimeAnnualCases": "Annual convicted cases",
+  "crimeTrendTitle": "5-year trend",
+  "crimeCategoryAll": "All",
+  "crimeCategoryAssault": "Violent crime",
+  "crimeCategoryProperty": "Property crime",
+  "crimeTrendNote": "Total convicted cases, not actual crime rate.",
+  "crimeSourceYear": "Data year: {year}",
+  "@crimeSourceYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "crimeUnavailable": "Temporarily unavailable",
+  "crimeStateUnresolved": "Location outside supported area",
+  "crimePartialData": "Partial data",
+  "crimeViewPortfolio": "View Portfolio",
+  "crimeAddProperty": "Add Property",
+  "crimeBackToMap": "Back to Map",
   "homeIncomeAmount": "RM {amount} / month · Survey {year}",
   "@homeIncomeAmount": {
     "placeholders": {

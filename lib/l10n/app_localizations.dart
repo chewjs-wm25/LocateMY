@@ -500,6 +500,90 @@ abstract class AppLocalizations {
   /// **'Refresh available in {seconds} seconds'**
   String homeCooling(int seconds);
 
+  /// No description provided for @crimeSafetyIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety Index'**
+  String get crimeSafetyIndex;
+
+  /// No description provided for @crimeAnnualCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual convicted cases'**
+  String get crimeAnnualCases;
+
+  /// No description provided for @crimeTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'5-year trend'**
+  String get crimeTrendTitle;
+
+  /// No description provided for @crimeCategoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get crimeCategoryAll;
+
+  /// No description provided for @crimeCategoryAssault.
+  ///
+  /// In en, this message translates to:
+  /// **'Violent crime'**
+  String get crimeCategoryAssault;
+
+  /// No description provided for @crimeCategoryProperty.
+  ///
+  /// In en, this message translates to:
+  /// **'Property crime'**
+  String get crimeCategoryProperty;
+
+  /// No description provided for @crimeTrendNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Total convicted cases, not actual crime rate.'**
+  String get crimeTrendNote;
+
+  /// No description provided for @crimeSourceYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Data year: {year}'**
+  String crimeSourceYear(int year);
+
+  /// No description provided for @crimeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporarily unavailable'**
+  String get crimeUnavailable;
+
+  /// No description provided for @crimeStateUnresolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Location outside supported area'**
+  String get crimeStateUnresolved;
+
+  /// No description provided for @crimePartialData.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial data'**
+  String get crimePartialData;
+
+  /// No description provided for @crimeViewPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'View Portfolio'**
+  String get crimeViewPortfolio;
+
+  /// No description provided for @crimeAddProperty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Property'**
+  String get crimeAddProperty;
+
+  /// No description provided for @crimeBackToMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Map'**
+  String get crimeBackToMap;
+
   /// No description provided for @homeIncomeAmount.
   ///
   /// In en, this message translates to:

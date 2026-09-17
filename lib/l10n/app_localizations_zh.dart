@@ -214,6 +214,50 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get crimeSafetyIndex => '安全指数';
+
+  @override
+  String get crimeAnnualCases => '年度已定罪案件数';
+
+  @override
+  String get crimeTrendTitle => '最近5年犯罪趋势';
+
+  @override
+  String get crimeCategoryAll => '全部';
+
+  @override
+  String get crimeCategoryAssault => '暴力犯罪';
+
+  @override
+  String get crimeCategoryProperty => '财产犯罪';
+
+  @override
+  String get crimeTrendNote => '案件数，不代表实际犯罪率';
+
+  @override
+  String crimeSourceYear(int year) {
+    return '数据年份：$year';
+  }
+
+  @override
+  String get crimeUnavailable => '暂不可用';
+
+  @override
+  String get crimeStateUnresolved => '地点在支持区域外';
+
+  @override
+  String get crimePartialData => '部分数据';
+
+  @override
+  String get crimeViewPortfolio => '房产档案';
+
+  @override
+  String get crimeAddProperty => '新增房产';
+
+  @override
+  String get crimeBackToMap => '返回主地图';
+
+  @override
   String homeIncomeAmount(String amount, String year) {
     return 'RM $amount / 月 · $year 年调查';
   }

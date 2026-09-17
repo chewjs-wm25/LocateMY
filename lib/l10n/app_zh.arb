@@ -74,6 +74,27 @@
       }
     }
   },
+  "crimeSafetyIndex": "安全指数",
+  "crimeAnnualCases": "年度已定罪案件数",
+  "crimeTrendTitle": "最近5年犯罪趋势",
+  "crimeCategoryAll": "全部",
+  "crimeCategoryAssault": "暴力犯罪",
+  "crimeCategoryProperty": "财产犯罪",
+  "crimeTrendNote": "案件数，不代表实际犯罪率",
+  "crimeSourceYear": "数据年份：{year}",
+  "@crimeSourceYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "crimeUnavailable": "暂不可用",
+  "crimeStateUnresolved": "地点在支持区域外",
+  "crimePartialData": "部分数据",
+  "crimeViewPortfolio": "房产档案",
+  "crimeAddProperty": "新增房产",
+  "crimeBackToMap": "返回主地图",
   "homeIncomeAmount": "RM {amount} / 月 · {year} 年调查",
   "@homeIncomeAmount": {
     "placeholders": {
