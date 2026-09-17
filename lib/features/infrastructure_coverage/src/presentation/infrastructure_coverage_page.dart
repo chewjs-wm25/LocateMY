@@ -52,6 +52,7 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
             child: RefreshIndicator(
               onRefresh: () => _model.load(InfrastructureLoadPolicy.refresh),
               child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                 children: <Widget>[
                   Row(
@@ -76,7 +77,14 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
                   const SizedBox(height: 2),
                   Text('${_t('固定半径 1.5 公里 · 分析日', 'Fixed radius 1.5 km · Analysis date')} ${_date(_model.analysisDate)}', style: _style(13, FontWeight.w400, const Color(0xFF667085))),
                   const SizedBox(height: 18),
-                  if (_model.loading) const Padding(padding: EdgeInsets.all(30), child: Center(child: CircularProgressIndicator())),
+                  if (_model.loading)
+                    Padding(
+                      padding: const EdgeInsets.all(30),
+                      child: Semantics(
+                        label: _t('正在读取基础设施覆盖', 'Loading infrastructure coverage'),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
                   if (outcome is InfrastructureAvailable) ..._available(outcome.snapshot),
                   if (outcome is InfrastructurePartial) ..._partial(outcome.snapshot),
                   if (outcome is InfrastructureUnavailable) _notice(_service(outcome.reason)),
@@ -101,10 +109,16 @@ final class _InfrastructureCoveragePageState extends State<InfrastructureCoverag
           Text(_t('综合基础设施覆盖', 'Infrastructure coverage score'), style: _style(14, FontWeight.w600, const Color(0xFFB9C9E8))),
           const SizedBox(height: 4),
           if (score != null)
-            Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 8, children: <Widget>[
-              Text('$score', style: _style(34, FontWeight.w700, Colors.white)),
-              Text('/ 100', style: _style(14, FontWeight.w600, const Color(0xFFCFD9EB))),
-            ])
+            Semantics(
+              label: _t(
+                '基础设施覆盖读数 ${score}，满分 100',
+                'Infrastructure coverage score ${score} out of 100',
+              ),
+              child: Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 8, children: <Widget>[
+                Text('$score', style: _style(34, FontWeight.w700, Colors.white)),
+                Text('/ 100', style: _style(14, FontWeight.w600, const Color(0xFFCFD9EB))),
+              ]),
+            )
           else
             Text(_t('分数不可用', 'Score unavailable'), style: _style(18, FontWeight.w700, Colors.white)),
         ]),

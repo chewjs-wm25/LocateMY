@@ -5,16 +5,21 @@ import 'package:locatemy/features/map_location/map_location.dart';
 enum InfrastructureLoadPolicy { cacheAllowed, refresh }
 
 final class InfrastructureViewModel extends ChangeNotifier {
+  ValidLocationReference _location;
+  DateTime _analysisDate;
+
   InfrastructureLoadOutcome? _outcome;
   bool _loading = false;
   bool get loading => _loading;
   InfrastructureLoadOutcome? get outcome => _outcome;
   bool retainedPreviousResult = false;
 
-  final ValidLocationReference location;
-  DateTime analysisDate;
+  ValidLocationReference get location => _location;
+  DateTime get analysisDate => _analysisDate;
 
-  InfrastructureViewModel({required this.location, required this.analysisDate});
+  InfrastructureViewModel({required ValidLocationReference location, required DateTime analysisDate})
+      : _location = location,
+        _analysisDate = analysisDate;
 
   Future<void> load([InfrastructureLoadPolicy policy = InfrastructureLoadPolicy.cacheAllowed]) async {
     _loading = true;
@@ -27,15 +32,17 @@ final class InfrastructureViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeLocation(ValidLocationReference location, DateTime date) {
-    // simple setter for when parent widget updates
-    // ignore: prefer_final_locals
-    var _ = location;
-    analysisDate = date;
+  Future<void> changeLocation(ValidLocationReference location, DateTime date) async {
+    _location = location;
+    _analysisDate = date;
+    _outcome = null;
     notifyListeners();
+    await load(InfrastructureLoadPolicy.cacheAllowed);
   }
 
+  @override
   void dispose() {
+    _outcome = null;
     super.dispose();
   }
 }

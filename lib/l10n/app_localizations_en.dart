@@ -431,6 +431,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapSafetyIndex => 'Safety index';
 
   @override
+  String get crimeSafetyIndex => 'Crime & safety index';
+
+  @override
+  String get crimeStateUnresolved => 'State boundaries unresolved';
+
+  @override
+  String get crimeUnavailable => 'Crime data unavailable';
+
+  @override
+  String get crimeAnnualCases => 'Annual cases';
+
+  @override
+  String get crimePartialData => 'Partial data — may be incomplete';
+
+  @override
+  String crimeSourceYear(int year) {
+    return 'Source year: $year';
+  }
+
+  @override
+  String get crimeTrendTitle => 'Crime trend';
+
+  @override
+  String get crimeTrendNote => 'Trend reconstructed from available observations.';
+
+  @override
+  String get crimeCategoryAll => 'All';
+
+  @override
+  String get crimeCategoryAssault => 'Assault';
+
+  @override
+  String get crimeCategoryProperty => 'Property';
+
+  @override
+  String get crimeViewPortfolio => 'View property portfolio';
+
+  @override
+  String get crimeAddProperty => 'Add property';
+
+  @override
   String get mapCostOfLivingIndex => 'Cost of living index';
 
   @override
