@@ -88,3 +88,11 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
 本次重构的统一证据见 [Issue #31 执行检查](../system/issue-31-validation.md)；
 设备、真实外部服务证据缺失时不得宣称新版本 `Implemented` 或 `Integrated`。
+
+
+### 为 Socio 本期固定的最小只读 current 边界
+
+`CurrentBudgetReader.readCurrent(): Future<BudgetScenariosOutcome>` 与 `watchCurrent(): Stream<BudgetScenariosOutcome>` 从唯一入口导出。
+`createSupabaseCurrentBudgetReader(client)` 提供真实 owner-only 在线读取；null 家庭收入与 0 区分，网络失败 typed unavailable，不以月净收入替代。
+观察期间每 10 秒在线检查已保存的 current；消费者取消订阅后停止。当前读取与未来预算 writer 的完整联验由 B 主责、A 页面接线，Wave 6。
+该增量不实现预算 CRUD、JSON、CPI 或生活成本，模块状态仍为 Draft；字段以 Schema Catalog 为准。

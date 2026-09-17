@@ -50,7 +50,7 @@
 | `cpi_state` | `implemented` | Cost | `(state, date, division)`；index；临时换算同时读取地点所属州与全国 Headline/Overall CPI 的同月记录 | Cost |
 | `cpi_state_inflation` | `proposed` | Cost | `(state, date, division)`；inflation yoy/mom | Cost；当前缺失 |
 | `hh_income_district` | `implemented` | Cost、Socio | `(state, district, date)`；income mean/median | Cost、Socio |
-| `hh_income_state` | `proposed` | Socio | `(state, date)`；income mean/median | Socio；现有 `hies_state` 不是同一数据集 |
+| `hh_income_state` | `implemented` | Socio | `(state, date)`；income mean/median | Socio；现有 `hies_state` 不是同一数据集 |
 | `hh_inequality_district` | `implemented` | Socio | `(state, district, date)`；gini | Socio |
 | `hh_inequality_state` | `implemented` | Socio | `(state, date)`；gini | Socio；2026-09-17 完整导入 289 行，最新 2024 年覆盖 16 州；不代表 Socio Feature 已实现 |
 | `hies_state_percentile` | `implemented` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；2026-09-17 完整导入 19,200 行，2019/2022/2024 × 16 州 × 100 百分位 × 4 变量；保留 96 个官方隐私空值 |
@@ -104,7 +104,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、行政区收入，以及地点所属州与全国的 Headline/Overall CPI 同月输入 | Cost |
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker RPC / `implemented` | Crime | crime district；边界经 Geo Interface | Crime |
-| `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
+| `read_socio_inputs` | security-invoker RPC / `implemented` | Socio | `p_state text, p_district text default null` → JSON version/state/district、五组收入/基尼/百分位原始观测 | Socio；authenticated execute，anon/PUBLIC deny |
 | `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
 | `read_transit_analysis` | security-invoker RPC / `implemented` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit |
 
@@ -232,3 +232,20 @@ SQLite 在 Adapter 懒初始化：`cache_key/model_version/payload/source_year/f
 TTL 严格三天，未来时间、过期、字段错配、损坏、模型版/来源错配均失效。
 不保存账户、收藏 id、地点名称；退出保留；读取/离线 fallback 不延长原始取数时间。
 Geo 暂时无网络可恢复同坐标公共结果；新坐标、明确 unresolved/ambiguous 或来源版本不可验证不选默认州。
+
+
+## Socio-economic 本次增量数据边界（2026-09-17）
+
+Migration `20260917151921_socio_economic_read_api.sql`：`read_socio_inputs(text,text)` 是 stable / security invoker，空 search_path；仅 authenticated 执行，函数内要求 auth.uid()。
+返回 `version = 1`、`state`、可空 `district`，以及 `income_district` / `income_state`（date, income_median）、`gini_district` / `gini_state`（date, gini）、`percentiles`（date, percentile, variable, income）数组；空数组/原始 null 不补零。
+读取五个既有镜像，客户端不自行猜测地区、不以 hies_state 替代 hh_income_state，不改变镜像业务字段。
+州收入镜像已实际存在 308 行，最新 2024 年；原表 proposed 状态修正不代表相关 Feature 自动验收。
+
+Budget 增量只 additive 地加入 `household_monthly_gross_income_rm numeric(12,2)`，nullable、非负，旧记录 null。
+其归属与 owner-only RLS 沿用既有预案表；Socio 仅消费 Cost 模块 `CurrentBudgetReader` 的只读 current 结果。
+Cost Adapter 读取 id/scenario_name/household_monthly_gross_income_rm/monthly_net_income/is_current/updated_at；姓名及账号字段不进入公共缓存。
+完整预算 CRUD/切换页面及其联验仍由 B 负责，不因补齐此只读边界改为 Implemented。
+
+SQLite `socio_public_cache`：cache_key、version=1、公开原始 payload、fetched_at、expires_at（3 天）；key 为 state/district/boundary version 或精确坐标。
+只保存成功取得的公共输入与地区/边界事实，失败读取不延长期限；个人收入/预案/账号/收藏名不入库。
+过期、未来采集时间及损坏 JSON 安全失效；退出允许保留。Geo 来源断网可用精确坐标快照，scopeUnavailable/ambiguity/noCoverage 不据旧快照伪造解析。
