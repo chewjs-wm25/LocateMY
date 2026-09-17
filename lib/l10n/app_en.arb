@@ -266,5 +266,19 @@
     }
   },
   "mapFeatureNotConnected": "This feature is not connected yet",
-  "mapLocationRetained": "The selected location is retained. Return to the map to continue."
+  "mapLocationRetained": "The selected location is retained. Return to the map to continue.",
+  "mapFacilityLayer": "Nearby facilities",
+  "mapHazardLayer": "Hazard reports",
+  "mapTransitLayer": "Public transportation",
+  "mapLayerCluster": "{layer}: {count} points. Tap to explore.",
+  "@mapLayerCluster": {
+    "placeholders": {
+      "layer": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

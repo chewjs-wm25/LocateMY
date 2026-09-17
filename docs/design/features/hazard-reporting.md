@@ -36,6 +36,19 @@
 | Account Privacy | 同账户 opened/closing 和旧账户私有状态清理证明 | 远端报告/投票删除或公共缓存 | `PRIVACY-001` |
 | Property Inspection | 何时将完整附近数写入原子风险快照 | 报告、计数口径、公共图层 | 消费 `HAZARD-002` |
 
+### 新建入口补充验收（Issue #25，2026-09-17）
+
+“我的隐患报告”的“新建隐患报告”必须进入可观察的上报流程，不能仅返回无提示的地图。
+地图提供“上报隐患”入口；开启流程后提示选择地点，展示当前已验证的 single 地点坐标，
+用户显式确认后通过 `OpenHazardComposerIntent` 打开表单。没有合法地点时确认按钮不可用；
+取消不创建报告。仍支持合法长按创建，不改变 frozen Interface、报告权限或发布后不可变规则。
+
+补充验收归属为本模块与 Shell / Map 联合，Owner A、最迟 Wave 5。使用生产
+`mapAndHomeShellViews` / Shell bindings 验证提示、非法点、合法点、原 immutable reference、
+返回与取消，并在两目标设备从真实“新建隐患报告”按钮开始执行选点、发布与本人管理。
+证据记录于 [本次完成报告](../../human/hazard-reporting-completion-2026-09-17.md)；
+已有报告、图层、分页、投票、权限、恢复和附近计数验收继续适用。
+
 ## 2. 需要调用的 Interface
 
 ### `SHELL-001` — Hazard 导航与组合
@@ -319,3 +332,4 @@ enum HazardNearbyCountFailure { invalidLocation, authenticationRequired, partial
 唯一入口导出 contract 类型、scope-aware factories、runtime 和 root 注册的页面 / 图层寄宿 Widget。内部按 Domain 类型、Application service / runtime / Map layer controller、Data Supabase Adapter、Presentation ViewModel / View 分层；SDK 不进入 View 或消费者。图层只贡献 immutable item 与 provider intent，不修改分析地点。
 
 手写 Dart 采用显式局部类型、完整方法体、显式构造初始化。必要例外：Flutter `super.key` 与 framework collection-if，marker 跨 library `implements ShellIntent`（Dart `interface` 限制）；`noSuchMethod` 只在明确未调用的测试 fake 操作中使用。生产能力没有 `UnimplementedError` 或 fake；在线写失败不排队。
+| 2026-09-17 | `Implemented`（入口补全与复验） | Issue #25：修复列表新建仅返回地图；新增可观察选点 / 确认 / 取消，补测中英文 200% 字体、重复确认与账户切换；282 项测试、3 项 live、生产构建及双设备完整流程通过，Luna High Standards / Spec 均 0 项问题 | 内部 Shell / Map 接线、入口测试、验收工具与[完成报告](../../human/hazard-reporting-completion-2026-09-17.md)；无 frozen Interface 或数据模型变更 | 项目负责人授权开发；GPT‑5.6 Luna High 最终复审 |

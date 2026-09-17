@@ -640,4 +640,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mapLocationRetained =>
       'The selected location is retained. Return to the map to continue.';
+
+  @override
+  String get mapFacilityLayer => 'Nearby facilities';
+
+  @override
+  String get mapHazardLayer => 'Hazard reports';
+
+  @override
+  String get mapTransitLayer => 'Public transportation';
+
+  @override
+  String mapLayerCluster(String layer, int count) {
+    return '$layer: $count points. Tap to explore.';
+  }
 }

@@ -9,11 +9,11 @@ def stamp():
  digest=hashlib.sha256()
  for path in sorted([*Path('lib').rglob('*.dart'),*Path('test').rglob('*.dart'),*Path('tool').glob('*.dart'),Path('pubspec.yaml'),Path('pubspec.lock')]):digest.update(str(path).encode()+b'\0'+path.read_bytes())
  scoped=hashlib.sha256()
- paths=[*Path('lib/features/hazard_reporting').rglob('*.dart'),Path('lib/app/app.dart'),Path('lib/app/src/presentation/shell_host.dart'),Path('lib/features/map_location/src/presentation/map_location_page.dart'),*Path('test/features/hazard_reporting').glob('*.dart'),Path('test/live/hazard_reporting_live_test.dart'),Path('tool/hazard_reporting_device.dart'),*Path('supabase/migrations').glob('*hazard*.sql')]
+ paths=[*Path('lib/features/hazard_reporting').rglob('*.dart'),Path('lib/app/app.dart'),Path('lib/app/src/presentation/shell_host.dart'),Path('lib/features/map_location/src/presentation/map_location_page.dart'),*Path('test/features/hazard_reporting').glob('*.dart'),Path('test/app/hazard_shell_test.dart'),Path('test/live/hazard_reporting_live_test.dart'),Path('tool/hazard_reporting_device.dart'),*Path('supabase/migrations').glob('*hazard*.sql')]
  for path in sorted(paths):scoped.update(str(path).encode()+b'\0'+path.read_bytes())
  return {'hazard_source_sha256':scoped.hexdigest(),'base_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'source_sha256':digest.hexdigest()}
 def build(extra=(),name='production-build'):
- values=read('.env');credentials=read('test_credentials.local.md');evidence=Path('docs/human/evidence/hazard-reporting-wave5-2026-09-17');evidence.mkdir(parents=True,exist_ok=True)
+ values=read('.env');credentials=read('test_credentials.local.md');evidence=Path('docs/human/evidence/hazard-reporting-completion-2026-09-17');evidence.mkdir(parents=True,exist_ok=True)
  source=stamp();root=Path.cwd();artifact=Path('/tmp/locatemy-hazard-artifacts')/(name+'.apk');artifact.parent.mkdir(parents=True,exist_ok=True)
  with tempfile.TemporaryDirectory(prefix='locatemy-hazard-build-') as temporary:
   snapshot=Path(temporary)

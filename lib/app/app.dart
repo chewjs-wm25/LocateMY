@@ -465,7 +465,12 @@ ShellViews mapAndHomeShellViews(
           onMine: () {
             scoped.submit(const OpenMyHazardsIntent('map'));
           },
-          child: mapPage,
+          child: _HazardCreationPanel(
+            locations: map.locations,
+            session: current,
+            shell: scoped,
+            child: mapPage,
+          ),
         );
       }
       return NearbyFacilitiesMapPanel(
@@ -613,7 +618,179 @@ class MapFutureDestination extends StatelessWidget {
 final class _HazardMapSession {
   final ValueNotifier<HazardPageRequest?> viewport = ValueNotifier(null);
   final ValueNotifier<int> revision = ValueNotifier(0);
+  final ValueNotifier<String?> creationContext = ValueNotifier(null);
+  bool openingComposer = false;
   final ValueNotifier<GeographicPoint?> focus = ValueNotifier(null);
+}
+
+/// Makes report creation discoverable while Map owns coordinate validation.
+final class _HazardCreationPanel extends StatelessWidget {
+  final LocationCoordinator locations;
+  final _HazardMapSession session;
+  final ApplicationShell shell;
+  final Widget child;
+  const _HazardCreationPanel({
+    required LocationCoordinator locations,
+    required _HazardMapSession session,
+    required ApplicationShell shell,
+    required Widget child,
+  }) : locations = locations,
+       session = session,
+       shell = shell,
+       child = child;
+
+  String text(BuildContext context, String english, String chinese) {
+    if (Localizations.localeOf(context).languageCode == 'zh') {
+      return chinese;
+    }
+    return english;
+  }
+
+  Future<void> confirm(
+    BuildContext context,
+    ValidLocationReference location,
+    String returnContextId,
+  ) async {
+    if (session.openingComposer ||
+        session.creationContext.value != returnContextId) {
+      return;
+    }
+    session.openingComposer = true;
+    final ShellIntentOutcome outcome;
+    try {
+      outcome = await shell.submit(
+        OpenHazardComposerIntent(
+          location: location,
+          returnContextId: returnContextId,
+        ),
+      );
+    } finally {
+      session.openingComposer = false;
+    }
+    if (outcome is ShellIntentAccepted) {
+      session.creationContext.value = null;
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            text(
+              context,
+              'Unable to open the report. Please retry or sign in again.',
+              '无法打开报告，请重试或重新登录。',
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String?>(
+      valueListenable: session.creationContext,
+      builder: (BuildContext context, String? returnContextId, Widget? unused) {
+        return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Column(
+              children: [
+                if (returnContextId == null)
+                  TextButton.icon(
+                    key: const ValueKey('hazard-start-report'),
+                    onPressed: () {
+                      session.creationContext.value = 'map';
+                    },
+                    icon: const Icon(Icons.add_location_alt_outlined),
+                    label: Text(text(context, 'Report hazard', '上报隐患')),
+                  )
+                else
+                  StreamBuilder<void>(
+                    stream: locationWorkspace(locations).changes,
+                    builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                      final LocationRoleSnapshot selected = locations.read(
+                        LocationRole.single,
+                      );
+                      ValidLocationReference? location;
+                      if (selected is LocationPresent) {
+                        location = selected.location;
+                      }
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: constraints.maxHeight / 2,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            child: Column(
+                              children: [
+                                Semantics(
+                                  liveRegion: true,
+                                  child: Text(
+                                    text(
+                                      context,
+                                      'Choose a hazard location, then confirm to open the report form.',
+                                      '选择隐患位置，然后确认进入报告表单。',
+                                    ),
+                                  ),
+                                ),
+                                if (location != null)
+                                  Text(
+                                    '${location.point.latitude.toStringAsFixed(5)}, ${location.point.longitude.toStringAsFixed(5)}',
+                                  ),
+                                Wrap(
+                                  spacing: 8,
+                                  children: [
+                                    FilledButton(
+                                      key: const ValueKey(
+                                        'hazard-confirm-location',
+                                      ),
+                                      onPressed: location == null
+                                          ? null
+                                          : () {
+                                              confirm(
+                                                context,
+                                                location!,
+                                                returnContextId,
+                                              );
+                                            },
+                                      child: Text(
+                                        text(
+                                          context,
+                                          'Report at this location',
+                                          '在此位置上报',
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      key: const ValueKey(
+                                        'hazard-cancel-report',
+                                      ),
+                                      onPressed: () {
+                                        session.creationContext.value = null;
+                                      },
+                                      child: Text(
+                                        text(context, 'Cancel', '取消'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                Expanded(child: child),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
 List<ShellIntentBinding> hazardShellBindings(ShellRuntime Function() runtime) {
@@ -744,6 +921,7 @@ List<ShellTaskView> _hazardTaskViews(
             );
           },
           onCreate: () {
+            session().creationContext.value = intent.returnContextId;
             runtime().submit(ReturnToHazardMapIntent(intent.returnContextId));
           },
         );

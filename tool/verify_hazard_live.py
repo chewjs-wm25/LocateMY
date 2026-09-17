@@ -10,7 +10,7 @@ values.update(credentials)
 other_email=f'locatemy.map.{secrets.token_hex(8)}@gmail.com';other_password=f'Map!{secrets.token_hex(20)}'
 name='locatemy-map-'+secrets.token_hex(12)
 redact=[*values.values(),other_email,other_password]
-root=Path('docs/human/evidence/hazard-reporting-wave5-2026-09-17');root.mkdir(parents=True,exist_ok=True)
+root=Path('docs/human/evidence/hazard-reporting-completion-2026-09-17');root.mkdir(parents=True,exist_ok=True)
 def request(path,method,body=None):
     req=urllib.request.Request(values['SUPABASE_URL']+path,method=method,data=json.dumps(body).encode() if body is not None else None,headers={'apikey':values['SUPABASE_SECRET_KEY'],'Authorization':'Bearer '+values['SUPABASE_SECRET_KEY'],'Content-Type':'application/json'})
     with urllib.request.urlopen(req,timeout=30) as response:

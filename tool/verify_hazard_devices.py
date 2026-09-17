@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from verify_hazard_build import build,read,stamp
 parser=argparse.ArgumentParser();parser.add_argument('--devices',nargs='+',required=True);parser.add_argument('--replay-only',action='store_true');args=parser.parse_args()
 values=read('.env');credentials=read('test_credentials.local.md')
-evidence=Path('docs/human/evidence/hazard-reporting-wave5-2026-09-17');evidence.mkdir(parents=True,exist_ok=True)
+evidence=Path('docs/human/evidence/hazard-reporting-completion-2026-09-17');evidence.mkdir(parents=True,exist_ok=True)
 redactions=[*values.values(),*credentials.values()]
 def clean(text):
  for value in redactions:
@@ -79,6 +79,8 @@ try:
     tree=capture(stage+'-before')
     nodes=[n for n in tree.iter('node') if any(label==n.attrib.get('text','').split('\n')[0] or label==n.attrib.get('content-desc','').split('\n')[0] for label in labels)]
     if nodes:
+     if nodes[0].attrib.get('enabled')=='false':
+      time.sleep(1);continue
      b=list(map(int,re.findall(r'\d+',nodes[0].attrib['bounds'])));run(adb+['shell','input','tap',str((b[0]+b[2])//2),str((b[1]+b[3])//2)]);time.sleep(1);return
     scrolls=[n for n in tree.iter('node') if n.attrib.get('scrollable')=='true']
     if not scrolls:raise RuntimeError('UI target missing: '+str(labels))
@@ -87,7 +89,18 @@ try:
   def back():run(adb+['shell','input','keyevent','4']);time.sleep(1)
   run(adb+['shell','input','keyevent','224']);run(adb+['shell','wm','dismiss-keyguard'])
   launch();wait('READY');capture('ready')
-  tap('QA Composer','composer');capture('composer-zh')
+  tap('QA My Reports','entry-list')
+  tap(['＋ 新建隐患报告','+ New hazard report'],'entry-create');tree=capture('entry-select')
+  assert any('选择隐患位置' in n.attrib.get('text','') or '选择隐患位置' in n.attrib.get('content-desc','') for n in tree.iter('node')), 'Missing report selection guidance'
+  tap(['输入坐标','Enter coordinates'],'entry-coordinates');tree=capture('entry-coordinate-fields')
+  fields=[n for n in tree.iter('node') if n.attrib.get('class')=='android.widget.EditText']
+  assert len(fields)==2, 'Expected latitude and longitude fields'
+  for node,value in zip(fields,['3.0738','101.6072']):
+   b=list(map(int,re.findall(r'\d+',node.attrib['bounds'])));run(adb+['shell','input','tap',str((b[0]+b[2])//2),str((b[1]+b[3])//2)])
+   time.sleep(1);run(adb+['shell','input','text',value]);time.sleep(.5)
+  back();tap(['选择','Select'],'entry-select-point');time.sleep(2)
+  tap(['在此位置上报','Report at this location'],'entry-confirm');tree=capture('composer-zh')
+  assert any('隐患类型' in n.attrib.get('text','') or '隐患类型' in n.attrib.get('content-desc','') for n in tree.iter('node')), 'Report form did not open'
   tap(['发布隐患报告','Publish hazard report'],'missing-type');capture('validation')
   # Submit scrolls back to the first invalid field.
   tap(['水灾','Flood'],'type')
@@ -105,13 +118,17 @@ try:
    run(adb+['shell','settings','put','system','font_scale','2.0']);time.sleep(2);capture('detail-en-200')
    tap(['Withdraw vote','撤回投票'],'retract-200');capture('retracted-200')
   finally:run(adb+['shell','settings','put','system','font_scale','1.0']);time.sleep(1)
-  back();capture('return-list');back();capture('return-home')
+  back();capture('return-list');back();tap(['Home','首页'],'return-home-tab');capture('return-home')
   tap('QA Offline','offline');wait('OFFLINE_READY');tap('QA Composer','offline-composer')
   tap(['Flood','水灾'],'offline-type');tree=capture('offline-title');node=next(n for n in tree.iter('node') if n.attrib.get('class')=='android.widget.EditText')
   b=list(map(int,re.findall(r'\d+',node.attrib['bounds'])));run(adb+['shell','input','tap',str((b[0]+b[2])//2),str((b[1]+b[3])//2)])
   run(adb+['shell','input','text','QA-offline-retained']);back();tap(['Publish hazard report','发布隐患报告'],'offline-publish');capture('offline-retained')
   back();tap('QA Recover','recover');wait('ONLINE_READY');launch();wait('READY');tap('QA My Reports','restart-list');capture('restart-persisted')
-  tap(['查看详情','View details'],'restart-detail');tap(['地图定位','Locate on map'],'locate');time.sleep(3);capture('map-layer');back();tap(['Home','首页'],'home')
+  tap(['查看详情','View details'],'restart-detail');tap(['地图定位','Locate on map'],'locate');time.sleep(3);capture('map-layer');tap(['Home','首页'],'home')
+  tap('QA My Reports','final-list');tap(['查看详情','View details'],'final-detail')
+  tap(['删除','Delete'],'final-delete-dialog');tap(['删除','Delete'],'final-delete-confirm');time.sleep(2);tree=capture('deleted-list')
+  assert not any('QA-Hazard-' in n.attrib.get('text','') or 'QA-Hazard-' in n.attrib.get('content-desc','') for n in tree.iter('node')), 'Deleted report still visible'
+  back()
   tap('QA Close','close');wait('CLOSED_READY');capture('closed')
   (evidence/(tag+'-verification.source.json')).write_text(json.dumps(stamp(),indent=2)+'\n')
   print(tag+' PASS: form, votes, status, confirmation, offline, restart, map and close',flush=True)

@@ -16,6 +16,7 @@ import '../application/map_workspace.dart';
 import 'map_view_model.dart';
 import 'coordinate_dialog.dart';
 import 'save_location_dialog.dart';
+import 'grouped_map_layer.dart';
 
 class MapLocationPage extends StatefulWidget {
   final LocationCoordinator locations;
@@ -609,20 +610,14 @@ class _MapLocationPageState extends State<MapLocationPage>
                           ),
                         ),
                       ),
-                  for (final item in vm.layerItems)
-                    Marker(
-                      point: LatLng(item.point.latitude, item.point.longitude),
-                      child: IconButton(
-                        tooltip: l10n.mapLayerPoint(
-                          item.point.latitude.toStringAsFixed(5),
-                          item.point.longitude.toStringAsFixed(5),
-                        ),
-                        onPressed: () =>
-                            vm.navigate(OpenMapLayerIntent(item.intent)),
-                        icon: const Icon(Icons.place),
-                      ),
-                    ),
                 ],
+              ),
+              GroupedMapLayer(
+                items: vm.layerItems,
+                controller: controller,
+                onSelected: (MapLayerIntent intent) {
+                  vm.navigate(OpenMapLayerIntent(intent));
+                },
               ),
             ],
           ),

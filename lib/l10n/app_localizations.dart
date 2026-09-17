@@ -1134,6 +1134,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The selected location is retained. Return to the map to continue.'**
   String get mapLocationRetained;
+
+  /// No description provided for @mapFacilityLayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby facilities'**
+  String get mapFacilityLayer;
+
+  /// No description provided for @mapHazardLayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Hazard reports'**
+  String get mapHazardLayer;
+
+  /// No description provided for @mapTransitLayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Public transportation'**
+  String get mapTransitLayer;
+
+  /// No description provided for @mapLayerCluster.
+  ///
+  /// In en, this message translates to:
+  /// **'{layer}: {count} points. Tap to explore.'**
+  String mapLayerCluster(String layer, int count);
 }
 
 class _AppLocalizationsDelegate

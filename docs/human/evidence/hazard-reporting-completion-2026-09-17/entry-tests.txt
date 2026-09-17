@@ -1,0 +1,110 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/app/hazard_shell_test.dart
+00:00 +0: new report guides selection, confirms and isolates accounts: English=false scale=1.0
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-2"}
+{"event":"map.select.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:01 +1: new report guides selection, confirms and isolates accounts: English=false scale=2.0
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.select.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-10"}
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-11"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-12"}
+00:02 +2: new report guides selection, confirms and isolates accounts: English=true scale=1.0
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-13"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-14"}
+{"event":"map.select.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-15"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-16"}
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-17"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-18"}
+00:02 +3: new report guides selection, confirms and isolates accounts: English=true scale=2.0
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-19"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-20"}
+{"event":"map.select.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-21"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-22"}
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+[38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+[38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+[38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+[38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+[38;5;12m│ 💡 See:[0m
+[38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+[38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-23"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-24"}
+00:03 +4: All tests passed!

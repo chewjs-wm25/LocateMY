@@ -590,4 +590,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mapLocationRetained => '已保留所选地点，返回地图可继续选点。';
+
+  @override
+  String get mapFacilityLayer => '周边设施';
+
+  @override
+  String get mapHazardLayer => '隐患报告';
+
+  @override
+  String get mapTransitLayer => '公共交通';
+
+  @override
+  String mapLayerCluster(String layer, int count) {
+    return '$layer：$count 个地点，点击查看。';
+  }
 }

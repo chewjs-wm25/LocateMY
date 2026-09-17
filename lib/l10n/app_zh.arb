@@ -240,5 +240,19 @@
   "mapLocationSummary": "{role}：{name}。纬度 {latitude}，经度 {longitude}。",
   "mapLayerPoint": "图层地点：纬度 {latitude}，经度 {longitude}。",
   "mapFeatureNotConnected": "此功能尚未接入",
-  "mapLocationRetained": "已保留所选地点，返回地图可继续选点。"
+  "mapLocationRetained": "已保留所选地点，返回地图可继续选点。",
+  "mapFacilityLayer": "周边设施",
+  "mapHazardLayer": "隐患报告",
+  "mapTransitLayer": "公共交通",
+  "mapLayerCluster": "{layer}：{count} 个地点，点击查看。",
+  "@mapLayerCluster": {
+    "placeholders": {
+      "layer": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
