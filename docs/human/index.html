@@ -251,7 +251,7 @@
       <p class="eyebrow">LocateMY · 2026-09-17</p>
       <h1>当前实现状态与开发入口</h1>
       <p class="lede">这里集中放置当前功能、模块与应用装配的可读版契约，并标出代码在当前工作区的实现状态。先按主题找到文档，再从文档中的范围、接口和验收条件了解具体工作。</p>
-      <p class="note">状态检查：当前代码已接入社会经济与基础设施页面；治安已有 Wave 5 实现证据，但当前 <code>flutter analyze</code> 与相关测试因移除的本地化 getter 未通过。契约状态、字段和边界仍以对应的 owning Markdown 为准。</p>
+      <p class="note">状态检查：Crime &amp; Security 已按 Wave 5 验收为 <code>Implemented</code>，相关目标测试 30 项通过；当前工作区的 <code>flutter analyze</code> 仍有 13 个 lint，其中 6 个来自遗留 <code>crime_and_security</code> 代码。<code>Integrated</code> 仍待项目负责人批准，房产风险的真实消费留至 Wave 6。契约状态、字段和边界仍以对应的 owning Markdown 为准。</p>
     </header>
 
     <section class="summary" aria-label="文档概览">
@@ -284,8 +284,8 @@
             <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="crime security 治安 crime owner b">
-            <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>治安分析与比较；Wave 5 责任验收已通过，当前构建受本地化回归阻塞。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status blocked">实现 · 构建阻塞</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>州级治安分析与比较；Wave 5 责任验收已通过，遗留代码的静态检查 lint 待清理，房产风险消费留至 Wave 6。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status blocked">Implemented · lint 待清理</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="socio economic 社会经济 socioeconomic owner b">
             <div><h3><a href="socio-economic.html">Socio-economic</a></h3><p>社会经济页面代码已接线；设计契约仍为 Draft，待补验收。</p></div>
