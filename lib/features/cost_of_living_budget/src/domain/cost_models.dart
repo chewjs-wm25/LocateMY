@@ -157,10 +157,7 @@ final class CostComparison {
   final CostAnalysis analysisA;
   final CostAnalysis analysisB;
 
-  const CostComparison({
-    required this.analysisA,
-    required this.analysisB,
-  });
+  const CostComparison({required this.analysisA, required this.analysisB});
 }
 
 final class CostItem {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../domain/safety_models.dart';
 
 class SafetyTrendChart extends StatelessWidget {
@@ -13,9 +14,7 @@ class SafetyTrendChart extends StatelessWidget {
 
     return AspectRatio(
       aspectRatio: 2.0,
-      child: CustomPaint(
-        painter: _TrendPainter(trend.points),
-      ),
+      child: CustomPaint(painter: _TrendPainter(trend.points)),
     );
   }
 }
@@ -38,8 +37,12 @@ class _TrendPainter extends CustomPainter {
       ..color = const Color(0xFF155EEF)
       ..style = PaintingStyle.fill;
 
-    final maxVal = points.map((p) => p.convictedCases).reduce((a, b) => a > b ? a : b);
-    final minVal = points.map((p) => p.convictedCases).reduce((a, b) => a < b ? a : b);
+    final maxVal = points
+        .map((p) => p.convictedCases)
+        .reduce((a, b) => a > b ? a : b);
+    final minVal = points
+        .map((p) => p.convictedCases)
+        .reduce((a, b) => a < b ? a : b);
     final range = (maxVal - minVal).clamp(1, double.infinity);
 
     final double padding = 20.0;
@@ -51,7 +54,10 @@ class _TrendPainter extends CustomPainter {
     final path = Path();
     for (int i = 0; i < points.length; i++) {
       final x = padding + i * dx;
-      final y = size.height - padding - (points[i].convictedCases - minVal) / range * height;
+      final y =
+          size.height -
+          padding -
+          (points[i].convictedCases - minVal) / range * height;
 
       if (i == 0) {
         path.moveTo(x, y);

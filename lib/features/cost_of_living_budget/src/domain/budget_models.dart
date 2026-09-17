@@ -46,10 +46,7 @@ final class BudgetScenarioUpdate {
   final String scenarioId;
   final BudgetScenarioDraft values;
 
-  const BudgetScenarioUpdate({
-    required this.scenarioId,
-    required this.values,
-  });
+  const BudgetScenarioUpdate({required this.scenarioId, required this.values});
 }
 
 sealed class BudgetScenariosOutcome {
@@ -74,7 +71,8 @@ sealed class CurrentBudgetScenarioSnapshot {
   const CurrentBudgetScenarioSnapshot();
 }
 
-final class CurrentBudgetScenarioAvailable extends CurrentBudgetScenarioSnapshot {
+final class CurrentBudgetScenarioAvailable
+    extends CurrentBudgetScenarioSnapshot {
   final BudgetScenario scenario;
   final int version;
   const CurrentBudgetScenarioAvailable({
@@ -101,7 +99,8 @@ final class BudgetScenarioMutationSaved extends BudgetScenarioMutationOutcome {
   });
 }
 
-final class BudgetScenarioMutationDeleted extends BudgetScenarioMutationOutcome {
+final class BudgetScenarioMutationDeleted
+    extends BudgetScenarioMutationOutcome {
   final String scenarioId;
   final CurrentBudgetScenarioSnapshot current;
   const BudgetScenarioMutationDeleted({
@@ -110,7 +109,8 @@ final class BudgetScenarioMutationDeleted extends BudgetScenarioMutationOutcome 
   });
 }
 
-final class BudgetScenarioMutationRejected extends BudgetScenarioMutationOutcome {
+final class BudgetScenarioMutationRejected
+    extends BudgetScenarioMutationOutcome {
   final BudgetScenarioFailure failure;
   const BudgetScenarioMutationRejected(this.failure);
 }

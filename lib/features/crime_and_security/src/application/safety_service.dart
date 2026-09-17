@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math' as math;
+
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
+
 import '../../crime_and_security.dart';
 import '../data/crime_repository.dart';
 
@@ -27,9 +29,13 @@ final class SafetyService implements CrimeAndSecurity {
     if (geoOutcome is! GeographicContextAvailable) {
       if (geoOutcome is GeographicContextUnavailable) {
         if (geoOutcome.failure == GeographicContextFailure.noCoverage) {
-          return const SafetyUnavailable(SafetyUnavailableReason.stateUnresolved);
+          return const SafetyUnavailable(
+            SafetyUnavailableReason.stateUnresolved,
+          );
         }
-        return const SafetyUnavailable(SafetyUnavailableReason.retryableUnavailable);
+        return const SafetyUnavailable(
+          SafetyUnavailableReason.retryableUnavailable,
+        );
       }
       return const SafetyUnavailable(SafetyUnavailableReason.stateUnresolved);
     }
@@ -61,7 +67,7 @@ final class SafetyService implements CrimeAndSecurity {
         // For simplicity in this implementation, we re-parse from JSON.
         // In a real app, you might use a proper serializer.
         try {
-          // We would normally use a serializer here. 
+          // We would normally use a serializer here.
           // For now, let's assume we proceed to fetch fresh if cache deserialization fails.
         } catch (_) {}
       }
@@ -74,13 +80,21 @@ final class SafetyService implements CrimeAndSecurity {
     }
 
     // Determine latest complete year (Y)
-    final years = rawData.map((e) => int.tryParse(e.date.split('-')[0]) ?? 0).where((y) => y > 0).toSet().toList();
-    if (years.isEmpty) return const SafetyUnavailable(SafetyUnavailableReason.incompleteYear);
+    final years = rawData
+        .map((e) => int.tryParse(e.date.split('-')[0]) ?? 0)
+        .where((y) => y > 0)
+        .toSet()
+        .toList();
+    if (years.isEmpty) {
+      return const SafetyUnavailable(SafetyUnavailableReason.incompleteYear);
+    }
     final latestYear = years.reduce(math.max);
 
     // Fetch peer data for percentile calculation
     final peerRows = await repository.fetchOtherStatesData(latestYear);
-    if (peerRows.isEmpty) return const SafetyUnavailable(SafetyUnavailableReason.sourceMissing);
+    if (peerRows.isEmpty) {
+      return const SafetyUnavailable(SafetyUnavailableReason.sourceMissing);
+    }
 
     // 4. Calculate Safety Index
     final snapshot = _calculateSnapshot(
@@ -98,14 +112,16 @@ final class SafetyService implements CrimeAndSecurity {
 
     // 5. Cache result
     // (Serialization omitted for brevity, would use jsonEncode(snapshot.toJson()))
-    
+
     return snapshot.completeness == SafetyCompleteness.complete
         ? SafetyAvailable(snapshot)
         : SafetyPartiallyAvailable(snapshot);
   }
 
   @override
-  Future<SafetyComparisonOutcome> compare(SafetyComparisonRequest request) async {
+  Future<SafetyComparisonOutcome> compare(
+    SafetyComparisonRequest request,
+  ) async {
     final outcomeA = await load(request.a);
     final outcomeB = await load(request.b);
 
@@ -113,17 +129,31 @@ final class SafetyService implements CrimeAndSecurity {
       final snapshotA = outcomeA.snapshot;
       final snapshotB = outcomeB.snapshot;
 
-      if (snapshotA.latestCompleteYearCount.year != snapshotB.latestCompleteYearCount.year) {
-        return SafetyIncomparable(outcomeA, outcomeB, SafetyComparisonReason.yearMismatch);
+      if (snapshotA.latestCompleteYearCount.year !=
+          snapshotB.latestCompleteYearCount.year) {
+        return SafetyIncomparable(
+          outcomeA,
+          outcomeB,
+          SafetyComparisonReason.yearMismatch,
+        );
       }
-      if (snapshotA.provenance.boundaryVersion != snapshotB.provenance.boundaryVersion) {
-        return SafetyIncomparable(outcomeA, outcomeB, SafetyComparisonReason.provenanceMismatch);
+      if (snapshotA.provenance.boundaryVersion !=
+          snapshotB.provenance.boundaryVersion) {
+        return SafetyIncomparable(
+          outcomeA,
+          outcomeB,
+          SafetyComparisonReason.provenanceMismatch,
+        );
       }
 
       return SafetyComparable(snapshotA, snapshotB);
     }
 
-    return SafetyIncomparable(outcomeA, outcomeB, SafetyComparisonReason.sideUnavailable);
+    return SafetyIncomparable(
+      outcomeA,
+      outcomeB,
+      SafetyComparisonReason.sideUnavailable,
+    );
   }
 
   SafetySnapshot? _calculateSnapshot({
@@ -135,7 +165,9 @@ final class SafetyService implements CrimeAndSecurity {
     required String boundaryVersion,
   }) {
     // Filter by year
-    final currentYearData = rawData.where((e) => e.date.startsWith(latestYear.toString())).toList();
+    final currentYearData = rawData
+        .where((e) => e.date.startsWith(latestYear.toString()))
+        .toList();
 
     // Sum crimes by category for the target state
     int assaultCrimes = 0;
@@ -155,25 +187,32 @@ final class SafetyService implements CrimeAndSecurity {
 
       peerStats.putIfAbsent(state, () => {'assault': 0, 'property': 0});
       if (category == 'assault' || category == 'property') {
-        peerStats[state]![category] = (peerStats[state]![category] ?? 0) + crimes;
+        peerStats[state]![category] =
+            (peerStats[state]![category] ?? 0) + crimes;
       }
     }
 
     // Calculate percentiles
     final assaultPercentile = _calculatePercentile(
       targetCrimes: assaultCrimes,
-      allCrimes: peerStats.values.map((s) => s['assault'] ?? 0).toList()..add(assaultCrimes),
+      allCrimes: peerStats.values.map((s) => s['assault'] ?? 0).toList()
+        ..add(assaultCrimes),
     );
     final propertyPercentile = _calculatePercentile(
       targetCrimes: propertyCrimes,
-      allCrimes: peerStats.values.map((s) => s['property'] ?? 0).toList()..add(propertyCrimes),
+      allCrimes: peerStats.values.map((s) => s['property'] ?? 0).toList()
+        ..add(propertyCrimes),
     );
 
     // Calculate Risk Score and Safety Index
     double riskScore = 0;
     double totalWeight = 0;
-    bool hasAssault = assaultCrimes > 0 || peerStats.values.any((s) => (s['assault'] ?? 0) > 0);
-    bool hasProperty = propertyCrimes > 0 || peerStats.values.any((s) => (s['property'] ?? 0) > 0);
+    bool hasAssault =
+        assaultCrimes > 0 ||
+        peerStats.values.any((s) => (s['assault'] ?? 0) > 0);
+    bool hasProperty =
+        propertyCrimes > 0 ||
+        peerStats.values.any((s) => (s['property'] ?? 0) > 0);
 
     if (hasAssault) {
       riskScore += 0.6 * assaultPercentile;
@@ -195,7 +234,10 @@ final class SafetyService implements CrimeAndSecurity {
       location: request.location,
       state: reportingState,
       score: SafetyScore(finalScore),
-      latestCompleteYearCount: AnnualCrimeCount(assaultCrimes + propertyCrimes, latestYear),
+      latestCompleteYearCount: AnnualCrimeCount(
+        assaultCrimes + propertyCrimes,
+        latestYear,
+      ),
       trend: SafetyTrend(request.filter, trendPoints),
       availableFilters: [
         const AllCrimeTrend(),
@@ -203,7 +245,9 @@ final class SafetyService implements CrimeAndSecurity {
         const CategoryTrend(CrimeCategory.property),
       ],
       freshness: SafetyFreshness.fresh,
-      completeness: (hasAssault && hasProperty) ? SafetyCompleteness.complete : SafetyCompleteness.partial,
+      completeness: (hasAssault && hasProperty)
+          ? SafetyCompleteness.complete
+          : SafetyCompleteness.partial,
       provenance: SafetyProvenance(
         source: 'Official Malaysia Crime Statistics (data.gov.my)',
         modelVersion: currentModelVersion,
@@ -212,36 +256,44 @@ final class SafetyService implements CrimeAndSecurity {
     );
   }
 
-  double _calculatePercentile({required int targetCrimes, required List<int> allCrimes}) {
+  double _calculatePercentile({
+    required int targetCrimes,
+    required List<int> allCrimes,
+  }) {
     if (allCrimes.isEmpty) return 0;
-    
+
     final targetX = math.log(1 + targetCrimes);
     final allX = allCrimes.map((c) => math.log(1 + c)).toList();
-    
+
     int smallerOrEqual = 0;
     for (final x in allX) {
       if (x <= targetX) smallerOrEqual++;
     }
-    
+
     return 100 * smallerOrEqual / allX.length;
   }
 
-  List<AnnualCrimePoint> _generateTrend(List<RawCrimeData> rawData, SafetyTrendFilter filter, int latestYear) {
+  List<AnnualCrimePoint> _generateTrend(
+    List<RawCrimeData> rawData,
+    SafetyTrendFilter filter,
+    int latestYear,
+  ) {
     final points = <AnnualCrimePoint>[];
     for (int y = latestYear - 4; y <= latestYear; y++) {
       int count = 0;
       final yearData = rawData.where((e) => e.date.startsWith(y.toString()));
-      
+
       for (final e in yearData) {
         bool matches = false;
         if (filter is AllCrimeTrend) {
           matches = true;
         } else if (filter is CategoryTrend) {
-          matches = e.category.toLowerCase() == filter.category.name.toLowerCase();
+          matches =
+              e.category.toLowerCase() == filter.category.name.toLowerCase();
         } else if (filter is TypeTrend) {
           matches = e.type == filter.type;
         }
-        
+
         if (matches) count += e.crimes;
       }
       points.add(AnnualCrimePoint(y, count));

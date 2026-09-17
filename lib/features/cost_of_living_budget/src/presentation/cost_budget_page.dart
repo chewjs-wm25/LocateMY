@@ -73,7 +73,8 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
       );
     }
 
-    if (_outcome is! CostAnalysisAvailable && _outcome is! CostAnalysisPartial) {
+    if (_outcome is! CostAnalysisAvailable &&
+        _outcome is! CostAnalysisPartial) {
       return const Center(child: Text('No cost data available'));
     }
 
@@ -84,7 +85,8 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
     final totalSpend = analysis.observedSpend12 ?? 0;
     final scenarioSpend = analysis.scenarioSpend12 ?? 0;
     final costIndex = analysis.costIndex ?? 0;
-    final burden = analysis.locationBudgetBurden ?? analysis.personalBudgetBurden ?? 0;
+    final burden =
+        analysis.locationBudgetBurden ?? analysis.personalBudgetBurden ?? 0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -98,7 +100,8 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    analysis.location.displayName ?? analysis.location.locationId,
+                    analysis.location.displayName ??
+                        analysis.location.locationId,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -109,7 +112,7 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Cost index'),
-                      Text('${costIndex.toStringAsFixed(1)}'),
+                      Text(costIndex.toStringAsFixed(1)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -158,10 +161,7 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(item.name),
-                          ),
+                          Expanded(flex: 2, child: Text(item.name)),
                           Expanded(
                             child: Text(
                               item.localPrice == null
@@ -179,7 +179,7 @@ class _CostBudgetPageState extends State<CostBudgetPage> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),

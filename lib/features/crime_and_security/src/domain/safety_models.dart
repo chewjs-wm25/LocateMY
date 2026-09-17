@@ -11,10 +11,7 @@ final class CrimeReturnToMapIntent {
   final ValidLocationReference location;
   final Object? returnContext;
 
-  const CrimeReturnToMapIntent({
-    required this.location,
-    this.returnContext,
-  });
+  const CrimeReturnToMapIntent({required this.location, this.returnContext});
 }
 
 /// Shell intent to open the Crime & Security page.
@@ -22,10 +19,7 @@ final class OpenCrimeSecurityIntent {
   final ValidLocationReference location;
   final Object? returnContext;
 
-  const OpenCrimeSecurityIntent({
-    required this.location,
-    this.returnContext,
-  });
+  const OpenCrimeSecurityIntent({required this.location, this.returnContext});
 }
 
 /// Shell intent to open the Crime & Security comparison page.
@@ -45,18 +39,14 @@ final class OpenCrimeSecurityComparisonIntent {
 final class PropertyArchiveIntent {
   final Object? returnContext;
 
-  const PropertyArchiveIntent({
-    this.returnContext,
-  });
+  const PropertyArchiveIntent({this.returnContext});
 }
 
 /// Shell intent to add a new property.
 final class PropertyAddIntent {
   final Object? returnContext;
 
-  const PropertyAddIntent({
-    this.returnContext,
-  });
+  const PropertyAddIntent({this.returnContext});
 }
 
 final class SafetyRequest {

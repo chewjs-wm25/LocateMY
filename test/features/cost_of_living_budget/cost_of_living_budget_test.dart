@@ -17,10 +17,12 @@ void main() {
         displayName: 'Kuala Lumpur',
       );
 
-      final outcome = await costOfLiving.analyse(CostAnalysisRequest(
-        location: location,
-        refreshPolicy: CostRefreshPolicy.cacheAllowed,
-      ));
+      final outcome = await costOfLiving.analyse(
+        CostAnalysisRequest(
+          location: location,
+          refreshPolicy: CostRefreshPolicy.cacheAllowed,
+        ),
+      );
 
       expect(outcome, isA<CostAnalysisAvailable>());
       final analysis = (outcome as CostAnalysisAvailable).analysis;
@@ -34,10 +36,12 @@ void main() {
         point: GeographicPoint(latitude: 0, longitude: 0),
       );
 
-      final outcome = await costOfLiving.analyse(CostAnalysisRequest(
-        location: location,
-        refreshPolicy: CostRefreshPolicy.cacheAllowed,
-      ));
+      final outcome = await costOfLiving.analyse(
+        CostAnalysisRequest(
+          location: location,
+          refreshPolicy: CostRefreshPolicy.cacheAllowed,
+        ),
+      );
 
       expect(outcome, isA<CostAnalysisUnavailable>());
     });
@@ -48,14 +52,19 @@ void main() {
         point: GeographicPoint(latitude: 3.1390, longitude: 101.6869),
       );
 
-      final outcome = await costOfLiving.calculateCpiEquivalent(CpiEquivalentRequest(
-        location: location,
-        inputMonthlySpendRm: 1000,
-        refreshPolicy: CostRefreshPolicy.cacheAllowed,
-      ));
+      final outcome = await costOfLiving.calculateCpiEquivalent(
+        CpiEquivalentRequest(
+          location: location,
+          inputMonthlySpendRm: 1000,
+          refreshPolicy: CostRefreshPolicy.cacheAllowed,
+        ),
+      );
 
       expect(outcome, isA<CpiEquivalentAvailable>());
-      expect((outcome as CpiEquivalentAvailable).reading.equivalentRm, greaterThan(1000));
+      expect(
+        (outcome as CpiEquivalentAvailable).reading.equivalentRm,
+        greaterThan(1000),
+      );
     });
   });
 
@@ -75,27 +84,26 @@ void main() {
     });
 
     test('create adds new scenario', () async {
-      final mutation = await budgetStore.create(const BudgetScenarioDraft(
-        name: 'New Scenario',
-        housingExpenseRm: 500,
-      ));
+      final mutation = await budgetStore.create(
+        const BudgetScenarioDraft(name: 'New Scenario', housingExpenseRm: 500),
+      );
 
       expect(mutation, isA<BudgetScenarioMutationSaved>());
-      
+
       final outcome = await budgetStore.read();
       final available = outcome as BudgetScenariosAvailable;
       expect(available.scenarios.any((s) => s.name == 'New Scenario'), isTrue);
     });
 
     test('selectCurrent updates current scenario', () async {
-      final mutation = await budgetStore.create(const BudgetScenarioDraft(
-        name: 'Target',
-      ));
+      final mutation = await budgetStore.create(
+        const BudgetScenarioDraft(name: 'Target'),
+      );
       final newId = (mutation as BudgetScenarioMutationSaved).scenario.id;
 
       final selectOutcome = await budgetStore.selectCurrent(newId);
       expect(selectOutcome, isA<BudgetScenarioMutationSaved>());
-      
+
       final readOutcome = await budgetStore.read();
       final current = (readOutcome as BudgetScenariosAvailable).current;
       expect(current, isA<CurrentBudgetScenarioAvailable>());

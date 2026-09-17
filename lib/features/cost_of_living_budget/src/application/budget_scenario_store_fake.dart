@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import '../../cost_of_living_budget.dart';
 
 class BudgetScenarioStoreFake implements BudgetScenarioStore {
@@ -25,29 +26,37 @@ class BudgetScenarioStoreFake implements BudgetScenarioStore {
 
   void _emit() {
     final current = _scenarios.cast<BudgetScenario?>().firstWhere(
-          (s) => s?.isCurrent ?? false,
-          orElse: () => null,
-        );
-    
+      (s) => s?.isCurrent ?? false,
+      orElse: () => null,
+    );
+
     final currentSnapshot = current != null
-        ? CurrentBudgetScenarioAvailable(scenario: current, version: current.version)
+        ? CurrentBudgetScenarioAvailable(
+            scenario: current,
+            version: current.version,
+          )
         : NoCurrentBudgetScenario(version: 0);
 
-    _controller.add(BudgetScenariosAvailable(
-      scenarios: List.unmodifiable(_scenarios),
-      current: currentSnapshot,
-    ));
+    _controller.add(
+      BudgetScenariosAvailable(
+        scenarios: List.unmodifiable(_scenarios),
+        current: currentSnapshot,
+      ),
+    );
   }
 
   @override
   Future<BudgetScenariosOutcome> read() async {
     final current = _scenarios.cast<BudgetScenario?>().firstWhere(
-          (s) => s?.isCurrent ?? false,
-          orElse: () => null,
-        );
-    
+      (s) => s?.isCurrent ?? false,
+      orElse: () => null,
+    );
+
     final currentSnapshot = current != null
-        ? CurrentBudgetScenarioAvailable(scenario: current, version: current.version)
+        ? CurrentBudgetScenarioAvailable(
+            scenario: current,
+            version: current.version,
+          )
         : NoCurrentBudgetScenario(version: 0);
 
     return BudgetScenariosAvailable(
@@ -60,9 +69,13 @@ class BudgetScenarioStoreFake implements BudgetScenarioStore {
   Stream<BudgetScenariosOutcome> watch() => _controller.stream;
 
   @override
-  Future<BudgetScenarioMutationOutcome> create(BudgetScenarioDraft draft) async {
+  Future<BudgetScenarioMutationOutcome> create(
+    BudgetScenarioDraft draft,
+  ) async {
     if (draft.name.trim().isEmpty) {
-      return const BudgetScenarioMutationRejected(BudgetScenarioFailure.invalidName);
+      return const BudgetScenarioMutationRejected(
+        BudgetScenarioFailure.invalidName,
+      );
     }
 
     final newScenario = BudgetScenario(
@@ -88,10 +101,14 @@ class BudgetScenarioStoreFake implements BudgetScenarioStore {
   }
 
   @override
-  Future<BudgetScenarioMutationOutcome> update(BudgetScenarioUpdate update) async {
+  Future<BudgetScenarioMutationOutcome> update(
+    BudgetScenarioUpdate update,
+  ) async {
     final index = _scenarios.indexWhere((s) => s.id == update.scenarioId);
     if (index == -1) {
-      return const BudgetScenarioMutationRejected(BudgetScenarioFailure.notFound);
+      return const BudgetScenarioMutationRejected(
+        BudgetScenarioFailure.notFound,
+      );
     }
 
     final old = _scenarios[index];
@@ -121,7 +138,9 @@ class BudgetScenarioStoreFake implements BudgetScenarioStore {
   Future<BudgetScenarioMutationOutcome> selectCurrent(String scenarioId) async {
     final index = _scenarios.indexWhere((s) => s.id == scenarioId);
     if (index == -1) {
-      return const BudgetScenarioMutationRejected(BudgetScenarioFailure.notFound);
+      return const BudgetScenarioMutationRejected(
+        BudgetScenarioFailure.notFound,
+      );
     }
 
     for (int i = 0; i < _scenarios.length; i++) {
@@ -145,7 +164,10 @@ class BudgetScenarioStoreFake implements BudgetScenarioStore {
     final updated = _scenarios[index];
     return BudgetScenarioMutationSaved(
       scenario: updated,
-      current: CurrentBudgetScenarioAvailable(scenario: updated, version: updated.version),
+      current: CurrentBudgetScenarioAvailable(
+        scenario: updated,
+        version: updated.version,
+      ),
     );
   }
 
@@ -153,7 +175,9 @@ class BudgetScenarioStoreFake implements BudgetScenarioStore {
   Future<BudgetScenarioMutationOutcome> delete(String scenarioId) async {
     final index = _scenarios.indexWhere((s) => s.id == scenarioId);
     if (index == -1) {
-      return const BudgetScenarioMutationRejected(BudgetScenarioFailure.notFound);
+      return const BudgetScenarioMutationRejected(
+        BudgetScenarioFailure.notFound,
+      );
     }
 
     _scenarios.removeAt(index);

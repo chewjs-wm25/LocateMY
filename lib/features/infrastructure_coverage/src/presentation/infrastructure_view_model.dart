@@ -1,3 +1,5 @@
+// Explicit constructor initialization follows Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
@@ -76,11 +78,10 @@ final class InfrastructureViewModel extends ChangeNotifier {
         );
       }
     } finally {
-      if (_closed || revision != _revision) {
-        return;
+      if (!_closed && revision == _revision) {
+        _loading = false;
+        notifyListeners();
       }
-      _loading = false;
-      notifyListeners();
     }
   }
 
