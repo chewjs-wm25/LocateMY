@@ -1,6 +1,6 @@
 # Cost of Living & Budget 开发契约
 
-> Owner B；Wave 5；生产实现与验收已交付，Implemented Gate 等待独立审查；不宣称 Integrated。
+> Owner B；Wave 5；Implemented；GPT‑5.6 Luna High 规格与规范复审通过（2026-09-18，代码 `bbf2e6e`）；Integrated 未批准。
 
 本契约按 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 与
 [ADR 0017](../../adr/0017-minimal-account-and-online-user-records.md) 修订。

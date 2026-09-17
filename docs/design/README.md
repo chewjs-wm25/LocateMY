@@ -18,7 +18,7 @@ AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前
 | App | A | [最小装配](modules/application-shell.md)，已有实现重构 |
 | Home | A | [首页](features/home-and-relocation-outlook.md)，已有实现 |
 | Map | A | [地图／收藏](features/map-and-location.md)，已有实现重构 |
-| Cost／Budget | B | [生活成本／预算／JSON](features/cost-of-living-and-budget.md)，Draft，尚未实现 |
+| Cost／Budget | B | [生活成本／预算／JSON](features/cost-of-living-and-budget.md)，Implemented；Luna High 复审通过，Account/Socio 联验通过 |
 | Crime | B | [治安](features/crime-and-security.md)，Implemented；Wave 5 本期验收通过，房产消费 Wave 6 |
 | Facilities | A | [周边设施](features/nearby-facilities.md)，已有实现重构 |
 | Transit | A | [公共交通](features/public-transportation.md)，已有实现重构 |
