@@ -251,13 +251,13 @@
       <p class="eyebrow">LocateMY · 2026-09-17</p>
       <h1>当前实现状态与开发入口</h1>
       <p class="lede">这里集中放置当前功能、模块与应用装配的可读版契约，并标出代码在当前工作区的实现状态。先按主题找到文档，再从文档中的范围、接口和验收条件了解具体工作。</p>
-      <p class="note">状态检查：Crime &amp; Security 已按 Wave 5 验收为 <code>Implemented</code>，相关目标测试 30 项通过；当前工作区的 <code>flutter analyze</code> 仍有 13 个 lint，其中 6 个来自遗留 <code>crime_and_security</code> 代码。<code>Integrated</code> 仍待项目负责人批准，房产风险的真实消费留至 Wave 6。契约状态、字段和边界仍以对应的 owning Markdown 为准。</p>
+      <p class="note">状态检查：当前生产应用已接入认证、首页、地图、周边设施、公共交通、隐患和治安路径；全量 <code>flutter test</code> 为 247 项通过、10 项 opt-in live 跳过，<code>flutter build apk --debug</code> 成功。<code>flutter analyze</code> 仍有 14 条提示，其中 6 条来自遗留 <code>crime_and_security</code> 路径，因此治安卡仍标记为待清理；<code>Integrated</code> 仍待项目负责人批准。房产实勘目前只有内存 UI 原型，房产风险的真实消费留至 Wave 6；预算、社会经济和基础设施尚未进入生产分析路由。契约状态、字段和边界仍以对应的 owning Markdown 为准。</p>
     </header>
 
     <section class="summary" aria-label="文档概览">
       <div class="summary-card"><strong>16</strong><span>份设计契约</span></div>
-      <div class="summary-card"><strong>11</strong><span>个已有实现或接线入口</span></div>
-      <div class="summary-card"><strong>1</strong><span>个当前构建阻塞</span></div>
+      <div class="summary-card"><strong>10</strong><span>个生产实现或应用接线入口</span></div>
+      <div class="summary-card"><strong>1</strong><span>个当前验收阻塞</span></div>
     </section>
 
     <main id="documents">
@@ -280,44 +280,44 @@
             <div class="card-footer"><div class="card-tags"><span class="status closed">已排除</span><span class="owner owner-none">Owner —</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="public transportation 公共交通 transit owner a">
-            <div><h3><a href="public-transportation.html">Public Transportation</a></h3><p>公共交通分析与开发契约。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="public-transportation.html">Public Transportation</a></h3><p>生产公共交通分析路由已接入；来源完整性与 A/B 规则保留。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="crime security 治安 crime owner b">
-            <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>州级治安分析与比较；Wave 5 责任验收已通过，遗留代码的静态检查 lint 待清理，房产风险消费留至 Wave 6。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status blocked">Implemented · lint 待清理</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="crime-and-security.html">Crime &amp; Security</a></h3><p>州级治安分析与比较；Wave 5 责任验收已通过，6 条遗留路径分析提示待清理，房产风险消费留至 Wave 6。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status blocked">Implemented · 分析提示待清理</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="socio economic 社会经济 socioeconomic owner b">
-            <div><h3><a href="socio-economic.html">Socio-economic</a></h3><p>社会经济页面代码已接线；设计契约仍为 Draft，待补验收。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status minimum">代码已接线 · 待验收</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="socio-economic.html">Socio-economic</a></h3><p>存在演示页面和确定性本地数据；未接生产资料或应用分析路由，契约仍为 Draft。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">原型 · 未接入</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="nearby facilities 周边设施 owner a">
-            <div><h3><a href="nearby-facilities.html">Nearby Facilities</a></h3><p>周边设施搜索、分类与评分入口。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="nearby-facilities.html">Nearby Facilities</a></h3><p>生产周边设施搜索、分类、缓存、图层与 A/B 入口。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="infrastructure coverage 基础设施 owner b">
-            <div><h3><a href="infrastructure-coverage.html">Infrastructure Coverage</a></h3><p>基础设施覆盖页面代码已接线；设计契约仍为 Draft，待补验收。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status minimum">代码已接线 · 待验收</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="infrastructure-coverage.html">Infrastructure Coverage</a></h3><p>存在评分 UI/服务原型；尚未接真实资料、RPC 或生产分析路由，契约仍为 Draft。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">原型 · 未接入</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="cost living budget 生活成本 预算 owner b">
-            <div><h3><a href="cost-of-living-and-budget.html">Cost of Living &amp; Budget</a></h3><p>生活成本、预算篮子与 JSON 边界。</p></div>
+            <div><h3><a href="cost-of-living-and-budget.html">Cost of Living &amp; Budget</a></h3><p>有 fake 服务和页面骨架；真实成本资料、在线预算存储与 JSON 导出尚未实现。</p></div>
             <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="map location 地图 位置 收藏 owner a">
-            <div><h3><a href="map-and-location.html">Map / Location</a></h3><p>地图、地点选择与收藏流程。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="map-and-location.html">Map / Location</a></h3><p>生产地图、合法地点选择、图层、A/B 和在线收藏流程。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="home relocation outlook 首页 搬迁 趋势 owner a">
-            <div><h3><a href="home-and-relocation-outlook.html">Home &amp; Relocation Outlook</a></h3><p>首页与搬迁趋势分析入口。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="home-and-relocation-outlook.html">Home &amp; Relocation Outlook</a></h3><p>生产首页宏观卡片、趋势、缓存与搬迁分析入口。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="hazard reporting 隐患 报告 owner a">
-            <div><h3><a href="hazard-reporting.html">Hazard Reporting</a></h3><p>隐患上报、状态流转与展示契约。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="hazard-reporting.html">Hazard Reporting</a></h3><p>生产隐患上报、作者状态、投票、公共图层与附近计数。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="property inspection 房产 检查 owner b">
-            <div><h3><a href="property-inspection.html">Property Inspection</a></h3><p>房产检查相关能力与协作边界。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status draft">Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="property-inspection.html">Property Inspection</a></h3><p>已有内存 UI 原型并可从治安页打开；在线记录、照片、回收站与风险快照尚未实现。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status draft">UI 原型 · Draft</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
         </div>
       </section>
@@ -326,20 +326,20 @@
         <div class="group-heading"><h2>应用基础</h2><span>账号、导航与上下文</span></div>
         <div class="grid">
           <article class="doc-card" data-search="authentication session 认证 会话 登录 owner a">
-            <div><h3><a href="authentication-and-session.html">Authentication &amp; Session</a></h3><p>最小账号、登录状态与会话恢复。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="authentication-and-session.html">Authentication &amp; Session</a></h3><p>生产邮箱注册、登录、会话恢复、当前设备退出与双语反馈。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产实现</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="account center 账户 账号 owner a">
             <div><h3><a href="account-center.html">Account Center</a></h3><p>账户中心的最小页与后续入口。</p></div>
             <div class="card-footer"><div class="card-tags"><span class="status minimum">最小页已接线</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="geographic context 地理 语境 owner b">
-            <div><h3><a href="geographic-context.html">Geographic Context</a></h3><p>地理语境、区域边界与共享服务。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">保留业务服务</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="geographic-context.html">Geographic Context</a></h3><p>生产地理语境解析服务；保留 resolved、unresolved、ambiguous 与 provenance 语义。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产服务</span><span class="owner owner-b">Owner B</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
           <article class="doc-card" data-search="application shell 应用 装配 导航 owner a">
-            <div><h3><a href="application-shell.html">Application Shell</a></h3><p>普通 Flutter 导航与最小应用装配。</p></div>
-            <div class="card-footer"><div class="card-tags"><span class="status ready">已有实现重构</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
+            <div><h3><a href="application-shell.html">Application Shell</a></h3><p>生产登录门控、首页/地图双 Tab、普通路由与语言接线。</p></div>
+            <div class="card-footer"><div class="card-tags"><span class="status ready">生产装配</span><span class="owner owner-a">Owner A</span></div><span class="arrow" aria-hidden="true">→</span></div>
           </article>
         </div>
       </section>
