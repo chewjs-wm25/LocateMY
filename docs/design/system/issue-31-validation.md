@@ -37,3 +37,7 @@ SQLite 删除的仅废弃 `map_saved_records` 私有收藏缓存；保留原库�
 当前不自动宣称 Integrated；审批状态由项目负责人决定。
 
 认证配置使用 [Supabase 官方 Management API](https://supabase.com/docs/reference/api/v1-update-auth-service-config)；仅调整邮箱自动确认，不更改历史账号或远端 schema。
+
+## 后续 Wave 5 Crime & Security（2026-09-17）
+
+治安模块本期责任按 Issue #25 达到 Implemented；真实 Geo/地图/Auth/只读 RPC 联合路径、Owner A Android 和 Owner B 模拟器均通过，GPT‑5.6 Luna High 规格/规范审查无生产阻断。详见[owning contract](../features/crime-and-security.md)及[独立验收报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md)。这是后续新增模块证据，不替换本页此前 Issue #31 执行记录。房产消费 B / Wave 6 待接入，Integrated 未自动批准。

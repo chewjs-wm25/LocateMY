@@ -1,0 +1,53 @@
+{
+  "source": "https://storage.data.gov.my/publicsafety/crime_district.csv",
+  "sha256": "800d488b426cd02f068179c626f7b4d2c5ba024f5b4b838fb0986fb7001c31be",
+  "canonical_md5": "efb060e86024b8bd70eb32fbfd759e74",
+  "row_count": 19152,
+  "mirror_matches_all_rows": true,
+  "latest_complete_year": "2023",
+  "fields": [
+    "date",
+    "state",
+    "district",
+    "category",
+    "type",
+    "crimes"
+  ],
+  "business_key": [
+    "date",
+    "state",
+    "district",
+    "category",
+    "type"
+  ],
+  "latest_leaf_totals": {
+    "Johor/assault": 1228,
+    "Johor/property": 4102,
+    "Kedah/assault": 720,
+    "Kedah/property": 3847,
+    "Kelantan/assault": 390,
+    "Kelantan/property": 1604,
+    "Melaka/assault": 310,
+    "Melaka/property": 1147,
+    "Negeri Sembilan/assault": 417,
+    "Negeri Sembilan/property": 1478,
+    "Pahang/assault": 409,
+    "Pahang/property": 1466,
+    "Perak/assault": 852,
+    "Perak/property": 2720,
+    "Perlis/assault": 75,
+    "Perlis/property": 264,
+    "Pulau Pinang/assault": 820,
+    "Pulau Pinang/property": 2784,
+    "Sabah/assault": 534,
+    "Sabah/property": 3583,
+    "Sarawak/assault": 558,
+    "Sarawak/property": 3487,
+    "Selangor/assault": 2953,
+    "Selangor/property": 10786,
+    "Terengganu/assault": 247,
+    "Terengganu/property": 1123,
+    "W.P. Kuala Lumpur/assault": 940,
+    "W.P. Kuala Lumpur/property": 3600
+  }
+}

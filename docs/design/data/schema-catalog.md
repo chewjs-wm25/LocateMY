@@ -54,7 +54,7 @@
 | `hh_inequality_district` | `implemented` | Socio | `(state, district, date)`；gini | Socio |
 | `hh_inequality_state` | `proposed` | Socio | `(state, date)`；gini | Socio；现有全国 `hh_inequality` 不能替代 |
 | `hies_state_percentile` | `proposed` | Socio | `(date, state, percentile, variable)`；income；P1–P100 | Socio；现有全国 percentile 与州汇总表不能替代 |
-| `crime_district` | `proposed` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；按 `state` 聚合为州级结果，现有 `crime_stats` 须验证数据集与键后迁移/重命名 |
+| `crime_district` | `implemented` | Crime & Security | `(date, state, police district, category, type)`；crimes | Crime；已重命名并与官方 CSV 完整业务内容校验；只读 RPC 排除全国/All 汇总，聚合警区叶记录 |
 | `government_dataset_imports` | `implemented` | Geographic Context | `(dataset id, source version, derived geometry hash)`；source URL/SHA-256、transform、row count、import time | 行政区边界的不可变导入审计；客户端无表读权 |
 | `administrative_district_boundaries` | `implemented` | Geographic Context | `(boundary id, source version, derived geometry hash)`；state、district、multipolygon | 160 个 DOSM `administrative_2_district` 边界已导入；7 个退化环按 `RISK-GEO-02` 修复，重叠保持候选；客户端无表读权 |
 | `police_districts_boundary` | `retiring` | 无 | id、name、state、multipolygon、source version | 禁止新消费者；警区多边形资料不可获取，待无消费者后由 migration 删除；历史 migration 不回写 |
@@ -100,7 +100,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | `read_home_metrics` | security-invoker RPC / `implemented` | Home | 五个 Home 数据集 | Home |
 | `read_cost_inputs` | security-invoker View/RPC / `proposed` | Cost | PriceCatcher、lookup、行政区收入，以及地点所属州与全国的 Headline/Overall CPI 同月输入 | Cost |
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
-| `read_safety_inputs` | security-invoker View/RPC / `proposed` | Crime | crime district；边界经 Geo Interface | Crime |
+| `read_safety_inputs` | security-invoker RPC / `implemented` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker View/RPC / `proposed` | Socio | income/inequality/percentile | Socio |
 | `read_infrastructure_inputs` | security-invoker View/RPC / `proposed` | Infrastructure | amenities/beds/population/schools/teachers/enrolment | Infrastructure |
 | `read_transit_analysis` | security-invoker RPC / `implemented` | Transit | snapshots、标准化站点/路线、参照组与聚合 | Transit |
@@ -111,7 +111,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | --- | --- | --- | --- | --- |
 | `home_public_cache` | SQLite / `implemented` | Home | cache key、result payload/version、每项 source date、fetched at、expiry/completeness | 无账户字段；退出保留 |
 | `cost_public_cache` | SQLite / `proposed` | Cost | location/admin key、model version、result、source dates、fetched at、3-day expiry/completeness | 无预案/用户输入；退出保留 |
-| `crime_public_cache` | SQLite / `proposed` | Crime | reporting state、model/boundary version、result、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
+| `crime_public_cache` | SQLite / `implemented` | Crime | cache key（全国输入或分析坐标）、model version、payload（只读州输入/州与boundary version）、source year、fetched at、3-day expiry | 无账户字段；退出保留 |
 | `facility_public_cache` | SQLite / `implemented` | Facilities | `coordinate_key`（坐标/2,000 m/映射版）、`radius_metres`、`mapping_version`、`payload`（完整公开 OSM 元素）、`source`、`copyright_url`、`queried_at`、`expires_at`（24h）、`complete` | 只保存完整成功；无收藏名称/账户 id；旧无元数据缓存安全失效；按当前地点重建分类结果 |
 
 
@@ -207,3 +207,25 @@ report JSON 形状为 `{id,type,title,description,latitude,longitude,status,repo
 不通过 report JSON 暴露；原始表写入也受 column grants/RLS/immutable trigger 约束。
 证据：`python3 tool/verify_hazard_live.py`，双账户、无 profile 账户、匿名 deny、内容不可变、
 状态/删除、票切换/撤回及真实 Haversine 边界；见 Wave 5 验收报告。
+
+## Wave 5 Crime & Security 数据接口（2026-09-17）
+
+Forward migration `20260917094631_crime_security_read_api.sql` 与远端登记版本一致。
+`read_safety_inputs()` 无参数，SQL stable/security invoker/空 search_path；返回
+`version/dataset_id/source_url/source_sha256/verified/latest_complete_year/rows`。
+rows 是 `year/state/category/type/crimes`，只投影最近五个完整年度的原始警区叶记录州级合计。
+排除 Malaysia、district=All、type=all，避免重复累加；无警区边界/人口查询。
+已有 19,152 条官方镜像与 CSV 完整业务内容一致；CSV SHA-256
+`800d488b426cd02f068179c626f7b4d2c5ba024f5b4b838fb0986fb7001c31be`，
+规范化内容 MD5 `efb060e86024b8bd70eb32fbfd759e74`（仅完整性比对，不用于安全签名）。
+完整来源年份 2016–2023；最新完整年度 2023。
+RPC 每次核对已有镜像行数/完整内容 digest；未审计变动使 verified=false，不以最新插入行推断完整年度。
+本任务没有重新导入、覆盖或删除政府数据；大学项目的一次性导入边界不变。
+authenticated 有 RPC execute 与镜像 select，RLS 限已认证；anon/PUBLIC 无 RPC execute，
+anon 无镜像读写，authenticated 无 insert/update/delete/truncate/references/trigger grant。
+
+SQLite 在 Adapter 懒初始化：`cache_key/model_version/payload/source_year/fetched_at/expires_at`。
+`all-reporting-states` 保存已验证输入；`location:<latitude>:<longitude>` 保存分析坐标及已解析的州/boundary version/同份输入。
+TTL 严格三天，未来时间、过期、字段错配、损坏、模型版/来源错配均失效。
+不保存账户、收藏 id、地点名称；退出保留；读取/离线 fallback 不延长原始取数时间。
+Geo 暂时无网络可恢复同坐标公共结果；新坐标、明确 unresolved/ambiguous 或来源版本不可验证不选默认州。

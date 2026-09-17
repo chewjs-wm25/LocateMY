@@ -11,7 +11,7 @@
 | Map / Location | A | 已有实现；范围验证、在线收藏、地图图层 |
 | Facilities / Transit / Hazard | A | 已有实现重新接线；各自来源、必要地图对象 |
 | Cost / Budget | B | 尚未实现；Geo、只读成本输入、在线预案、JSON |
-| Crime | B | 尚未实现；Geo 统计州、只读治安输入 |
+| Crime | B | Wave 5 已实现；Geo 统计州、真实只读治安输入、SQLite、单点/A-B 页面；验收见 owning contract |
 | Socio | B | 尚未实现；Geo、预算家庭月度总收入 |
 | Infrastructure | B | 尚未实现；Geo、canonical Transit、在线三权重 |
 | Property | B | 尚未实现；合法地点、州级安全、pending count、在线照片／回收站 |
