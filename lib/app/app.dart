@@ -833,6 +833,7 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
                       ],
                     ),
                   ),
+                  _text('Account settings', '账号设置'),
                 );
               },
               child: Text(l.shellAccount),
