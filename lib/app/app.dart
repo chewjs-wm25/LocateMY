@@ -18,6 +18,7 @@ import '../features/map_location/map_location.dart';
 import '../features/nearby_facilities/nearby_facilities.dart';
 import '../features/hazard_reporting/hazard_reporting.dart';
 import '../features/public_transportation/public_transportation.dart';
+import '../features/socio_economic/socio_economic.dart';
 
 Future<void> startLocateMy() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -774,19 +775,30 @@ final class LocationAnalysisMenu extends StatelessWidget {
               }
             },
           ),
-          for (final String name
-              in zh
-                  ? ['生活成本', '治安', '社会经济', '基础设施']
-                  : [
-                      'Cost of living',
-                      'Crime and security',
-                      'Socio-economic',
-                      'Infrastructure',
-                    ])
-            ListTile(
-              title: Text(name),
-              subtitle: Text(zh ? '尚未实现' : 'Not implemented yet'),
-            ),
+          ListTile(
+            title: Text(zh ? '生活成本' : 'Cost of living'),
+            subtitle: Text(zh ? '尚未实现' : 'Not implemented yet'),
+          ),
+          ListTile(
+            title: Text(zh ? '治安' : 'Crime and security'),
+            subtitle: Text(zh ? '尚未实现' : 'Not implemented yet'),
+          ),
+          ListTile(
+            title: Text(zh ? '社会经济' : 'Socio-economic'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              open(
+                SocioEconomicPage(
+                  location: location,
+                  locationB: second,
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: Text(zh ? '基础设施' : 'Infrastructure'),
+            subtitle: Text(zh ? '尚未实现' : 'Not implemented yet'),
+          ),
         ],
       ),
     );
