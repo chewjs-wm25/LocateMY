@@ -202,6 +202,54 @@ void main() {
     expect(read.photos.single.uploaded, true);
     expect(read.cover?.path, photo.path);
   });
+  test('twenty photos is a hard limit and comparison requires two or three active unique records', () async {
+    final PhotoMemoryStore store = PhotoMemoryStore();
+    final PropertyInspectionService service = PropertyInspectionService(
+      store: store,
+      risk: UnavailablePropertyRisk(),
+    );
+    const PropertyInspectionDraft draft = PropertyInspectionDraft(
+      name: 'A',
+      address: 'Street',
+      price: 0,
+      location: ValidLocationReference(
+        locationId: 'a',
+        point: GeographicPoint(latitude: 3, longitude: 101),
+      ),
+    );
+    final PropertyInspectionRecord a = await service.save(draft);
+    final PropertyInspectionRecord b = await service.save(draft);
+    for (int i = 0; i < 20; i++) {
+      await service.addPhoto(
+        a.id,
+        PropertyPickedPhoto(Uint8List.fromList(<int>[1, 2, 3])),
+      );
+    }
+    await expectLater(
+      service.addPhoto(
+        a.id,
+        PropertyPickedPhoto(Uint8List.fromList(<int>[1, 2, 3])),
+      ),
+      throwsA(isA<PropertyFailure>()),
+    );
+    expect((await service.read(a.id)).photos.length, 20);
+    final List<PropertyInspectionRecord> compare = await service.compare(
+      <String>[a.id, b.id],
+    );
+    expect(compare.length, 2);
+    expect(() {
+      compare.clear();
+    }, throwsUnsupportedError);
+    await expectLater(
+      service.compare(<String>[a.id, a.id]),
+      throwsA(isA<PropertyFailure>()),
+    );
+    await service.trash(b.id);
+    await expectLater(
+      service.compare(<String>[a.id, b.id]),
+      throwsA(isA<PropertyFailure>()),
+    );
+  });
 }
 
 class UnavailablePropertyRisk implements PropertyRiskReader {

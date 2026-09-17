@@ -193,7 +193,10 @@ void main() {
       await service.restore(id);
       expect((await service.read(id)).photos.length, 1);
       await service.trash(id);
-      print('PROPERTY_LIVE: restored and trashed');
+      await SupabasePropertyStore(a).removeFile(photo.path);
+    await SupabasePropertyStore(a).removeFile(photo.path);
+    print('PROPERTY_LIVE: real Storage repeated missing object removal PASS, metadata retained for purge retry');
+    print('PROPERTY_LIVE: restored and trashed');
       final PropertyPurgeResult purged = await service.purge(<String>[id]);
       print(
         'PROPERTY_LIVE: purged completed=${purged.completed.length} remaining=${purged.remaining.length}',

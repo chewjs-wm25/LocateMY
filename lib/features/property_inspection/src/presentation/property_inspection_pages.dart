@@ -60,6 +60,23 @@ String _failure(BuildContext context, Object failure) {
   );
 }
 
+enum _PropertyNotice { completed }
+
+String _message(BuildContext context, Object message) {
+  if (message == _PropertyNotice.completed) {
+    return _text(context, 'Online operation completed.', '在线操作已完成。');
+  }
+  if (message is PropertyPurgeResult) {
+    return message.remaining.isEmpty
+        ? _text(context, 'Permanently deleted.', '已永久删除。')
+        : '${_text(context, 'Completed', '已完成')}: ${message.completed.length}; ${_text(context, 'Still retained, retry', '仍保留，请重试')}: ${message.remaining.join(', ')}';
+  }
+  if (message is String) {
+    return message;
+  }
+  return _failure(context, message);
+}
+
 Widget _box(Widget child) {
   return Container(
     padding: const EdgeInsets.all(16),
@@ -178,7 +195,7 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
   );
   final Set<String> selected = <String>{};
   bool acting = false;
-  String? message;
+  Object? message;
   @override
   void initState() {
     super.initState();
@@ -220,7 +237,7 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
     } catch (failure) {
       if (mounted) {
         setState(() {
-          message = _failure(context, failure);
+          message = failure;
         });
       }
     } finally {
@@ -279,9 +296,7 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
         return;
       }
       setState(() {
-        message = result.remaining.isEmpty
-            ? _text(context, 'Permanently deleted.', '已永久删除。')
-            : '${_text(context, 'Completed', '已完成')}: ${result.completed.length}; ${_text(context, 'Still retained, retry', '仍保留，请重试')}: ${result.remaining.join(', ')}';
+        message = result;
       });
       await vm.load();
     } finally {
@@ -298,12 +313,14 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
-            ? 104
+            ? 144
             : 56,
         title: Text(
           widget.deleted
               ? _text(context, 'Recycle bin', '回收站')
               : _text(context, 'Property inspections', '房产实勘'),
+          maxLines: 3,
+          softWrap: true,
         ),
         actions: <Widget>[
           const LanguageButton(),
@@ -319,7 +336,12 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
                   ),
                 );
               },
-              child: Text(_text(context, 'Recycle bin', '回收站')),
+              child: MediaQuery.textScalerOf(context).scale(20) > 28
+                  ? Icon(
+                      Icons.delete_outline,
+                      semanticLabel: _text(context, 'Recycle bin', '回收站'),
+                    )
+                  : Text(_text(context, 'Recycle bin', '回收站')),
             ),
         ],
       ),
@@ -340,7 +362,7 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
             );
           }
           if (message != null) {
-            items.add(Text(message!));
+            items.add(Text(_message(context, message!)));
           }
           if (widget.deleted) {
             items.add(
@@ -535,7 +557,7 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
                         } catch (failure) {
                           if (mounted) {
                             setState(() {
-                              message = _failure(context, failure);
+                              message = failure;
                             });
                           }
                         }
@@ -605,7 +627,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
     }
   }
 
-  String? error;
+  Object? error;
   final List<PropertyPickedPhoto> picked = <PropertyPickedPhoto>[];
   @override
   void initState() {
@@ -645,7 +667,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
     }
     if (picked.length + (widget.record?.photos.length ?? 0) >= 20) {
       setState(() {
-        error = _failure(context, const PropertyFailure('photoLimit'));
+        error = const PropertyFailure('photoLimit');
       });
       return;
     }
@@ -658,7 +680,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
         picked.add(photo);
       }
       if (vm.failure != null) {
-        error = _failure(context, vm.failure!);
+        error = vm.failure!;
       }
     });
   }
@@ -670,14 +692,14 @@ final class _FormState extends State<PropertyInspectionFormPage> {
     final ValidLocationReference? point = location;
     if (point == null) {
       setState(() {
-        error = _failure(context, const PropertyFailure('invalid'));
+        error = const PropertyFailure('invalid');
       });
       return;
     }
     final double? value = double.tryParse(price.text.trim());
     if (value == null) {
       setState(() {
-        error = _failure(context, const PropertyFailure('invalid'));
+        error = const PropertyFailure('invalid');
       });
       return;
     }
@@ -705,7 +727,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
     }
     if (saved == null) {
       setState(() {
-        error = _failure(context, vm.failure ?? const PropertyFailure('save'));
+        error = vm.failure ?? const PropertyFailure('save');
       });
       return;
     }
@@ -879,7 +901,10 @@ final class _FormState extends State<PropertyInspectionFormPage> {
           ),
         ),
       if (error != null)
-        Text(error!, style: const TextStyle(color: Colors.red)),
+        Text(
+          _failure(context, error!),
+          style: const TextStyle(color: Colors.red),
+        ),
       if (busy) const LinearProgressIndicator(),
       const SizedBox(height: 16),
       FilledButton(
@@ -892,7 +917,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
-              ? 104
+              ? 144
               : 56,
           title: Text(
             widget.record == null
@@ -957,7 +982,7 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
     }
   }
 
-  String? message;
+  Object? message;
   bool get busy {
     return vm.busy;
   }
@@ -991,14 +1016,14 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
     await vm.load(widget.id);
     if (mounted && vm.failure != null) {
       setState(() {
-        message = _failure(context, vm.failure!);
+        message = vm.failure!;
       });
     }
   }
 
-  Future<void> _act(Future<void> Function() action) async {
+  Future<bool> _act(Future<void> Function() action) async {
     if (busy) {
-      return;
+      return false;
     }
     setState(() {
       message = null;
@@ -1008,23 +1033,27 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
       return true;
     });
     if (!mounted) {
-      return;
+      return false;
     }
     setState(() {
       message = completed == true
-          ? _text(context, 'Online operation completed.', '在线操作已完成.')
-          : _failure(context, vm.failure ?? const PropertyFailure('write'));
+          ? _PropertyNotice.completed
+          : vm.failure ?? const PropertyFailure('write');
     });
     await _load();
+    return completed == true;
   }
 
   Future<void> _add(PropertyPhotoSource source) async {
     await _act(() async {
       final PropertyPickedPhoto? photo = await widget.photoPicker?.pick(source);
-      if (photo != null) {
-        await widget.service.addPhoto(widget.id, photo);
+      if (photo != null && mounted) {
+        selectedPhotos.add(photo);
       }
     });
+    if (mounted && selectedPhotos.isNotEmpty) {
+      await _uploadSelected();
+    }
   }
 
   Future<void> _uploadSelected() async {
@@ -1094,7 +1123,7 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
     final PropertyInspectionRecord? r = record;
     final List<Widget> children = <Widget>[];
     if (message != null) {
-      children.add(Text(message!));
+      children.add(Text(_message(context, message!)));
     }
     if (selectedPhotos.isNotEmpty) {
       children.add(
@@ -1289,16 +1318,10 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
           onPressed: busy
               ? null
               : () async {
-                  await _act(() async {
+                  final bool deleted = await _act(() async {
                     await widget.service.trash(widget.id);
                   });
-                  if (context.mounted &&
-                      message ==
-                          _text(
-                            context,
-                            'Online operation completed.',
-                            '在线操作已完成。',
-                          )) {
+                  if (context.mounted && deleted) {
                     Navigator.pop(context);
                   }
                 },
@@ -1309,9 +1332,13 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
-            ? 104
+            ? 144
             : 56,
-        title: Text(_text(context, 'Inspection details', '实勘详情')),
+        title: Text(
+          _text(context, 'Inspection details', '实勘详情'),
+          maxLines: 3,
+          softWrap: true,
+        ),
         actions: <Widget>[
           const LanguageButton(),
           TextButton(
@@ -1334,7 +1361,12 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
                       await _load();
                     }
                   },
-            child: Text(_text(context, 'Edit', '编辑')),
+            child: MediaQuery.textScalerOf(context).scale(20) > 28
+                ? Icon(
+                    Icons.edit_outlined,
+                    semanticLabel: _text(context, 'Edit', '编辑'),
+                  )
+                : Text(_text(context, 'Edit', '编辑')),
           ),
         ],
       ),
@@ -1425,9 +1457,13 @@ final class PropertyInspectionComparisonPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
-            ? 104
+            ? 144
             : 56,
-        title: Text(_text(context, 'Property comparison', '房产实勘对比')),
+        title: Text(
+          _text(context, 'Property comparison', '房产实勘对比'),
+          maxLines: 3,
+          softWrap: true,
+        ),
         actions: const <Widget>[LanguageButton()],
       ),
       body: ListView(

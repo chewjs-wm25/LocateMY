@@ -223,10 +223,15 @@ try:
             run(adb+['shell','input','keyevent','224']);run(adb+['shell','wm','dismiss-keyguard']);run(adb+['logcat','-c'])
             run(adb+['shell','am','start','-n',PACKAGE+'/com.locatemy.app.MainActivity'])
             wait('探索地图');tap('账户');tap('房产实勘');wait('新增房产实勘');capture('portfolio-empty-zh')
+            if args.presentation_only:
+                capture('final-archive-zh')
+                print('PROPERTY_DEVICE: final presentation ready on fixture port '+port,flush=True)
+                time.sleep(300)
+                continue
             tap('新增房产实勘');fill('房产名称','QAPropertyDevice');fill('价格（RM）','520000');fill('地址','Petaling')
             tap('从地图或收藏选择地点');choose('3.0738','101.6077');tap('使用所选地点');wait('QAPropertyDevice');capture('form-map-return-zh')
             tap('保存实勘');wait('实勘详情');wait('QAPropertyDevice');capture('details-snapshot-zh')
-            tap('相机拍摄');wait('允许');capture('camera-permission-request');tap('不允许');wait('权限被拒绝');capture('camera-denied-zh')
+            tap('相机拍摄');wait('Allow LocateMY');capture('camera-permission-request');tap('Don’t allow');wait('权限被拒绝');capture('camera-denied-zh')
             tap('相机拍摄');time.sleep(2);capture('camera-retry')
             print('PROPERTY_DEVICE: paused for camera/gallery adaptive drive',flush=True)
             time.sleep(300)

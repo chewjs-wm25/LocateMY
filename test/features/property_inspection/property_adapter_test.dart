@@ -176,6 +176,25 @@ void main() {
     expect(edited.name, 'Updated');
     await client.dispose();
   });
+  test('real Storage SDK treats authoritative empty removal response as already absent success', () async {
+    final SupabaseClient client = SupabaseClient(
+      'https://property.test',
+      'public-test',
+      authOptions: const AuthClientOptions(autoRefreshToken: false),
+      httpClient: MockClient((http.Request request) async {
+        return http.Response(
+          '[]',
+          200,
+          request: request,
+          headers: <String, String>{'content-type': 'application/json'},
+        );
+      }),
+    );
+    final SupabasePropertyStore store = SupabasePropertyStore(client);
+    await store.removeFile('owner/inspection/photo.jpg');
+    await store.removeFile('owner/inspection/photo.jpg');
+    await client.dispose();
+  });
 }
 
 class NeverRisk implements PropertyRiskReader {
