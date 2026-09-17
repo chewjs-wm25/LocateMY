@@ -1,6 +1,6 @@
 {
   "base_head": "1e33cee47189f6475a62ed0891a8c22d26d654e2",
-  "feature_tests": 17,
+  "feature_tests": 23,
   "full_regression_tests": 290,
   "opt_in_skipped": 12,
   "analyze": "PASS",
@@ -20,15 +20,24 @@
     "logout": "PASS"
   },
   "final_presentation": {
-    "base_head": "1e33cee47189f6475a62ed0891a8c22d26d654e2",
-    "source_sha256": "f5a5bd072307a893314854aa3adb847a56ec8ca79fff034917709ac4a5a72f64",
-    "apk_sha256": "a56a15ab8fcb4561bec191d9b29774c0da5505fd50abad05a2c610441f38a377",
+    "base_head": "17e77869fa29b3e50da1cd91affa1fb55ce92f65",
+    "source_sha256": "9f974ecda00c13ed05283eed156b85e98a448bf91beebfaf1c819d435bd92663",
+    "apk_sha256": "150d8666f80d82397c1e80c6bf3108cc9654c4968266f9d4f360a3ba40b20658",
     "secret_scan": "PASS",
     "device": "owner-b-emulator",
     "final_production_start": "PASS",
-    "missing_dash_and_list": "PASS",
+    "latest_independent_statistical_years": "PASS",
     "bilingual": "PASS"
   },
   "apk_artifact": "build/infrastructure-wave6-evidence/infrastructure-device-debug.apk",
-  "notes": "Final presentation-only version adds missing dash and explicit missing list; previous complete lifecycle/navigation evidence retains its source version."
+  "notes": "Final presentation-only version adds missing dash and explicit missing list; previous complete lifecycle/navigation evidence retains its source version.",
+  "review_fix": {
+    "base_commit": "17e77869fa29b3e50da1cd91affa1fb55ce92f65",
+    "independent_latest_valid_aggregates": "PASS",
+    "serial_per_key_cache_writes": "PASS",
+    "actual_statistical_and_population_years": "PASS",
+    "live": "PASS",
+    "analyze": "PASS",
+    "feature_tests": 23
+  }
 }

@@ -1,3 +1,5 @@
+// Explicit constructor parameters follow Development Standard §7.
+// ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -204,7 +206,330 @@ final class MemoryCache implements InfrastructurePublicCache {
   }
 }
 
+final class DelayedCache implements InfrastructurePublicCache {
+  final String blockedKey;
+  DelayedCache([String blockedKey = 'Selangor:Petaling'])
+    : blockedKey = blockedKey;
+  final Map<String, Map<String, Object?>> values =
+      <String, Map<String, Object?>>{};
+  final Completer<void> started = Completer<void>();
+  final Completer<void> release = Completer<void>();
+  bool delayed = false;
+  @override
+  Future<Map<String, Object?>?> read(String key) async {
+    return values[key];
+  }
+
+  @override
+  Future<void> write(String key, Map<String, Object?> payload) async {
+    if (key == blockedKey && !delayed) {
+      delayed = true;
+      started.complete();
+      await release.future;
+    }
+    values[key] = payload;
+  }
+}
+
 void main() {
+  test('education reference percentiles use each target input year and reject entire invalid newest aggregate', () async {
+    final Inputs inputs = Inputs();
+    inputs.payload['schools'] = <Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2025-06-30',
+        'stage': 'primary',
+        'type': 'public',
+        'schools': 10,
+      },
+      <String, Object?>{
+        'state': 'Other',
+        'district': 'Else',
+        'date': '2025-06-30',
+        'stage': 'primary',
+        'type': 'public',
+        'schools': 30,
+      },
+    ];
+    inputs.payload['teachers'] = <Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2022-01-01',
+        'sex': 'both',
+        'teachers': 10,
+      },
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2024-01-01',
+        'sex': 'both',
+        'teachers': 999,
+      },
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2024-01-01',
+        'sex': 'both',
+        'teachers': null,
+      },
+      <String, Object?>{
+        'state': 'Other',
+        'district': 'Else',
+        'date': '2022-01-01',
+        'sex': 'both',
+        'teachers': 30,
+      },
+      <String, Object?>{
+        'state': 'Other',
+        'district': 'Else',
+        'date': '2024-01-01',
+        'sex': 'both',
+        'teachers': 0,
+      },
+    ];
+    inputs.payload['enrolment'] = <Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2023-01-01',
+        'sex': 'both',
+        'students': 100,
+      },
+      <String, Object?>{
+        'state': 'Other',
+        'district': 'Else',
+        'date': '2023-01-01',
+        'sex': 'both',
+        'students': 100,
+      },
+    ];
+    final InfrastructureAvailable result = await service(
+      GeoFixture(),
+      inputs,
+      Transit(),
+      Weights(),
+    ).fetch(location, DateTime(2026)) as InfrastructureAvailable;
+    expect(result.snapshot.categories[3].score, 50);
+    expect(result.snapshot.sourceYears['teachers'], 2022);
+    expect(result.snapshot.sourceYears['enrolment'], 2023);
+    expect(result.snapshot.sourceYears['schools'], 2025);
+    expect(result.snapshot.populationYears['education'], 2023);
+  });
+
+  testWidgets(
+    'single and A/B show necessary population-year difference without query metadata',
+    (WidgetTester tester) async {
+      final InfrastructureService api = service(
+        GeoFixture(),
+        Inputs(),
+        Transit(),
+        Weights(),
+      );
+      for (final bool compare in <bool>[false, true]) {
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: InfrastructureCoveragePage(
+              service: api,
+              location: location,
+              locationB: compare ? location : null,
+              analysisDate: DateTime(2026),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.textContaining('Healthcare uses population 2023'),
+          findsWidgets,
+        );
+        expect(find.textContaining('Statistics: 2024'), findsWidgets);
+        expect(find.textContaining('TTL'), findsNothing);
+        expect(find.textContaining('Queried'), findsNothing);
+      }
+    },
+  );
+
+  test('actual component and population years survive weight preview and A/B evaluation', () async {
+    final InfrastructureService api = service(
+      GeoFixture(),
+      Inputs(),
+      Transit(),
+      Weights(),
+    );
+    final InfrastructureViewModel model = InfrastructureViewModel(
+      service: api,
+      location: location,
+      analysisDate: DateTime(2026),
+    );
+    await model.readWeights();
+    await model.load();
+    final InfrastructureCoverage initial =
+        (model.outcome as InfrastructureAvailable).snapshot;
+    expect(initial.sourceYears['health'], 2024);
+    expect(initial.populationYears['health'], 2023);
+    await model.updateWeights(health: 1);
+    expect(
+      (model.outcome as InfrastructureAvailable)
+          .snapshot
+          .populationYears['health'],
+      2023,
+    );
+    final List<InfrastructureLoadOutcome> comparison = await api.compare(
+      location,
+      location,
+      DateTime(2026),
+    );
+    expect(
+      (comparison.last as InfrastructureAvailable)
+          .snapshot
+          .sourceYears['health'],
+      2024,
+    );
+    model.dispose();
+  });
+
+  test('in-flight older cache writes finish before the newer write for shared coordinate or district key', () async {
+    for (final String blockedKey in <String>[
+      'Selangor:Petaling',
+      'coordinate:3.0738:101.6077',
+    ]) {
+      for (final bool sameCoordinate in <bool>[true, false]) {
+        final PendingInputs reader = PendingInputs();
+        final DelayedCache cache = DelayedCache(blockedKey);
+        final InfrastructureService api = InfrastructureService(
+          geo: GeoFixture(),
+          reader: reader,
+          transportation: Transit(),
+          weightsStore: Weights(),
+          cache: cache,
+        );
+        final Map<String, Object?> old = <String, Object?>{
+          ...Inputs().payload,
+          'tag': 'old',
+        };
+        final Map<String, Object?> newer = <String, Object?>{
+          ...Inputs().payload,
+          'tag': 'new',
+        };
+        final Future<InfrastructureLoadOutcome> first = api.fetch(
+          location,
+          DateTime(2026),
+          policy: InfrastructureLoadPolicy.refresh,
+        );
+        await Future<void>.delayed(Duration.zero);
+        reader.pending[0].complete(old);
+        await cache.started.future;
+        final ValidLocationReference secondLocation = sameCoordinate
+            ? location
+            : const ValidLocationReference(
+                locationId: 'second',
+                point: GeographicPoint(latitude: 3.074, longitude: 101.608),
+              );
+        final Future<InfrastructureLoadOutcome> second = api.fetch(
+          secondLocation,
+          DateTime(2026),
+          policy: InfrastructureLoadPolicy.refresh,
+        );
+        await Future<void>.delayed(Duration.zero);
+        reader.pending[1].complete(newer);
+        await Future<void>.delayed(Duration.zero);
+        cache.release.complete();
+        await Future.wait(<Future<InfrastructureLoadOutcome>>[first, second]);
+        expect((await cache.read('Selangor:Petaling'))!['tag'], 'new');
+        final String coordinate =
+            'coordinate:${secondLocation.point.latitude}:${secondLocation.point.longitude}';
+        expect(
+          ((await cache.read(coordinate))!['inputs'] as Map)['tag'],
+          'new',
+        );
+      }
+    }
+  });
+
+  test('invalid latest hospital aggregate falls back as a whole and preserves zero observation', () async {
+    final Inputs inputs = Inputs();
+    final List<Object?> beds = List<Object?>.from(
+      inputs.payload['beds'] as List,
+    );
+    beds.addAll(<Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2025-01-01',
+        'type': 'public',
+        'beds': 999,
+      },
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2025-01-01',
+        'type': 'private',
+        'beds': null,
+      },
+    ]);
+    inputs.payload['beds'] = beds;
+    final InfrastructureAvailable result = await service(
+      GeoFixture(),
+      inputs,
+      Transit(),
+      Weights(),
+    ).fetch(location, DateTime(2026)) as InfrastructureAvailable;
+    expect(result.snapshot.categories[2].score, 50);
+    (beds.first as Map<String, Object?>)['beds'] = 0;
+    final InfrastructureAvailable zero = await service(
+      GeoFixture(),
+      inputs,
+      Transit(),
+      Weights(),
+    ).fetch(location, DateTime(2026)) as InfrastructureAvailable;
+    expect(zero.snapshot.categories[2].score, 50);
+  });
+
+  test('education combines latest valid schools and both-sex resources from their own years', () async {
+    final Inputs inputs = Inputs();
+    inputs.payload['schools'] = <Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2025-06-30',
+        'stage': 'primary',
+        'type': 'public',
+        'schools': 10,
+      },
+    ];
+    inputs.payload['teachers'] = <Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2022-01-01',
+        'stage': 'primary',
+        'sex': 'both',
+        'teachers': 10,
+      },
+    ];
+    inputs.payload['enrolment'] = <Object?>[
+      <String, Object?>{
+        'state': 'Selangor',
+        'district': 'Petaling',
+        'date': '2023-01-01',
+        'stage': 'primary',
+        'sex': 'both',
+        'students': 100,
+      },
+    ];
+    final InfrastructureAvailable result = await service(
+      GeoFixture(),
+      inputs,
+      Transit(),
+      Weights(),
+    ).fetch(location, DateTime(2026)) as InfrastructureAvailable;
+    expect(result.snapshot.categories[3].score, 100);
+  });
+
   test('amenities choose latest valid percentage independently without turning malformed input into zero', () async {
     final Inputs inputs = Inputs();
     inputs.payload['amenities'] = <Object?>[

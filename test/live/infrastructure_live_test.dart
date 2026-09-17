@@ -128,7 +128,11 @@ void main() {
         );
       }
       expect(snapshot.categories[2].score, isNull);
-      expect(snapshot.categories[3].score, isNull);
+      expect(snapshot.categories[3].score, isNotNull);
+      expect(snapshot.sourceYears['schools'], 2025);
+      expect(snapshot.sourceYears['teachers'], 2022);
+      expect(snapshot.sourceYears['enrolment'], 2022);
+      expect(snapshot.populationYears['education'], 2025);
       final List<InfrastructureLoadOutcome> comparison = await service.compare(
         location,
         location,

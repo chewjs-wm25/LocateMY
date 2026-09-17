@@ -221,12 +221,13 @@ try:
             wait('Petaling')
             capture('single-zh')
             if args.presentation_only:
-                tap('缺少资料: 医疗、教育、公共交通')
-                capture('final-missing-zh')
+                wait('统计年份')
+                capture('review-years-zh')
                 tap('语言')
                 wait('Infrastructure coverage ICI')
-                capture('final-presentation-en')
-                (EVIDENCE / (tag + '-presentation-verification.json')).write_text(json.dumps({**stamp,'device':tag,'final_production_start':'PASS','missing_dash_and_list':'PASS','bilingual':'PASS'},indent=2)+'\n')
+                wait('Statistics:')
+                capture('review-years-en')
+                (EVIDENCE / (tag + '-presentation-verification.json')).write_text(json.dumps({**stamp,'device':tag,'final_production_start':'PASS','latest_independent_statistical_years':'PASS','bilingual':'PASS'},indent=2)+'\n')
                 print(tag,'FINAL PRESENTATION PASS',flush=True)
                 continue
             tap('语言')

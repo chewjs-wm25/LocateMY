@@ -75,6 +75,8 @@ final class InfrastructureCoverage {
   final List<String> missingCategories;
   final String? district;
   final String? state;
+  final Map<String, int> sourceYears;
+  final Map<String, int> populationYears;
 
   const InfrastructureCoverage({
     required int? score,
@@ -85,6 +87,8 @@ final class InfrastructureCoverage {
     List<String> missingCategories = const <String>[],
     String? district,
     String? state,
+    Map<String, int> sourceYears = const <String, int>{},
+    Map<String, int> populationYears = const <String, int>{},
   }) : score = score,
        location = location,
        analysisDate = analysisDate,
@@ -92,7 +96,9 @@ final class InfrastructureCoverage {
        categories = categories,
        missingCategories = missingCategories,
        district = district,
-       state = state;
+       state = state,
+       sourceYears = sourceYears,
+       populationYears = populationYears;
 }
 
 sealed class InfrastructureLoadOutcome {

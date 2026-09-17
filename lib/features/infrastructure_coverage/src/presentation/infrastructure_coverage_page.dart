@@ -180,6 +180,17 @@ final class _InfrastructureCoveragePageState
         ),
       );
     }
+    if (snapshot != null) {
+      final String years = _yearNotes(snapshot);
+      if (years.isNotEmpty) {
+        result.add(
+          Text(
+            years,
+            style: const TextStyle(color: Color(0xFF667085), fontSize: 12),
+          ),
+        );
+      }
+    }
     result.add(const SizedBox(height: 18));
     if (model.loading) {
       result.add(
@@ -312,6 +323,52 @@ final class _InfrastructureCoveragePageState
     }
     result.add(const SizedBox(height: 16));
     return result;
+  }
+
+  String _yearNotes(InfrastructureCoverage snapshot) {
+    final Map<String, String> labels = <String, String>{
+      'water': _t('供水', 'Water'),
+      'power': _t('供电', 'Electricity'),
+      'health': _t('医疗', 'Healthcare'),
+      'schools': _t('学校', 'Schools'),
+      'teachers': _t('教师', 'Teachers'),
+      'enrolment': _t('学生', 'Students'),
+    };
+    final Map<int, List<String>> groups = <int, List<String>>{};
+    for (final String key in labels.keys) {
+      final int? year = snapshot.sourceYears[key];
+      if (year != null) {
+        groups
+            .putIfAbsent(year, () {
+              return <String>[];
+            })
+            .add(labels[key]!);
+      }
+    }
+    final List<String> notes = <String>[];
+    if (groups.length == 1) {
+      notes.add('${_t('统计年份', 'Statistics')}: ${groups.keys.first}');
+    } else if (groups.isNotEmpty) {
+      final List<String> readings = <String>[];
+      for (final MapEntry<int, List<String>> group in groups.entries) {
+        readings.add('${group.value.join(' / ')} ${group.key}');
+      }
+      notes.add('${_t('统计年份', 'Statistics')}: ${readings.join('; ')}');
+    }
+    for (final String component in <String>['health', 'education']) {
+      final int? population = snapshot.populationYears[component];
+      final int? indicator =
+          snapshot.sourceYears[component == 'health' ? 'health' : 'schools'];
+      if (population != null && indicator != null && population != indicator) {
+        final String name = component == 'health'
+            ? _t('医疗', 'Healthcare')
+            : _t('学校', 'Schools');
+        notes.add(
+          _t('$name采用$population年人口', '$name uses population $population'),
+        );
+      }
+    }
+    return notes.join(' · ');
   }
 
   String _grade(int score) {

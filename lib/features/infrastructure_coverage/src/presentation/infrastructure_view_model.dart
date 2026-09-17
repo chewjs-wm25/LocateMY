@@ -149,6 +149,8 @@ final class InfrastructureViewModel extends ChangeNotifier {
       _weights,
       state: snapshot.state,
       district: snapshot.district,
+      sourceYears: snapshot.sourceYears,
+      populationYears: snapshot.populationYears,
     );
     if (recalculated.score == null) {
       _outcome = InfrastructurePartial(recalculated);

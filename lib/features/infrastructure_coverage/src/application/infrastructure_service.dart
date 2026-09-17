@@ -27,6 +27,9 @@ final class InfrastructureService {
   final InfrastructureWeightsStore weightsStore;
   final InfrastructurePublicCache? cache;
   final Map<String, int> _generations = <String, int>{};
+  final Map<String, int> _cacheRevisions = <String, int>{};
+  final Map<String, Future<void>> _cacheWrites = <String, Future<void>>{};
+  int _requestRevision = 0;
   InfrastructureService({
     required GeographicContext geo,
     required InfrastructureInputsReader reader,
@@ -39,6 +42,50 @@ final class InfrastructureService {
        weightsStore = weightsStore,
        cache = cache;
 
+  void _registerCacheRevision(String key, int revision) {
+    if (revision > (_cacheRevisions[key] ?? 0)) {
+      _cacheRevisions[key] = revision;
+    }
+  }
+
+  Future<void> _writeCache(
+    String key,
+    Map<String, Object?> payload,
+    int revision,
+  ) async {
+    final Future<void>? previous = _cacheWrites[key];
+    final Future<void> write = _writeAfter(previous, key, payload, revision);
+    _cacheWrites[key] = write;
+    try {
+      await write;
+    } finally {
+      if (identical(_cacheWrites[key], write)) {
+        _cacheWrites.remove(key);
+      }
+    }
+  }
+
+  Future<void> _writeAfter(
+    Future<void>? previous,
+    String key,
+    Map<String, Object?> payload,
+    int revision,
+  ) async {
+    if (previous != null) {
+      try {
+        await previous;
+      } catch (_) {
+        /* A failed older write must not block a newer observation. */
+      }
+    }
+    if (_cacheRevisions[key] != revision) {
+      return;
+    }
+    // A newer write for this key queues behind an already in-flight write,
+    // ensuring the old completion cannot subsequently overwrite the new data.
+    await cache?.write(key, payload);
+  }
+
   static InfrastructureCoverage evaluate(
     ValidLocationReference location,
     DateTime analysisDate,
@@ -46,6 +93,8 @@ final class InfrastructureService {
     InfrastructureWeightSettings weights, {
     String? state,
     String? district,
+    Map<String, int> sourceYears = const <String, int>{},
+    Map<String, int> populationYears = const <String, int>{},
   }) {
     if (!weights.valid) {
       throw ArgumentError('Priorities must be 1–10');
@@ -123,6 +172,8 @@ final class InfrastructureService {
       missingCategories: List<String>.unmodifiable(missing),
       state: state,
       district: district,
+      sourceYears: Map<String, int>.unmodifiable(sourceYears),
+      populationYears: Map<String, int>.unmodifiable(populationYears),
     );
   }
 
@@ -153,6 +204,8 @@ final class InfrastructureService {
   }) async {
     final String key =
         'coordinate:${location.point.latitude}:${location.point.longitude}';
+    final int revision = ++_requestRevision;
+    _registerCacheRevision(key, revision);
     final int generation = (_generations[key] ?? 0) + 1;
     _generations[key] = generation;
     String? state;
@@ -188,6 +241,7 @@ final class InfrastructureService {
       }
       if (state != null && district != null && inputs == null) {
         final String scope = '$state:$district';
+        _registerCacheRevision(scope, revision);
         if (policy == InfrastructureLoadPolicy.cacheAllowed) {
           inputs = await cache?.read(scope);
         }
@@ -201,21 +255,29 @@ final class InfrastructureService {
           }
           if (inputs != null && fetched && _generations[key] == generation) {
             try {
-              await cache?.write(scope, inputs);
-              await cache?.write(key, <String, Object?>{
+              await _writeCache(scope, inputs, revision);
+              await _writeCache(key, <String, Object?>{
                 'state': state,
                 'district': district,
                 'inputs': inputs,
-              });
+              }, revision);
             } catch (_) {
               /* Readable observations survive cache write failure. */
             }
           }
         }
       }
-      final Map<String, double?> scores = <String, double?>{};
+      final _InfrastructureReadings readings = _InfrastructureReadings();
+      final Map<String, double?> scores = readings.scores;
       if (inputs != null && state != null && district != null) {
-        scores.addAll(InfrastructureInputRules.scores(inputs, state, district));
+        final _InfrastructureReadings observed = InfrastructureInputRules._read(
+          inputs,
+          state,
+          district,
+        );
+        scores.addAll(observed.scores);
+        readings.sourceYears.addAll(observed.sourceYears);
+        readings.populationYears.addAll(observed.populationYears);
       }
       final TransitLoadOutcome transit = await transportation.load(
         TransitRequest(
@@ -236,6 +298,8 @@ final class InfrastructureService {
         weights,
         state: state,
         district: district,
+        sourceYears: readings.sourceYears,
+        populationYears: readings.populationYears,
       );
       if (result.score == null) {
         return InfrastructurePartial(result);
@@ -278,33 +342,60 @@ final class InfrastructureInputRules {
     return DateTime.tryParse(date)?.year;
   }
 
-  static List<Map<String, Object?>> _latest(
+  static _InfrastructureAggregate? _aggregate(
     List<Map<String, Object?>> rows,
     String state,
     String district,
-  ) {
-    int? year;
+    String field, {
+    bool both = false,
+    int? year,
+  }) {
+    final Set<DateTime> dates = <DateTime>{};
     for (final Map<String, Object?> row in rows) {
-      final int? y = _year(row);
-      if (row['state'] == state &&
-          row['district'] == district &&
-          y != null &&
-          (year == null || y > year)) {
-        year = y;
+      if (row['state'] != state ||
+          row['district'] != district ||
+          (both && row['sex'] != 'both')) {
+        continue;
+      }
+      final Object? date = row['date'];
+      if (date is String) {
+        final DateTime? parsed = DateTime.tryParse(date);
+        if (parsed != null && (year == null || parsed.year == year)) {
+          dates.add(parsed);
+        }
       }
     }
-    final List<Map<String, Object?>> result = <Map<String, Object?>>[];
-    for (final Map<String, Object?> row in rows) {
-      if (row['state'] == state &&
-          row['district'] == district &&
-          _year(row) == year) {
-        result.add(row);
+    final List<DateTime> sorted = dates.toList();
+    sorted.sort((DateTime a, DateTime b) {
+      return b.compareTo(a);
+    });
+    for (final DateTime date in sorted) {
+      double total = 0;
+      bool valid = true;
+      bool observed = false;
+      for (final Map<String, Object?> row in rows) {
+        if (row['state'] != state ||
+            row['district'] != district ||
+            (both && row['sex'] != 'both') ||
+            row['date'] != date.toIso8601String().substring(0, 10)) {
+          continue;
+        }
+        final double? value = _number(row[field]);
+        if (value == null) {
+          valid = false;
+          break;
+        }
+        total += value;
+        observed = true;
+      }
+      if (valid && observed) {
+        return _InfrastructureAggregate(date.year, total);
       }
     }
-    return result;
+    return null;
   }
 
-  static double? _population(
+  static _InfrastructureAggregate? _population(
     List<Map<String, Object?>> population,
     String state,
     String district,
@@ -330,60 +421,23 @@ final class InfrastructureInputRules {
         value = p;
       }
     }
-    // Official population_district values are in thousands of persons.
-    if (value == null) {
+    if (best == null || value == null) {
       return null;
     }
-    return value * 1000;
+    return _InfrastructureAggregate(best, value * 1000);
   }
 
-  static double? _sum(
-    List<Map<String, Object?>> rows,
-    String field, {
-    bool both = false,
-  }) {
-    double total = 0;
-    bool observed = false;
+  static Set<String> _districts(List<Map<String, Object?>> rows) {
+    final Set<String> result = <String>{};
     for (final Map<String, Object?> row in rows) {
-      if (both && row['sex'] != 'both') {
-        continue;
-      }
-      final double? value = _number(row[field]);
-      if (value == null) {
-        return null;
-      }
-      total += value;
-      observed = true;
-    }
-    if (!observed) {
-      return null;
-    }
-    return total;
-  }
-
-  static double? _density(
-    List<Map<String, Object?>> rows,
-    List<Map<String, Object?>> population,
-    String state,
-    String district,
-    int year,
-    String field,
-    double scale,
-  ) {
-    final List<Map<String, Object?>> same = <Map<String, Object?>>[];
-    for (final Map<String, Object?> row in rows) {
-      if (row['state'] == state &&
-          row['district'] == district &&
-          _year(row) == year) {
-        same.add(row);
+      if (row['state'] is String &&
+          row['district'] is String &&
+          row['district'] != 'All Districts' &&
+          row['district'] != 'All') {
+        result.add('${row['state']}|${row['district']}');
       }
     }
-    final double? count = _sum(same, field);
-    final double? people = _population(population, state, district, year);
-    if (count == null || people == null) {
-      return null;
-    }
-    return count / people * scale;
+    return result;
   }
 
   static double? _percentile(double? target, List<double> reference) {
@@ -399,17 +453,79 @@ final class InfrastructureInputRules {
     return below / reference.length * 100;
   }
 
+  static double? _densityScore(
+    List<Map<String, Object?>> rows,
+    List<Map<String, Object?>> population,
+    String state,
+    String district,
+    String field,
+    double scale,
+    _InfrastructureReadings readings,
+    String component,
+  ) {
+    final _InfrastructureAggregate? target = _aggregate(
+      rows,
+      state,
+      district,
+      field,
+    );
+    if (target == null) {
+      return null;
+    }
+    readings.sourceYears[component] = target.year;
+    final _InfrastructureAggregate? people = _population(
+      population,
+      state,
+      district,
+      target.year,
+    );
+    if (people == null) {
+      return null;
+    }
+    readings.populationYears[component == 'schools' ? 'education' : component] =
+        people.year;
+    final List<double> reference = <double>[];
+    for (final String pair in _districts(rows)) {
+      final List<String> parts = pair.split('|');
+      final _InfrastructureAggregate? count = _aggregate(
+        rows,
+        parts[0],
+        parts[1],
+        field,
+        year: target.year,
+      );
+      final _InfrastructureAggregate? pop = _population(
+        population,
+        parts[0],
+        parts[1],
+        target.year,
+      );
+      if (count != null && pop != null) {
+        reference.add(count.value / pop.value * scale);
+      }
+    }
+    return _percentile(target.value / people.value * scale, reference);
+  }
+
   static Map<String, double?> scores(
     Map<String, Object?> input,
     String state,
     String district,
   ) {
-    final Map<String, double?> result = <String, double?>{};
-    final List<Map<String, Object?>> amenities = _rows(input['amenities']);
+    return _read(input, state, district).scores;
+  }
+
+  static _InfrastructureReadings _read(
+    Map<String, Object?> input,
+    String state,
+    String district,
+  ) {
+    final _InfrastructureReadings readings = _InfrastructureReadings();
+    final Map<String, double?> result = readings.scores;
     for (final String field in <String>['piped_water', 'electricity']) {
       int? latestYear;
       double? latestValue;
-      for (final Map<String, Object?> row in amenities) {
+      for (final Map<String, Object?> row in _rows(input['amenities'])) {
         final int? year = _year(row);
         final double? value = _number(row[field]);
         if (row['state'] == state &&
@@ -422,95 +538,106 @@ final class InfrastructureInputRules {
           latestValue = value;
         }
       }
-      result[field == 'piped_water' ? 'water' : 'power'] = latestValue;
+      final String component = field == 'piped_water' ? 'water' : 'power';
+      result[component] = latestValue;
+      if (latestYear != null) {
+        readings.sourceYears[component] = latestYear;
+      }
     }
     final List<Map<String, Object?>> population = _rows(input['population']);
     final List<Map<String, Object?>> beds = _rows(input['beds']);
     final List<Map<String, Object?>> schools = _rows(input['schools']);
     final List<Map<String, Object?>> teachers = _rows(input['teachers']);
     final List<Map<String, Object?>> students = _rows(input['enrolment']);
-    for (final String kind in <String>['health', 'education']) {
-      final List<Map<String, Object?>> rows = kind == 'health' ? beds : schools;
-      final List<Map<String, Object?>> selected = _latest(
-        rows,
-        state,
-        district,
-      );
-      if (selected.isEmpty) {
-        continue;
-      }
-      final int? year = _year(selected.first);
-      if (year == null) {
-        continue;
-      }
-      final Set<String> districts = <String>{};
-      for (final Map<String, Object?> row in rows) {
-        if (_year(row) == year &&
-            row['district'] != 'All Districts' &&
-            row['district'] != 'All' &&
-            row['state'] is String &&
-            row['district'] is String) {
-          districts.add('${row['state']}|${row['district']}');
-        }
-      }
-      final List<double> densityReference = <double>[];
-      final List<double> ratioReference = <double>[];
-      double? targetDensity;
-      double? targetRatio;
-      for (final String pair in districts) {
+    result['health'] = _densityScore(
+      beds,
+      population,
+      state,
+      district,
+      'beds',
+      1000,
+      readings,
+      'health',
+    );
+    final double? schoolScore = _densityScore(
+      schools,
+      population,
+      state,
+      district,
+      'schools',
+      10000,
+      readings,
+      'schools',
+    );
+    final _InfrastructureAggregate? teacher = _aggregate(
+      teachers,
+      state,
+      district,
+      'teachers',
+      both: true,
+    );
+    final _InfrastructureAggregate? student = _aggregate(
+      students,
+      state,
+      district,
+      'students',
+      both: true,
+    );
+    if (teacher != null) {
+      readings.sourceYears['teachers'] = teacher.year;
+    }
+    if (student != null) {
+      readings.sourceYears['enrolment'] = student.year;
+    }
+    if (schoolScore != null &&
+        teacher != null &&
+        student != null &&
+        student.value > 0) {
+      final List<double> reference = <double>[];
+      for (final String pair in _districts(teachers)) {
         final List<String> parts = pair.split('|');
-        final String s = parts[0];
-        final String d = parts[1];
-        final double? density = _density(
-          rows,
-          population,
-          s,
-          d,
-          year,
-          kind == 'health' ? 'beds' : 'schools',
-          kind == 'health' ? 1000 : 10000,
+        final _InfrastructureAggregate? t = _aggregate(
+          teachers,
+          parts[0],
+          parts[1],
+          'teachers',
+          both: true,
+          year: teacher.year,
         );
-        double? ratio;
-        if (kind == 'education') {
-          final List<Map<String, Object?>> t = <Map<String, Object?>>[];
-          final List<Map<String, Object?>> e = <Map<String, Object?>>[];
-          for (final Map<String, Object?> r in teachers) {
-            if (r['state'] == s && r['district'] == d && _year(r) == year) {
-              t.add(r);
-            }
-          }
-          for (final Map<String, Object?> r in students) {
-            if (r['state'] == s && r['district'] == d && _year(r) == year) {
-              e.add(r);
-            }
-          }
-          final double? tc = _sum(t, 'teachers', both: true);
-          final double? ec = _sum(e, 'students', both: true);
-          if (tc != null && ec != null && ec > 0) {
-            ratio = tc / ec * 100;
-          }
-        }
-        if (density != null) {
-          densityReference.add(density);
-        }
-        if (ratio != null) {
-          ratioReference.add(ratio);
-        }
-        if (s == state && d == district) {
-          targetDensity = density;
-          targetRatio = ratio;
+        final _InfrastructureAggregate? e = _aggregate(
+          students,
+          parts[0],
+          parts[1],
+          'students',
+          both: true,
+          year: student.year,
+        );
+        if (t != null && e != null && e.value > 0) {
+          reference.add(t.value / e.value * 100);
         }
       }
-      final double? densityScore = _percentile(targetDensity, densityReference);
-      if (kind == 'health') {
-        result[kind] = densityScore;
-      } else {
-        final double? ratioScore = _percentile(targetRatio, ratioReference);
-        if (densityScore != null && ratioScore != null) {
-          result[kind] = (densityScore + ratioScore) / 2;
-        }
+      final double? resourceScore = _percentile(
+        teacher.value / student.value * 100,
+        reference,
+      );
+      if (resourceScore != null) {
+        result['education'] = (schoolScore + resourceScore) / 2;
       }
     }
-    return result;
+    return readings;
   }
+}
+
+final class _InfrastructureAggregate {
+  final int year;
+  final double value;
+  const _InfrastructureAggregate(int year, double value)
+    : year = year,
+      value = value;
+}
+
+final class _InfrastructureReadings {
+  final Map<String, double?> scores = <String, double?>{};
+  final Map<String, int> sourceYears = <String, int>{};
+  final Map<String, int> populationYears = <String, int>{};
 }

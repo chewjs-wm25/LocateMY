@@ -37,7 +37,7 @@ PublicTransportation 服务与 SDK 当前账号，不消费 AccountScope、Shell
 
 - `createInfrastructureCoverage(geographicContext, reader, transportation, weightsStore, database?, clock?)` 构造真实可注入的 `InfrastructureService`。
 - `InfrastructureService.fetch(location, analysisDate, {policy, weights})` 返回 `InfrastructureLoadOutcome`；`summary(location, date)` 和 `compare(a, b, date, {policy})` 永远使用中性三权重，不读取账户草稿。
-- `InfrastructureCoverage.score` 为可空整数；五项 `InfrastructureCategoryScore.score` 为可空完整精度读数，缺失列表及真实解析的州/行政区跟随结果。`InfrastructureAvailable` 表示满足3/5门槛；`InfrastructurePartial` 保留可用分项且综合为null；`InfrastructureUnavailable` 是短可重试失败。
+- `InfrastructureCoverage.score` 为可空整数；五项 `InfrastructureCategoryScore.score` 为可空完整精度读数，缺失列表及真实解析的州/行政区跟随结果。Coverage.sourceYears/populationYears保留分项及人口实际统计年，预览及A/B仍保留；统计年份差异按精简边界集中说明。`InfrastructureAvailable` 表示满足3/5门槛；`InfrastructurePartial` 保留可用分项且综合为null；`InfrastructureUnavailable` 是短可重试失败。
 - `InfrastructureInputsReader.read(state, district)` 隔离只读RPC；`InfrastructureWeightsStore.read/save` 隔离账户线上记录。SQLite公开缓存无需跨Owner业务消费。
 - `InfrastructureCoveragePage(service, location, analysisDate, {locationB})` 是实际普通路由页面；单点保存/预览，A/B不建立权重编辑器。ViewModel公开动作保留于同一入口便于现有消费者测试，跨Feature不得导入src。
 
@@ -67,3 +67,5 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 | 格式/analyze/tests/debug APK/Java可读性 | 本模块 | Flutter工具链 | 命令与版本证据 | B | 6 | 已通过，见报告 | 不适用 |
 
 本期证据：[Infrastructure Wave 6 报告](../../human/evidence/infrastructure-coverage-wave6-2026-09-18/report.md)。声明/SDK Adapter/页面均通过唯一入口导出；Implemented 独立审查待主Agent安排，Integrated 不自动批准。
+
+Luna Spec三项阻塞修复证据见报告复审节：每数据集独立最新有效完整聚合、每cache key串行写防旧完成覆盖、分项/人口真实年份及必要呈现；待复审，不提前宣告Implemented。
