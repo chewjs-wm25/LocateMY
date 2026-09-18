@@ -243,7 +243,9 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
         const SizedBox(height: 16),
         _card(<Widget>[
           Text(
-            _t('Core market basket estimated monthly spending', '核心市场篮子估算月支出'),
+            a.isPartialBasket
+                ? _t('Partial goods basket reference amount', '部分商品篮子参考金额')
+                : _t('Fixed goods basket reference amount', '固定商品篮子参考金额'),
             style: CostVisualStyle.text(14, color: CostVisualStyle.heroLabel),
           ),
           Text(
