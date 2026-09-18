@@ -50,7 +50,7 @@
 
 | 对象 | 类型/状态 | Owner | 字段与权限 |
 | --- | --- | --- | --- |
-| `cost_basket_baseline` | 自有冻结表 / implemented | Cost B | basket_version+item_code主键；quantity、name、unit、expected_unit、national_price可空、source_date。固定导入全国商户双中位数逐月代表价平均，不随客户端时钟变化。RLS authenticated只读，无客户端写入；缺失全国价保留null，不重算剩余权重冒充完整基准。20260917164939建立；当前272/1541/1645全部原始观测0行，基准不完整。 |
+| `cost_basket_baseline` | 自有冻结表 / implemented | Cost B | basket_version+item_code主键；quantity、name、unit、expected_unit、national_price可空、source_date。固定导入全国商户双中位数逐月代表价平均，不随客户端时钟变化。RLS authenticated只读，无客户端写入；缺失全国价保留null。客户端只以同时具备地点价和全国价的同一商品子集计算部分篮子指数／压力，明确标注不完整，绝不填零或替换商品。20260917164939建立；当前272/1541/1645全部原始观测0行，基准不完整。 |
 | `select_current_budget(uuid)` | security-invoker RPC / implemented | Cost B | auth.uid账户事务锁；归属检查后取消旧current并设置所选，返回完整saved行；不归属/不存在返回null不更改current。默认PUBLIC/anon执行撤销，authenticated执行；底表owner-only RLS与唯一current索引继续生效。 |
 
 ### 公共政府镜像与边界对象

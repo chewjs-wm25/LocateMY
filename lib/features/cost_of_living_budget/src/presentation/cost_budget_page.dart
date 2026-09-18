@@ -234,14 +234,8 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
         ),
       );
     }
-    String coverage = _t(
-      'Coverage unknown: national baseline incomplete',
-      '覆盖率未知：全国基准不完整',
-    );
-    if (a.coverage != null) {
-      coverage =
-          '${_t('Coverage', '覆盖率')} ${(a.coverage! * 100).toStringAsFixed(1)}%';
-    }
+    final String observedItems =
+        '${_t('Observed items', '可观测项目')} ${a.indexedItemCount} / 11';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -256,7 +250,9 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
         const SizedBox(height: 16),
         _card(<Widget>[
           Text(
-            _t('Cost index', '生活成本指数'),
+            a.isPartialBasket
+                ? _t('Partial basket index', '部分篮子指数')
+                : _t('Cost index', '生活成本指数'),
             style: CostVisualStyle.text(14, color: CostVisualStyle.muted),
           ),
           Text(
@@ -264,7 +260,12 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
             style: CostVisualStyle.text(40, weight: FontWeight.w700),
           ),
           Text(
-            _t('Fixed national baseline = 100', '固定全国基准 = 100'),
+            a.isPartialBasket
+                ? _t(
+                    'Matched observed-item national baseline = 100',
+                    '同组可观测项目全国基准 = 100',
+                  )
+                : _t('Fixed national baseline = 100', '固定全国基准 = 100'),
             style: CostVisualStyle.text(13, color: CostVisualStyle.muted),
           ),
         ]),
@@ -283,14 +284,14 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
             ),
           ),
           Text(
-            '$coverage · ${a.availableMonths} ${_t('months', '个月')}',
+            '$observedItems · ${a.availableMonths} ${_t('months', '个月')}',
             style: CostVisualStyle.text(13, color: CostVisualStyle.heroUnit),
           ),
-          if (a.costIndex == null)
+          if (a.isPartialBasket)
             Text(
               _t(
-                'Partial basket amount; index and budget pressure unavailable.',
-                '部分篮子金额；指数与预算压力不可计算。',
+                'Incomplete data: the partial basket index and budget pressure use only observed items.',
+                '资料不完整：部分篮子指数和预算压力仅使用有观测的项目计算。',
               ),
               style: CostVisualStyle.text(14, color: Colors.white),
             ),
@@ -314,16 +315,16 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '${_t('Personal budget pressure', '个人预算压力')}: ${a.personalBudgetBurden?.toStringAsFixed(1) ?? '—'}%',
+            '${a.isPartialBasket ? _t('Partial basket personal budget pressure', '部分篮子个人预算压力') : _t('Personal budget pressure', '个人预算压力')}: ${a.personalBudgetBurden?.toStringAsFixed(1) ?? '—'}%',
           ),
           Text(
-            '${_t('District household income baseline', '行政区家庭收入基线')}: ${a.locationBudgetBurden?.toStringAsFixed(1) ?? '—'}%',
+            '${a.isPartialBasket ? _t('Partial basket district income pressure', '部分篮子行政区收入压力') : _t('District household income baseline', '行政区家庭收入基线')}: ${a.locationBudgetBurden?.toStringAsFixed(1) ?? '—'}%',
           ),
           if (a.personalBudgetBurden == null)
             Text(
               _t(
-                'Choose a saved scenario with housing, transport and positive monthly net income. Complete basket data is required.',
-                '请选择已保存且填写住房、交通及正月净收入的预案；还需完整篮子资料。',
+                'Choose a saved scenario with housing, transport and positive monthly net income.',
+                '请选择已保存且填写住房、交通及正月净收入的预案。',
               ),
             ),
           if (widget.budgetStore != null)

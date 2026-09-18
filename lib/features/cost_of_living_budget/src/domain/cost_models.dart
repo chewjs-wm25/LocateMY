@@ -156,6 +156,8 @@ final class CostAnalysis {
   final List<CostItem> items;
   final double? coverage;
   final int availableMonths;
+  final int indexedItemCount;
+  final bool isPartialBasket;
   final String? currentScenarioId;
 
   CostAnalysis({
@@ -173,6 +175,8 @@ final class CostAnalysis {
     required List<CostItem> items,
     required double? coverage,
     int availableMonths = 0,
+    int indexedItemCount = 0,
+    bool isPartialBasket = false,
     String? currentScenarioId,
   }) : location = location,
        district = district,
@@ -188,6 +192,8 @@ final class CostAnalysis {
        items = List<CostItem>.unmodifiable(items),
        coverage = coverage,
        availableMonths = availableMonths,
+       indexedItemCount = indexedItemCount,
+       isPartialBasket = isPartialBasket,
        currentScenarioId = currentScenarioId;
 }
 

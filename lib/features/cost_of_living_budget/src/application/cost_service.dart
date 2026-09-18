@@ -170,11 +170,12 @@ final class CostService implements CostOfLivingBudget {
         }
       }
       final Map<String, double> spends = <String, double>{};
-      final Map<String, double> weights = <String, double>{};
+      final Map<String, double> nationalSpends = <String, double>{};
       final Map<int, List<double>> prices = <int, List<double>>{};
       final Map<int, int> premises = <int, int>{};
       final Map<int, int> records = <int, int>{};
       final Map<int, List<DateTime>> months = <int, List<DateTime>>{};
+      final Set<int> indexedItems = <int>{};
       for (final Object? value in raw['months'] as List) {
         final Map<String, dynamic> row = Map<String, dynamic>.from(
           value as Map,
@@ -187,11 +188,12 @@ final class CostService implements CostOfLivingBudget {
         }
         final String month = row['month'] as String;
         final double quantity = _amount(item['quantity'])!;
-        spends[month] = (spends[month] ?? 0) + quantity * price;
-        if (complete && base > 0) {
-          weights[month] =
-              (weights[month] ?? 0) +
-              quantity * _amount(item['national_price'])! / base;
+        final double? nationalPrice = _amount(item['national_price']);
+        if (nationalPrice != null) {
+          spends[month] = (spends[month] ?? 0) + quantity * price;
+          nationalSpends[month] =
+              (nationalSpends[month] ?? 0) + quantity * nationalPrice;
+          indexedItems.add(code);
         }
         prices
             .putIfAbsent(code, () {
@@ -212,11 +214,28 @@ final class CostService implements CostOfLivingBudget {
         observed = _average(spends.values);
       }
       double? coverage;
-      if (complete && base > 0 && weights.isNotEmpty) {
-        coverage = _average(weights.values);
+      if (base > 0 && nationalSpends.isNotEmpty) {
+        final List<double> monthCoverage = <double>[];
+        for (final double nationalSpend in nationalSpends.values) {
+          monthCoverage.add(nationalSpend / base);
+        }
+        coverage = _average(monthCoverage);
       }
       final bool quality =
           spends.length >= 6 && coverage != null && coverage >= 0.8;
+      double? index;
+      if (nationalSpends.isNotEmpty) {
+        final List<double> monthlyIndexes = <double>[];
+        for (final String month in spends.keys) {
+          final double? nationalSpend = nationalSpends[month];
+          if (nationalSpend != null && nationalSpend > 0) {
+            monthlyIndexes.add(100 * spends[month]! / nationalSpend);
+          }
+        }
+        if (monthlyIndexes.isNotEmpty) {
+          index = _average(monthlyIndexes);
+        }
+      }
       double? scenario;
       double? personal;
       double? location;
@@ -237,8 +256,7 @@ final class CostService implements CostOfLivingBudget {
           current!.monthlyNetIncomeRm! <= 0) {
         gaps.add(CostAvailabilityGap.missingNetIncomeInput);
       }
-      if (quality &&
-          observed != null &&
+      if (observed != null &&
           current?.housingExpenseRm != null &&
           current?.transportExpenseRm != null) {
         scenario =
@@ -287,15 +305,17 @@ final class CostService implements CostOfLivingBudget {
         sourceDate: DateTime.parse(raw['source_date'] as String),
         observedSpend12: observed,
         scenarioSpend12: scenario,
-        costIndex: quality && observed != null ? 100 * observed / base : null,
+        costIndex: index,
         personalBudgetBurden: personal,
         locationBudgetBurden: location,
         items: List<CostItem>.unmodifiable(items),
         coverage: coverage,
         availableMonths: spends.length,
+        indexedItemCount: indexedItems.length,
+        isPartialBasket: !complete || !quality,
         currentScenarioId: current?.id,
       );
-      if (!quality) {
+      if (!complete || !quality) {
         return CostAnalysisPartial(
           analysis,
           List<CostAvailabilityGap>.unmodifiable(gaps),

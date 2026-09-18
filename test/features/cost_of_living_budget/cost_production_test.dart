@@ -170,54 +170,85 @@ void main() {
     expect(missing.analysis.scenarioSpend12, 430);
     expect(missing.analysis.personalBudgetBurden, isNull);
   });
+  test('incomplete market observations generate labelled partial index and pressure', () async {
+    final Prices prices = Prices();
+    prices.monthCount = 5;
+    final CostOfLivingBudget service = createCostOfLivingBudget(
+      geographicContext: GeoFixture(),
+      reader: prices,
+    );
+    final CostAnalysisPartial five = await service.analyse(
+      const CostAnalysisRequest(
+        location: location,
+        refreshPolicy: CostRefreshPolicy.refresh,
+      ),
+    ) as CostAnalysisPartial;
+    expect(five.analysis.observedSpend12, 430);
+    expect(five.analysis.costIndex, 200);
+    prices.monthCount = 6;
+    expect(
+      await service.analyse(
+        const CostAnalysisRequest(
+          location: location,
+          refreshPolicy: CostRefreshPolicy.refresh,
+        ),
+      ),
+      isA<CostAnalysisAvailable>(),
+    );
+    prices.narrow = true;
+    prices.monthCount = 12;
+    final CostAnalysisPartial narrow = await service.analyse(
+      const CostAnalysisRequest(
+        location: location,
+        refreshPolicy: CostRefreshPolicy.refresh,
+      ),
+    ) as CostAnalysisPartial;
+    expect(narrow.analysis.observedSpend12, 40);
+    expect(narrow.analysis.costIndex, 200);
+    expect(narrow.analysis.coverage, lessThan(0.8));
+    prices.narrow = false;
+    prices.baselineMissing = true;
+    final CostAnalysisPartial incomplete = await service.analyse(
+      const CostAnalysisRequest(
+        location: location,
+        refreshPolicy: CostRefreshPolicy.refresh,
+      ),
+    ) as CostAnalysisPartial;
+    expect(incomplete.analysis.coverage, 1);
+    expect(incomplete.analysis.costIndex, 200);
+    expect(incomplete.analysis.isPartialBasket, isTrue);
+    expect(incomplete.analysis.indexedItemCount, 10);
+  });
   test(
-    'five months and less than eighty percent never generate index or pressure',
+    'partial basket allows labelled budget pressure with complete inputs',
     () async {
       final Prices prices = Prices();
-      prices.monthCount = 5;
+      prices.baselineMissing = true;
+      final BudgetReader budget = BudgetReader();
+      budget.scenario = BudgetScenario(
+        id: 'partial',
+        name: 'Partial basket',
+        housingExpenseRm: 100,
+        transportExpenseRm: 0,
+        monthlyNetIncomeRm: 1000,
+        isCurrent: true,
+        updatedAt: DateTime.utc(2026),
+        version: 1,
+      );
       final CostOfLivingBudget service = createCostOfLivingBudget(
         geographicContext: GeoFixture(),
         reader: prices,
+        budget: budget,
       );
-      final CostAnalysisPartial five = await service.analyse(
+      final CostAnalysisPartial result = await service.analyse(
         const CostAnalysisRequest(
           location: location,
           refreshPolicy: CostRefreshPolicy.refresh,
         ),
       ) as CostAnalysisPartial;
-      expect(five.analysis.observedSpend12, 430);
-      expect(five.analysis.costIndex, isNull);
-      prices.monthCount = 6;
-      expect(
-        await service.analyse(
-          const CostAnalysisRequest(
-            location: location,
-            refreshPolicy: CostRefreshPolicy.refresh,
-          ),
-        ),
-        isA<CostAnalysisAvailable>(),
-      );
-      prices.narrow = true;
-      prices.monthCount = 12;
-      final CostAnalysisPartial narrow = await service.analyse(
-        const CostAnalysisRequest(
-          location: location,
-          refreshPolicy: CostRefreshPolicy.refresh,
-        ),
-      ) as CostAnalysisPartial;
-      expect(narrow.analysis.observedSpend12, 40);
-      expect(narrow.analysis.costIndex, isNull);
-      expect(narrow.analysis.coverage, lessThan(0.8));
-      prices.narrow = false;
-      prices.baselineMissing = true;
-      final CostAnalysisPartial incomplete = await service.analyse(
-        const CostAnalysisRequest(
-          location: location,
-          refreshPolicy: CostRefreshPolicy.refresh,
-        ),
-      ) as CostAnalysisPartial;
-      expect(incomplete.analysis.coverage, isNull);
-      expect(incomplete.analysis.costIndex, isNull);
+      expect(result.analysis.scenarioSpend12, 450);
+      expect(result.analysis.personalBudgetBurden, 45);
+      expect(result.analysis.locationBudgetBurden, 45);
     },
   );
   test('cached public inputs recover offline without persisting a personal scenario', () async {

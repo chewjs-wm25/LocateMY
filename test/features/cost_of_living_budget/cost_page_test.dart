@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
-import 'cost_production_test.dart' show Prices;
+import 'cost_production_test.dart' show BudgetReader, Prices;
 import '../infrastructure_coverage/infrastructure_behavior_test.dart'
     show GeoFixture, location;
 
@@ -67,6 +67,46 @@ void main() {
       expect(find.text('200.0'), findsOneWidget);
       expect(find.text('RM 430.00 /月'), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('cpi-input')), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'Chinese partial basket report shows index, item count and partial pressure label',
+    (WidgetTester tester) async {
+      final Prices prices = Prices();
+      prices.baselineMissing = true;
+      final BudgetReader budget = BudgetReader();
+      budget.scenario = BudgetScenario(
+        id: 'partial',
+        name: 'Partial',
+        housingExpenseRm: 100,
+        transportExpenseRm: 0,
+        monthlyNetIncomeRm: 1000,
+        isCurrent: true,
+        updatedAt: DateTime.utc(2026),
+        version: 1,
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('zh'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: CostBudgetPage(
+            location: location,
+            service: createCostOfLivingBudget(
+              geographicContext: GeoFixture(),
+              reader: prices,
+              budget: budget,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('部分篮子指数'), findsOneWidget);
+      expect(find.textContaining('可观测项目 10 / 11'), findsOneWidget);
+      expect(find.textContaining('资料不完整：部分篮子指数'), findsOneWidget);
+      expect(find.textContaining('部分篮子个人预算压力'), findsOneWidget);
+      expect(find.text('200.0'), findsOneWidget);
+      expect(find.text('部分篮子个人预算压力: 45.0%'), findsOneWidget);
     },
   );
   testWidgets(

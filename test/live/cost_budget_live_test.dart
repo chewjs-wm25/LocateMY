@@ -177,8 +177,11 @@ void main() {
       expect(result.analysis.items.length, 11);
       expect(result.analysis.availableMonths, 12);
       expect(result.analysis.observedSpend12, greaterThan(0));
-      expect(result.analysis.coverage, isNull);
-      expect(result.analysis.costIndex, isNull);
+      expect(result.analysis.coverage, greaterThan(0));
+      expect(result.analysis.coverage, lessThan(1));
+      expect(result.analysis.costIndex, greaterThan(0));
+      expect(result.analysis.indexedItemCount, greaterThan(0));
+      expect(result.analysis.indexedItemCount, lessThan(11));
       expect(result.analysis.personalBudgetBurden, isNull);
       expect(result.gaps, contains(CostAvailabilityGap.baselineIncomplete));
       expect(
@@ -192,7 +195,7 @@ void main() {
         isA<CpiEquivalentUnavailable>(),
       );
       print(
-        'REAL_PRICE_RPC: ${watch.elapsedMilliseconds}ms; 11 items, 12 months, baseline partial; headline CPI missing as verified',
+        'REAL_PRICE_RPC: ${watch.elapsedMilliseconds}ms; 11 items, 12 months, partial basket index; headline CPI missing as verified',
       );
       await store.delete(second.scenario.id);
       expect(
