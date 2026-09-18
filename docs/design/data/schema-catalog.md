@@ -67,7 +67,7 @@
 | `price_catcher` / `pricecatcher` | `implemented` | Cost | `(date, premise_code, item_code)`；price | Cost；2026-09-17 确认仅保留 cost-basket-v1 的 11 个商品代码，2025-10 至 2026-09 共 460,019 行；来源 ID 为 pricecatcher；原始观测缺失保持缺失 |
 | `lookup_item` | `implemented` | Cost | `item_code`；item、unit、group、category | Cost |
 | `lookup_premise` | `implemented` | Cost | `premise_code`；premise/address/type/state/district | Cost |
-| `cpi_state` | `implemented` | Cost | `(state, date, division)`；index；临时换算同时读取地点所属州与全国 Headline/Overall CPI 的同月记录 | Cost |
+| `cpi_state` | `implemented` | Cost | `(state, date, division)`；index | CPI 等效预算换算已删除；当前无 Cost 消费者 |
 | `cpi_state_inflation` | `proposed` | Cost | `(state, date, division)`；inflation yoy/mom | Cost；当前缺失 |
 | `hh_income_district` | `implemented` | Cost、Socio | `(state, district, date)`；income mean/median | Cost、Socio |
 | `hh_income_state` | `implemented` | Socio | `(state, date)`；income mean/median | Socio；现有 `hies_state` 不是同一数据集 |
@@ -121,7 +121,7 @@ Flutter 不直接查询上述镜像表。每个对象只暴露 Feature 所需字
 | 对象 | 类型/状态 | Owner | 覆盖数据 | 消费者 |
 | --- | --- | --- | --- | --- |
 | `read_home_metrics` | security-invoker RPC / `implemented` | Home | 五个 Home 数据集 | Home |
-| `read_cost_inputs` | security-invoker RPC / `implemented` | Cost | 固定11项基准、12月窗口商户双中位数价格/月份/观测计数、行政区月家庭收入中位数、同最新共同月份州/全国overall CPI（当前无全国headline，合法null，不用core代替） | Cost；20260917164939与20260917165427必要索引，authenticated只读 |
+| `read_cost_inputs` | security-invoker RPC / `implemented` | Cost | 固定11项基准、12月窗口商户双中位数价格/月份/观测计数、行政区月家庭收入中位数 | Cost；20260917164939、20260917165427与20260918000000必要索引／接口收敛，authenticated只读 |
 | `read_administrative_boundary_candidates` | authenticated-only security-definer RPC / `implemented` | Geographic Context | 行政区边界候选及导入来源/版本事实 | Geographic Context；零/一/多候选的业务分类仍归 `GEO-001` |
 | `read_safety_inputs` | security-invoker RPC / `implemented` | Crime | crime district；边界经 Geo Interface | Crime |
 | `read_socio_inputs` | security-invoker RPC / `implemented` | Socio | `p_state text, p_district text default null` → JSON version/state/district、五组收入/基尼/百分位原始观测 | Socio；authenticated execute，anon/PUBLIC deny |
