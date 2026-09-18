@@ -22,20 +22,25 @@ void main() {
   });
 
   test(
-    'device preference defaults to Chinese and survives reconstruction',
+    'device preference defaults to English and survives reconstruction',
     () async {
       SharedPreferences.setMockInitialValues({
         LanguageController.preferenceKey: 42,
       });
-      final preferences = await SharedPreferences.getInstance();
-      final controller = LanguageController(preferences: preferences);
-      expect(controller.locale, const Locale('zh'));
-      final first = controller.select('zh');
-      final second = controller.select('en');
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      final LanguageController controller = LanguageController(
+        preferences: preferences,
+      );
+      expect(controller.locale, const Locale('en'));
+      final Future<bool> first = controller.select('en');
+      final Future<bool> second = controller.select('zh');
       expect(await first, isTrue);
       expect(await second, isTrue);
-      final restored = LanguageController(preferences: preferences);
-      expect(restored.locale, const Locale('en'));
+      final LanguageController restored = LanguageController(
+        preferences: preferences,
+      );
+      expect(restored.locale, const Locale('zh'));
       controller.dispose();
       restored.dispose();
     },
@@ -64,6 +69,8 @@ void main() {
   testWidgets('switching translates existing validation and preserves input', (
     tester,
   ) async {
+    expect(language.locale, const Locale('en'));
+    await language.select('zh');
     await launch(tester);
     await tester.enterText(find.byType(TextFormField).first, 'invalid');
     await tester.enterText(find.byType(TextFormField).last, 'secret123');

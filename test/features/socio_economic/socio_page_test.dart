@@ -101,6 +101,7 @@ void main() {
     (WidgetTester tester) async {
       final ControlledSocio service = ControlledSocio();
       final LanguageController language = LanguageController();
+      await language.select('zh');
       await tester.pumpWidget(
         ChangeNotifierProvider<LanguageController>.value(
           value: language,
