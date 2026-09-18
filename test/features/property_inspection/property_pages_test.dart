@@ -12,6 +12,44 @@ import 'property_service_test.dart'
     show MemoryPropertyStore, UnavailablePropertyRisk;
 
 void main() {
+  testWidgets('choosing a new location uses its place name', (
+    WidgetTester tester,
+  ) async {
+    final ValidLocationReference selected = ValidLocationReference(
+      locationId: 'new-location',
+      point: const GeographicPoint(latitude: 3.14, longitude: 101.69),
+      displayName: 'Taman Tasik Titiwangsa',
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PropertyInspectionFormPage(
+          service: PropertyInspectionService(
+            store: MemoryPropertyStore(),
+            risk: UnavailablePropertyRisk(),
+          ),
+          location: const ValidLocationReference(
+            locationId: 'initial-location',
+            point: GeographicPoint(latitude: 3, longitude: 101),
+          ),
+          chooseLocation: (BuildContext context) async {
+            return selected;
+          },
+        ),
+      ),
+    );
+
+    expect(find.widgetWithText(TextField, 'Place name'), findsOneWidget);
+    await tester.tap(find.byType(OutlinedButton));
+    await tester.pumpAndSettle();
+
+    final TextField field = tester.widget<TextField>(
+      find.widgetWithText(TextField, 'Place name'),
+    );
+    expect(field.controller!.text, 'Taman Tasik Titiwangsa');
+  });
+
   testWidgets('saved notice translates when active locale changes', (
     WidgetTester tester,
   ) async {
@@ -227,8 +265,8 @@ void main() {
           ),
         );
         final List<String> labels = language == 'zh'
-            ? <String>['房产名称', '价格（RM）', '地址']
-            : <String>['Property name', 'Price (RM)', 'Address'];
+            ? <String>['房产名称', '价格（RM）', '地点名称']
+            : <String>['Property name', 'Price (RM)', 'Place name'];
         final List<String> inputs = <String>['House', '1', 'Street'];
         for (int i = 0; i < 3; i++) {
           final Finder field = find.widgetWithText(TextField, labels[i]);

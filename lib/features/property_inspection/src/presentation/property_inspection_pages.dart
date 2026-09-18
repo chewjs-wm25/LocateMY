@@ -779,7 +779,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
         price,
         keyboard: const TextInputType.numberWithOptions(decimal: true),
       ),
-      _field('Address', '地址', address),
+      _field('Place name', '地点名称', address),
       OutlinedButton.icon(
         onPressed: busy || widget.chooseLocation == null
             ? null
@@ -789,6 +789,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
                 if (mounted && result != null) {
                   setState(() {
                     location = result;
+                    address.text = result.displayName ?? '';
                   });
                 }
               },
