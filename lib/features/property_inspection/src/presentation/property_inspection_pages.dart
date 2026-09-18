@@ -153,15 +153,6 @@ Widget _risk(BuildContext context, PropertyInspectionRecord record) {
           Text(
             '${_text(context, 'Source year', '来源年份')} ${f['safety_source_year']} · 2,000 m',
           ),
-        if (record.snapshot.available)
-          ExpansionTile(
-            title: Text(_text(context, 'Snapshot source', '快照来源')),
-            children: <Widget>[
-              SelectableText(
-                '${f['safety_source_id']}\n${f['safety_model_boundary_version']}\n${f['hazard_counted_at']}',
-              ),
-            ],
-          ),
       ],
     ),
   );
