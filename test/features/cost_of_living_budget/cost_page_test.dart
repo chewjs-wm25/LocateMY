@@ -67,8 +67,7 @@ void main() {
       expect(find.text('200.0'), findsOneWidget);
       expect(find.text('RM 430.00 /月'), findsOneWidget);
       expect(find.text('本地商品单价'), findsNothing);
-      expect(find.textContaining('每个可用月份将本地可观测商品价格'), findsOneWidget);
-      expect(find.textContaining('不含住房、交通和额外生活开销'), findsOneWidget);
+      expect(find.text('仅估算固定清单中的商品费用，不代表完整月生活费。'), findsOneWidget);
     },
   );
   testWidgets(
@@ -105,7 +104,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('部分篮子指数'), findsOneWidget);
       expect(find.textContaining('可观测项目 10 / 11'), findsOneWidget);
-      expect(find.textContaining('资料不完整：部分篮子指数'), findsOneWidget);
+      expect(find.text('缺少价格的商品未计入。'), findsOneWidget);
       expect(find.textContaining('部分篮子个人预算压力'), findsOneWidget);
       expect(find.text('200.0'), findsOneWidget);
       expect(find.text('部分篮子个人预算压力: 45.0%'), findsOneWidget);

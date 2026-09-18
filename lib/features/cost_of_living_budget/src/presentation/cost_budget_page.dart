@@ -263,25 +263,14 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
           const SizedBox(height: 8),
           Text(
             _t(
-              'For each available month, local observed-item prices are multiplied by the fixed basket quantities and added; the displayed amount is the average across those months.',
-              '每个可用月份将本地可观测商品价格乘以固定篮子数量后相加；显示金额为这些月份的平均值。',
+              'Estimated costs for a fixed goods list only; not a complete monthly living budget.',
+              '仅估算固定清单中的商品费用，不代表完整月生活费。',
             ),
             style: CostVisualStyle.text(14, color: CostVisualStyle.heroUnit),
           ),
-          const SizedBox(height: 8),
-          Text(
-            _t(
-              'This is a single adult\'s estimated core-market-goods spend per month. It excludes housing, transport and extra living expenses; it is not a complete personal budget or CPI.',
-              '这代表单身成年人在当地购买核心市场商品的估算每月支出；不含住房、交通和额外生活开销，也不是完整个人预算或 CPI。',
-            ),
-            style: CostVisualStyle.text(14, color: Colors.white),
-          ),
           if (a.isPartialBasket)
             Text(
-              _t(
-                'Incomplete data: the partial basket index and budget pressure use only observed items.',
-                '资料不完整：部分篮子指数和预算压力仅使用有观测的项目计算。',
-              ),
+              _t('Items without price data are excluded.', '缺少价格的商品未计入。'),
               style: CostVisualStyle.text(14, color: Colors.white),
             ),
         ], color: CostVisualStyle.hero),
