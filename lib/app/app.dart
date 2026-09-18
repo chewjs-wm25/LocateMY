@@ -157,63 +157,7 @@ final class _LocateMyAppState extends State<LocateMyApp> {
                 supportedLocales: AppLocalizations.supportedLocales,
                 title: 'LocateMY',
                 debugShowCheckedModeBanner: false,
-                theme: ThemeData(
-                  colorScheme:
-                      ColorScheme.fromSeed(seedColor: const Color(0xFF155EEF))
-                          .copyWith(
-                            primary: const Color(0xFF155EEF),
-                            onPrimary: Colors.white,
-                            surface: Colors.white,
-                            error: const Color(0xFFC9362B),
-                            onSurface: const Color(0xFF172033),
-                          ),
-                  scaffoldBackgroundColor: const Color(0xFFF6F8FB),
-                  textTheme: ThemeData.light().textTheme.apply(
-                    fontFamily: 'SourceSansPro',
-                    bodyColor: const Color(0xFF172033),
-                    displayColor: const Color(0xFF172033),
-                  ),
-                  inputDecorationTheme: InputDecorationTheme(
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 16,
-                    ),
-                    hintStyle: const TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF667085),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFD9E0EA)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF155EEF),
-                        width: 2,
-                      ),
-                    ),
-                    errorMaxLines: 3,
-                  ),
-                  filledButtonTheme: FilledButtonThemeData(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  useMaterial3: true,
-                ),
+                theme: _locateMyTheme(),
                 home: AnimatedBuilder(
                   animation: widget.authenticationViewModel,
                   builder: (BuildContext context, Widget? child) {
@@ -243,6 +187,162 @@ final class _LocateMyAppState extends State<LocateMyApp> {
       ),
     );
   }
+}
+
+/// Shared presentation tokens mirrored from the LocateMY mobile prototype.
+ThemeData _locateMyTheme() {
+  const Color primary = Color(0xFF155EEF);
+  const Color primarySoft = Color(0xFFEAF2FF);
+  const Color ink = Color(0xFF172033);
+  const Color muted = Color(0xFF667085);
+  const Color canvas = Color(0xFFF6F8FB);
+  const Color border = Color(0xFFD9E0EA);
+  const Color danger = Color(0xFFC9362B);
+  const BorderRadius cardRadius = BorderRadius.all(Radius.circular(14));
+  const RoundedRectangleBorder controlShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12)),
+  );
+  final TextTheme textTheme = ThemeData.light().textTheme
+      .apply(fontFamily: 'SourceSansPro', bodyColor: ink, displayColor: ink)
+      .copyWith(
+        titleLarge: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        titleMedium: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        titleSmall: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        bodyLarge: const TextStyle(fontSize: 16, height: 1.5),
+        bodyMedium: const TextStyle(fontSize: 14, height: 1.45),
+        bodySmall: const TextStyle(fontSize: 13, height: 1.4, color: muted),
+        labelLarge: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      );
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: const ColorScheme.light(
+      primary: primary,
+      onPrimary: Colors.white,
+      primaryContainer: primarySoft,
+      onPrimaryContainer: primary,
+      secondary: Color(0xFF16865C),
+      onSecondary: Colors.white,
+      secondaryContainer: Color(0xFFE8F6F0),
+      onSecondaryContainer: Color(0xFF16865C),
+      surface: Colors.white,
+      onSurface: ink,
+      surfaceContainerHighest: primarySoft,
+      outline: border,
+      error: danger,
+      onError: Colors.white,
+    ),
+    scaffoldBackgroundColor: canvas,
+    textTheme: textTheme,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: canvas,
+      foregroundColor: ink,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(
+        fontFamily: 'SourceSansPro',
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        color: ink,
+      ),
+    ),
+    cardTheme: const CardThemeData(
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: cardRadius),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+      hintStyle: const TextStyle(fontSize: 15, color: muted),
+      border: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: border),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: primary, width: 2),
+      ),
+      errorBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: danger),
+      ),
+      focusedErrorBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderSide: BorderSide(color: danger, width: 2),
+      ),
+      errorMaxLines: 3,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size.fromHeight(52),
+        shape: controlShape,
+        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(48),
+        foregroundColor: ink,
+        side: const BorderSide(color: border),
+        shape: controlShape,
+        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      ),
+    ),
+    navigationBarTheme: const NavigationBarThemeData(
+      height: 74,
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      indicatorColor: Colors.transparent,
+      labelTextStyle: WidgetStatePropertyAll(
+        TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+      iconTheme: WidgetStatePropertyAll(IconThemeData(size: 22)),
+    ),
+    dividerTheme: const DividerThemeData(color: border, thickness: 1, space: 1),
+    chipTheme: ChipThemeData(
+      backgroundColor: Colors.white,
+      selectedColor: primarySoft,
+      side: const BorderSide(color: border),
+      shape: const RoundedRectangleBorder(borderRadius: cardRadius),
+      labelStyle: const TextStyle(fontSize: 14, color: ink),
+      secondaryLabelStyle: const TextStyle(fontSize: 14, color: primary),
+    ),
+    dialogTheme: const DialogThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: cardRadius),
+      titleTextStyle: TextStyle(
+        fontFamily: 'SourceSansPro',
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        color: ink,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    ),
+    snackBarTheme: const SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: ink,
+      contentTextStyle: TextStyle(
+        fontFamily: 'SourceSansPro',
+        color: Colors.white,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: cardRadius),
+    ),
+  );
 }
 
 class InheritedAuthentication extends InheritedWidget {
