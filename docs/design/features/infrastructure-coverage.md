@@ -61,7 +61,7 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 | 原始行政区统计、零/缺失、人口年份、百分位、基础权重60% | 本模块 | 本期真实Geo/RPC；测试fake原始观测 | 公开service确定性测试/live | B | 6 | 已通过，见报告 | 不适用 |
 | canonical交通复用且日期/坐标一致 | 两者 | 本期真实Transit；测试fake | service测试/live同坐标读取 | B，A参与 | 6 | 已通过，见报告 | 本期真实接线已通过，见报告 |
 | 默认5、1–10边界、保存失败/重试、preview/恢复 | 本模块 | 本期真实SDK/RLS；测试fake权重 | 页面/service测试；真实allow/deny | B | 6 | 已通过，见报告 | 不适用 |
-| A/B与摘要始终中性，分项不变 | 两者 | 本期真实页面/中性服务；未来首页摘要消费者 | service/Widget测试；设备A/B | B，A参与 | 6 | 已通过，见报告 | 首页完整摘要由A后续Wave6接入 |
+| A/B与摘要始终中性，分项不变 | 两者 | 本期真实页面/中性服务；本期地图地点摘要消费者 | service/Widget测试；设备A/B | B，A参与 | 6 | 已通过，见报告 | 地图通过中性summary真实接线；测试与设备验收见全模块报告 |
 | 登录门控、换号重新读取、dispose/过期响应 | 两者 | 本期真实登录树/SDK | Widget与两账户live/设备 | B，A参与 | 6 | 已通过，见报告 | 本期真实接线已通过，见报告 |
 | 离线公共缓存/刷新恢复、短错误重试、中英文/放大文字/读屏 | 本模块 | SQLite公开输入3日缓存；真实设备 | 缓存/Widget测试/设备 | B | 6 | 已通过，见报告 | 不适用 |
 | 格式/analyze/tests/debug APK/Java可读性 | 本模块 | Flutter工具链 | 命令与版本证据 | B | 6 | 已通过，见报告 | 不适用 |
@@ -69,3 +69,5 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 本期证据：[Infrastructure Wave 6 报告](../../human/evidence/infrastructure-coverage-wave6-2026-09-18/report.md)。声明/SDK Adapter/页面均通过唯一入口导出；Implemented 独立审查已通过，Integrated 不自动批准。
 
 Luna Spec三项阻塞修复证据见报告复审节：每数据集独立最新有效完整聚合、每cache key串行写防旧完成覆盖、分项/人口真实年份及必要呈现；Luna High 复审已确认三项解除；公开模型防御性不可变拷贝亦通过规范复审。
+
+2026-09-18 消费者追踪修正：地点摘要位于地图展开详情，不属于全国宏观首页；按现行 UI 事实源接入 `BusinessLocationSummaryReader`，始终调用中性 `summary(location,date)`。

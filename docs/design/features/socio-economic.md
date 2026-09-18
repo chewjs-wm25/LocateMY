@@ -51,7 +51,7 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 | 场景 ID / 可观察结果 | 验证归属 | 依赖及用途 | 证据要求 | Owner | 最迟 Wave | 本模块状态 | 联合状态 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | SOCIO-01 行政区收入/基尼、同年优先、独立缺失与州回退 | 两者 | 真实 Geo/RPC；测试 fake 故障 | 服务、页面、live | B；A 接线 | 6 | 已通过；公开服务/页面/live/设备 | 已通过：真实 Geo/Auth/Map 接线 |
-| SOCIO-02 完整州分布、插值/精确命中/范围外、current 缺失与失败 | 两者 | 测试预算 current；真实只读 current；完整预算切换后续 | 服务、页面、live 私有读取 | B；A 接线 | 6 | 已通过；边界/插值/真实已保存字段读取 | 完整预算切换待接入，B 主责、A 接线 |
+| SOCIO-02 完整州分布、插值/精确命中/范围外、current 缺失与失败 | 两者 | 测试预算 current；真实只读 current；完整预算切换后续 | 服务、页面、live 私有读取 | B；A 接线 | 6 | 已通过；边界/插值/真实已保存字段读取 | 完整预算切换已真实联验，B 主责、A 接线，见全模块报告 |
 | SOCIO-03 组均值/份额/P40/P80、真实曲线/P50、不补零 | 本模块 | 真实 RPC；独立 worked fixture | 服务、页面 | B | 6 | 已通过；公式/页面/工程检查 | 不适用 |
 | SOCIO-04 A/B 年份/边界版本/缺失不可比、保留可用端 | 两者 | 真实 Geo；Map 传参 | 服务、应用路由 | B；A 接线 | 6 | 已通过；公开服务/页面/live/设备 | 已通过：真实 Geo/Auth/Map 接线 |
 | SOCIO-05 离线/权限/重试、缓存过期、晚到/dispose/换号 | 两者 | SQLite/SDK/登录页面树 | 服务、页面、真实权限 | B；A 登录树 | 6 | 已通过；公开服务/页面/live/设备 | 已通过：真实 Geo/Auth/Map 接线 |
@@ -69,6 +69,8 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 - `tool/verify_socio_live.py`、`verify_socio_source.py`、`verify_socio_build.py`、`verify_socio_devices.py --devices <adb serial>` 可复跑；私有凭据仅读本地文件，构建仅 allowlist 公共配置，APK secret scan 已通过。当前设备目标为 Android 36 x86_64 模拟器；不声称额外真机验证。
 - 生产源码 SHA-256：`b9c420f0ae7c7fd36eb4221a9c79b510a645ad3f78791cdcee9d32cebe2b12e7`；独立 worktree 与 APK 来源匹配。最终 Luna High 审查通过：规格无未解决问题、规范无硬性违规、当前阻塞为零；审查代码版本 `86d352f`；不据本模块验收宣告整个 Wave 6 已完成。
 
-本期集成：真实 Auth/Geo/Map 与只读 current 读取通过。后续集成：完整预算编辑/删除/选择成功的页面通知与 Socio 更新，由 B 主责、A 接线，最迟 Wave 6；上游尚未实现，Wave 6 联合完成不得提前宣告。
+本期集成：真实 Auth/Geo/Map 与只读 current 读取通过。2026-09-18 追加联验：完整预算 writer/current 已接入并通过真实选择通知及收入位置更新，见下方全模块证据；不再保留上游未实现阻塞。
 
 最终页内语言切换已复跑 Android 与公开页面测试；A 不可用/B 可用回归通过。验收报告见 `docs/human/socio-economic-issue-25/README.md`。
+
+2026-09-18 Wave 6 联验更新：完整 Budget writer 与共用 CurrentBudgetReader 已生产接线，在线选择成功后真实 Socio 收入位置随家庭收入字段更新，null 不生成收入位置。既有后续预算事项由本次联验覆盖；证据见 [全模块报告](../../human/integration-2026-09-18.md)。

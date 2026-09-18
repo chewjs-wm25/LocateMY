@@ -52,3 +52,14 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
 本次重构的统一证据见 [Issue #31 执行检查](../system/issue-31-validation.md)；
 设备、真实外部服务证据缺失时不得宣称新版本 `Implemented` 或 `Integrated`。
+
+## Wave 6 地点摘要接线（2026-09-18）
+
+按 UI 事实源，展开地点详情读取五项原生业务摘要，不生成个人化总分。
+唯一入口新增 `LocationSummaryReader.read(location, date)`、不可变字段的 `LocationSummaryReading` 和五值 `LocationSummaryMetric`；
+`MapLocationPage.summaryReader` 由 app 注入 `BusinessLocationSummaryReader`，仅消费各模块唯一入口。
+安全为统计州指数；成本为同子集全国基准 100 的指数，部分篮子保留项目数与月份数；设施保留各类计数／未知与最近直线距离；
+交通为 1.5 km 站点与直线距离粗估步行提示；基础设施调用中性 `summary` 并显示最低或缺失分项。
+Socio 不进入摘要，Hazard 保留独立图层。任一提供方失败不抹去其他读数；可重试，切换坐标或退出后旧完成不覆盖当前页。
+本期 A 主责、B 参与，最迟 Wave 6；验证为 `test/app/location_summary_integration_test.dart`、既有提供方测试、生产设备摘要旅程。
+本项替代 Cost H01 与 Infrastructure 中错误记作 Home 消费者的历史追踪文字；首页全国宏观职责不变。

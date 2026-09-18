@@ -10,6 +10,8 @@ import 'package:latlong2/latlong.dart';
 
 import '../domain/location_models.dart';
 import '../application/location_search.dart';
+import '../application/location_summary_reader.dart';
+import 'location_summary_panel.dart';
 import '../application/map_workspace.dart';
 import 'map_view_model.dart';
 import 'coordinate_dialog.dart';
@@ -29,6 +31,7 @@ class MapLocationPage extends StatefulWidget {
   final void Function(String, GeographicPoint, GeographicPoint)? onViewport;
   final ValueNotifier<GeographicPoint?>? layerFocus;
   final Widget? detailAction;
+  final LocationSummaryReader? summaryReader;
   const MapLocationPage({
     required LocationCoordinator locations,
     required MapLayerHost layerHost,
@@ -42,6 +45,7 @@ class MapLocationPage extends StatefulWidget {
     void Function(String, GeographicPoint, GeographicPoint)? onViewport,
     ValueNotifier<GeographicPoint?>? layerFocus,
     Widget? detailAction,
+    LocationSummaryReader? summaryReader,
     super.key,
   }) : locations = locations,
        layerHost = layerHost,
@@ -53,7 +57,8 @@ class MapLocationPage extends StatefulWidget {
        showTiles = showTiles,
        onViewport = onViewport,
        layerFocus = layerFocus,
-       detailAction = detailAction;
+       detailAction = detailAction,
+       summaryReader = summaryReader;
   @override
   State<MapLocationPage> createState() {
     return _MapLocationPageState();
@@ -608,34 +613,11 @@ class _MapLocationPageState extends State<MapLocationPage>
                     ),
                     if (vm.expanded) ...<Widget>[
                       const SizedBox(height: 12),
-                      for (final String name in <String>[
-                        l10n.mapSafetyIndex,
-                        l10n.mapCostOfLivingIndex,
-                        l10n.mapNearbyFacilities2Km,
-                        l10n.mapPublicTransportation15Km,
-                        l10n.mapInfrastructure,
-                      ])
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text(
-                                l10n.mapSummaryUnavailable,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF667085),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      LocationSummaryPanel(
+                        key: ValueKey<GeographicPoint>(location.point),
+                        reader: widget.summaryReader,
+                        location: location,
+                      ),
                     ],
                   ],
                 ],

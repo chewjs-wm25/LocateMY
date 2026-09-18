@@ -72,6 +72,29 @@ void main() {
         point: GeographicPoint(latitude: 3.0738, longitude: 101.6077),
         displayName: 'Petaling',
       );
+      final CostOfLivingBudget jointCost = createCostOfLivingBudget(
+        geographicContext: createGeographicContext(a),
+        reader: SupabaseCostPublicReader(a),
+        budget: reader,
+      );
+      final CostAnalysisOutcome selectedCost = await jointCost.analyse(
+        const CostAnalysisRequest(
+          location: jointLocation,
+          refreshPolicy: CostRefreshPolicy.refresh,
+        ),
+      );
+      CostAnalysis selectedAnalysis;
+      if (selectedCost is CostAnalysisAvailable) {
+        selectedAnalysis = selectedCost.analysis;
+      } else {
+        expect(selectedCost, isA<CostAnalysisPartial>());
+        selectedAnalysis = (selectedCost as CostAnalysisPartial).analysis;
+      }
+      expect(selectedAnalysis.personalBudgetBurden, isNotNull);
+      expect(
+        selectedAnalysis.personalBudgetBurden,
+        closeTo(100 * selectedAnalysis.observedSpend12! / 3500, 0.000001),
+      );
       expect(
         (await socio.analyse(jointLocation)).position?.householdIncome,
         8000,

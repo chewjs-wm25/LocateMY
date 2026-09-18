@@ -10,9 +10,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/supabase_config.dart';
+import 'location_summary.dart';
 import '../l10n/language_controller.dart';
 import '../l10n/app_localizations.dart';
 import '../features/authentication_session/authentication_session.dart';
+import '../features/account_center/account_center.dart';
 import '../features/home_relocation_outlook/home_relocation_outlook.dart';
 import '../features/map_location/map_location.dart';
 import '../features/nearby_facilities/nearby_facilities.dart';
@@ -567,6 +569,14 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
     return en;
   }
 
+  late final LocationSummaryReader _summary = BusinessLocationSummaryReader(
+    crime: widget.crime,
+    cost: widget.cost,
+    facilities: widget.facilities,
+    transportation: widget.transportation,
+    infrastructure: widget.infrastructure,
+  );
+
   void _changed() {
     _revision.value++;
   }
@@ -807,6 +817,8 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
       search: widget.search,
       showTiles: widget.showTiles,
       layerFocus: _focus,
+      summaryReader: _summary,
+
       onAnalysis: _analysis,
       onComparison: (ValidLocationReference a, ValidLocationReference b) {
         _analysis(a, b);
@@ -892,46 +904,23 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
               key: const ValueKey('shell-account'),
               onPressed: () {
                 _push(
-                  CostBudgetAccountPanel(
-                    reader: widget.currentBudget,
-                    store: widget.budgetStore,
-                    files: widget.budgetFiles,
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: AuthenticationPage(
-                            viewModel: InheritedAuthentication.of(context),
-                            onSignOut: InheritedAuthentication.of(context)
-                                .signOut,
-                          ),
-                        ),
-                        if (widget.property != null)
-                          SafeArea(
-                            top: false,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: OutlinedButton.icon(
-                                key: const ValueKey<String>(
-                                  'account-property-portfolio',
-                                ),
-                                onPressed: () {
-                                  _push(
-                                    PropertyInspectionPortfolioPage(
-                                      service: widget.property!,
-                                      photoPicker: widget.photoPicker,
-                                      chooseLocation: _choosePropertyLocation,
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.home_work_outlined),
-                                label: Text(
-                                  _text('Property inspections', '房产实勘'),
-                                ),
+                  AccountCenterPage(
+                    authentication: InheritedAuthentication.of(context),
+                    currentBudget: widget.currentBudget,
+                    budgetStore: widget.budgetStore,
+                    budgetFiles: widget.budgetFiles,
+                    onMyHazards: _mine,
+                    onPropertyPortfolio: widget.property == null
+                        ? null
+                        : () {
+                            _push(
+                              PropertyInspectionPortfolioPage(
+                                service: widget.property!,
+                                photoPicker: widget.photoPicker,
+                                chooseLocation: _choosePropertyLocation,
                               ),
-                            ),
-                          ),
-                      ],
-                    ),
+                            );
+                          },
                   ),
                   _text('Account settings', '账号设置'),
                 );

@@ -20,4 +20,4 @@
 | ACCOUNT-01/02/09 | [Account](../features/account-center.md)，A | 真实邮箱、已接入业务入口、当前预算预案 |
 
 AUTH-03、MAP-07、ACCOUNT-08 排除；既有其他 excluded 项沿用产品目录，不恢复入口。
-预算 JSON、房产和未实现分析以 owning 后续验收为准，本次不以 fake 成功宣称交付。
+2026-09-18 预算 JSON、房产、六类分析和地图摘要均已接入生产；实际证据见[全模块报告](../../human/integration-2026-09-18.md)，负责人 Integrated 批准独立保留。

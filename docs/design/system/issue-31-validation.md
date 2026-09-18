@@ -41,3 +41,7 @@ SQLite 删除的仅废弃 `map_saved_records` 私有收藏缓存；保留原库�
 ## 后续 Wave 5 Crime & Security（2026-09-17）
 
 治安模块本期责任按 Issue #25 达到 Implemented；真实 Geo/地图/Auth/只读 RPC 联合路径、Owner A Android 和 Owner B 模拟器均通过，GPT‑5.6 Luna High 规格/规范审查无生产阻断。详见[owning contract](../features/crime-and-security.md)及[独立验收报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md)。这是后续新增模块证据，不替换本页此前 Issue #31 执行记录。房产消费 B / Wave 6 待接入，Integrated 未自动批准。
+
+## 全模块集成（2026-09-18）
+
+此前未实现／后续描述保留为当时记录；当前 Cost/Budget、Socio、Infrastructure、Property 与 Account/Map/Crime/Hazard 均已真实装配。地图五项摘要替换永久不可用占位；Budget/Socio/Cost 成功切换联合 live、Property 风险／照片／回收站、Infrastructure canonical Transit 验证通过。当前证据与 GPT‑5.6 Luna High 双轴结论见[全模块报告](../../human/integration-2026-09-18.md)，不自动授予 Integrated。

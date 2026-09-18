@@ -1,0 +1,18 @@
+{
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "high",
+  "standards": {
+    "result": "PASS",
+    "hard_violations": 0,
+    "nonblocking_heuristics": [
+      "Budget five-field display duplication",
+      "Facility category label mapping duplication"
+    ],
+    "final_incremental_review": "PASS"
+  },
+  "spec": {
+    "result": "PASS",
+    "findings": 0
+  },
+  "production_source_sha256": "13b45c053e83a3573db07c2b498cdb0d2eafde387eeaf356c2fc770ac8c3bfcc"
+}

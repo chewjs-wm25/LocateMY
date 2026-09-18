@@ -82,3 +82,5 @@ Penpot 节点 `f8bc3597-5a95-809e-8008-a3fa91b70d32`（07 · 治安与犯罪）�
 趋势沿用事实源折线，保留原型白色圆角图表与蓝色趋势；缺失年份断线并有逐年文字摘要。
 
 Wave 5 完成证据：[验收报告](../../human/crime-and-security-wave5-acceptance-2026-09-17.md)、[GPT‑5.6 Luna High 双轴审查](../../human/crime-and-security-wave5-luna-review-2026-09-17.md)。当前阻塞无；真实房产消费 B / Wave 6 待接入；本模块不代表其他 Wave 5 Feature 已完成。
+
+2026-09-18 Wave 6 联合更新：app 已用真实 PropertyInspectionPortfolioPage／PropertyInspectionFormPage 替换房产槽位，PropertyBusinessRiskReader 消费当前 CrimeSecurity 与 HazardRiskCounter。真实风险快照及账户入口联验见[全模块报告](../../human/integration-2026-09-18.md)；以上 Wave 5“待接入”保留为历史时间点记录，当前房产消费已接入。

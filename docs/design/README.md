@@ -23,10 +23,12 @@ AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前
 | Facilities | A | [周边设施](features/nearby-facilities.md)，已有实现重构 |
 | Transit | A | [公共交通](features/public-transportation.md)，已有实现重构 |
 | Hazard | A | [隐患](features/hazard-reporting.md)，已有实现重构 |
-| Socio | B | [社会经济](features/socio-economic.md)，Implemented；Luna High 审查通过，完整预算联动 Wave 6 |
-| Infrastructure | B | [基础设施](features/infrastructure-coverage.md)，Implemented；Luna High 规格/规范复审通过，首页完整摘要消费待接入 Wave 6 |
+| Socio | B | [社会经济](features/socio-economic.md)，Implemented；Luna High 审查通过，完整预算联动已接线，见全模块验收 |
+| Infrastructure | B | [基础设施](features/infrastructure-coverage.md)，Implemented；Luna High 规格/规范复审通过，地图中性摘要已接线，见全模块验收 |
 | Property | B | [房产](features/property-inspection.md)，Implemented；Luna High 最终审查通过，真实风险／照片／地图／账户联验通过 |
-| Account | A | [账户](features/account-center.md)，最小页已接线，完整入口后续 |
+| Account | A | [账户](features/account-center.md)，Implemented；真实预算／房产／本人隐患联合验收通过 |
 
 [Account Privacy](modules/account-privacy.md) 已取消；[Personalized Location Suitability](features/personalized-location-suitability.md) 已排除。
 HTML 仅从 owning Markdown 导出，见 [交接规则](handoff/README.md)。不得将未实现目标或占位入口称为成功功能。
+
+全模块集成接线与独立审查：[2026-09-18 验收报告](../human/integration-2026-09-18.md)。Integrated 仍由负责人批准。

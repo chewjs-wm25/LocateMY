@@ -106,13 +106,15 @@ Ready Gate 自主固定：沿用 COST-001、COST-002 与 CurrentBudgetReader；�
 | 场景 ID / 可观察结果 | 验证归属 | 依赖与证据 | Owner / 最迟 | 本模块状态 | 联合状态 |
 | --- | --- | --- | --- | --- | --- |
 | C01 商户双中位数、固定11项、逐月/12月部分子篮子指数与不完整提示 | 本模块 | 本期真实RPC/SQLite；服务公式与live | B / Wave 5 | 已验证 | 不适用 |
-| C02 current住房/交通缺失、有效零、两个收入与连续压力 | 两者 | 本期真实Budget；服务/页面 | B / Wave 5 | 已验证 | 本期共享接线；完整 Wave 6 |
+| C02 current住房/交通缺失、有效零、两个收入与连续压力 | 两者 | 本期真实Budget；服务/页面 | B / Wave 5 | 已验证 | Wave 6 共享接线及真实 Cost/Socio/Account 联验通过 |
 | C03 A/B同篮子/日期/current与不可比、过期响应 | 本模块 | 真实Geo/RPC；服务/页面 | B / Wave 5 | 已验证 | 不适用 |
 | B01 在线CRUD/current原子唯一、失败保留、删除不自动选 | 本模块 | Supabase开发环境allow/deny与恢复 | B / Wave 5 | 已验证 | 不适用 |
-| B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 已验证 | 本期writer/reader、Account current设备及Socio live已验证；完整Wave 6仍按分配 |
+| B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 已验证 | 本期writer/reader、Account current设备及Socio live已验证；Wave 6 真实选择及缺失联验通过 |
 | J01 只导出已保存、真实UTF8/唯一文件、列表/打开/null/zero | 本模块 | path_provider/临时真文件与页面 | B / Wave 5 | 已验证 | 不适用 |
 | J02 损坏/缺键/无效日期金额/version/缺文件、无云写 | 本模块 | 真实临时目录/页面、重启退出保留 | B / Wave 5 | 已验证 | 不适用 |
 | U01 中英文小屏200%/读屏、离线权限恢复、dispose晚响应 | 本模块 | emulator-5554/页面测试 | B / Wave 5 | 已验证 | 不适用 |
-| H01 Home完整六类摘要消费 | 联合 | 后续真实Home与Cost | A主责 B参与 / Wave 6 | 不适用 | 待接入 |
+| H01 地图地点摘要消费（按现行 UI 事实源修正消费者） | 联合 | 本期真实Map与Cost | A主责 B参与 / Wave 6 | 不适用 | 已接线；summary integration 测试与设备验证，见全模块报告 |
 
 Penpot 已读取 Mobile UI 的 05生活成本与UI Foundations，导出实际截图；沿用 SourceSansPro、#F6F8FB、#172033、#155EEF、#0B1F44、16px圆角、16px页面边距。按精简边界移除日期来源技术字段，按事实源修正原型fixture的RM指数与压力等级。
+
+2026-09-18 全模块联合：共享 CurrentBudgetReader 的在线预案切换已真实验证 Cost 月净收入压力与 Socio 家庭收入位置，零值及缺失保持原义；账户展示五金额并进入预算管理。证据见 [全模块报告](../../human/integration-2026-09-18.md)。

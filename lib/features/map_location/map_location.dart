@@ -1,3 +1,4 @@
+export 'src/application/location_summary_reader.dart';
 export 'src/application/map_runtime.dart' show MapLocationRuntime;
 export 'src/presentation/map_location_page.dart';
 
