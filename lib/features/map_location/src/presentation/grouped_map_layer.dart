@@ -318,7 +318,7 @@ class GroupedMapLayer extends StatelessWidget {
         );
       }
     }
-    return MarkerLayer(markers: markers);
+    return MarkerLayer(rotate: true, markers: markers);
   }
 }
 

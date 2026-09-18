@@ -9,6 +9,72 @@ import 'package:locatemy/features/map_location/map_location.dart';
 
 void main() {
   testWidgets(
+    'map emits active selected location and keeps markers upright after rotation',
+    (WidgetTester tester) async {
+      final LocationCoordinator locations = createLocationCoordinator(
+        accountId: 'a',
+        validatePoint: (GeographicPoint point) async {
+          return true;
+        },
+      );
+      final List<GeographicPoint?> centers = <GeographicPoint?>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MapLocationPage(
+            locations: locations,
+            layerHost: locationLayerHost(locations),
+            workspace: locationWorkspace(locations),
+            search: createLocationSearch(apiKey: ''),
+            showTiles: false,
+            onAnalysis: (ValidLocationReference location) {},
+            onComparison: (
+              ValidLocationReference a,
+              ValidLocationReference b,
+            ) {},
+            onLayerSelected: (MapLayerIntent intent) {},
+            onLayerLocation: (GeographicPoint? point) {
+              centers.add(point);
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(centers.last, isNull);
+      await locations.select(
+        const LocationSelectionRequest(
+          role: LocationRole.single,
+          point: GeographicPoint(latitude: 3.5, longitude: 101.5),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(centers.last!.latitude, 3.5);
+      final MapController controller = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!;
+      controller.move(const LatLng(3.5, 101.5), 14);
+      controller.rotate(75);
+      await tester.pumpAndSettle();
+      expect(centers.last!.latitude, 3.5);
+      for (final MarkerLayer layer in tester.widgetList<MarkerLayer>(
+        find.byType(MarkerLayer),
+      )) {
+        expect(layer.rotate, isTrue);
+      }
+      await tester.tap(find.text('Compare locations'));
+      await tester.pumpAndSettle();
+      expect(centers.last, isNull);
+      await locations.select(
+        const LocationSelectionRequest(
+          role: LocationRole.locationA,
+          point: GeographicPoint(latitude: 3.6, longitude: 101.6),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(centers.last!.latitude, 3.6);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+  testWidgets(
     'each category has its own symbol and mixed clusters retain category icons',
     (WidgetTester tester) async {
       final LocationCoordinator locations = createLocationCoordinator(
@@ -223,6 +289,11 @@ void main() {
             return layer.markers;
           });
       expect(markers.length, lessThan(100));
+      for (final MarkerLayer layer in tester.widgetList<MarkerLayer>(
+        find.byType(MarkerLayer),
+      )) {
+        expect(layer.rotate, isTrue);
+      }
       expect(locationWorkspace(locations).visibleLayerItems.length, 600);
       expect(find.text('600'), findsOneWidget);
       // Republishing the same layer replaces its contents rather than accumulating.

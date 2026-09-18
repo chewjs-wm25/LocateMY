@@ -30,6 +30,7 @@ class MapLocationPage extends StatefulWidget {
   final bool showTiles;
   final void Function(String, GeographicPoint, GeographicPoint)? onViewport;
   final ValueNotifier<GeographicPoint?>? layerFocus;
+  final void Function(GeographicPoint?)? onLayerLocation;
   final Widget? detailAction;
   final LocationSummaryReader? summaryReader;
   const MapLocationPage({
@@ -44,6 +45,7 @@ class MapLocationPage extends StatefulWidget {
     bool showTiles = true,
     void Function(String, GeographicPoint, GeographicPoint)? onViewport,
     ValueNotifier<GeographicPoint?>? layerFocus,
+    void Function(GeographicPoint?)? onLayerLocation,
     Widget? detailAction,
     LocationSummaryReader? summaryReader,
     super.key,
@@ -57,6 +59,7 @@ class MapLocationPage extends StatefulWidget {
        showTiles = showTiles,
        onViewport = onViewport,
        layerFocus = layerFocus,
+       onLayerLocation = onLayerLocation,
        detailAction = detailAction,
        summaryReader = summaryReader;
   @override
@@ -139,6 +142,7 @@ class _MapLocationPageState extends State<MapLocationPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     widget.layerFocus?.addListener(_focusLayer);
+    vm.addListener(_selectionChanged);
   }
 
   @override
@@ -152,9 +156,21 @@ class _MapLocationPageState extends State<MapLocationPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.layerFocus?.removeListener(_focusLayer);
+    vm.removeListener(_selectionChanged);
     vm.dispose();
     controller.dispose();
     super.dispose();
+  }
+
+  GeographicPoint? _lastLayerPoint;
+  void _selectionChanged() {
+    final GeographicPoint? point = vm.read(vm.role)?.point;
+    if (point?.latitude == _lastLayerPoint?.latitude &&
+        point?.longitude == _lastLayerPoint?.longitude) {
+      return;
+    }
+    _lastLayerPoint = point;
+    widget.onLayerLocation?.call(point);
   }
 
   bool _mapReady = false;
@@ -168,6 +184,7 @@ class _MapLocationPageState extends State<MapLocationPage>
   void _viewport(MapCamera camera) {
     final String version = DateTime.now().microsecondsSinceEpoch.toString();
     vm.viewport(version);
+    widget.onLayerLocation?.call(vm.read(vm.role)?.point);
     final LatLngBounds bounds = camera.visibleBounds;
     widget.onViewport?.call(
       version,
@@ -684,6 +701,7 @@ class _MapLocationPageState extends State<MapLocationPage>
                   userAgentPackageName: 'com.locatemy.app',
                 ),
               MarkerLayer(
+                rotate: true,
                 markers: [
                   for (final role in LocationRole.values)
                     if (vm.read(role) != null)

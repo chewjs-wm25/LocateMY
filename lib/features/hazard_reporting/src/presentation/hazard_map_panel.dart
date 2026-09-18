@@ -50,6 +50,8 @@ final class _HazardMapPanelState extends State<HazardMapPanel> {
     final HazardPageRequest? request = widget.viewport.value;
     if (request != null) {
       layer.refresh(request);
+    } else {
+      layer.clear();
     }
   }
 

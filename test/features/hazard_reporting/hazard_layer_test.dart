@@ -8,6 +8,69 @@ import 'package:locatemy/features/hazard_reporting/hazard_reporting.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 void main() {
+  test(
+    'selected location bounds the query and excludes corners beyond 2 km',
+    () async {
+      final RadiusReports reports = RadiusReports();
+      final LayerHost host = LayerHost();
+      final HazardMapLayer layer = HazardMapLayer(reports, host);
+      await layer.refresh(
+        const HazardPageRequest(
+          viewportVersion: 'radius',
+          mapCenter: GeographicPoint(latitude: 3.5, longitude: 101.5),
+          viewport: HazardViewport(
+            GeographicPoint(latitude: 0, longitude: 99),
+            GeographicPoint(latitude: 8, longitude: 120),
+          ),
+        ),
+      );
+      expect(
+        reports.request!.viewport.southWest.latitude,
+        closeTo(3.482, 0.001),
+      );
+      expect(
+        reports.request!.viewport.northEast.longitude,
+        closeTo(101.518, 0.001),
+      );
+      expect(
+        layer.reports.map((HazardReport report) {
+          return report.id.value;
+        }),
+        ['inside'],
+      );
+      expect(host.published.last.items.single.stableItemId, 'inside');
+      layer.clear();
+      expect(layer.reports, isEmpty);
+      expect(host.published.last.visibility, MapLayerVisibility.hidden);
+      layer.dispose();
+    },
+  );
+  testWidgets(
+    'opening a map without a selected location does not load hazards',
+    (WidgetTester tester) async {
+      final PagingReports reports = PagingReports();
+      final ValueNotifier<HazardPageRequest?> viewport = ValueNotifier(null);
+      final ValueNotifier<int> revision = ValueNotifier(0);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: HazardMapPanel(
+              hazards: reports,
+              host: LayerHost(),
+              viewport: viewport,
+              revision: revision,
+              child: const SizedBox(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(reports.cursors, isEmpty);
+      await tester.pumpWidget(const SizedBox());
+      viewport.dispose();
+      revision.dispose();
+    },
+  );
   testWidgets('all five hazard types reach the map with category metadata', (
     WidgetTester tester,
   ) async {
@@ -335,6 +398,46 @@ final class PagingReports implements HazardReporting {
     }
     return HazardPageAvailable(
       HazardPage([report('three')], null, request.viewportVersion),
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    return super.noSuchMethod(invocation);
+  }
+}
+
+final class RadiusReports implements HazardReporting {
+  HazardPageRequest? request;
+  @override
+  Future<HazardPageOutcome> loadPublic(HazardPageRequest request) async {
+    this.request = request;
+    final List<HazardReport> reports = <HazardReport>[];
+    for (final String id in <String>['inside', 'corner', 'far']) {
+      GeographicPoint point = const GeographicPoint(
+        latitude: 3.51,
+        longitude: 101.5,
+      );
+      if (id == 'corner') {
+        point = const GeographicPoint(latitude: 3.515, longitude: 101.515);
+      } else if (id == 'far') {
+        point = const GeographicPoint(latitude: 3.53, longitude: 101.5);
+      }
+      reports.add(
+        HazardReport(
+          id: HazardReportId(id),
+          type: HazardType.flood,
+          title: id,
+          location: point,
+          status: HazardAuthorStatus.pending,
+          reportedAt: DateTime.utc(2026),
+          author: HazardAuthorView.other,
+          vote: const HazardVoteState(HazardVote.none, 0, 0),
+        ),
+      );
+    }
+    return HazardPageAvailable(
+      HazardPage(reports, null, request.viewportVersion),
     );
   }
 

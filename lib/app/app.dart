@@ -555,6 +555,8 @@ final class LocateMyPages extends StatefulWidget {
 }
 
 final class _LocateMyPagesState extends State<LocateMyPages> {
+  GeographicPoint? _hazardCenter;
+  HazardPageRequest? _lastMapViewport;
   final ValueNotifier<HazardPageRequest?> _viewport = ValueNotifier(null);
   final ValueNotifier<String?> _facilityViewport = ValueNotifier(null);
   final ValueNotifier<int> _revision = ValueNotifier(0);
@@ -824,11 +826,30 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         _analysis(a, b);
       },
       onLayerSelected: _layer,
+      onLayerLocation: (GeographicPoint? point) {
+        if (point?.latitude == _hazardCenter?.latitude &&
+            point?.longitude == _hazardCenter?.longitude) {
+          return;
+        }
+        _hazardCenter = point;
+        final HazardPageRequest? previous = _lastMapViewport;
+        if (point == null) {
+          _viewport.value = null;
+        } else if (previous != null) {
+          _viewport.value = HazardPageRequest(
+            viewportVersion: previous.viewportVersion,
+            viewport: previous.viewport,
+            mapCenter: point,
+          );
+        }
+      },
       onViewport: (String version, GeographicPoint sw, GeographicPoint ne) {
-        _viewport.value = HazardPageRequest(
+        _lastMapViewport = HazardPageRequest(
           viewportVersion: version,
           viewport: HazardViewport(sw, ne),
+          mapCenter: _hazardCenter,
         );
+        _viewport.value = _hazardCenter == null ? null : _lastMapViewport;
         _facilityViewport.value = version;
       },
       detailAction: StreamBuilder<void>(

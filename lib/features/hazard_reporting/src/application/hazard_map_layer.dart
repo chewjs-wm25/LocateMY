@@ -1,6 +1,9 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/hazard_models.dart';
@@ -19,17 +22,94 @@ final class HazardMapLayer extends ChangeNotifier {
   HazardMapLayer(HazardReporting reports, MapLayerHost host)
     : _reports = reports,
       _host = host;
+  void clear() {
+    final HazardPageRequest? previous = _request;
+    if (previous != null) {
+      _host.contribute(
+        MapLayerContribution(
+          providerId: 'hazard-reporting',
+          layerId: 'public-hazards',
+          viewportVersion: previous.viewportVersion,
+          visibility: MapLayerVisibility.hidden,
+          items: const <MapLayerItem>[],
+        ),
+      );
+    }
+    _generation++;
+    _request = null;
+    reports = const [];
+    nextCursor = null;
+    failure = null;
+    loading = false;
+    notifyListeners();
+  }
+
+  HazardViewport _queryViewport(HazardPageRequest request) {
+    final GeographicPoint? center = request.mapCenter;
+    if (center == null) {
+      return request.viewport;
+    }
+    const double earthRadius = 6371000;
+    final double latitudeDelta = 2000 / earthRadius * 180 / math.pi;
+    final double longitudeDelta =
+        math.asin(
+          math.sin(2000 / earthRadius) /
+              math.cos(center.latitude * math.pi / 180),
+        ) *
+        180 /
+        math.pi;
+    return HazardViewport(
+      GeographicPoint(
+        latitude: center.latitude - latitudeDelta,
+        longitude: center.longitude - longitudeDelta,
+      ),
+      GeographicPoint(
+        latitude: center.latitude + latitudeDelta,
+        longitude: center.longitude + longitudeDelta,
+      ),
+    );
+  }
+
+  bool _withinRadius(HazardReport report, GeographicPoint? center) {
+    if (center == null) {
+      return true;
+    }
+    final double distance =
+        const Distance(roundResult: false, calculator: Haversine()).as(
+          LengthUnit.Meter,
+          LatLng(center.latitude, center.longitude),
+          LatLng(report.location.latitude, report.location.longitude),
+        );
+    return distance <= 2000;
+  }
+
   Future<void> refresh(HazardPageRequest request, {bool more = false}) async {
     if (more && (loading || nextCursor == null)) {
       return;
     }
     final int generation = ++_generation;
     final bool newViewport =
-        _request?.viewportVersion != request.viewportVersion;
+        _request?.viewportVersion != request.viewportVersion ||
+        _request?.mapCenter?.latitude != request.mapCenter?.latitude ||
+        _request?.mapCenter?.longitude != request.mapCenter?.longitude;
     _request = request;
     if (newViewport) {
       reports = const [];
       nextCursor = null;
+      if (request.mapCenter != null) {
+        await _host.contribute(
+          MapLayerContribution(
+            providerId: 'hazard-reporting',
+            layerId: 'public-hazards',
+            viewportVersion: request.viewportVersion,
+            visibility: MapLayerVisibility.hidden,
+            items: const <MapLayerItem>[],
+          ),
+        );
+        if (_disposed || generation != _generation) {
+          return;
+        }
+      }
     }
     _retryMore = more;
     loading = true;
@@ -40,7 +120,7 @@ final class HazardMapLayer extends ChangeNotifier {
       outcome = await _reports.loadPublic(
         HazardPageRequest(
           viewportVersion: request.viewportVersion,
-          viewport: request.viewport,
+          viewport: _queryViewport(request),
           cursor: more ? nextCursor : null,
         ),
       );
@@ -68,6 +148,9 @@ final class HazardMapLayer extends ChangeNotifier {
         updated.addAll(reports);
       }
       for (final HazardReport report in page.reports) {
+        if (!_withinRadius(report, request.mapCenter)) {
+          continue;
+        }
         updated.removeWhere((HazardReport previous) {
           return previous.id.value == report.id.value;
         });

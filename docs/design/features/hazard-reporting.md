@@ -18,7 +18,8 @@
 唯一入口 `lib/features/hazard_reporting/hazard_reporting.dart`。`HazardReporting` 与
 `HazardRiskCounter` 是具名业务服务；SDK 当前 account id 保证本人请求按当前身份进行。
 页面参数直接传 location／report id 和 onCreated／onChanged／onLocate 回调。
-没有 ShellIntent、HazardShellContribution 或 privacy participant。地图专属分类图层仍保留。
+没有 ShellIntent、HazardShellContribution 或 privacy participant。地图专属分类图层仍保留。地图未选地点时不查询图层；选点后以当前活动地点角色为中心，仅查询并展示 2,000 米圆形范围内的报告（含边界），分页仍保留。
+`HazardPageRequest.mapCenter` 为地图请求的可选坐标；地图图层据此限定查询边界及过滤圆形距离，其他分页读取维持原有 viewport 语义。
 新增成功返回本人报告，定位回地图，旧页面结果不在新账号页面展示。
 风险计数保留 2,000 m、pending、Haversine 边界、完整性和采集时间，不混入官方安全指数。
 
