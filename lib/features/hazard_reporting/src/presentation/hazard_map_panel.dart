@@ -85,12 +85,6 @@ final class _HazardMapPanelState extends State<HazardMapPanel> {
                     spacing: 8,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (widget.onMine != null)
-                        IconButton(
-                          tooltip: l.text('My hazard reports', '我的隐患报告'),
-                          onPressed: widget.onMine,
-                          icon: const Icon(Icons.assignment_outlined),
-                        ),
                       if (layer.loading)
                         const SizedBox(
                           width: 18,
