@@ -1,5 +1,5 @@
-name: locate_my
-description: "A new Flutter project."
+name: locatemy
+description: "LocateMY Android application."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.12.2
+  sdk: ^3.13.2
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,24 +30,29 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-  flutter_map: ^8.3.2
-  latlong2: ^0.10.1
-  fl_chart: ^1.2.0
+  flutter_localizations:
+    sdk: flutter
   intl: ^0.20.2
-  provider: ^6.1.2
-  http: ^1.6.0
-  flutter_typeahead: ^6.0.0
-  supabase_flutter: ^2.6.0
-  sqflite: ^2.3.3+2
-  path: ^1.9.0
+  shared_preferences: ^2.5.3
+  provider: ^6.1.5+1
+  cupertino_icons: ^1.0.8
+  flutter_dotenv: ^6.0.1
+  supabase_flutter: 2.17.2
+  http: 1.6.0
+  path_provider: 2.1.6
+  sqflite: 2.4.2
+  flutter_map: 8.2.2
+  latlong2: 0.9.1
+  url_launcher: ^6.3.2
+  image_picker: 1.2.1
+  flutter_image_compress: 2.4.0
+  permission_handler: 12.0.1
 
 dev_dependencies:
+  shared_preferences_platform_interface: 2.4.2
   flutter_test:
     sdk: flutter
 
@@ -57,6 +62,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  sqflite_common_ffi: 2.4.0+3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -64,7 +70,23 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   generate: true
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  fonts:
+    - family: SourceSansPro
+      fonts:
+        - asset: assets/fonts/source_sans_pro/SourceSansPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/source_sans_pro/SourceSansPro-Semibold.ttf
+          weight: 600
+        - asset: assets/fonts/source_sans_pro/SourceSansPro-Bold.ttf
+          weight: 700
   uses-material-design: true
+  assets:
+    - .env
+    - assets/fonts/source_sans_pro/LICENSE.txt
 
   # To add assets to your application, add an assets section, like this:
   # assets:

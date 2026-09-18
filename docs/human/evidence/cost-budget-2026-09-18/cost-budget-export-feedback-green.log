@@ -1,0 +1,4 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/cost_of_living_budget/budget_page_test.dart
+00:00 +0: export success and open action are immediately visible
+00:01 +1: budget editor localizes validation and preserves input at 200 percent
+00:02 +2: All tests passed!

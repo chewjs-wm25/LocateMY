@@ -1,0 +1,37 @@
+{
+  "snapshot_id": "official-2026-09-17",
+  "analysis_date": "2026-09-17",
+  "reference_grid_version": "utm-wgs84-1km-stopcatchment-v1",
+  "method": "UTM EPSG:32647\u201332651 fixed origin (0,0), 1000m cells, centers zone-clipped; geography radius 1500m",
+  "integrity": {
+    "negative_routes": 0,
+    "nonpositive_density": 0,
+    "outside_service_area": 0
+  },
+  "zone_distribution": {
+    "47": 5372,
+    "48": 3721,
+    "49": 548
+  },
+  "grid_count": 9641,
+  "grid_sha256": "7fe29e43f7b167e9969b0afb91c1b3c40a9a411930f85044b322d9b7a59a6e39",
+  "input_sha256": "29018c44d2bdf4cf7a98a5c0010fe723f7e908c813829e2aed7363ae574f3d9a",
+  "usable_feed_ids": [
+    "gtfs_static_ktmb",
+    "gtfs_static_mybas_alor_setar",
+    "gtfs_static_mybas_ipoh",
+    "gtfs_static_mybas_johor",
+    "gtfs_static_mybas_kangar",
+    "gtfs_static_mybas_kota_bharu",
+    "gtfs_static_mybas_kuala_terengganu",
+    "gtfs_static_mybas_kuching",
+    "gtfs_static_mybas_melaka",
+    "gtfs_static_mybas_seremban_a",
+    "gtfs_static_mybas_seremban_b",
+    "gtfs_static_prasarana_rapid_bus_kl",
+    "gtfs_static_prasarana_rapid_bus_mrtfeeder",
+    "gtfs_static_prasarana_rapid_bus_penang",
+    "gtfs_static_prasarana_rapid_rail_kl"
+  ],
+  "prepared_at": "2026-09-17T06:11:27.836211+00:00"
+}

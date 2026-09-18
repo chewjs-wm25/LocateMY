@@ -1,0 +1,41 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart
+00:00 +0: boundary http becomes typed unavailable and recovers
+00:00 +0 -1: boundary http becomes typed unavailable and recovers [E]
+  Expected: throws SavedLocationFailure:<SavedLocationFailure.retryableUnavailable>
+    Actual: <Instance of 'Future<bool>'>
+     Which: threw PostgrestException:<PostgrestException(message: denied, code: 42501, details: null, hint: null)>
+            stack package:postgrest/src/postgrest_builder.dart 584:5           PostgrestBuilder._parseResponse
+                  package:postgrest/src/postgrest_builder.dart 412:18          PostgrestBuilder._execute
+                  ===== asynchronous gap ===========================
+                  package:matcher                                              expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8            expectLater
+                  test/features/map_location/location_adapter_test.dart 25:13  main.<fn>
+  
+  package:matcher                                              expectLater
+  package:flutter_test/src/widget_tester.dart 507:8            expectLater
+  test/features/map_location/location_adapter_test.dart 25:13  main.<fn>
+  
+00:00 +0 -1: boundary timeout becomes typed unavailable and recovers
+00:00 +0 -2: boundary timeout becomes typed unavailable and recovers [E]
+  Expected: throws SavedLocationFailure:<SavedLocationFailure.retryableUnavailable>
+    Actual: <Instance of 'Future<bool>'>
+     Which: threw TimeoutException:<TimeoutException: timeout>
+            stack test/features/map_location/location_adapter_test.dart 16:47  main.<fn>.<fn>
+                  package:http/src/mock_client.dart 54:36                      new MockClient.<fn>
+                  ===== asynchronous gap ===========================
+                  package:matcher                                              expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8            expectLater
+                  test/features/map_location/location_adapter_test.dart 25:13  main.<fn>
+  
+  package:matcher                                              expectLater
+  package:flutter_test/src/widget_tester.dart 507:8            expectLater
+  test/features/map_location/location_adapter_test.dart 25:13  main.<fn>
+  
+00:00 +0 -2: boundary metadata becomes typed unavailable and recovers
+00:00 +1 -2: Geoapify HTTP and malformed responses recover on retry
+00:00 +2 -2: Geoapify requests Malaysia candidates and preserves coordinates
+00:00 +3 -2: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary http becomes typed unavailable and recovers
+  /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary timeout becomes typed unavailable and recovers

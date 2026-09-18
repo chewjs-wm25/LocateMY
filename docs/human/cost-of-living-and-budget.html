@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cost of Living &amp; Budget 开发契约</title><style>body{max-width:1050px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#172033}h1,h2,h3{line-height:1.3}table{border-collapse:collapse;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;text-align:left;vertical-align:top}pre{background:#f6f8fb;padding:16px;overflow:auto}code{font-size:.9em}a{color:#155eef}@media(max-width:600px){body{margin:16px auto;padding:0 12px}}</style></head><body><p><a href="../design/features/cost-of-living-and-budget.md">权威 Markdown 契约</a></p><h1 id="cost-of-living-budget-开发契约">Cost of Living &amp; Budget 开发契约</h1>
+<blockquote>
+<p>Owner B；Wave 5；Draft — Issue #31 精简设计，生产 Feature 尚未实现。</p>
+</blockquote>
+<p>本契约按 <a href="https://github.com/chewjs-wm25/LocateMY/issues/31">Issue #31</a> 与
+<a href="../adr/0017-minimal-account-and-online-user-records.md">ADR 0017</a> 修订。
+产品事实和公式以知识库为准；字段、权限和 migration 只在
+<a href="../design/data/schema-catalog.md">Schema Catalog</a> 定义。普通页面传参与具名服务替代通用导航／贡献框架。
+产品事实源：<a href="../knowledge_base/locatemy_product/features/cost_of_living.md">生活成本与预算</a>、
+<a href="../knowledge_base/locatemy_product/cost_basket_v1.md">生活篮子 v1</a>。</p>
+<h2 id="本轮分析页面精简2026-09-17">本轮分析页面精简（2026-09-17）</h2>
+<p>界面按 <a href="../knowledge_base/locatemy_product/ui_design_spec.md#分析页面精简边界2026-09-17">UI 精简边界</a> 调整；该节取代本契约中冲突的来源／时间／较旧提示展示要求。
+指标、公式、输入、缓存时效和服务可用性不变。保留内部来源与日期用于取数／校验，取消用户页面技术明细，保留简短错误与重试。
+验收沿用页面和公开服务边界，核对单点与 A/B 均无技术元数据／重复提示，并回归现有缓存、公式、失败恢复与账户行为。此轮仅更新文档，代码调整及验证待后续任务执行。</p>
+<h2 id="单点ab-与在线预案">单点、A/B 与在线预案</h2>
+<p>保留本地价格、统一核心篮子 RM/月、相对固定全国基准的成本指数与当前预案的预算压力。
+缺失项目不补零／最近月份／州或全国价；不足数据门槛显示部分金额与覆盖率，不能制造指数或压力。
+A/B 保持同篮子／来源日期／当前预案口径并列；不可比原因可见。
+没有 current 时仍可查看成本和临时 CPI 等效换算，不用临时金额或默认预案制造预算压力。
+临时换算只读取州与全国同一最新共同月份的 Headline/Overall CPI，不写预案。
+预算预案在线新增、编辑、重命名、选择和删除；名称 1–120，金额可空且非负，null 与零区分。
+账户至多一份 current，删除 current 后不自动选另一份，最后一份允许删除。
+月净收入只供个人预算压力；家庭月度总收入只供社会经济收入位置，不能互代或猜测补齐。
+选择成功后依赖读数更新，失败保留上次已保存选择并显示失败；无账号同步队列。</p>
+<h2 id="服务与接线">服务与接线</h2>
+<p>未来唯一入口 <code>lib/features/cost_of_living_budget/cost_of_living_budget.dart</code>。
+B 提供具名成本／预算服务、当前预案读取和成功修改的变化通知；A 页面通过 location／A/B 参数组合结果。
+Account 与 Socio 仅读 current 服务，不各自写预案表。接口需在开发前固定实际可编译声明及字段映射；
+本次不保留庞大的旧 Shell／Privacy／Suitability declarations，不宣称它们 Ready。
+公共模型缓存可用 SQLite，预案及个人输入不能进入公共缓存。</p>
+<h2 id="cost-05-本机预算-json">COST-05 本机预算 JSON</h2>
+<p>导出对象必须是已经成功在线保存的预案，读取副本不调用云端创建／更新。
+文件保存在 path_provider 应用文件目录的 <code>budget_exports/</code>，文件名含预案 id 与导出时刻；
+每次导出单份预案，不覆盖同名旧文件。应用提供本机文件列表与打开展示，可跨重启／退出保留。
+格式以本契约为权威：UTF-8 JSON 对象，顶层 <code>format = locatemy-budget-scenario</code>、整数 <code>version = 1</code>、
+UTC ISO-8601 <code>exported_at</code>、对象 <code>scenario</code>。不导出账号 id、认证数据或云端 current 选择，不新增分享功能。</p>
+<pre><code class="language-json">{
+  &quot;format&quot;: &quot;locatemy-budget-scenario&quot;,
+  &quot;version&quot;: 1,
+  &quot;exported_at&quot;: &quot;2026-09-17T08:00:00Z&quot;,
+  &quot;scenario&quot;: {
+    &quot;id&quot;: &quot;saved-scenario-id&quot;,
+    &quot;name&quot;: &quot;My budget&quot;,
+    &quot;extra_living_expenses_rm&quot;: null,
+    &quot;housing_rm&quot;: 0,
+    &quot;transport_rm&quot;: 150,
+    &quot;monthly_net_income_rm&quot;: 3500,
+    &quot;household_monthly_gross_income_rm&quot;: null
+  }
+}
+</code></pre>
+<p>v1 必须含全部上述金额键，值为 null 或有限非负 JSON number；null 展示“未填写”，0 展示 RM 0。
+缺键属于损坏格式，不能猜测补零；预案 id 和 name 必须非空且 name ≤120。
+损坏 JSON、缺失文件／字段、无效日期／格式／金额反馈读取失败；不支持 version 单独反馈版本不支持。
+展示预案名称、各金额／缺失状态和导出时间，并明确“导出副本”；不根据副本更改账户 current。
+导出失败不显示成功；成功反馈可再次打开真实文件。</p>
+<h2 id="后续验收分配">后续验收分配</h2>
+<table>
+<thead>
+<tr>
+<th>可观察场景</th>
+<th>责任／证据</th>
+<th>最迟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>成本口径、覆盖率、缺失、有效零和 A/B 不可比</td>
+<td>B 本模块；公式与页面测试</td>
+<td>Wave 5</td>
+</tr>
+<tr>
+<td>在线预案 CRUD、current 唯一／删除、失败不切换</td>
+<td>B 本模块；页面与真实归属 smoke</td>
+<td>Wave 5</td>
+</tr>
+<tr>
+<td>临时换算无预案可用、同月与缺失失败、不写入</td>
+<td>B 本模块；页面行为</td>
+<td>Wave 5</td>
+</tr>
+<tr>
+<td>导出真实文件、重启／退出保留、读取 null 与零</td>
+<td>B；真实临时目录及页面展示</td>
+<td>Wave 5</td>
+</tr>
+<tr>
+<td>损坏／缺键／无效金额／不支持版本／文件缺失</td>
+<td>B；只读展示失败且云端不变</td>
+<td>Wave 5</td>
+</tr>
+<tr>
+<td>Account current、预算压力与 Socio 家庭收入位置随切换更新</td>
+<td>B 主责、A 接线联合验证</td>
+<td>Wave 6</td>
+</tr>
+</tbody>
+</table>
+<p>预算 JSON 与完整预算业务随预算 Feature 实现，本次只固定设计与验收。</p>
+<h2 id="生命周期与验收责任">生命周期与验收责任</h2>
+<p>页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
+Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保存，网络失败显示未保存并允许用户重试；
+不建立自动同步、清理屏障或离线队列。公共分析内部保留真实来源、日期与可用性，不以零替代缺失；呈现按本轮 UI 精简边界。</p>
+<p>主要验收 seam 为应用页面入口；使用可见内容、动作、导航与保存／读取结果断言。
+复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
+本次重构的统一证据见 <a href="../design/system/issue-31-validation.md">Issue #31 执行检查</a>；
+设备、真实外部服务证据缺失时不得宣称新版本 <code>Implemented</code> 或 <code>Integrated</code>。</p></body></html>

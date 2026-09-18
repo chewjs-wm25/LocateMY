@@ -1,0 +1,10 @@
+PASS: device-build; no high privilege key or local login credentials in APK
+owner-a-device READY
+owner-a-device SELECTED_READY
+owner-a-device REJECTED_READY
+owner-a-device QUEUED_READY
+owner-a-device RESTART_QUEUED_READY
+owner-a-device RECOVERED_READY
+owner-a-device CLOSED_READY
+Restoring production APK and cleaning disposable fixtures
+PASS: production-build; no high privilege key or local login credentials in APK

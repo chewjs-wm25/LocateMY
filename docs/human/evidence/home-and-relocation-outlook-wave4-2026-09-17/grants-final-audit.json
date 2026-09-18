@@ -1,0 +1,50 @@
+[
+  {
+    "t": "cpi_headline_inflation",
+    "authenticated_read": true,
+    "authenticated_insert": false,
+    "authenticated_update": false,
+    "authenticated_delete": false,
+    "anon_read": false
+  },
+  {
+    "t": "lfs_month_sa",
+    "authenticated_read": true,
+    "authenticated_insert": false,
+    "authenticated_update": false,
+    "authenticated_delete": false,
+    "anon_read": false
+  },
+  {
+    "t": "economic_indicators",
+    "authenticated_read": true,
+    "authenticated_insert": false,
+    "authenticated_update": false,
+    "authenticated_delete": false,
+    "anon_read": false
+  },
+  {
+    "t": "gdp_qtr_real_sa",
+    "authenticated_read": true,
+    "authenticated_insert": false,
+    "authenticated_update": false,
+    "authenticated_delete": false,
+    "anon_read": false
+  },
+  {
+    "t": "hh_income",
+    "authenticated_read": true,
+    "authenticated_insert": false,
+    "authenticated_update": false,
+    "authenticated_delete": false,
+    "anon_read": false
+  },
+  {
+    "t": "lfs_month_sa_legacy",
+    "authenticated_read": false,
+    "authenticated_insert": false,
+    "authenticated_update": false,
+    "authenticated_delete": false,
+    "anon_read": false
+  }
+]

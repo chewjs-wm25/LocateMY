@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Public Transportation - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Transit result and\nstation-distribution views] as view
+}
+package "Application" <<application>> {
+  [Transit ViewModel] as vm
+  [Analyse stations and active routes] as uc
+  [TRANSIT-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [1.5 km station coverage, active-route\nvalidation, connectivity and feed-status rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Transit read Adapter] as adapter
+  database "Public transit cache" as cache
+}
+rectangle "LOCATION-001 / LOCATION-002\nlocation and map-layer intent" as location
+database "Supabase read_transit_analysis\nprepared GTFS results" as source
+view --> vm
+vm --> uc
+uc --> domain
+location --> uc
+uc --> api
+uc --> adapter
+adapter --> source
+adapter --> cache
+note right of api : Infrastructure and Suitability reuse\nthe same connectivity snapshot
+@enduml

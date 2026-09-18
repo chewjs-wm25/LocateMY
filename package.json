@@ -1,0 +1,7 @@
+{
+  "name": "locatemy-development-tools",
+  "private": true,
+  "devDependencies": {
+    "supabase": "2.117.0"
+  }
+}

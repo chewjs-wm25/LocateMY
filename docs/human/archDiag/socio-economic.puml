@@ -1,0 +1,30 @@
+@startuml
+!include theme.puml
+title Socio-economic - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Income, inequality, structure\nand distribution views] as view
+}
+package "Application" <<application>> {
+  [Socio-economic ViewModel] as vm
+  [Analyse socio-economic context] as uc
+  [SOCIO-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Level/year fallback, B40/M40/T20,\nincome-position and comparability rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Socio data Adapter] as adapter
+  database "Public socio cache\n(optional)" as cache
+}
+rectangle "LOCATION-001 + GEO-001\nCOST-002 household income" as inputs
+database "Supabase read_socio_inputs" as source
+view --> vm
+vm --> uc
+uc --> domain
+inputs --> uc
+uc --> api
+uc --> adapter
+adapter --> source
+adapter --> cache
+@enduml

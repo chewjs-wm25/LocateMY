@@ -1,0 +1,19 @@
+09-17 15:17:12.414 30178 30178 I flutter : supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+09-17 15:17:16.627 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+09-17 15:17:16.718 30178 30178 I flutter : {"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under10s","correlation_id":"map-2"}
+09-17 15:17:17.800 30178 30178 I flutter : {"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under10s","correlation_id":"home-1"}
+09-17 15:17:50.445 30178 30178 I flutter : {"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-3"}
+09-17 15:17:50.640 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+09-17 15:17:50.848 30178 30178 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under1s","correlation_id":"facility-1"}
+09-17 15:17:51.032 30178 30178 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under1s","correlation_id":"facility-2"}
+09-17 15:17:53.375 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under10s","correlation_id":"map-5"}
+09-17 15:17:53.376 30178 30178 I flutter : {"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"staleViewport","duration_bucket":"under10s","correlation_id":"facility-3"}
+09-17 15:17:53.779 30178 30178 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under1s","correlation_id":"facility-4"}
+09-17 15:17:53.785 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+09-17 15:17:54.247 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under1s","correlation_id":"map-7"}
+09-17 15:17:54.247 30178 30178 I flutter : {"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"staleViewport","duration_bucket":"under1s","correlation_id":"facility-5"}
+09-17 15:17:54.518 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-8"}
+09-17 15:17:54.654 30178 30178 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under1s","correlation_id":"facility-6"}
+09-17 15:17:54.750 30178 30178 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-7"}
+09-17 15:19:16.419 30178 30178 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"10sOrMore","correlation_id":"map-9"}
+09-17 15:19:16.419 30178 30178 I flutter : {"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"10sOrMore","correlation_id":"facility-8"}

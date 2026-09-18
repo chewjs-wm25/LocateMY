@@ -23,17 +23,6 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
-# Local Flutter SDK copy (read-only /home workaround)
-.flutter-sdk/
-
-# Local writable Android SDK (read-only /home workaround)
-.android-sdk/
-.gradle/
-android/local.properties
-.fakehome/
-.xdg-config/
-.flutter_run_log.txt
-
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -41,8 +30,10 @@ android/local.properties
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+.gradle/
 /build/
 /coverage/
+node_modules/
 
 # Symbolication related
 app.*.symbols
@@ -54,3 +45,24 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Widget Preview related
+.widget_preview/
+
+# Codex workspace metadata
+.agents/
+.codex/
+
+# Local Android signing configuration
+/android/key.properties
+*.jks
+*.keystore
+
+# Local client configuration. It is bundled into the app, so it must contain
+# only public values such as the Supabase URL and publishable key.
+.env
+.env.*
+!.env.example
+
+# Local live-test credentials. Keep this file on the developer machine only.
+/test_credentials.local.md

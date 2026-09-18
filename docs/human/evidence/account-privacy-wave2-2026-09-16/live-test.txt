@@ -1,0 +1,4 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/account_privacy_live_test.dart
+00:00 +0: live Auth identity, current device exit proof and A to B privacy barrier
+Shell: PASS: live identity/open; ended-session proof; seven missing owners block B; other device retained
+00:00 +1: All tests passed!

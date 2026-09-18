@@ -1,0 +1,4 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/geographic_context_live_test.dart
+00:00 +0: live GEO-001 resolves fixed samples, denies table access and recovers session
+Shell: GEO_LIVE_PASS: single, boundary, island, noCoverage, authenticated RPC, anon RPC deny, base-table read/write deny, logout/recovery
+00:02 +1: All tests passed!

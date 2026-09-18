@@ -1,0 +1,33 @@
+{
+  "implementation_commit": "86d352f6058b9f58666d6564a3ac26e2e52ce6df",
+  "format": {
+    "command": "dart format --output=none --set-exit-if-changed .",
+    "result": "192 files; 0 changed"
+  },
+  "analyze": {
+    "command": "flutter analyze",
+    "result": "No issues found"
+  },
+  "tests": {
+    "command": "flutter test --reporter expanded",
+    "passed": 277,
+    "live_gates_skipped": 11
+  },
+  "live": {
+    "command": "python3 tool/verify_socio_live.py",
+    "result": "PASS"
+  },
+  "source": {
+    "command": "python3 tool/verify_socio_source.py",
+    "result": "5 datasets PASS"
+  },
+  "build": {
+    "command": "python3 tool/verify_socio_build.py",
+    "result": "PASS"
+  },
+  "device": {
+    "command": "python3 tool/verify_socio_devices.py --devices emulator-5554",
+    "environment": "Android 36 x86_64 emulator",
+    "result": "ALL PASS"
+  }
+}

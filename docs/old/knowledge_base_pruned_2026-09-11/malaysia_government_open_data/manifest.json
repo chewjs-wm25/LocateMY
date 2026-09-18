@@ -1,0 +1,30 @@
+{
+  "knowledge_base_version": "1.0.0",
+  "captured_at": "2026-09-10T11:42:55+08:00",
+  "files": {
+    "data/catalogue_datasets.jsonl": {
+      "bytes": 2244074,
+      "sha256": "812f78b8ce83b6a887d6cff31ee426f4731ecba31573ad78ccd49492dac28c34"
+    },
+    "data/realtime_resources.jsonl": {
+      "bytes": 62711,
+      "sha256": "47203ee6255228e49fb777f951192000b69388d3c124f05a72568e650a3eab1b"
+    },
+    "data/all_resources.jsonl": {
+      "bytes": 2306785,
+      "sha256": "7e02915643bde222b0cf7e58c62d1600a767873b3dd8ce8ca18cc765ac65dfba"
+    },
+    "data/resource_index.csv": {
+      "bytes": 83937,
+      "sha256": "e89fc2831deb9448d412093188ce85269ea550b8a033db4abac7b446dac5a714"
+    },
+    "data/summary.json": {
+      "bytes": 2126,
+      "sha256": "e3d7cd86a51ac9df2ca87b2b9c24d76629cca6f29d95273525a00dccf83a5804"
+    },
+    "schema/resource.schema.json": {
+      "bytes": 1292,
+      "sha256": "070b030b10c259a344fed2f13d50ac23bbb52f31929a444695a3a58b94b619c8"
+    }
+  }
+}

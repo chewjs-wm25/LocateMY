@@ -1,0 +1,23 @@
+{
+  "runner_exit_code": 0,
+  "source_sha256": "aa0ebdfff9b062e5c0c499d5f6f9ff732b78a37605cc99e1f9e91df8af183825",
+  "targets": {
+    "owner-a-device": "PASS",
+    "owner-b-emulator": "PASS"
+  },
+  "scenarios": [
+    "fresh-zh",
+    "fresh-en",
+    "pull-refresh",
+    "cooldown",
+    "stale",
+    "restart-stale",
+    "recovered",
+    "map-tab",
+    "return-home",
+    "closed"
+  ],
+  "production_apk_restored": true,
+  "temporary_fixtures_removed": true,
+  "credential_scan": "PASS"
+}

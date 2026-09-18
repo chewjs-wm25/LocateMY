@@ -1,0 +1,36 @@
+@startuml
+!include theme.puml
+title Cost of Living & Budget - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Cost analysis, A/B comparison,\ntemporary CPI and budget-scenario views] as view
+}
+package "Application" <<application>> {
+  [Cost ViewModel] as vm
+  [Analyse cost / manage scenarios] as uc
+  [COST-001 / COST-002\npublic Interfaces] as api
+}
+package "Domain" <<domain>> {
+  [Cost basket, comparability, budget pressure\nand current-scenario rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Cost input Adapter] as inputs
+  [Budget-scenario Adapter] as scenarios
+  database "cost_public_cache" as cache
+}
+rectangle "LOCATION-001 + GEO-001\nvalid location and district" as location
+rectangle "PRIVACY-001 + SHELL-001" as shared
+database "Supabase read_cost_inputs\n+ user_budget_scenarios" as db
+view --> vm
+vm --> uc
+uc --> domain
+location --> uc
+shared --> uc
+uc --> api
+uc --> inputs
+inputs --> db
+uc --> scenarios
+scenarios --> db
+inputs --> cache
+note right of api : Provides cost result and\ncurrent budget-scenario changes
+@enduml

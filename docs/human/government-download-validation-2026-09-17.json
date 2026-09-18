@@ -1,0 +1,441 @@
+{
+  "hh_inequality_state": {
+    "file": "hh_inequality_state.csv",
+    "bytes": 7618,
+    "sha256": "8a2de46213dc4ed3554f74afedad2d808f0afe10e292dc66c08824bec3994b49",
+    "columns": [
+      "state",
+      "date",
+      "gini"
+    ],
+    "rows": 289,
+    "duplicates": 0,
+    "invalid": {},
+    "nulls": {},
+    "min_date": "1974-01-01",
+    "max_date": "2024-01-01",
+    "latest_states": [
+      "Johor",
+      "Kedah",
+      "Kelantan",
+      "Melaka",
+      "Negeri Sembilan",
+      "Pahang",
+      "Perak",
+      "Perlis",
+      "Pulau Pinang",
+      "Sabah",
+      "Sarawak",
+      "Selangor",
+      "Terengganu",
+      "W.P. Kuala Lumpur",
+      "W.P. Labuan",
+      "W.P. Putrajaya"
+    ]
+  },
+  "hies_state_percentile": {
+    "file": "hies_state_percentile.csv",
+    "bytes": 727256,
+    "sha256": "781990407571bcfb6a6f374aad34694d89b276f4c41c6b6f9e648fa6c82676d5",
+    "columns": [
+      "date",
+      "state",
+      "percentile",
+      "variable",
+      "income"
+    ],
+    "rows": 19200,
+    "duplicates": 0,
+    "invalid": {},
+    "nulls": {
+      "income": 96
+    },
+    "min_date": "2019-01-01",
+    "max_date": "2024-01-01",
+    "percentile_groups": 192,
+    "group_sizes": {
+      "100": 192
+    },
+    "unexpected_nulls": 0,
+    "states": [
+      "Johor",
+      "Kedah",
+      "Kelantan",
+      "Melaka",
+      "Negeri Sembilan",
+      "Pahang",
+      "Perak",
+      "Perlis",
+      "Pulau Pinang",
+      "Sabah",
+      "Sarawak",
+      "Selangor",
+      "Terengganu",
+      "W.P. Kuala Lumpur",
+      "W.P. Labuan",
+      "W.P. Putrajaya"
+    ]
+  },
+  "lookup_item": {
+    "file": "lookup_item.csv",
+    "bytes": 56042,
+    "sha256": "c93f5b291f7de310da3f1c6f81a4f077b4456fb33f98dca4d3628a2f9ac47b64",
+    "columns": [
+      "item_code",
+      "item",
+      "unit",
+      "item_group",
+      "item_category"
+    ],
+    "rows": 797,
+    "duplicates": 0,
+    "invalid": {},
+    "nulls": {
+      "item": 1,
+      "unit": 1,
+      "item_group": 1,
+      "item_category": 1
+    },
+    "min_date": null,
+    "max_date": null
+  },
+  "lookup_premise": {
+    "file": "lookup_premise.csv",
+    "bytes": 492832,
+    "sha256": "c207866496bc9ff8cfbbc0a4a5bc2d63e04b42d827b8c1ea66e8d3a804dc91be",
+    "columns": [
+      "premise_code",
+      "premise",
+      "address",
+      "premise_type",
+      "state",
+      "district"
+    ],
+    "rows": 3917,
+    "duplicates": 0,
+    "invalid": {
+      "InvalidOperation": 1
+    },
+    "nulls": {
+      "premise": 1,
+      "premise_type": 1,
+      "state": 1,
+      "district": 1
+    },
+    "min_date": null,
+    "max_date": null
+  },
+  "population_district": {
+    "file": "population_district.csv",
+    "bytes": 20857972,
+    "sha256": "694b4b506b0ee8771134e78d9f57e5f2dd5c5fcde5d9cb9ae2fa320823d57940",
+    "columns": [
+      "state",
+      "district",
+      "date",
+      "sex",
+      "age",
+      "ethnicity",
+      "population"
+    ],
+    "rows": 383040,
+    "duplicates": 0,
+    "invalid": {},
+    "nulls": {},
+    "min_date": "2020-01-01",
+    "max_date": "2025-01-01",
+    "population_total_districts": {
+      "2020-01-01": 160,
+      "2021-01-01": 160,
+      "2022-01-01": 160,
+      "2023-01-01": 160,
+      "2024-01-01": 160,
+      "2025-01-01": 160
+    }
+  },
+  "pricecatcher_2026-09": {
+    "file": "pricecatcher/pricecatcher_2026-09.csv",
+    "bytes": 23169766,
+    "sha256": "9d1a6b74d0abc42d51e985f0f27504d2c55eb7ed9926c753e968a086f0c0169e",
+    "columns": [
+      "date",
+      "premise_code",
+      "item_code",
+      "price"
+    ],
+    "rows": 894995,
+    "duplicates": 0,
+    "invalid": {},
+    "nulls": {},
+    "min_date": "2026-09-01",
+    "max_date": "2026-09-15",
+    "months": [
+      "2026-09"
+    ],
+    "daily_rows": {
+      "2026-09-01": 34984,
+      "2026-09-02": 38541,
+      "2026-09-03": 38767,
+      "2026-09-04": 39108,
+      "2026-09-05": 39225,
+      "2026-09-06": 39636,
+      "2026-09-07": 192347,
+      "2026-09-08": 38724,
+      "2026-09-09": 39384,
+      "2026-09-10": 39735,
+      "2026-09-11": 40000,
+      "2026-09-12": 40037,
+      "2026-09-13": 40480,
+      "2026-09-14": 194628,
+      "2026-09-15": 39399
+    },
+    "missing_item_rows": 13027,
+    "missing_premise_rows": 0,
+    "missing_item_codes": {
+      "2023": 770,
+      "2053": 1296,
+      "2057": 1467,
+      "2059": 1393,
+      "2089": 1184,
+      "2090": 1109,
+      "2091": 924,
+      "2094": 1460,
+      "2095": 1327,
+      "2096": 712,
+      "2092": 786,
+      "2093": 589,
+      "2048": 8,
+      "2035": 2
+    },
+    "missing_premise_codes": {},
+    "basket_rows": {
+      "1": 13159,
+      "904": 810,
+      "918": 1365,
+      "1589": 3691,
+      "16": 440,
+      "1605": 1050,
+      "118": 2
+    }
+  },
+  "kuantan_gtfs": {
+    "file": "gtfs/tld-6768-202607230117.zip",
+    "sha256": "5a7d1010a22e61f2720fef3abc634c6c452703b6e5f59788080a71a0ad195a86",
+    "crc_error": null,
+    "files": {
+      "agency.txt": 1,
+      "routes.txt": 17,
+      "trips.txt": 270,
+      "stops.txt": 635,
+      "stop_times.txt": 10733,
+      "calendar.txt": 2
+    },
+    "errors": {},
+    "agency": [
+      {
+        "agency_id": "rkn",
+        "agency_name": "RapidKuantan",
+        "agency_url": "https://www.myrapid.com.my/traveling-with-us/how-to-travel-with-us/rapid-kuantan/routes-operating-hours-and-fares",
+        "agency_timezone": "Asia/Kuala_Lumpur",
+        "agency_lang": "en"
+      }
+    ],
+    "calendar": [
+      {
+        "service_id": "weekday",
+        "monday": "1",
+        "tuesday": "1",
+        "wednesday": "1",
+        "thursday": "1",
+        "friday": "1",
+        "saturday": "0",
+        "sunday": "0",
+        "start_date": "20200401",
+        "end_date": "20270331"
+      },
+      {
+        "service_id": "weekend",
+        "monday": "0",
+        "tuesday": "0",
+        "wednesday": "0",
+        "thursday": "0",
+        "friday": "0",
+        "saturday": "1",
+        "sunday": "1",
+        "start_date": "20200401",
+        "end_date": "20270331"
+      }
+    ],
+    "active_services_2026_09_17": [
+      "weekday"
+    ],
+    "active_trips": 140,
+    "lat_range": [
+      3.4899867969634,
+      4.162102732702
+    ],
+    "lon_range": [
+      103.03403555962,
+      103.46097898618
+    ],
+    "route_names": [
+      "Hentian Bandar-Gambang Resort",
+      "Hentian Bandar-Inderapura/Indera Sempurna",
+      "Hentian Bandar-Permatang Badak",
+      "Hentian Bandar-Teluk Cempedak",
+      "Hentian Bandar-Taman Impian",
+      "Hentian Bandar-Bukit Sagu",
+      "Hentian Bandar-Indera Mahkota 1",
+      "Hentian Bandar-Terminal Sentral Kuantan",
+      "Hentian Bandar-Pekan",
+      "Hentian Bandar-RTC Kuala Pahang",
+      "Hentian Bandar-Sungai Lembing",
+      "Hentian Bandar-Balok Makmur (via Jln Beserah)",
+      "Hentian Bandar-Kolej Polisas",
+      "Hentian Bandar-Kolej PSDC",
+      "HENTIAN BANDAR ~ SMK SUNGAI SOI",
+      "Balok Makmur-Cherating",
+      "KUANTAN CITY LOOP"
+    ]
+  },
+  "basket_lookup": [
+    {
+      "item_code": "1",
+      "item": "AYAM BERSIH - STANDARD",
+      "unit": "1kg",
+      "item_group": "BARANGAN SEGAR",
+      "item_category": "AYAM"
+    },
+    {
+      "item_code": "16",
+      "item": "BETIK BIASA",
+      "unit": "1kg",
+      "item_group": "BARANGAN SEGAR",
+      "item_category": "BUAH-BUAHAN"
+    },
+    {
+      "item_code": "118",
+      "item": "TELUR AYAM GRED A (BERAT 65.0 GM HINGGA 69.9 GM SEBIJI)",
+      "unit": "10 biji",
+      "item_group": "BARANGAN SEGAR",
+      "item_category": "TELUR"
+    },
+    {
+      "item_code": "224",
+      "item": "SUSU SEGAR DUTCH LADY",
+      "unit": "1 liter",
+      "item_group": "MINUMAN",
+      "item_category": "TERSEDIA MINUM"
+    },
+    {
+      "item_code": "272",
+      "item": "ROTI SANDWICH GARDENIA ORIGINAL CLASSIC",
+      "unit": "400 g",
+      "item_group": "BARANGAN BERBUNGKUS",
+      "item_category": "ROTI"
+    },
+    {
+      "item_code": "904",
+      "item": "BERAS SUPER CAP RAMBUTAN 5% (IMPORT)",
+      "unit": "10 kg",
+      "item_group": "BARANGAN BERBUNGKUS",
+      "item_category": "BERAS"
+    },
+    {
+      "item_code": "918",
+      "item": "MINYAK MASAK PAKET (PELBAGAI JENAMA)",
+      "unit": "1kg",
+      "item_group": "BARANGAN BERBUNGKUS",
+      "item_category": "MINYAK DAN LEMAK"
+    },
+    {
+      "item_code": "1541",
+      "item": "SABUN PENCUCI SUNLIGHT (LEMON)",
+      "unit": "1000 ml",
+      "item_group": "PRODUK KEBERSIHAN",
+      "item_category": "PENJAGAAN RUMAH"
+    },
+    {
+      "item_code": "1589",
+      "item": "GULA PUTIH BERTAPIS KASAR (PELBAGAI JENAMA)",
+      "unit": "1kg",
+      "item_group": "BARANGAN BERBUNGKUS",
+      "item_category": "GULA"
+    },
+    {
+      "item_code": "1605",
+      "item": "GARAM HALUS BIASA (PELBAGAI JENAMA)",
+      "unit": "+-350g",
+      "item_group": "BARANGAN BERBUNGKUS",
+      "item_category": "REMPAH RATUS (BERBUNGKUS)"
+    },
+    {
+      "item_code": "1645",
+      "item": "SERBUK KOPI CAP KAPAL API (KASAR) (BERBUNGKUS)",
+      "unit": "180 g",
+      "item_group": "MINUMAN",
+      "item_category": "BAHAN-BAHAN MINUMAN"
+    }
+  ],
+  "source_comparison": [
+    {
+      "dataset": "hh_inequality_state",
+      "url": "https://storage.dosm.gov.my/hies/hh_inequality_state.csv",
+      "remote_bytes": 7618,
+      "remote_sha256": "8a2de46213dc4ed3554f74afedad2d808f0afe10e292dc66c08824bec3994b49",
+      "local_sha256": "8a2de46213dc4ed3554f74afedad2d808f0afe10e292dc66c08824bec3994b49",
+      "identical": true
+    },
+    {
+      "dataset": "hies_state_percentile",
+      "url": "https://storage.dosm.gov.my/hies/hies_state_percentile.csv",
+      "remote_bytes": 727256,
+      "remote_sha256": "781990407571bcfb6a6f374aad34694d89b276f4c41c6b6f9e648fa6c82676d5",
+      "local_sha256": "781990407571bcfb6a6f374aad34694d89b276f4c41c6b6f9e648fa6c82676d5",
+      "identical": true
+    },
+    {
+      "dataset": "population_district",
+      "url": "https://storage.dosm.gov.my/population/population_district.csv",
+      "remote_bytes": 20857972,
+      "remote_sha256": "694b4b506b0ee8771134e78d9f57e5f2dd5c5fcde5d9cb9ae2fa320823d57940",
+      "local_sha256": "694b4b506b0ee8771134e78d9f57e5f2dd5c5fcde5d9cb9ae2fa320823d57940",
+      "identical": true
+    },
+    {
+      "dataset": "lookup_item",
+      "url": "https://storage.data.gov.my/pricecatcher/lookup_item.csv",
+      "remote_bytes": 56042,
+      "remote_sha256": "c93f5b291f7de310da3f1c6f81a4f077b4456fb33f98dca4d3628a2f9ac47b64",
+      "local_sha256": "c93f5b291f7de310da3f1c6f81a4f077b4456fb33f98dca4d3628a2f9ac47b64",
+      "identical": true
+    },
+    {
+      "dataset": "lookup_premise",
+      "url": "https://storage.data.gov.my/pricecatcher/lookup_premise.csv",
+      "remote_bytes": 492832,
+      "remote_sha256": "c207866496bc9ff8cfbbc0a4a5bc2d63e04b42d827b8c1ea66e8d3a804dc91be",
+      "local_sha256": "c207866496bc9ff8cfbbc0a4a5bc2d63e04b42d827b8c1ea66e8d3a804dc91be",
+      "identical": true
+    },
+    {
+      "dataset": "pricecatcher_2026-09",
+      "url": "https://storage.data.gov.my/pricecatcher/pricecatcher_2026-09.csv",
+      "remote_bytes": 23169766,
+      "remote_sha256": "9d1a6b74d0abc42d51e985f0f27504d2c55eb7ed9926c753e968a086f0c0169e",
+      "local_sha256": "9d1a6b74d0abc42d51e985f0f27504d2c55eb7ed9926c753e968a086f0c0169e",
+      "identical": true
+    },
+    {
+      "dataset": "kuantan_gtfs",
+      "url": "https://files.mobilitydatabase.org/tld-6768/tld-6768-202607230117/tld-6768-202607230117.zip",
+      "remote_bytes": 191641,
+      "remote_sha256": "5a7d1010a22e61f2720fef3abc634c6c452703b6e5f59788080a71a0ad195a86",
+      "local_sha256": "5a7d1010a22e61f2720fef3abc634c6c452703b6e5f59788080a71a0ad195a86",
+      "identical": true
+    }
+  ],
+  "scope": "Local file validation only; no remote imports",
+  "checked_on": "2026-09-17",
+  "kuantan_source_page": "https://mobilitydatabase.org/feeds/gtfs/tld-6768"
+}

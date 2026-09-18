@@ -1,0 +1,8 @@
+{
+  "base_head": "29eec8d61a42fd85c809014b4fb8b3b66e2d9a69",
+  "source_sha256": "7f8ab788e9574bc2352b98e96b1586ab29e1ede0e04f1734e2c7b67d2dcbf7a3",
+  "apk_sha256": "0d990f4e11764a1a7a031e43eda16752486ebb1067002b2c71044ef0fc256508",
+  "secret_scan": "PASS",
+  "entrypoint": "tool/public_transportation_device.dart",
+  "entrypoint_sha256": "92779979f84a68a907124faa12f3718b2add7cdfa7ecc6ed9d3128fc21f60889"
+}

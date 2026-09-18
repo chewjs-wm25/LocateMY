@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Property Inspection 开发契约</title><style>body{max-width:1050px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#172033}h1,h2,h3{line-height:1.3}table{border-collapse:collapse;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;text-align:left;vertical-align:top}pre{background:#f6f8fb;padding:16px;overflow:auto}code{font-size:.9em}a{color:#155eef}@media(max-width:600px){body{margin:16px auto;padding:0 12px}}</style></head><body><p><a href="../design/features/property-inspection.md">权威 Markdown 契约</a></p><h1 id="property-inspection-开发契约">Property Inspection 开发契约</h1>
+<blockquote>
+<p>Owner B；Wave 6；Draft — Issue #31 精简设计，生产 Feature 尚未实现。</p>
+</blockquote>
+<p>本契约按 <a href="https://github.com/chewjs-wm25/LocateMY/issues/31">Issue #31</a> 与
+<a href="../adr/0017-minimal-account-and-online-user-records.md">ADR 0017</a> 修订。
+产品事实和公式以知识库为准；字段、权限和 migration 只在
+<a href="../design/data/schema-catalog.md">Schema Catalog</a> 定义。普通页面传参与具名服务替代通用导航／贡献框架。
+产品事实源：<a href="../knowledge_base/locatemy_product/features/property_inspection.md">房产实勘</a>。</p>
+<h2 id="表单与在线记录">表单与在线记录</h2>
+<p>保留名称／地址／合法坐标／价格／四项 1–5 现场评分／水灾迹象／备注，以及四评分平均。
+新增和编辑只在线保存 Supabase；成功后档案／详情读取云端真实记录，不用启动示例或 mock。
+当前页输入在地图返回式选点期间保留：Navigator.push 返回合法地点，再填入仍存活的表单。
+不保存跨重启草稿、草稿照片或后台同步队列。保存失败保留当前页输入与普通重试反馈。
+唯一未来入口 <code>lib/features/property_inspection/property_inspection.dart</code>；页面明确实勘 id／坐标参数，
+具名服务消费 Geo、州级安全业务与 HazardRiskCounter，不依赖 Shell／AccountScope／Privacy。
+开发前固定可编译服务声明与照片平台依赖；本次不声明 Ready 或已实现。</p>
+<h2 id="风险快照请求时机">风险快照请求时机</h2>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>是否请求风险</th>
+<th>保存与呈现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新增实勘</td>
+<td>是，合法当前坐标</td>
+<td>成功保存完整组；失败仍保存实勘并标 unavailable</td>
+</tr>
+<tr>
+<td>实际改变经纬度</td>
+<td>是，新坐标</td>
+<td>成功整体替换；失败清除可用旧组并标 unavailable</td>
+</tr>
+<tr>
+<td>只改名称、评分、备注、价格或地址文字</td>
+<td>否</td>
+<td>保留原快照及采集时间</td>
+</tr>
+<tr>
+<td>地图往返但返回相同坐标</td>
+<td>否（编辑时）</td>
+<td>不以对象身份或名称差异触发重算</td>
+</tr>
+<tr>
+<td>查看详情、打开档案、重启</td>
+<td>否</td>
+<td>读取持久化快照，不自动补算</td>
+</tr>
+</tbody>
+</table>
+<p>完整组要求同一坐标的州级安全结果和 pending 隐患计数完整可用。
+资料缺失／partial／失败仍可提交实勘；不能补零／假数据，不能让旧坐标快照冒充新地点。
+保留来源年份、模型／边界、半径、采集时间与可用性；字段唯一见 Schema Catalog。
+无手动刷新或自动补算入口。按新坐标查询后若表单又换点，旧请求不得写入该新点。</p>
+<h2 id="真实照片与部分失败">真实照片与部分失败</h2>
+<p>相机／相册取得真实静态照片、压缩后在线上传，每份最多 20 张；不更改相册原图。
+实勘创建成功后才分配正式 photo／Storage 路径；元数据说明可空、一张封面，其余按添加时间排序。
+删除封面后以最早剩余照片替代，无照片显示占位；档案／对比显示封面，详情显示照片库。
+Storage／元数据各操作只在真实完成后显示成功，部分失败反馈具体未完成项，用户可当前页在线重试。
+保留实际云端对象 path 供业务删除重试，不能建立本机持久化上传队列／后台重放／独立恢复模块。
+文件归属与访问按父实勘 owner 限制；相机权限拒绝、上传失败和不支持格式有普通反馈。</p>
+<h2 id="回收站恢复与永久清空">回收站、恢复与永久清空</h2>
+<p>删除先设置 deleted_at，档案隐藏且可见回收站保留记录和照片；恢复清除此字段，照片重新可读。
+取消永久清空无副作用，退出不清空回收站，也不删除云端照片或预算 JSON。
+确认永久清空后逐份处理：列出照片 path → 删除 Storage 文件 → 删除照片元数据 → 删除实勘。
+Storage 部分失败时保留未完成项对应元数据与父实勘，不能先级联删除导致失去重试路径。
+已完成删除与未完成项明确区分；在线重试容忍文件已经不存在，不把部分失败称全成功。
+对比仅选择本人活动记录 2–3 份，并列价格／现场平均／封面／水灾／持久化风险，不保存对比结果。</p>
+<h2 id="后续验收分配">后续验收分配</h2>
+<table>
+<thead>
+<tr>
+<th>外部行为</th>
+<th>责任／证据</th>
+<th>最迟</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新增、编辑、地图返回保留表单、云端失败不丢输入</td>
+<td>B；应用页面测试与真实归属 smoke</td>
+<td>Wave 6</td>
+</tr>
+<tr>
+<td>相机／相册真实取得、20 张限制、封面／说明／单删、上传失败</td>
+<td>B；设备与真实 Storage／元数据检查</td>
+<td>Wave 6</td>
+</tr>
+<tr>
+<td>新增／实际坐标变化才请求风险，失败可保存 unavailable</td>
+<td>B；页面保存与持久化快照读取</td>
+<td>Wave 6</td>
+</tr>
+<tr>
+<td>普通编辑、相同坐标、详情／档案／重启不请求</td>
+<td>B；具名风险 fake 记录请求与页面展示</td>
+<td>Wave 6</td>
+</tr>
+<tr>
+<td>坐标变化失败不沿用旧快照、late request 不错归新坐标</td>
+<td>B；页面动作／保存结果</td>
+<td>Wave 6</td>
+</tr>
+<tr>
+<td>软删保留照片、恢复、取消清空无副作用、永久清空真实／部分失败</td>
+<td>B；页面及真实 Storage 业务删除</td>
+<td>Wave 6</td>
+</tr>
+<tr>
+<td>本人 2–3 项比较与账户中心档案入口</td>
+<td>B 主责、A 接线联合验证</td>
+<td>Wave 6</td>
+</tr>
+</tbody>
+</table>
+<p>以上是后续 Feature 验收；当前数据库对象存在不证明 Flutter 已交付。</p>
+<h2 id="生命周期与验收责任">生命周期与验收责任</h2>
+<p>页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
+Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保存，网络失败显示未保存并允许用户重试；
+不建立自动同步、清理屏障或离线队列。公共分析保留真实来源、日期、缓存／部分／不可用状态，不以零替代缺失。</p>
+<p>主要验收 seam 为应用页面入口；使用可见内容、动作、导航与保存／读取结果断言。
+复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
+本次重构的统一证据见 <a href="../design/system/issue-31-validation.md">Issue #31 执行检查</a>；
+设备、真实外部服务证据缺失时不得宣称新版本 <code>Implemented</code> 或 <code>Integrated</code>。</p></body></html>

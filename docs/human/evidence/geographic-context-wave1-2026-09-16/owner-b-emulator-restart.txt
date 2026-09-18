@@ -1,0 +1,9 @@
+09-16 21:25:29.366  5098  5098 I flutter : GEO_DEVICE: START: public seam / no private data
+09-16 21:25:29.471  5098  5098 I flutter : GEO_DEVICE: PASS: signed-out scopeUnavailable
+09-16 21:25:30.871  5098  5098 I flutter : GEO_DEVICE: PASS: single GeographicLevelResolved
+09-16 21:25:30.927  5098  5098 I flutter : GEO_DEVICE: PASS: boundary GeographicLevelAmbiguous
+09-16 21:25:30.980  5098  5098 I flutter : GEO_DEVICE: PASS: island GeographicLevelResolved
+09-16 21:25:31.035  5098  5098 I flutter : GEO_DEVICE: PASS: noCoverage GeographicLevelUnresolved
+09-16 21:25:31.093  5098  5098 I flutter : GEO_DEVICE: PASS: logout scopeUnavailable
+09-16 21:25:31.305  5098  5098 I flutter : GEO_DEVICE: PASS: login recovery
+09-16 21:25:31.346  5098  5098 I flutter : GEO_DEVICE: ALL PASS

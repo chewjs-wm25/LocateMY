@@ -1,0 +1,8 @@
+PASS: device-build.txt.source.json current source / exit 0
+PASS: live-test.txt.source.json current source / exit 0
+PASS: production-build.txt.source.json current source / exit 0
+PASS: evidence excludes configured test credentials and high privilege key
+PASS: emulator harness removed / tunnel removed
+PASS: real phone harness removed / tunnel removed
+Source SHA-256: 01947439d2ad3907f495ea9a9bba9f19c8808913bd3f18051846d89e6ccccefa
+Corresponding code revision: b14b57b

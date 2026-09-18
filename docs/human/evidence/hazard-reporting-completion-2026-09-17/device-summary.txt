@@ -1,0 +1,4 @@
+emulator-5554 PASS: real new report entry, coordinates, publish, details, vote, status, cancel delete, en/zh, 200% text, offline retention, restart, map locate, actual delete, close
+SM_A528B PASS: same full flow
+QA APK removed; temporary reports and account cleaned; device settings restored
+Source fingerprints match production and QA APK

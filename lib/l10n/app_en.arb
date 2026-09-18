@@ -1,264 +1,245 @@
 {
-  "appTitle": "UI Prototype Show",
-  "@appTitle": {
-    "description": "The title of the application"
-  },
-  "navHome": "Home",
-  "navMap": "Map",
-  "navCost": "Cost",
-  "navSecurity": "Security",
-  "navSocioEconomic": "Socio-Economic",
-  "navInfrastructure": "Infrastructure",
-  "navTransport": "Transport",
-  "titleHome": "LocateMY",
-  "titleMap": "Location Exploration",
-  "titleCost": "Cost of Living Analysis",
-  "titleSecurity": "Crime & Security Risk",
-  "titleSocioEconomic": "Socio-Economic Analysis",
-  "titleInfrastructure": "Infrastructure Assessment",
-  "titleTransport": "Public Transport & Commute",
-
-  "displayMode": "Display Mode",
-  "comparisonMode": "Comparison Mode",
-  "currentAddress": "Origin Address",
-  "newAddress": "New Address",
-  "searchLocation": "Search Location",
-  "selectOnMap": "Select on Map",
-  "costOfLiving": "Cost of Living",
-  "crimeSecurity": "Crime & Security",
-  "socioEconomic": "Socio-Economic",
-  "infrastructure": "Infrastructure",
-  "transportation": "Transportation",
-  "analysisReport": "Analysis Reports",
-
-  "unemployment": "Unemployment",
-  "medianIncome": "Median Income",
-  "economicGrowth": "Economic Growth (GDP %)",
-  "cpiInflation": "CPI Inflation",
-  "oprRate": "OPR Rate",
-  "startExploring": "Start Exploring Locations",
-  "favorablePeriod": "Favorable Period",
-  "goodTimeToRelocate": "Good time to relocate",
-  "stableInflationInfo": "Stable inflation makes it an ideal time to relocate.",
-  "indexLabel": "Index",
-
-  "locationSelection": "Location Selection",
-  "origin": "Origin",
-  "destination": "Destination",
-  "kl": "Kuala Lumpur",
-  "pg": "Penang",
-  "jb": "Johor Bahru",
-  "ip": "Ipoh",
-  "purchasingPower": "Purchasing Power Forecast",
-  "significantImprovement": "Significant Improvement",
-  "expectedQualityImprovement": "Expected quality of life improvement",
-  "housingExpenditure": "Housing Expenditure",
-  "foodPrices": "Food Prices",
-  "monthlySaving": "Monthly saving approx. RM {value}",
-  "@monthlySaving": {
-    "placeholders": {
-      "value": {}
-    }
-  },
-  "priceCatcherData": "PriceCatcher real-time data",
-  "expenditureComparison": "Expenditure Comparison",
-  "weightAdjustment": "Weight Adjustment (Personalized)",
-  "housing": "Housing",
-  "food": "Food",
-  "transport": "Transport",
-  "entertainment": "Entertainment",
-
-  "safetyMapLayer": "Safety Map Layer",
-  "cherasArea": "KL - Cheras Area",
-  "overallSafetyIndex": "Overall Safety Index",
-  "betterThanNational": "Better than {percent}% of national areas",
-  "@betterThanNational": {
-    "placeholders": {
-      "percent": {}
-    }
-  },
-  "lowRisk": "Low Risk",
-  "crimeTypeFocus": "Crime Type Focus",
-  "violentCrime": "Violent Crime",
-  "propertyCrime": "Property Crime",
-  "cyberFraud": "Cyber Fraud",
-  "crimeTrend": "Crime Rate Trend",
-
-  "incomeClassDistribution": "Income Class Distribution",
-  "dosmOfficialData": "DOSM Official Data",
-  "lowIncome": "Low Income",
-  "middleClass": "Middle Class",
-  "highIncome": "High Income",
-  "m40HigherThanAverage": "M40 group in this area is higher than national average ({percent}%)",
-  "@m40HigherThanAverage": {
-    "placeholders": {
-      "percent": {}
-    }
-  },
-  "developmentRanking": "Development Ranking",
-  "rankNumber": "No. {rank}",
-  "@rankNumber": {
-    "placeholders": {
-      "rank": {}
-    }
-  },
-  "totalConstituencies": "Out of {total} constituencies",
-  "@totalConstituencies": {
-    "placeholders": {
-      "total": {}
-    }
-  },
-  "giniCoefficient": "Gini Coefficient (Inequality)",
-  "moderate": "Moderate",
-  "incomeDistributionCurve": "Monthly Household Income Distribution",
-  "yourIncomePosition": "Your Income Position",
-  "monthlyHouseholdIncome": "Monthly Household Income (RM)",
-  "incomeBetterThan": "Your income is better than {percent}% of households in this area (estimated from the local income distribution).",
-  "@incomeBetterThan": {
-    "placeholders": {
-      "percent": {}
-    }
-  },
-
-  "infrastructureCoverage": "Infrastructure Coverage (ICI)",
-  "excellent": "Excellent",
-  "good": "Good",
-  "iciDescription": "This index aggregates water, electricity, communication, and public service coverage",
-  "waterSupply": "Water Supply",
-  "electricNetwork": "Electric Network",
-  "medicalDensity": "Medical Density",
-  "educationalResources": "Education Resources",
-  "high": "High",
-  "sufficient": "Sufficient",
-  "iciRadarChart": "ICI Dimension Balance Radar Chart",
-  "personalizedWeight": "Personalized Demand Weights",
-  "medicalImportance": "Medical Service Importance",
-  "educationPriority": "Education Resource Priority",
-  "commercialConvenience": "Commercial Convenience",
-
-  "connectivityScore": "Connectivity Overall Score",
-  "highlyConvenient": "Highly Convenient",
-  "betterThanKL": "Better than {percent}% of areas in Klang Valley",
-  "@betterThanKL": {
-    "placeholders": {
-      "percent": {}
-    }
-  },
-  "nearbyStations": "Nearby Stations (within 500m)",
-  "walking": "Walking",
-  "pedestrianBridge": "Pedestrian Bridge Link",
-  "trafficDensityHeatmap": "Traffic Network Density Heatmap",
-  "viewDetails": "View Details",
-  "commuteModeDistribution": "Commute Mode Distribution",
-
-  "accountCenter": "Account Center",
-  "verifiedUser": "Verified User",
-  "relocationHistory": "Relocation Assessment History",
-  "defaultLocation": "Default Location",
-  "savedComparisons": "Saved Comparisons",
-  "assessmentDate": "Assessment Date: {date}",
-  "@assessmentDate": {
-    "placeholders": {
-      "date": {}
-    }
-  },
-  "myComments": "My Comments",
-  "likedAreas": "Liked Areas",
-  "logout": "Logout",
-  "login": "Login",
-  "register": "Register",
-  "username": "Username",
-  "enterUsername": "Enter your username",
-  "invalidUsername": "Username can only contain letters, numbers, and spaces, and must have at least 3 letters or numbers",
+  "@@locale": "en",
+  "signingOut": "Signing out",
+  "restoringSession": "Checking sign-in status",
+  "retry": "Retry",
+  "signOutDevice": "Sign out of this device",
+  "signedIn": "Signed in",
+  "createAccount": "Create account",
+  "welcomeBack": "Welcome back",
+  "registrationSubtitle": "Create an account to plan a life that suits you.",
+  "signInSubtitle": "Sign in to explore locations, budgets and property inspections.",
+  "optionalUsername": "Username (optional)",
+  "usernameHint": "Enter username",
   "email": "Email",
   "password": "Password",
-  "confirmPassword": "Confirm Password",
-  "loginTitle": "Welcome Back",
-  "registerTitle": "Create Account",
-  "noAccount": "Don't have an account? Register",
-  "alreadyHaveAccount": "Already have an account? Login",
-  "invalidEmail": "Please enter a valid email address",
-  "passwordTooShort": "Password must be at least 8 characters",
-  "passwordComplexityError": "Password must include upper/lowercase letters, numbers, and special symbols (no spaces)",
-  "passwordsDoNotMatch": "Passwords do not match",
-  "authError": "Authentication failed, please try again",
-  "errorInvalidCredentials": "Invalid email or password",
-  "errorUserAlreadyRegistered": "This email is already registered",
-  "errorEmailNotConfirmed": "Email not confirmed, please check your inbox",
-  "errorTooManyRequests": "Too many requests, please try again later",
-  "errorUnexpected": "An unexpected error occurred, please try again",
-  "loginSuccess": "Login successful",
-  "registerSuccess": "Registration successful, please check your email",
-  "enterEmail": "Enter your email",
-  "enterPassword": "Enter your password",
-  "reportHazard": "Report Hazard",
-  "hazardTitle": "Title",
-  "hazardDescription": "Description",
-  "hazardType": "Type",
-  "add": "Add",
+  "emailRequired": "Enter your email.",
+  "emailInvalid": "Enter a valid email address.",
+  "passwordHint": "Enter password",
+  "hide": "Hide",
+  "show": "Show",
+  "passwordRequired": "Enter your password.",
+  "confirmPassword": "Confirm password",
+  "confirmPasswordHint": "Enter password again",
+  "passwordMismatch": "Passwords do not match.",
+  "signIn": "Sign in",
+  "switchToSignIn": "Already have an account? Sign in",
+  "switchToRegistration": "New here? Create an account",
+  "confirmSignOut": "Sign out?",
+  "confirmSignOutBody": "End your session on this device?",
   "cancel": "Cancel",
-  "newScenario": "New Scenario",
-  "scenarioName": "Scenario Name",
-  "create": "Create",
-  "addProperty": "Add Property",
-  "propertyName": "Property Name",
-  "address": "Address",
-  "price": "Price",
-  "propertyPortfolio": "Property Inspection Portfolio",
-  "budgetTranslation": "Budget Translation",
-  "lifestyleComparisonText": "To maintain your current lifestyle in {dest}, you need {percent}% {change} budget than in {origin}.",
-  "@lifestyleComparisonText": {
+  "signOut": "Sign out",
+  "signInSucceeded": "Signed in successfully.",
+  "signInInvalidInput": "Enter your email and password.",
+  "signInInvalidCredentials": "Incorrect email or password.",
+  "serviceUnavailable": "Service unavailable. Please retry.",
+  "signInUnsupportedClient": "Sign-in is unavailable on this device.",
+  "registrationAuthenticated": "Account created successfully.",
+  "registrationProfileFailed": "Account created, but your username could not be saved.",
+  "registrationInvalidInput": "Check the required fields and confirm your password.",
+  "registrationAccountExists": "This email is already registered.",
+  "registrationUnsupportedClient": "Registration is unavailable on this device.",
+  "signOutRetryableUnavailable": "Sign-out incomplete. Connect to the internet and retry.",
+  "signOutRemoteRejected": "Sign-out rejected. Retry or contact support.",
+  "signOutUnsupportedClient": "Sign-out unavailable on this device. Check the app configuration.",
+  "sessionUnavailable": "Unable to check your sign-in status. Please retry.",
+  "unknownError": "Something went wrong. Please retry.",
+  "brandTagline": "Find a location that suits your life",
+  "language": "Language",
+  "languageSaveFailed": "Language preference could not be saved. Please retry.",
+  "configurationMissing": "LocateMY is not configured. Set the Supabase project URL and publishable key, then restart the app.",
+  "shellHome": "Home",
+  "shellMap": "Map",
+  "shellAccount": "Account",
+  "homeTiming": "Relocation timing",
+  "homeCost": "Cost pressure",
+  "homeEmployment": "Employment stability",
+  "homeEconomy": "Economic momentum",
+  "homeIncome": "Household median income",
+  "homeNational": "Malaysia · National outlook",
+  "homeRefresh": "Refresh",
+  "homeExplore": "Explore map",
+  "homeLoading": "Loading national outlook…",
+  "homeCostDirection": "Higher scores mean lower relative cost pressure.",
+  "homeLaborCaveat": "Census benchmark changes may affect comparisons.",
+  "homePartial": "Some indicators are unavailable; available results are retained.",
+  "homeUnavailable": "Temporarily unavailable",
+  "homeCooling": "Refresh available in {seconds} seconds",
+  "@homeCooling": {
     "placeholders": {
-      "dest": {},
-      "percent": {},
-      "change": {},
-      "origin": {}
+      "seconds": {
+        "type": "int"
+      }
     }
   },
-  "microPriceInsight": "Micro-Price Insight (5km)",
-  "viewStores": "View Stores",
-  "realTimePriceComparison": "Real-time price comparison of essential items within 5km of your target location.",
-  "eggs": "Grade A Eggs (10s)",
-  "chicken": "Chicken (1KG)",
-  "bread": "White Bread",
-  "petrol": "Petrol (RON95/L)",
-  "less": "less",
-  "more": "more",
-  "monthly": "Monthly",
-  "savedLocations": "Saved Locations",
-  "saveCurrentLocation": "Save Current Location",
-  "saveLocation": "Save Location",
-  "pickOnMap": "Pick on Map",
-  "selectSavedLocation": "Select Saved Location",
-  "enterLocationName": "Enter location name",
-  "locationName": "Location Name",
-  "delete": "Delete",
-  "noSavedLocations": "No saved locations",
-  "outOfMalaysiaRange": "Selected location is outside Malaysia range",
-  "clearSelection": "Clear Selection",
-  "securityRiskAssessment": "Security & Risk Assessment",
-  "policeDistrict": "Police District",
-  "securityScore": "Security Score",
-  "monsoonChecklist": "Monsoon Check",
-  "nearbyHazards": "Nearby Hazards",
-  "drainage": "Drainage",
-  "waterproofing": "Waterproofing",
-  "humidity": "Humidity",
-  "lighting": "Lighting",
-  "fetchingRiskData": "Fetching risk data...",
-  "propertyDetails": "Property Details",
-  "saveProperty": "Save Property",
-  "mainImage": "Main Image",
-  "tapToSetMainImage": "Tap photo to set as main image",
-  "swipeForMore": "Swipe to view more",
-  "totalPhotos": "{count} photos",
-  "edit": "Edit",
-  "save": "Save",
-  "editScenario": "Edit Scenario",
-  "expenseIncrease": "Expense Increase",
-  "@totalPhotos": {
+  "crimeSafetyIndex": "Safety Index",
+  "crimeAnnualCases": "Annual convicted cases",
+  "crimeTrendTitle": "5-year trend",
+  "crimeCategoryAll": "All",
+  "crimeCategoryAssault": "Violent crime",
+  "crimeCategoryProperty": "Property crime",
+  "crimeTrendNote": "Total convicted cases, not actual crime rate.",
+  "crimeSourceYear": "Data year: {year}",
+  "@crimeSourceYear": {
     "placeholders": {
-      "count": {}
+      "year": {
+        "type": "int"
+      }
     }
-  }
+  },
+  "crimeUnavailable": "Temporarily unavailable",
+  "crimeStateUnresolved": "Location outside supported area",
+  "crimePartialData": "Partial data",
+  "crimeViewPortfolio": "View Portfolio",
+  "crimeAddProperty": "Add Property",
+  "crimeBackToMap": "Back to Map",
+  "homeIncomeAmount": "RM {amount} / month · Survey {year}",
+  "@homeIncomeAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "homeNavigation": "Map navigation unavailable: {reason}",
+  "@homeNavigation": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDirection": "{code, select, timing_favorable {More favorable} timing_wait {Consider waiting} timing_defer {Better to defer} cost_easing {Cost pressure is easing} cost_worsening {Cost pressure is increasing} cost_stable {Cost pressure is broadly stable} cost_lowerIsBetter {Higher scores mean lower relative pressure} employment_improving {Employment stability is improving} employment_weakening {Employment stability is weakening} employment_stable {Employment stability is broadly stable} employment_comparisonUnavailable {Employment trend comparison unavailable} economy_expanding {Recent economic trend: expansion} economy_weakening {Recent economic trend: weakening} economy_stable {Recent economic trend: broadly stable} other {Temporarily unavailable}}",
+  "@homeDirection": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeReason": "{code, select, sourceMissing {Source data missing} sourceSchemaChanged {Data temporarily unavailable; please retry} insufficientHistory {Insufficient valid historical observations} sourceDataUnverifiable {Source data cannot be verified} retryableUnavailable {Connection unavailable; please retry} noCachedResult {No available data; please retry} authenticationRequired {Sign in again} missingInput {Required input missing} staleInput {This request has expired} inapplicableDestination {Destination not available} scopeUnavailable {Account scope is closed} other {Temporarily unavailable}}",
+  "@homeReason": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTrendSummary": "Recent trend · {count} observations",
+  "@homeTrendSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTrendUnavailable": "Historical trend unavailable; see the direction summary above.",
+  "homeGreeting": "Ready to plan your next move?",
+  "homeIndicators": "Key indicators",
+  "mapEnterAValidWGS84LatitudeAnd": "Enter a valid WGS84 latitude and longitude.",
+  "mapChooseAPointOnMalaysianLand": "Choose a point on Malaysian land.",
+  "mapAAndBMustBeDifferent": "A and B must be different locations.",
+  "mapNameMustContain1120Characters": "Name must contain 1–120 characters.",
+  "mapSelectAValidatedLocationFirst": "Select a validated location first.",
+  "mapDeletionRequiresAConnectionTheLocation": "Deletion requires a connection. The location is retained.",
+  "mapPermissionDeniedSignInAgain": "Permission denied. Sign in again.",
+  "mapTheLocationChangedOnAnotherDevice": "This location changed. Reload and retry.",
+  "mapThisSavedLocationNoLongerExists": "This saved location no longer exists.",
+  "mapThisRequestIsOutdatedSelectOr": "This request is outdated. Select or refresh again.",
+  "mapTemporarilyUnavailableTryAgain": "Temporarily unavailable. Try again.",
+  "mapSaveLocation": "Save location",
+  "mapName": "Name",
+  "mapCancel": "Cancel",
+  "mapSave": "Save",
+  "mapSetCurrentLocationAs": "Set current location as",
+  "mapLocationA": "Location A",
+  "mapLocationB": "Location B",
+  "mapSavedLocations": "Saved locations",
+  "mapNoSavedLocations": "No saved locations",
+  "mapDelete": "Delete",
+  "mapSearchPlacesInMalaysia": "Search places in Malaysia",
+  "mapEnterCoordinates": "Enter coordinates",
+  "mapSingle": "Single",
+  "mapCompareLocations": "Compare locations",
+  "mapLayers": "Layers",
+  "mapSaved": "Saved",
+  "mapRefresh": "Refresh",
+  "mapClear": "Clear",
+  "mapSearchUnavailableTryAgain": "Search unavailable. Try again.",
+  "mapNoPlacesFound": "No places found",
+  "mapSwapAB": "Swap A/B",
+  "mapNotSelected": "Not selected",
+  "mapViewComparison": "View comparison",
+  "mapSelectedLocation": "Selected location",
+  "mapSelectALocation": "Select a location",
+  "mapSelectedAnalysisLocation": "Selected analysis location",
+  "mapViewFullAnalysis": "View full analysis",
+  "mapStartComparison": "Start comparison",
+  "mapSafetyIndex": "Safety index",
+  "mapCostOfLivingIndex": "Cost of living index",
+  "mapNearbyFacilities2Km": "Nearby facilities · 2 km",
+  "mapPublicTransportation15Km": "Public transportation · 1.5 km",
+  "mapInfrastructure": "Infrastructure",
+  "mapLatitudeMustBeBetween90And": "Latitude must be between −90 and 90.",
+  "mapLongitudeMustBeBetween180And": "Longitude must be between −180 and 180.",
+  "mapLatitude": "Latitude",
+  "mapLongitude": "Longitude",
+  "mapSelect": "Select",
+  "mapHideSummary": "Hide summary",
+  "mapShowSummary": "Show summary",
+  "mapPropertyLocation": "Property location",
+  "mapNoLocationSelected": "Map: no location selected.",
+  "mapLocationSummary": "{role}: {name}. Latitude {latitude}, longitude {longitude}.",
+  "@mapLocationSummary": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "mapLayerPoint": "Layer point: latitude {latitude}, longitude {longitude}.",
+  "@mapLayerPoint": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "mapFeatureNotConnected": "This feature is not connected yet",
+  "mapLocationRetained": "The selected location is retained. Return to the map to continue.",
+  "mapFacilityLayer": "Nearby facilities",
+  "mapHazardLayer": "Hazard reports",
+  "mapTransitLayer": "Public transportation",
+  "mapLayerCluster": "{layer}: {count} points. Tap to explore.",
+  "@mapLayerCluster": {
+    "placeholders": {
+      "layer": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapSavedOnline": "Saved online.",
+  "mapDeletedOnline": "Deleted online.",
+  "mapSavedLocationsUnavailable": "Saved locations unavailable. Retry loading.",
+  "mapRetryLoading": "Retry loading",
+  "mapAccountUnavailableSignInAgain": "Unable to read the current account or location. Retry.",
+  "mapSummaryUnavailable": "Summary unavailable. Open full analysis."
 }

@@ -1,0 +1,7 @@
+# Self-contained page design documents
+
+## Status
+
+Superseded by ADR 0011 — 2026-09-13
+
+Each navigable page has one design document, while a cross-page module with its own state or interface has a separate shared-module document referenced by its consumers. Its File Manifest lists every relevant path as `create`, `modify`, `reuse`, or `prohibited`, with its responsibility, owner, and public interface. The documents describe every layer they touch, including the relevant database details and algorithm formulas, because student developers need a single usable implementation and integration reference rather than relying on a separate knowledge base; interface contracts and schema remain the authoritative sources where they exist.

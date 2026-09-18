@@ -1,0 +1,314 @@
+--------- beginning of main
+09-18 00:24:52.957 13895 13895 I nfrastructureqa: Late-enabling -Xcheck:jni
+09-18 00:24:53.018 13895 13895 I nfrastructureqa: Using CollectorTypeCMC GC.
+09-18 00:24:53.023 13895 13895 W nfrastructureqa: Unexpected CPU variant for x86: x86_64.
+09-18 00:24:53.023 13895 13895 W nfrastructureqa: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+09-18 00:24:53.041 13895 13895 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+09-18 00:24:53.083 13895 13895 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+09-18 00:24:53.084 13895 13895 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+09-18 00:24:53.401 13895 13895 D nativeloader: Configuring clns-9 for other apk /data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/lib/x86_64:/data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.locatemy.infrastructureqa
+09-18 00:24:53.407 13895 13895 I nfrastructureqa: AssetManager2(0x780def965938) locale list changing from [] to [en-US]
+09-18 00:24:53.412 13895 13895 V GraphicsEnvironment: Currently set values for:
+09-18 00:24:53.412 13895 13895 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+09-18 00:24:53.412 13895 13895 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+09-18 00:24:53.412 13895 13895 V GraphicsEnvironment: com.locatemy.infrastructureqa is not listed in per-application setting
+09-18 00:24:53.412 13895 13895 V GraphicsEnvironment: ANGLE allowlist from config: com.dreamgames.royalmatch com.dts.freefiremax com.dxx.firenow com.gramgames.mergedragons com.ludo.king com.mojang.minecraftpe com.my.defense com.nintendo.zaka com.os.airforce com.playrix.fishdomdd.gplay io.teslatech.callbreak jp.konami.prospia net.peakgames.toonblast
+09-18 00:24:53.413 13895 13895 V GraphicsEnvironment: com.locatemy.infrastructureqa is not listed in ANGLE allowlist or settings, returning default
+09-18 00:24:53.413 13895 13895 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+--------- beginning of system
+09-18 00:24:53.440 13895 13925 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+09-18 00:24:53.443 13895 13895 I nfrastructureqa: AssetManager2(0x780def965618) locale list changing from [] to [en-US]
+09-18 00:24:53.452 13895 13895 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
+09-18 00:24:53.461 13895 13927 D FlutterJNI: Beginning load of flutter...
+09-18 00:24:53.463 13895 13928 I ResourceExtractor: Resource version mismatch res_timestamp-1-1789662292444
+09-18 00:24:53.475 13895 13925 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+09-18 00:24:53.475 13895 13925 I EGL_emulation: Opening libGLESv2_emulation.so
+09-18 00:24:53.486 13895 13925 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+09-18 00:24:53.542 13895 13927 D nativeloader: Load /data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/base.apk!/lib/x86_64/libflutter.so using class loader ns clns-9 (caller=/data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/base.apk): ok
+09-18 00:24:53.543 13895 13927 D FlutterJNI: flutter (null) was loaded normally!
+09-18 00:24:53.567 13895 13929 D skia    : [SkFontMgr Android Parser] '/product/etc/fonts_customization.xml' could not be opened
+09-18 00:24:53.828 13895 13928 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/kernel_blob.bin
+09-18 00:24:53.829 13895 13928 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/vm_snapshot_data
+09-18 00:24:53.873 13895 13928 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/isolate_snapshot_data
+09-18 00:24:53.877 13895 13895 I nfrastructureqa: AssetManager2(0x780def970b58) locale list changing from [] to [en-US]
+09-18 00:24:53.876 13895 13895 W nfrastructureqa: type=1400 audit(0.0:83): avc:  denied  { read } for  name="max_map_count" dev="proc" ino=19009 scontext=u:r:untrusted_app:s0:c223,c256,c512,c768 tcontext=u:object_r:proc_max_map_count:s0 tclass=file permissive=0 app=com.locatemy.infrastructureqa
+09-18 00:24:53.888 13895 13895 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+09-18 00:24:53.893 13895 13930 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+09-18 00:24:53.953 13895 13936 I flutter : The Dart VM service is listening on http://127.0.0.1:41653/5G__xRQ8zQ8=/
+09-18 00:24:54.112 13895 13895 D nativeloader: Load /data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/base.apk!/lib/x86_64/libdartjni.so using class loader ns clns-9 (caller=/data/app/~~iPO4HIvfgFgLU0AQwN7VgA==/com.locatemy.infrastructureqa-KpfF67JvEDmsJP7KnTY4uw==/base.apk!classes4.dex): ok
+09-18 00:24:54.131 13895 13895 I nfrastructureqa: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityNodeInfo;->getSourceNodeId()J (runtime_flags=0, domain=platform, api=unsupported,test-api) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-18 00:24:54.131 13895 13895 I nfrastructureqa: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityRecord;->getSourceNodeId()J (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-18 00:24:54.131 13895 13895 I nfrastructureqa: hiddenapi: Accessing hidden field Landroid/view/accessibility/AccessibilityNodeInfo;->mChildNodeIds:Landroid/util/LongArray; (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-18 00:24:54.131 13895 13895 I nfrastructureqa: hiddenapi: Accessing hidden method Landroid/util/LongArray;->get(I)J (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-18 00:24:54.133 13895 13895 D AccessibilityBridge: Setting not found: accessibility_display_inversion_enabled, using default: 0
+09-18 00:24:54.142 13895 13895 D FlutterRenderer: Width is zero. 0,0
+09-18 00:24:54.145 13895 13895 D CompatChangeReporter: Compat change id reported: 377864165; UID 10223; state: ENABLED
+09-18 00:24:54.157 13895 13895 W HWUI    : Unknown dataspace 0
+09-18 00:24:54.373 13895 13895 I Choreographer: Skipped 55 frames!  The application may be doing too much work on its main thread.
+09-18 00:24:54.382 13895 13895 I WindowExtensionsImpl: Initializing Window Extensions, vendor API level=9, activity embedding enabled=true
+09-18 00:24:54.403 13895 13895 D FlutterRenderer: Width is zero. 0,0
+09-18 00:24:54.411 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:24:54.421 13895 13901 I nfrastructureqa: Compiler allocated 5042KB to compile void android.view.ViewRootImpl.performTraversals()
+09-18 00:24:54.685 13895 13895 I flutter : supabase.supabase_flutter: INFO: ***** Supabase init completed ***** 
+09-18 00:24:54.745 13895 13895 D WindowLayoutComponentImpl: Register WindowLayoutInfoListener on Context=com.locatemy.app.MainActivity@99765b8, of which baseContext=android.app.ContextImpl@661bcfc
+09-18 00:24:55.673 13895 13895 I Choreographer: Skipped 56 frames!  The application may be doing too much work on its main thread.
+09-18 00:24:55.674 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:24:55.691 13895 13895 I nfrastructureqa: AssetManager2(0x780def980eb8) locale list changing from [] to [en-US]
+09-18 00:24:55.702 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:24:56.037 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:24:56.037 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:33d9a3a5: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+09-18 00:24:56.528 13895 13895 I flutter : INFRASTRUCTURE_DEVICE: REAL_SIGNED_IN
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡 See:[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+09-18 00:24:56.843 13895 13895 I flutter : [38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+09-18 00:24:58.059 13895 13895 I flutter : {"event":"map.load_saved.completed","feature":"map_location","result":"success","duration_bucket":"under10s","correlation_id":"map-1"}
+09-18 00:24:58.737 13895 13895 I flutter : {"event":"home.load.completed","feature":"home_relocation_outlook","result":"fresh","duration_bucket":"under10s","correlation_id":"home-1"}
+09-18 00:24:58.901 13895 13895 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-2"}
+09-18 00:24:59.554 13895 13996 D ProfileInstaller: Installing profile for com.locatemy.infrastructureqa
+09-18 00:25:06.694 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:4037bebf: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:25:06.730 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:25:06.730 13895 13895 D InsetsController: Setting requestedVisibleTypes to -1 (was -9)
+09-18 00:25:06.759 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:25:06.777 13895 13895 I AssistStructure: Flattened final assist data: 424 bytes, containing 1 windows, 3 views
+09-18 00:25:07.047 13895 13895 W InteractionJankMonitor: Initializing without READ_DEVICE_CONFIG permission. enabled=true, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=com.locatemy.infrastructureqa
+09-18 00:25:07.049 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.137 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.146 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.218 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.380 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.387 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.526 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:4037bebf: onShown
+09-18 00:25:07.527 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.529 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:07.672 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 218710, 121008182, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.673 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 218710, 121008182, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.673 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 218799, 46028372, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.673 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 218827, 90293610, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.673 13895 13895 W FrameTracker: Missed App frame:JANK_APPLICATION, 218887, 201811105, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.673 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219006, 113128656, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.673 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219021, 184620119, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:25:07.689 13895 14051 V PerfettoTrigger: Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-80
+09-18 00:25:08.496 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:771f3548: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:25:08.497 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:25:08.497 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:771f3548: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+09-18 00:25:08.583 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:8d01cce0: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:25:08.583 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:25:08.583 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:8d01cce0: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+09-18 00:25:08.585 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:25:08.590 13895 13895 I AssistStructure: Flattened final assist data: 424 bytes, containing 1 windows, 3 views
+09-18 00:25:09.251 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:2ded4c18: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_REQUEST_HIDE_WITH_CONTROL fromUser true
+09-18 00:25:09.252 13895 13895 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@5c7577b
+09-18 00:25:09.252 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:25:09.253 13895 13895 D InsetsController: Setting requestedVisibleTypes to -9 (was -1)
+09-18 00:25:09.261 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.277 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.297 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.327 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.359 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.384 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.454 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.470 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.522 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.532 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.592 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.593 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:25:09.656 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:25:09.660 13895 13895 I ImeTracker: system_server:5f556d63: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 219687, 19887006, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 219687, 19887006, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219708, 23581893, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219716, 37607980, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 219731, 55327291, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 219731, 55327291, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219740, 24139046, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed App frame:JANK_APPLICATION, 219755, 84798524, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219765, 35951407, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 219779, 64201020, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 219779, 64201020, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 219788, 44932044, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 219788, 44932044, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.672 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 219810, 79772408, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:25:09.673 13895 14051 V PerfettoTrigger: Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-81
+09-18 00:25:12.073 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:be8a398c: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+09-18 00:25:12.074 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:25:12.074 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:be8a398c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+09-18 00:25:12.074 13895 13895 D CompatChangeReporter: Compat change id reported: 395521150; UID 10223; state: ENABLED
+09-18 00:25:12.209 13895 13895 I flutter : {"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-3"}
+09-18 00:25:12.458 13895 13895 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+09-18 00:25:17.545 13895 13895 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under10s","correlation_id":"facility-1"}
+09-18 00:25:17.788 13895 13895 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under10s","correlation_id":"facility-2"}
+09-18 00:25:21.247 13895 13951 W nfrastructureqa: JNI critical lock held for 24.048ms on Thread[22,tid=13951,Runnable,Thread*=0x780c5f9bd160,peer=0x2094b20,"Sqflite"]
+09-18 00:25:21.252 13895 13902 I nfrastructureqa: Background concurrent mark compact GC freed 208KB AllocSpace bytes, 1(1720KB) LOS objects, 49% free, 4593KB/9187KB, paused 368us,15.388ms total 60.068ms
+09-18 00:25:21.398 13895 13951 W nfrastructureqa: JNI critical lock held for 25.272ms on Thread[22,tid=13951,Runnable,Thread*=0x780c5f9bd160,peer=0x2094b20,"Sqflite"]
+09-18 00:25:46.015 13895 13902 I nfrastructureqa: Background concurrent mark compact GC freed 1055KB AllocSpace bytes, 3(1824KB) LOS objects, 49% free, 11MB/22MB, paused 1.002ms,5.076ms total 53.703ms
+09-18 00:25:52.347 13895 13895 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"10sOrMore","correlation_id":"map-5"}
+09-18 00:25:52.348 13895 13895 I flutter : {"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"10sOrMore","correlation_id":"facility-3"}
+09-18 00:25:52.572 13895 13951 W nfrastructureqa: JNI critical lock held for 18.545ms on Thread[22,tid=13951,Runnable,Thread*=0x780c5f9bd160,peer=0x2094b20,"Sqflite"]
+09-18 00:25:52.747 13895 13902 I nfrastructureqa: Background concurrent mark compact GC freed 717KB AllocSpace bytes, 4(6880KB) LOS objects, 50% free, 17MB/35MB, paused 341us,11.527ms total 52.511ms
+09-18 00:25:59.201 13895 13951 W nfrastructureqa: JNI critical lock held for 24.451ms on Thread[22,tid=13951,Runnable,Thread*=0x780c5f9bd160,peer=0x2094b20,"Sqflite"]
+09-18 00:26:59.633 13895 13895 I nfrastructureqa: AssetManager2(0x780def98f918) locale list changing from [] to [en-US]
+09-18 00:27:02.174 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:8ce64db: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:27:02.174 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:27:02.174 13895 13895 D InsetsController: Setting requestedVisibleTypes to -1 (was -9)
+09-18 00:27:02.186 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:27:02.188 13895 13895 I AssistStructure: Flattened final assist data: 424 bytes, containing 1 windows, 3 views
+09-18 00:27:02.333 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.362 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.364 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.405 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.412 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.434 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.476 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.552 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.561 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.656 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.724 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:8ce64db: onShown
+09-18 00:27:02.725 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.725 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 233801, 31030826, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 233838, 37917450, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 233890, 61614068, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 233905, 76924625, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 233905, 76924625, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 233928, 85301397, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 233928, 85301397, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 233979, 22007876, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed App frame:JANK_APPLICATION, 234001, 114318380, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.806 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 234040, 118955068, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.807 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 234040, 118955068, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:02.807 13895 14051 V PerfettoTrigger: Not triggering com.android.telemetry.interaction-jank-monitor-80 - not enough time since last trigger
+09-18 00:27:03.027 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:347c0cff: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:27:03.027 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:27:03.027 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:347c0cff: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+09-18 00:27:03.045 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:5400fd15: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:27:03.045 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:27:03.045 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:5400fd15: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+09-18 00:27:03.061 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:27:03.062 13895 13895 I AssistStructure: Flattened final assist data: 424 bytes, containing 1 windows, 3 views
+09-18 00:27:03.861 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:cdebe8ab: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_REQUEST_HIDE_WITH_CONTROL fromUser true
+09-18 00:27:03.861 13895 13895 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@5c7577b
+09-18 00:27:03.862 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:27:03.863 13895 13895 D InsetsController: Setting requestedVisibleTypes to -9 (was -1)
+09-18 00:27:03.877 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:03.895 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:03.912 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:03.930 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:03.998 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.012 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.060 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.079 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.148 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.161 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.222 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.223 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:04.312 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:27:04.312 13895 13895 I ImeTracker: system_server:1ea71973: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 234527, 11429936, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 234542, 32954958, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 234550, 37334854, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 234565, 67879631, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 234565, 67879631, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 234574, 14314389, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed App frame:JANK_APPLICATION, 234589, 46645300, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 234598, 36593377, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 234598, 36593377, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 234612, 67531131, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 234612, 67531131, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.326 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 234627, 17967997, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:04.332 13895 14051 V PerfettoTrigger: Not triggering com.android.telemetry.interaction-jank-monitor-81 - not enough time since last trigger
+09-18 00:27:06.633 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:c1bbbe1: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+09-18 00:27:06.633 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:27:06.633 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:c1bbbe1: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+09-18 00:27:06.824 13895 13895 I flutter : {"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-6"}
+09-18 00:27:16.856 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:8e8a842f: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:27:16.856 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:27:16.856 13895 13895 D InsetsController: Setting requestedVisibleTypes to -1 (was -9)
+09-18 00:27:16.858 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:27:16.859 13895 13895 I AssistStructure: Flattened final assist data: 424 bytes, containing 1 windows, 3 views
+09-18 00:27:16.984 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:16.997 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.025 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.045 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.058 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.136 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.146 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.200 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.302 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:8e8a842f: onShown
+09-18 00:27:17.303 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.304 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 236297, 23129718, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 236319, 51228240, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 236319, 51228240, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 236334, 43915451, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 236355, 64446682, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 236369, 91844211, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 236369, 91844211, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 236415, 20792316, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 236437, 57801332, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 236437, 57801332, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.locatemy.infrastructureqa>
+09-18 00:27:17.440 13895 14051 V PerfettoTrigger: Not triggering com.android.telemetry.interaction-jank-monitor-80 - not enough time since last trigger
+09-18 00:27:17.718 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:86f9830c: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:27:17.718 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:27:17.718 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:86f9830c: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+09-18 00:27:17.722 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:919b725c: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+09-18 00:27:17.722 13895 13895 D InsetsController: show(ime(), fromIme=false)
+09-18 00:27:17.722 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:919b725c: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+09-18 00:27:17.726 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:27:17.726 13895 13895 I AssistStructure: Flattened final assist data: 424 bytes, containing 1 windows, 3 views
+09-18 00:27:18.609 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:4628dc27: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_REQUEST_HIDE_WITH_CONTROL fromUser true
+09-18 00:27:18.611 13895 13895 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@5c7577b
+09-18 00:27:18.611 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:27:18.611 13895 13895 D InsetsController: Setting requestedVisibleTypes to -9 (was -1)
+09-18 00:27:18.628 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.645 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.660 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.677 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.750 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.764 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.801 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.811 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.859 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.920 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.930 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.975 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:18.976 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:27:19.000 13895 13895 D InputConnectionAdaptor: The input method toggled cursor monitoring on
+09-18 00:27:19.028 13895 13895 I ImeTracker: system_server:d6ce3767: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed App frame:JANK_APPLICATION, 236989, 28247655, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 237010, 31032388, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 237018, 39118823, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 237018, 39118823, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 237033, 70526310, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 237033, 70526310, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 237042, 14397608, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 237057, 43258197, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 237057, 43258197, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 237065, 27768830, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed App frame:UNKNOWN: 3, 237080, 55573893, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:UNKNOWN: 3, 237080, 55573893, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 237089, 70796146, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 13895 W FrameTracker: Missed SF frame:JANK_COMPOSER, 237127, 35335610, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.locatemy.infrastructureqa>
+09-18 00:27:19.119 13895 14051 V PerfettoTrigger: Not triggering com.android.telemetry.interaction-jank-monitor-81 - not enough time since last trigger
+09-18 00:27:21.390 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:9725a33a: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+09-18 00:27:21.390 13895 13895 D InsetsController: hide(ime(), fromIme=false)
+09-18 00:27:21.390 13895 13895 I ImeTracker: com.locatemy.infrastructureqa:9725a33a: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+09-18 00:27:21.604 13895 13895 I flutter : {"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-7"}
+09-18 00:27:21.745 13895 13895 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"hidden","duration_bucket":"under100ms","correlation_id":"map-8"}
+09-18 00:27:21.890 13895 13895 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-4"}
+09-18 00:27:21.901 13895 13895 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-9"}
+09-18 00:27:30.722 13895 13902 I nfrastructureqa: Background concurrent mark compact GC freed 4781KB AllocSpace bytes, 21(31MB) LOS objects, 50% free, 14MB/28MB, paused 2.037ms,9.265ms total 35.276ms
+09-18 00:27:53.066 13895 13902 I nfrastructureqa: Background concurrent mark compact GC freed 1482KB AllocSpace bytes, 8(13MB) LOS objects, 49% free, 14MB/28MB, paused 146us,5.045ms total 31.094ms
+09-18 00:27:54.505 13895 13895 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"10sOrMore","correlation_id":"map-10"}
+09-18 00:27:54.505 13895 13895 I flutter : {"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"10sOrMore","correlation_id":"facility-5"}
+09-18 00:28:28.777 13895 13895 I nfrastructureqa: AssetManager2(0x780defa2feb8) locale list changing from [] to [en-US]
+09-18 00:28:28.804 13895 13895 D FlutterJNI: Sending viewport metrics to the engine.
+09-18 00:28:52.195 13895 13895 I flutter : supabase.auth: INFO: Signing out user with scope: local 
+09-18 00:28:52.242 13895 13895 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=io.flutter.embedding.android.FlutterActivity$1@1fa36f0
+09-18 00:28:53.335 13895 13895 I nfrastructureqa: AssetManager2(0x780def998bf8) locale list changing from [] to [en-US]

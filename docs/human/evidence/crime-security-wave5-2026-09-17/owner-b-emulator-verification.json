@@ -1,0 +1,16 @@
+{
+  "base_head": "7ed4d7f319a22c70766b6b04d87c66c7d4cd0ac1",
+  "source_sha256": "9f9aec838c464d62024ebe6fddaaf8343ddba6d2c914dcaa05c181a8efa250ae",
+  "apk_sha256": "7ef376134748f2e17b802d49d9c2aa6f60355d52238b4d4f32fd2afae537cfe0",
+  "secret_scan": "PASS",
+  "device": "owner-b-emulator",
+  "single": "PASS",
+  "filters": "PASS",
+  "offline_cached": "PASS",
+  "retry": "PASS",
+  "map_return": "PASS",
+  "comparison_swap": "PASS",
+  "bilingual": "PASS",
+  "font_200": "PASS",
+  "logout": "PASS"
+}

@@ -1,0 +1,81 @@
+{
+    "link_csv": "https://storage.data.gov.my/publicadmin/alamanak_astronomi.csv",
+    "link_parquet": "https://storage.data.gov.my/publicadmin/alamanak_astronomi.parquet",
+    "link_preview": "https://storage.data.gov.my/publicadmin/alamanak_astronomi.parquet",
+    "title_en": "Astronomy Almanac ",
+    "title_ms": "Almanak Astronomi",
+    "description_en": "This dataset provides information on astronomical phenomena observable from Malaysia, including the phases of the Moon, the Moon's perigee and apogee, Earth's perihelion and aphelion, meteor showers, planetary elongations, the solstices, equinoxes, and other related astronomical events. The data are calculated using Kuala Lumpur as the reference location and Malaysia Time (MYT, UTC+8), based on internationally recognized astronomical sources. This almanac is intended to support astronomical observations, education, and the planning of astronomy-related activities.",
+    "description_ms": "Set data ini menyediakan maklumat fenomena astronomi yang dapat dicerap di Malaysia, termasuk fasa Bulan, perigee dan apogee Bulan, perihelion dan aphelion Bumi, hujan meteor, elongasi planet, solstis, ekuinoks serta fenomena berkaitan. Data dikira berdasarkan lokasi rujukan Kuala Lumpur dan Waktu Piawai Malaysia (MYT, UTC+8) menggunakan sumber astronomi yang diiktiraf. Almanak ini digunakan bagi tujuan pencerapan, pendidikan dan perancangan aktiviti astronomi.",
+    "title_sort": 1,
+    "exclude_openapi": false,
+    "manual_trigger": "",
+    "data_as_of": "2026-04-01 16:11:00.000 +08:00",
+    "frequency": "DAILY",
+    "geography": [
+        "NATIONAL"
+    ],
+    "demography": [],
+    "dataset_begin": "2022",
+    "dataset_end": 2026,
+    "data_source": [
+        "MYSA"
+    ],
+    "methodology_en": "This Astronomical Almanac has been produced by the Malaysian Space Agency (MYSA) through astronomical calculations and simulations using professional software such as TheSkyX and Stellarium to determine the positions of celestial bodies based on the geographical coordinates of Kuala Lumpur. The generated data are subsequently reviewed and validated by comparison with internationally and locally recognized astronomical reference sources to ensure their accuracy and reliability. The Astronomical Almanac serves as an annual reference that provides information on astronomical phenomena to support observation and educational activities, while promoting greater public understanding of astronomical events and space science in Malaysia.",
+    "methodology_ms": "Data Almanak Astronomi ini dihasilkan oleh Agensi Angkasa Malaysia (MYSA) melalui pengiraan dan simulasi astronomi menggunakan perisian profesional seperti TheSkyX dan Stellarium bagi menentukan kedudukan jasad samawi berdasarkan koordinat geografi Kuala Lumpur. Data yang dijana kemudiannya disemak dan disahkan melalui perbandingan dengan sumber rujukan astronomi yang diiktiraf di peringkat antarabangsa dan tempatan bagi memastikan ketepatan serta kebolehpercayaan maklumat. Almanak Astronomi ini berfungsi sebagai rujukan tahunan yang menyediakan maklumat mengenai fenomena astronomi untuk menyokong aktiviti pencerapan dan pendidikan serta meningkatkan pemahaman masyarakat terhadap fenomena angkasa di Malaysia.",
+    "caveat_en": "The information presented in this Astronomical Almanac is provided as a reference based on astronomical calculations and computer simulations. The timing and visibility of astronomical phenomena are based on the specified reference location and may vary depending on the observer's geographical location, particularly between Peninsular Malaysia, Sabah, and Sarawak. These geographical differences may affect the rise and set times of celestial bodies, their apparent positions in the sky, and the duration for which the phenomena remain observable. In addition, the actual visibility of astronomical phenomena is influenced by atmospheric conditions and environmental factors such as weather, cloud cover, haze, atmospheric transparency, and the level of light pollution. These factors may reduce visibility or prevent observations altogether, even when the phenomena occur as predicted.",
+    "caveat_ms": "Maklumat dalam Almanak Astronomi ini disediakan sebagai rujukan berdasarkan pengiraan astronomi dan simulasi komputer. Waktu serta kenampakan sesuatu fenomena astronomi adalah berdasarkan lokasi rujukan yang dinyatakan dan mungkin berbeza mengikut kedudukan geografi, khususnya antara Semenanjung Malaysia, Sabah dan Sarawak. Perbezaan ini boleh mempengaruhi waktu terbit atau terbenam objek samawi, kedudukannya di langit serta tempoh fenomena dapat dicerap. Selain itu, kenampakan sebenar fenomena astronomi turut dipengaruhi oleh keadaan atmosfera dan faktor persekitaran seperti cuaca, litupan awan, jerebu, ketelusan atmosfera serta tahap pencemaran cahaya, yang boleh menjejaskan atau menghalang pencerapan walaupun fenomena tersebut berlaku seperti yang diramalkan.",
+    "publication_en": "N/A",
+    "publication_ms": "N/A",
+    "related_datasets": [],
+    "last_updated": "2026-04-23 16:10:38.307 +08:00",
+    "next_update": "-",
+    "fields": [
+        {
+            "name": "timestamp",
+            "title_en": "DateTime",
+            "title_ms": "Tarikh/Masa",
+            "description_en": "The date and exact time (Local Malaysian Time) of the event. ",
+            "description_ms": "Tarikh dan masa tepat kejadian (Waktu Tempatan Malaysia)."
+        },
+        {
+            "name": "fenomena",
+            "title_en": "String",
+            "title_ms": "Teks (String)",
+            "description_en": "The name/category of the astronomical event.",
+            "description_ms": "Nama atau kategori peristiwa astronomi."
+        },
+        {
+            "name": "penerangan\r",
+            "title_en": "String",
+            "title_ms": "Teks (String)",
+            "description_en": "A textual description of the event, including observation tips or scientific significance.",
+            "description_ms": "Penerangan terperinci dan nota pemerhatian bagi peristiwa tersebut."
+        }
+    ],
+    "translations_en": {},
+    "translations_ms": {},
+    "site_category": [
+        {
+            "site": "datagovmy",
+            "category_en": "Data Dictionaries",
+            "category_ms": "Kamus Data",
+            "category_sort": 110,
+            "subcategory_en": "Other",
+            "subcategory_ms": "Lain-lain",
+            "subcategory_sort": 10000
+        }
+    ],
+    "dataviz": [
+        {
+            "dataviz_id": "table",
+            "title_en": "Table",
+            "title_ms": "Jadual",
+            "chart_type": "TABLE",
+            "config": {
+                "precision": 0,
+                "filter_columns": [],
+                "freeze_columns": []
+            }
+        }
+    ]
+}

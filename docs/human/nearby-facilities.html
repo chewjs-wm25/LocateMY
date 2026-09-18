@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Nearby Facilities 开发契约</title><style>body{max-width:1050px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#172033}h1,h2,h3{line-height:1.3}table{border-collapse:collapse;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;text-align:left;vertical-align:top}pre{background:#f6f8fb;padding:16px;overflow:auto}code{font-size:.9em}a{color:#155eef}@media(max-width:600px){body{margin:16px auto;padding:0 12px}}</style></head><body><p><a href="../design/features/nearby-facilities.md">权威 Markdown 契约</a></p><h1 id="nearby-facilities-开发契约">Nearby Facilities 开发契约</h1>
+<blockquote>
+<p>Owner：A；依赖顺序参考 Wave 5；2026-09-17 Issue #31 修订。
+状态：实现重构完成，本轮证据与未交付边界见执行检查。</p>
+</blockquote>
+<p>本契约按 <a href="https://github.com/chewjs-wm25/LocateMY/issues/31">Issue #31</a> 与
+<a href="../adr/0017-minimal-account-and-online-user-records.md">ADR 0017</a> 修订。
+产品事实和公式以知识库为准；字段、权限和 migration 只在
+<a href="../design/data/schema-catalog.md">Schema Catalog</a> 定义。普通页面传参与具名服务替代通用导航／贡献框架。</p>
+<p>产品事实源：<a href="../knowledge_base/locatemy_product/features/nearby_facilities.md">nearby_facilities</a>。</p>
+<h2 id="本轮分析页面精简2026-09-17">本轮分析页面精简（2026-09-17）</h2>
+<p>界面按 <a href="../knowledge_base/locatemy_product/ui_design_spec.md#分析页面精简边界2026-09-17">UI 精简边界</a> 调整；该节取代本契约中冲突的来源／时间／较旧提示展示要求。
+指标、公式、输入、缓存时效和服务可用性不变。保留内部来源与日期用于取数／校验，取消用户页面技术明细，保留简短错误与重试。
+验收沿用页面和公开服务边界，核对单点与 A/B 均无技术元数据／重复提示，并回归现有缓存、公式、失败恢复与账户行为。Issue #31 同步调整已有代码与接线；实际验收结果见执行检查。</p>
+<h2 id="成果与接口">成果与接口</h2>
+<p>保留固定 2 km、五类设施、每类数量、最近 3 项及直线距离与必要可用性状态；查询／缓存日期仅用于内部，OSM 署名保留。
+<a href="../knowledge_base/locatemy_product/nearby_facilities_scoring.md">覆盖模型</a> 固定标签优先级与缓存规则。
+完整查询的有效零与未知区分；未知不能计未覆盖，不生成 0–100 综合分。
+A/B 分别读取相同半径／映射版，部分或缺失明确不可比较。
+唯一入口 <code>lib/features/nearby_facilities/nearby_facilities.dart</code>；具名 <code>NearbyFacilities.analyse/compare</code>
+返回原有可用性结果，公共服务不消费 scopeToken 或任何账号清理接口。
+页面直接持有结果，不 publish contribution；地图专属 <code>contributeLayer</code> 仍发布分类 marker，
+其余业务不使用 Shell／槽位。条目无详情、路线或误导性点击箭头。</p>
+<h2 id="验收">验收</h2>
+<p>A 本模块：圆形范围、标签分类／去重、最近项顺序、24h 公共 SQLite 缓存、来源不明缓存失效、
+主动刷新失败、未来时间拒绝、A/B 口径和未知类别。
+A 与地图联验：完整快照、旧视口拒绝、分类／混合聚合，退出只结束页面而不删公共缓存；最迟 Wave 5。
+复用 <code>test/features/nearby_facilities/</code> 与设施 live smoke。</p>
+<h2 id="生命周期与验收责任">生命周期与验收责任</h2>
+<p>页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
+Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保存，网络失败显示未保存并允许用户重试；
+不建立自动同步、清理屏障或离线队列。公共分析内部保留真实来源、日期与可用性，不以零替代缺失；呈现按本轮 UI 精简边界。</p>
+<p>主要验收 seam 为应用页面入口；使用可见内容、动作、导航与保存／读取结果断言。
+复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
+本次重构的统一证据见 <a href="../design/system/issue-31-validation.md">Issue #31 执行检查</a>；
+设备、真实外部服务证据缺失时不得宣称新版本 <code>Implemented</code> 或 <code>Integrated</code>。</p></body></html>

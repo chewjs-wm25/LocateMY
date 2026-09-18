@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-18",
+  "base_head": "75682874e299b25e9a4d9c783ce8c2d2e1e646ac",
+  "source_sha256": "295da285f3f30df6c9ac11521b04d541cec3595acc860210d0df197b2cce9b4a",
+  "apk_sha256": "1104554dbfe9d460a2d3bb9b87f3472c650080fdde7ac3bfda7602271650edd7",
+  "apk_secret_scan": "PASS",
+  "penpot_boards": {
+    "form": "f8bc3597-5a95-809e-8008-a3fb0b76111d",
+    "detail": "f8bc3597-5a95-809e-8008-a3fb0e635e4b",
+    "comparison": "f8bc3597-5a95-809e-8008-a3fb11dc0adb"
+  },
+  "checks": {
+    "flutter_analyze": "PASS",
+    "property_tests": 31,
+    "all_tests": 344,
+    "live_tests_skipped": 14,
+    "debug_apk": "PASS",
+    "widget_layouts": "form/detail/comparison × en/zh × 390dp normal/320dp 200%",
+    "widget_test_data": "in-memory fixtures, not live acceptance",
+    "production_device": "PASS: final APK detail/edit/new/comparison navigation; Chinese normal and 200% captures; original font scale restored"
+  }
+}

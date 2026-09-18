@@ -1,0 +1,18 @@
+09-16 22:21:27.745  4008  4008 I flutter : PRIVACY_DEVICE: START: real AUTH-001; seven TEST FAKE owners; no private pages
+09-16 22:21:27.750  4008  4008 I flutter : PRIVACY_DEVICE: PASS: restart blocks opening
+09-16 22:21:27.755  4008  4008 I flutter : PRIVACY_DEVICE: PASS: restart recovers old barrier with all proofs
+09-16 22:21:28.970  4008  4008 I flutter : PRIVACY_DEVICE: PASS: real A identity opens scope
+09-16 22:21:29.173  4008  4008 I flutter : PRIVACY_DEVICE: PASS: same account open is idempotent
+09-16 22:21:29.179  4008  4008 I flutter : PRIVACY_DEVICE: PASS: ordinary rebuild requires fresh Auth before private access
+09-16 22:21:29.368  4008  4008 I flutter : PRIVACY_DEVICE: PASS: ordinary same-account rebuild preserves open scope without cleanup
+09-16 22:21:29.495  4008  4008 I flutter : PRIVACY_DEVICE: PASS: active session cannot provide exit proof
+09-16 22:21:29.573  4008  4008 I flutter : PRIVACY_DEVICE: PASS: real current device signOut
+09-16 22:21:29.574  4008  4008 I flutter : PRIVACY_DEVICE: PASS: real Auth participant exit proof
+09-16 22:21:29.574  4008  4008 I flutter : PRIVACY_DEVICE: PASS: close immediately blocks private access
+09-16 22:21:29.575  4008  4008 I flutter : PRIVACY_DEVICE: PASS: exact owner cleanup failure
+09-16 22:21:30.018  4008  4008 I flutter : PRIVACY_DEVICE: PASS: B blocked while A cleanup incomplete
+09-16 22:21:30.184  4008  4008 I flutter : PRIVACY_DEVICE: PASS: B test session ends before recovery
+09-16 22:21:30.184  4008  4008 I flutter : PRIVACY_DEVICE: PASS: same old scope retry completes
+09-16 22:21:30.786  4008  4008 I flutter : PRIVACY_DEVICE: PASS: real B gets new scope after A closes
+09-16 22:21:30.904  4008  4008 I flutter : PRIVACY_DEVICE: PASS: B closes
+09-16 22:21:30.904  4008  4008 I flutter : PRIVACY_DEVICE: ALL PASS

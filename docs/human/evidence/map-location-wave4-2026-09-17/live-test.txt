@@ -1,0 +1,28 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/map_location_live_test.dart
+00:00 +0: real DOSM boundary, durable favorites, two clients, tombstone and RLS
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-1"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-2"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.select.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.select.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-10"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-11"}
+{"event":"map.save.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-12"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-13"}
+{"event":"map.delete.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-14"}
+{"event":"map.delete.completed","feature":"map_location","result":"conflict","duration_bucket":"under1s","correlation_id":"map-15"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-16"}
+{"event":"map.delete.completed","feature":"map_location","result":"notFound","duration_bucket":"under100ms","correlation_id":"map-17"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-18"}
+{"event":"map.save.completed","feature":"map_location","result":"queued","duration_bucket":"under100ms","correlation_id":"map-19"}
+{"event":"map.cache.completed","feature":"map_location","result":"cached","duration_bucket":"under100ms","correlation_id":"map-20"}
+{"event":"map.sync.completed","feature":"map_location","result":"retryableUnavailable","duration_bucket":"under100ms","correlation_id":"map-21"}
+{"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-22"}
+{"event":"map.delete.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-23"}
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-24"}
+{"event":"map.sync.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-25"}
+00:04 +1: All tests passed!

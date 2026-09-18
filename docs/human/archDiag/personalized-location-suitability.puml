@@ -1,0 +1,35 @@
+@startuml
+!include theme.puml
+title Personalized Location Suitability - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Suitability score, explanation\nand prerequisite-missing views] as view
+}
+package "Application" <<application>> {
+  [Suitability ViewModel] as vm
+  [Evaluate location suitability] as uc
+  [SUITABILITY-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Five-dimension gate, preference weighting,\nmissing-dimension renormalisation and A/B eligibility] as domain
+}
+package "Data / Integration" <<data>> {
+  [Input snapshot assembler] as assembler
+  [No independent persistence\n(read-only derived result)] as cache
+}
+rectangle "LOCATION-001" as location
+rectangle "ACCOUNT-001 + COST-001/002" as account
+rectangle "SAFETY-001 + FACILITY-001\nTRANSIT-001 + INFRA-001" as metrics
+rectangle "SHELL-001\ncomposition slot" as shell
+view --> vm
+vm --> uc
+uc --> domain
+location --> uc
+account --> uc
+metrics --> uc
+uc --> assembler
+assembler --> cache
+uc --> api
+api --> shell : typed contribution
+note right of domain : Does not recompute source analyses\nor persist preferences, budgets or ICI weights
+@enduml

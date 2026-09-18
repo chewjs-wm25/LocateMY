@@ -1,0 +1,12 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart
+00:00 +0: Shell keeps chosen language after refused save from zh and retries persistence
+00:00 +1: Shell keeps chosen language after refused save from en and retries persistence
+00:01 +2: Shell keeps chosen language after throwing save from zh and retries persistence
+00:01 +3: Shell keeps chosen language after throwing save from en and retries persistence
+00:01 +4: opened Shell has two stateful tabs and a returning account task
+00:01 +5: session invalidation removes private task dialogs and keeps language
+00:01 +6: task receives original ordered input and presents provider contribution
+00:01 +7: small screen 200% text and recovery remain accessible (zh)
+00:02 +8: small screen 200% text and recovery remain accessible (en)
+00:02 +9: Auth rejection after scope closes reports the real sign-out failure
+00:02 +10: All tests passed!

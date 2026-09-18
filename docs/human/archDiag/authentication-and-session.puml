@@ -1,0 +1,31 @@
+@startuml
+!include theme.puml
+title Authentication & Session - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Authentication forms\nand session status] as view
+}
+package "Application" <<application>> {
+  [Session ViewModel] as vm
+  [Authentication use cases] as uc
+  [AUTH-001\npublic session Interface] as api
+}
+package "Domain" <<domain>> {
+  [Credentials, account reference,\nconfirmation and typed outcomes] as domain
+}
+package "Data / Integration" <<data>> {
+  [Supabase Auth Adapter\n(AUTH-002)] as adapter
+  [Profile Adapter] as profile
+}
+cloud "Supabase Auth" as auth
+database "profiles" as profiles
+view --> vm
+vm --> uc
+uc --> domain
+uc --> api
+uc --> adapter
+uc --> profile
+adapter --> auth
+profile --> profiles
+note right of api : Consumed by Shell, Privacy\nand Account Center
+@enduml

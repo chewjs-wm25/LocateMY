@@ -1,0 +1,52 @@
+{
+  "file": "LocateMY Mobile UI",
+  "file_id": "c514c1fb-1cda-8125-8008-a3defa4eaaf3",
+  "page_id": "c514c1fb-1cda-8125-8008-a3defa4eaaf4",
+  "board_id": "f8bc3597-5a95-809e-8008-a3e627fc0313",
+  "board": "02 \u00b7 \u9996\u9875",
+  "size": [
+    390,
+    844
+  ],
+  "palette": {
+    "primary": "#155EEF",
+    "canvas": "#F6F8FB",
+    "ink": "#172033",
+    "muted": "#667085",
+    "border": "#D9E0EA",
+    "hero": "#0B1F44",
+    "heroLabel": "#AFCBFF",
+    "heroUnit": "#C8D7F2",
+    "heroSuccess": "#68D5AE"
+  },
+  "radius": {
+    "hero": 20,
+    "metric": 14,
+    "explore": 12
+  },
+  "spacing": {
+    "page": 16,
+    "metricGap": 16,
+    "heroPadding": 18
+  },
+  "typography": {
+    "family": "SourceSansPro",
+    "brand": 22,
+    "greeting": 20,
+    "heroScore": 52,
+    "heroLabel": 13,
+    "heroStatus": 16,
+    "metricLabel": 13,
+    "metricValue": 22,
+    "section": 18
+  },
+  "order": [
+    "brand/actions",
+    "greeting",
+    "relocation outlook",
+    "explore map",
+    "macro indicators"
+  ],
+  "reference_image_sha256": "4c3e076d8a53a88af921bcbdec77c7ddf8602ff5a38fe38d2b7d20860bf07a03",
+  "adaptation": "Real index values and independent source dates; income/trends retained; single-column large text; no sample metrics or unimplemented saved-place capability added"
+}

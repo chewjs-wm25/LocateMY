@@ -1,0 +1,15 @@
+{
+  "base_head": "29eec8d61a42fd85c809014b4fb8b3b66e2d9a69",
+  "facility_source_sha256": "d68db036d5aa3c493ac2280088c6814e6d8ee80c45a2508f99979a5c64a67f4a",
+  "flutter": "3.47.2",
+  "dart": "3.13.2",
+  "emulator_sdk": 36,
+  "physical_sdk": 34,
+  "checks": {
+    "format": "PASS",
+    "analyze": "PASS",
+    "full-tests": "263 PASS, 11 live opt-in skips",
+    "nearby-tests": "30 PASS",
+    "live": "PASS"
+  }
+}

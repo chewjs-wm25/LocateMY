@@ -1,0 +1,76 @@
+--------- beginning of main
+09-17 13:52:49.653  6939  6939 I temy.facilityqa: Late-enabling -Xcheck:jni
+09-17 13:52:49.849  6939  6939 I temy.facilityqa: Using CollectorTypeCMC GC.
+09-17 13:52:49.854  6939  6939 W temy.facilityqa: Unexpected CPU variant for x86: x86_64.
+09-17 13:52:49.854  6939  6939 W temy.facilityqa: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+09-17 13:52:49.958  6939  6939 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+09-17 13:52:50.166  6939  6939 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+09-17 13:52:50.166  6939  6939 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+09-17 13:52:50.507  6939  6939 D nativeloader: Configuring clns-9 for other apk /data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/lib/x86_64:/data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.locatemy.facilityqa
+09-17 13:52:50.539  6939  6939 I temy.facilityqa: AssetManager2(0x7697eb2352f8) locale list changing from [] to [en-US]
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment: Currently set values for:
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment: com.locatemy.facilityqa is not listed in per-application setting
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment: ANGLE allowlist from config: com.dreamgames.royalmatch com.dts.freefiremax com.dxx.firenow com.gramgames.mergedragons com.ludo.king com.mojang.minecraftpe com.my.defense com.nintendo.zaka com.os.airforce com.playrix.fishdomdd.gplay io.teslatech.callbreak jp.konami.prospia net.peakgames.toonblast
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment: com.locatemy.facilityqa is not listed in ANGLE allowlist or settings, returning default
+09-17 13:52:50.564  6939  6939 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+--------- beginning of system
+09-17 13:52:50.611  6939  6975 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+09-17 13:52:50.612  6939  6939 I temy.facilityqa: AssetManager2(0x7697eb235f78) locale list changing from [] to [en-US]
+09-17 13:52:50.632  6939  6939 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
+09-17 13:52:50.662  6939  6977 D FlutterJNI: Beginning load of flutter...
+09-17 13:52:50.663  6939  6978 I ResourceExtractor: Resource version mismatch res_timestamp-1-1789624367540
+09-17 13:52:50.679  6939  6975 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+09-17 13:52:50.679  6939  6975 I EGL_emulation: Opening libGLESv2_emulation.so
+09-17 13:52:50.738  6939  6975 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+09-17 13:52:50.755  6939  6977 D nativeloader: Load /data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/base.apk!/lib/x86_64/libflutter.so using class loader ns clns-9 (caller=/data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/base.apk): ok
+09-17 13:52:50.757  6939  6977 D FlutterJNI: flutter (null) was loaded normally!
+09-17 13:52:50.786  6939  6979 D skia    : [SkFontMgr Android Parser] '/product/etc/fonts_customization.xml' could not be opened
+09-17 13:52:51.256  6939  6978 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/kernel_blob.bin
+09-17 13:52:51.256  6939  6978 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/vm_snapshot_data
+09-17 13:52:51.339  6939  6978 I ResourceExtractor: Extracted baseline resource assets/flutter_assets/isolate_snapshot_data
+09-17 13:52:51.379  6939  6939 I temy.facilityqa: AssetManager2(0x7697eb23bd38) locale list changing from [] to [en-US]
+09-17 13:52:51.380  6939  6939 W temy.facilityqa: type=1400 audit(0.0:65): avc:  denied  { read } for  name="max_map_count" dev="proc" ino=44208 scontext=u:r:untrusted_app:s0:c218,c256,c512,c768 tcontext=u:object_r:proc_max_map_count:s0 tclass=file permissive=0 app=com.locatemy.facilityqa
+09-17 13:52:51.405  6939  6939 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+09-17 13:52:51.454  6939  6980 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+09-17 13:52:51.620  6939  6986 I flutter : The Dart VM service is listening on http://127.0.0.1:39999/FD1kpQRZcwk=/
+09-17 13:52:52.194  6939  6939 D nativeloader: Load /data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/base.apk!/lib/x86_64/libdartjni.so using class loader ns clns-9 (caller=/data/app/~~T72d1l3R0Vw0kZe6qAVjIQ==/com.locatemy.facilityqa-daEU9HBgMDmC4WpPVL749Q==/base.apk!classes4.dex): ok
+09-17 13:52:52.229  6939  6939 I temy.facilityqa: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityNodeInfo;->getSourceNodeId()J (runtime_flags=0, domain=platform, api=unsupported,test-api) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-17 13:52:52.229  6939  6939 I temy.facilityqa: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityRecord;->getSourceNodeId()J (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-17 13:52:52.229  6939  6939 I temy.facilityqa: hiddenapi: Accessing hidden field Landroid/view/accessibility/AccessibilityNodeInfo;->mChildNodeIds:Landroid/util/LongArray; (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-17 13:52:52.229  6939  6939 I temy.facilityqa: hiddenapi: Accessing hidden method Landroid/util/LongArray;->get(I)J (runtime_flags=0, domain=platform, api=unsupported) from Lio/flutter/view/AccessibilityViewEmbedder$ReflectionAccessors; (domain=app) using reflection: allowed
+09-17 13:52:52.231  6939  6939 D AccessibilityBridge: Setting not found: accessibility_display_inversion_enabled, using default: 0
+09-17 13:52:52.240  6939  6939 D FlutterRenderer: Width is zero. 0,0
+09-17 13:52:52.246  6939  6939 D CompatChangeReporter: Compat change id reported: 377864165; UID 10218; state: ENABLED
+09-17 13:52:52.271  6939  6939 W HWUI    : Unknown dataspace 0
+09-17 13:52:52.589  6939  6939 I WindowExtensionsImpl: Initializing Window Extensions, vendor API level=9, activity embedding enabled=true
+09-17 13:52:52.599  6939  6951 I temy.facilityqa: Compiler allocated 5042KB to compile void android.view.ViewRootImpl.performTraversals()
+09-17 13:52:52.611  6939  6939 D FlutterRenderer: Width is zero. 0,0
+09-17 13:52:52.620  6939  6939 D FlutterJNI: Sending viewport metrics to the engine.
+09-17 13:52:52.936  6939  6939 D WindowLayoutComponentImpl: Register WindowLayoutInfoListener on Context=com.locatemy.app.MainActivity@2228f13, of which baseContext=android.app.ContextImpl@417067c
+09-17 13:52:52.938  6939  6939 D FlutterJNI: Sending viewport metrics to the engine.
+09-17 13:52:54.212  6939  6939 I flutter : {"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under1s","correlation_id":"map-1"}
+09-17 13:52:54.222  6939  6939 I flutter : FACILITY_DEVICE: READY
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡 [1m[3mflutter_map[0m[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡 flutter_map wants to help keep map data available for everyone.[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡 We use the OpenStreetMap public tile servers in our code examples & demo app,[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡 but they are NOT free to use by everyone. Please review whether OSM's tile[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡 servers are appropriate and the best choice for your app.[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡 See:[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡  * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m│ 💡  * https://docs.fleaflet.dev/osm-warn for more information about this warning[0m
+09-17 13:52:55.311  6939  6939 I flutter : [38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+09-17 13:52:55.563  6939  6939 I Choreographer: Skipped 79 frames!  The application may be doing too much work on its main thread.
+09-17 13:52:55.961  6939  6939 I temy.facilityqa: AssetManager2(0x7697eb26a4f8) locale list changing from [] to [en-US]
+09-17 13:52:55.984  6939  6939 D FlutterJNI: Sending viewport metrics to the engine.
+09-17 13:52:56.053  6939  7147 D ProfileInstaller: Installing profile for com.locatemy.facilityqa
+09-17 13:52:56.315  6939  6939 D InsetsController: hide(ime(), fromIme=false)
+09-17 13:52:56.316  6939  6939 I ImeTracker: com.locatemy.facilityqa:7440a5dd: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+09-17 13:52:56.421  6939  6939 I flutter : {"event":"map.sync.completed","feature":"map_location","result":"success","duration_bucket":"under10s","correlation_id":"map-2"}
+09-17 13:53:09.615  6939  6939 I flutter : PRIVACY_DEVICE: HTTP_FAILURE 504 redacted
+09-17 13:53:09.619  6939  6939 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under10s","correlation_id":"facility-1"}
+09-17 13:53:13.888  6939  6939 I flutter : {"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"10sOrMore","correlation_id":"facility-2"}
+09-17 13:53:47.649  6939  6939 I flutter : {"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"10sOrMore","correlation_id":"map-3"}
+09-17 13:53:47.649  6939  6939 I flutter : {"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"10sOrMore","correlation_id":"facility-3"}

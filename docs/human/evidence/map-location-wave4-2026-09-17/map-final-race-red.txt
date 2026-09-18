@@ -1,0 +1,43 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: late contribution during closing returns scope unavailable
+{"event":"map.privacy.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under100ms","correlation_id":"map-2"}
+00:00 +0 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: late contribution during closing returns scope unavailable [E]
+  Expected: MapLayerFailure:<MapLayerFailure.scopeUnavailable>
+    Actual: MapLayerFailure:<MapLayerFailure.staleViewport>
+  
+  package:matcher                                      expect
+  package:flutter_test/src/widget_tester.dart 473:18   expect
+  test/features/map_location/map_layer_test.dart 17:5  main.<fn>
+  
+00:00 +0 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: closing rejects long press as scope unavailable
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-3"}
+00:00 +1 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: boundary outage returns typed failures without mutating roles
+{"event":"map.select.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"map.longpress.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.layer.completed","feature":"map_location","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"map-6"}
+00:00 +2 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: visible/hidden contributions and long press preserve selection roles
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under100ms","correlation_id":"map-8"}
+{"event":"map.longpress.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-9"}
+{"event":"map.longpress.completed","feature":"map_location","result":"outsideMalaysia","duration_bucket":"under100ms","correlation_id":"map-10"}
+00:00 +3 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary http becomes typed unavailable and recovers
+00:00 +4 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary timeout becomes typed unavailable and recovers
+00:00 +5 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary metadata becomes typed unavailable and recovers
+00:00 +6 -1: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary emptyVersion becomes typed unavailable and recovers
+00:00 +6 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary emptyVersion becomes typed unavailable and recovers [E]
+  Expected: throws SavedLocationFailure:<SavedLocationFailure.retryableUnavailable>
+    Actual: <Instance of 'Future<bool>'>
+     Which: emitted <true>
+  
+  package:matcher                                              expectLater
+  package:flutter_test/src/widget_tester.dart 507:8            expectLater
+  test/features/map_location/location_adapter_test.dart 40:13  main.<fn>
+  
+00:00 +6 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: Geoapify HTTP and malformed responses recover on retry
+00:00 +7 -2: /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: Geoapify requests Malaysia candidates and preserves coordinates
+00:00 +8 -2: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/map_location/location_adapter_test.dart: boundary emptyVersion becomes typed unavailable and recovers
+  /home/AC79/Desktop/LocateMY/test/features/map_location/map_layer_test.dart: late contribution during closing returns scope unavailable

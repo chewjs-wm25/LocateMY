@@ -1,0 +1,71 @@
+[
+  {
+    "dataset": "cpi_headline_inflation",
+    "url": "https://storage.dosm.gov.my/cpi/cpi_2d_inflation.csv",
+    "sha256": "37fb8acbf2edd6d952fd12f7c9cc224f9bf685c19da4e13c6527d340a0e319ea",
+    "rows": 7812,
+    "max_date": "2026-07-01",
+    "columns": [
+      "date",
+      "division",
+      "inflation_yoy",
+      "inflation_mom"
+    ],
+    "business_key": [
+      "date",
+      "division"
+    ]
+  },
+  {
+    "dataset": "lfs_month_sa",
+    "url": "https://storage.dosm.gov.my/labour/lfs_month_sa.csv",
+    "sha256": "f30433bab9b9c92dcc23e29fb341e5f94cf4b914f59dd5009aa84ad89e96e6c4",
+    "rows": 198,
+    "max_date": "2026-06-01",
+    "columns": [
+      "date",
+      "lf",
+      "lf_employed",
+      "lf_unemployed",
+      "p_rate",
+      "u_rate"
+    ],
+    "business_key": [
+      "date"
+    ]
+  },
+  {
+    "dataset": "economic_indicators",
+    "url": "https://storage.dosm.gov.my/mei/mei.csv",
+    "sha256": "15b91fabd6b3bbe58086d0bd6f56d92a3c34a0b1e1ff0a78f040e3e1a71e6009",
+    "rows": 426,
+    "max_date": "2026-06-01",
+    "columns": [
+      "date",
+      "leading",
+      "coincident",
+      "lagging",
+      "leading_diffusion",
+      "coincident_diffusion"
+    ],
+    "business_key": [
+      "date"
+    ]
+  },
+  {
+    "dataset": "gdp_qtr_real_sa",
+    "url": "https://storage.dosm.gov.my/gdp/gdp_qtr_real_sa.csv",
+    "sha256": "b12e8777e737584d37b9e11c3bd2460ab0c38b8f8751ac412668ccab2ac61b57",
+    "rows": 46,
+    "max_date": "2026-04-01",
+    "columns": [
+      "series",
+      "date",
+      "value"
+    ],
+    "business_key": [
+      "series",
+      "date"
+    ]
+  }
+]

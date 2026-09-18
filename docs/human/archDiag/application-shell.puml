@@ -1,0 +1,34 @@
+@startuml
+!include theme.puml
+title Application Shell - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Authentication gate\nTabs and navigation host] as view
+}
+package "Application" <<application>> {
+  [Shell ViewModel] as vm
+  [Navigation and workflow coordinator] as uc
+  [SHELL-001\npublic Interface] as api
+}
+package "Domain" <<domain>> {
+  [Gate, intent, contribution,\nrequest-version and locale rules] as domain
+}
+package "Data / Integration" <<data>> {
+  [Locale preference Adapter] as locale
+  [Composition root] as root
+}
+rectangle "AUTH-001" as auth
+rectangle "PRIVACY-001" as privacy
+rectangle "Feature public Interfaces" as features
+view --> vm
+vm --> uc
+uc --> domain
+uc --> api
+auth --> uc
+privacy --> uc
+features --> uc : typed intents / contributions
+root --> vm
+root --> locale
+locale --> domain
+note right of api : The Shell coordinates;\nit does not own feature data or calculations
+@enduml

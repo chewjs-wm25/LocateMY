@@ -1,0 +1,1 @@
+adb reverse to host CONNECT tunnel, Supabase host only; end-to-end TLS; no interception; device Dart/SDK and file storage remain real. Direct phone route returned ClientSocketException.

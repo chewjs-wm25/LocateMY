@@ -1,0 +1,20 @@
+{
+  "base_head": "66f4ffc1e9392a1cdf9e01b054cbd81b713e82b9",
+  "source_sha256": "931fc6856e6301ea59975c2ca7ceee2ecf918c559d54f909ca8a8d449424ac1a",
+  "exit_code": 0,
+  "physical_device": "PASS",
+  "emulator": "PASS",
+  "stages": [
+    "bilingual full home",
+    "literal pull refresh and cooldown",
+    "offline stale",
+    "stale process restart",
+    "online recovery",
+    "fieldless explore and return",
+    "scope close rejects old intent"
+  ],
+  "production_apk_restored": true,
+  "disposable_fixture_cleanup": "runner exited 0 after finally cleanup",
+  "app_build_and_device_source_match": true,
+  "schema_and_tool_revision_unchanged": true
+}

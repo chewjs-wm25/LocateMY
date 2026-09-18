@@ -1,0 +1,4 @@
+PASS: device-build; no high privilege key or local login credentials in APK
+owner-a-device PASS: form, votes, status, confirmation, offline, restart, map and close
+owner-b-emulator PASS: form, votes, status, confirmation, offline, restart, map and close
+Removing isolated QA APK and cleaning disposable fixtures

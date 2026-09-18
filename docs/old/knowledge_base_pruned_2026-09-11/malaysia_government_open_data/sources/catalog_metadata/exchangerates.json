@@ -1,0 +1,159 @@
+{
+    "title_en": "Monthly Exchange Rates",
+    "title_ms": "Kadar Pertukaran Wang Asing Bulanan",
+    "title_sort": 5,
+    "description_en": "Monthly rates of exchange of the Malaysian ringgit vis-à-vis selected currencies.",
+    "description_ms": "Kadar pertukaran ringgit Malaysia berbanding mata wang asing terpilih.",
+    "exclude_openapi": false,
+    "manual_trigger": "",
+    "data_as_of": "2026-08-31 12:00",
+    "last_updated": "2026-09-10 05:27",
+    "next_update": "2026-10-01 02:30",
+    "methodology_en": "The Malaysian ringgit (MYR) is a non-internationalised currency, meaning it can only be traded and settled within Malaysia under the regulation of Bank Negara Malaysia (BNM). To combat speculation, offshore trading of the ringgit is not permitted, and any foreign market activity — such as non-deliverable forwards (NDFs) — is purely indicative and settled in foreign currencies rather than MYR.\n\nConsequently, BNM has full oversight over trading over the ringgit, and compiles official exchange rate data based on buy and sell quotations at set times on all trading days:\n- 0900: Reference rate for start of day\n- 1130: Best counter rates offered by selected commercial banks\n- 1200: Reference rate for mid-day\n- 1700: Reference rate for end of day\n\nThis monthly dataset, which is provided for analytical purposes, is derived using middle rates at 1200.",
+    "methodology_ms": "Ringgit Malaysia (MYR) adalah mata wang bukan antarabangsa. Ini bermaksud ia hanya boleh diperdagangkan di Malaysia di bawah pengawalseliaan Bank Negara Malaysia (BNM). Untuk membanteras spekulasi, perdagangan ringgit secara _offshore_ tidak dibenarkan, maka segala aktiviti perdagangan di pasaran asing — seperti _non-deliverable forwards (NDFs)_ — hanya bersifat indikatif dan diselesaikan dalam mata wang asing, bukan MYR.\n\nAkibatnya, BNM mempunyai pengawasan menyeluruh terhadap perdagangan ringgit, dan menerbitkan data kadar pertukaran rasmi berdasarkan harga beli dan jual pada masa tertentu pada semua hari perdagangan:\n- 0900: Kadar rujukan untuk permulaan hari\n- 1130: Kadar terbaik yang ditawarkan oleh bank komersial yang dipilih\n- 1200: Kadar rujukan untuk pertengahan hari\n- 1700: Kadar rujukan untuk akhir hari\n\nSet data bulanan ini, yang disediakan untuk tujuan analisis, dihasilkan berdasarkan kadar pertengahan (_middle rate_) pada 1200.",
+    "caveat_en": "N/A",
+    "caveat_ms": "N/A",
+    "publication_en": "N/A",
+    "publication_ms": "N/A",
+    "link_parquet": "https://storage.data.gov.my/finsector/exr/monthly.parquet",
+    "link_csv": "https://storage.data.gov.my/finsector/exr/monthly.csv",
+    "frequency": "MONTHLY",
+    "geography": [
+        "NATIONAL"
+    ],
+    "demography": [],
+    "dataset_begin": 1997,
+    "dataset_end": 2026,
+    "data_source": [
+        "BNM"
+    ],
+    "site_category": [
+        {
+            "site": "datagovmy",
+            "category_en": "Financial Markets",
+            "category_ms": "Pasaran Kewangan",
+            "category_sort": 60,
+            "subcategory_en": "Foreign Exchange",
+            "subcategory_ms": "Pertukaran Asing (FX)",
+            "subcategory_sort": 30
+        }
+    ],
+    "fields": [
+        {
+            "name": "date",
+            "title_en": "Date",
+            "title_ms": "Tarikh",
+            "description_en": "[Date] The date in YYYY-MM-DD format, with DD set to 01 to indicate monthly-frequency data",
+            "description_ms": "[Tarikh] Tarikh dalam format YYYY-MM-DD, dengan DD ditetapkan sebagai 01 kerana data berfrekuensi bulanan"
+        },
+        {
+            "name": "indicator",
+            "title_en": "Indicator",
+            "title_ms": "Indikator",
+            "description_en": "[String] The specific computation applied. There are 5 provided in the dataset, namely the highest rate in the month ('high'), lowest rate in the month ('low'), the average across trading days in the month ('avg'), the rate on the first trading day of the month ('start'), and the rate on the last trading day of the month ('end').",
+            "description_ms": "[Rentetan] Kaedah pengiraan yang digunakan. Terdapat 5 jenis yang dibekalkan dalam set data, iaitu kadar tertinggi dalam bulan ('high'), kadar terendah dalam bulan ('low'), purata bagi semua hari perdagangan dalam bulan ('avg'), kadar pada hari perdagangan pertama dalam bulan ('start'), dan kadar pada hari perdagangan terakhir dalam bulan ('end')."
+        },
+        {
+            "name": "<currency_code>",
+            "title_en": "Currency",
+            "title_ms": "Mata Wang",
+            "description_en": "[Float] One of 27 columns indicating the rate of exchange of MYR to that currency (3-letter code), for that month and computation type. The currency name can be derived from the [currency code lookup table](https://data.gov.my/data-catalogue/currency_codes). It should be noted that the ringgit is the numerator, so higher values indicate a depreciation while lower values indicate an appreciation.",
+            "description_ms": "[Apung] Salah satu daripada 27 lajur yang menunjukkan kadar pertukaran ringgit Malaysia kepada mata wang asing (kod 3 abjad), untuk bulan dan jenis pengiraan tersebut. Nama mata wang boleh didapati daripada [jadual rujukan mata wang](https://data.gov.my/ms-MY/data-catalogue/currency_codes). Ringgit digunakan sebagai pengangka, maka nilai yang lebih tinggi menunjukkan penyusutan sementara nilai yang lebih rendah menunjukkan peningkatan."
+        }
+    ],
+    "dataviz": [
+        {
+            "dataviz_id": "table",
+            "title_en": "Table",
+            "title_ms": "Jadual",
+            "chart_type": "TABLE",
+            "config": {
+                "precision": 4,
+                "filter_columns": [
+                    "indicator"
+                ],
+                "freeze_columns": [
+                    "date"
+                ]
+            }
+        },
+        {
+            "dataviz_id": "USD",
+            "title_en": "MYR per USD",
+            "title_ms": "MYR per USD",
+            "chart_type": "TIMESERIES",
+            "config": {
+                "filter_columns": [
+                    "indicator"
+                ],
+                "precision": 4,
+                "operation": "SUM",
+                "format": {
+                    "x": "date",
+                    "y": [
+                        "USD"
+                    ]
+                }
+            }
+        },
+        {
+            "dataviz_id": "EUR",
+            "title_en": "MYR per Euro",
+            "title_ms": "MYR per Euro",
+            "chart_type": "TIMESERIES",
+            "config": {
+                "filter_columns": [
+                    "indicator"
+                ],
+                "precision": 4,
+                "operation": "SUM",
+                "format": {
+                    "x": "date",
+                    "y": [
+                        "EUR"
+                    ]
+                }
+            }
+        },
+        {
+            "dataviz_id": "JPY",
+            "title_en": "MYR per Yen",
+            "title_ms": "MYR per Yen",
+            "chart_type": "TIMESERIES",
+            "config": {
+                "filter_columns": [
+                    "indicator"
+                ],
+                "precision": 4,
+                "operation": "SUM",
+                "format": {
+                    "x": "date",
+                    "y": [
+                        "JPY"
+                    ]
+                }
+            }
+        }
+    ],
+    "translations_en": {
+        "date": "Date",
+        "y1": "Rate",
+        "indicator": "Indicator",
+        "avg": "Average in Month",
+        "start": "Start of Month",
+        "end": "End of Month",
+        "high": "Highest in Month",
+        "low": "Lowest in Month"
+    },
+    "translations_ms": {
+        "date": "Tarikh",
+        "y1": "Kadar",
+        "indicator": "Indikator",
+        "avg": "Purata dalam Bulan",
+        "start": "Permulaan Bulan",
+        "end": "Akhir Bulan",
+        "high": "Tertinggi dalam Bulan",
+        "low": "Terendah dalam Bulan"
+    },
+    "related_datasets": []
+}

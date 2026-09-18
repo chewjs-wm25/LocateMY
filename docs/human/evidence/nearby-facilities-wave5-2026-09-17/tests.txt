@@ -1,0 +1,95 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/overpass_facility_source_test.dart: a diagnostic remark never turns a partial empty response into complete empty
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: complete OSM response creates ordered coverage and excludes points beyond 2km
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-1"}
+00:00 +1: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: complete OSM response creates ordered coverage and excludes points beyond 2km
+00:00 +2: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/overpass_facility_source_test.dart: invalid OSM coordinates are rejected instead of becoming covered facilities
+00:00 +2: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: refresh failure falls back only to a valid complete cache
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-2"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-3"}
+00:00 +3: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/overpass_facility_source_test.dart: invalid OSM coordinates are rejected instead of becoming covered facilities
+00:00 +4: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +4: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: partial response without cache is unavailable rather than empty
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"incompleteResponse","duration_bucket":"under100ms","correlation_id":"facility-4"}
+00:00 +5: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +6: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +6: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: a cached coordinate binds to the caller location without inheriting its previous name
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-5"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-6"}
+00:00 +7: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +7: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: counts include all unique facilities while nearest is limited to three
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-7"}
+00:00 +8: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +9: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: complete public cache survives recreation and expires exactly at 24 hours
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-8"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-9"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under100ms","correlation_id":"facility-10"}
+00:00 +10: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: real Map accepts complete snapshot, rejects stale viewport and closed scope
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-1"}
+00:00 +11: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +11: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: real Map accepts complete snapshot, rejects stale viewport and closed scope
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-1"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-2"}
+00:00 +11: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: legacy cache without provenance is invalidated instead of presented as current
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under100ms","correlation_id":"facility-11"}
+00:00 +12: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +12: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: closing a scope discards an in-flight analysis and refuses further queries
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"facility-12"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"facility-13"}
+00:00 +13: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +13: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: real Map accepts complete snapshot, rejects stale viewport and closed scope
+{"event":"map.layer.completed","feature":"map_location","result":"staleViewport","duration_bucket":"under100ms","correlation_id":"map-2"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"staleViewport","duration_bucket":"under100ms","correlation_id":"facility-3"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"facility-4"}
+00:00 +14: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +14: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: a future-dated observation is not a valid fallback cache
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-14"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"sourceUnavailable","duration_bucket":"under100ms","correlation_id":"facility-15"}
+00:00 +15: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +15: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: an old comparison cannot combine results across an account switch
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"facility-16"}
+{"event":"facility.compare.completed","feature":"nearby_facilities","result":"scopeUnavailable","duration_bucket":"under100ms","correlation_id":"facility-17"}
+00:00 +16: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +16: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: late older refresh cannot overwrite the latest observation in the cache
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-18"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-19"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"cached","duration_bucket":"under100ms","correlation_id":"facility-20"}
+00:00 +17: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +17: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: OSM identity deduplication and overlapping tags obey product category priority
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-21"}
+00:00 +18: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +18: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: circle filtering excludes bounding-box corners and retains near-radius facilities
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-22"}
+00:00 +19: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +19: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_test.dart: comparison preserves A/B order and reports a missing B without replacing its result
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-23"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"incompleteResponse","duration_bucket":"under100ms","correlation_id":"facility-24"}
+{"event":"facility.compare.completed","feature":"nearby_facilities","result":"locationBUnavailable","duration_bucket":"under100ms","correlation_id":"facility-25"}
+{"event":"facility.compare.completed","feature":"nearby_facilities","result":"sameComparisonPoint","duration_bucket":"under100ms","correlation_id":"facility-26"}
+00:00 +20: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +21: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:00 +21: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: a selected Map location publishes facilities for its current viewport
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-3"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-5"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-4"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-6"}
+{"event":"map.select.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-5"}
+{"event":"map.layer.completed","feature":"map_location","result":"hidden","duration_bucket":"under100ms","correlation_id":"map-6"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-7"}
+{"event":"map.layer.completed","feature":"map_location","result":"success","duration_bucket":"under100ms","correlation_id":"map-7"}
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"success","duration_bucket":"under100ms","correlation_id":"facility-8"}
+00:00 +22: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_shell_test.dart: root page preserves the explicit opaque return context
+00:01 +23: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:01 +23: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/facility_layer_test.dart: unknown categories refuse layer publication with an analysis completeness reason
+{"event":"facility.contributeLayer.completed","feature":"nearby_facilities","result":"analysisIncomplete","duration_bucket":"under100ms","correlation_id":"facility-9"}
+00:01 +24: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:01 +25: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:01 +26: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: available page presents Penpot facility summary, categories and disclosure
+00:01 +27: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: changing the public location reloads and ignores a late old response
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under100ms","correlation_id":"facility-1"}
+{"event":"facility.analyse.completed","feature":"nearby_facilities","result":"fresh","duration_bucket":"under1s","correlation_id":"facility-2"}
+00:01 +28: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: failed query keeps attribution, its reason and an actionable copyright link
+00:01 +29: /home/AC79/Desktop/LocateMY/test/features/nearby_facilities/nearby_facilities_page_test.dart: unknown categories suppress definitive coverage and total at 360dp with 200 percent text
+00:01 +30: All tests passed!

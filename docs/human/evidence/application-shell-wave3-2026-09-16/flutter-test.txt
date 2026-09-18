@@ -1,0 +1,107 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/app/application_shell_privacy_test.dart: real Privacy and Shell keep missing-owner barrier and recover across restart
+00:00 +1: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +2: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +3: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +5: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +6: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +7: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +8: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +9: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +9 ~1: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:00 +9 ~2: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +9 ~3: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +9 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +10 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +11 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +12 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +13 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +14 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +15 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +16 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +17 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +18 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +19 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +20 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +21 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +22 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +23 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +24 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +25 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +26 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +27 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +28 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +29 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:01 +30 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +31 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +32 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +33 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +34 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +35 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +36 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +37 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +38 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +39 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +40 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +41 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +42 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +43 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +44 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +45 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +46 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +47 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +48 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +49 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +50 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +51 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +52 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +53 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: opened Shell has two stateful tabs and a returning account task
+00:02 +54 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +55 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +56 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +57 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +58 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +59 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +60 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +61 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +62 ~4: /home/AC79/Desktop/LocateMY/test/widget_test.dart: empty and malformed email are validated before submission
+00:02 +63 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +64 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +65 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +66 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +67 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +68 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +69 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +70 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +71 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:02 +72 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:03 +73 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:03 +74 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:03 +75 ~4: /home/AC79/Desktop/LocateMY/test/app/application_shell_widget_test.dart: session invalidation removes private task dialogs and keeps language
+00:03 +76 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +77 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +78 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +79 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +80 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +81 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +82 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +83 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +84 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:03 +85 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:04 +86 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:04 +87 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:04 +88 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:04 +89 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: failed expired refresh does not authorize expired cache
+00:14 +90 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: late restore cannot resurrect identity after sign out
+00:14 +91 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: profile can be retried separately from successful registration
+00:14 +92 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: rate limits offer retry and weak password offers correction
+00:14 +93 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: expired registration cannot establish authenticated result or profile
+00:14 +94 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: blank optional username is skipped when verification is required
+00:14 +95 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: sign in maps validation_failed
+00:14 +96 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: sign in maps unexpected_error
+00:14 +97 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: registration maps user_already_exists
+00:14 +98 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: registration maps unexpected_error
+00:14 +99 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: network sign out failure preserves rejection and retry recovery
+00:14 +100 ~4: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: missing Auth email never establishes successful registration
+00:14 +101 ~4: All tests passed!

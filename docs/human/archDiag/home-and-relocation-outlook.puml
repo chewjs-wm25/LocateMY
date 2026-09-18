@@ -1,0 +1,30 @@
+@startuml
+!include theme.puml
+title Home & Relocation Outlook - Layered Architecture
+top to bottom direction
+package "Presentation" <<presentation>> {
+  [Home outlook view] as view
+}
+package "Application" <<application>> {
+  [Home ViewModel] as vm
+  [Load / refresh relocation outlook] as uc
+  [HOME-001\npublic result Interface] as api
+}
+package "Domain" <<domain>> {
+  [National indicators, timing model,\nrefresh cooldown and availability] as domain
+}
+package "Data / Integration" <<data>> {
+  [Home public-data Adapter] as adapter
+  database "home_public_cache" as cache
+}
+database "Supabase read-only\nHome View / RPC" as source
+rectangle "SHELL-001" as shell
+view --> vm
+vm --> uc
+uc --> domain
+uc --> api
+shell --> uc : navigation intent
+uc --> adapter
+uc --> cache
+adapter --> source
+@enduml

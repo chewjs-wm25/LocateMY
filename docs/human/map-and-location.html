@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Map / Location 开发契约</title><style>body{max-width:1050px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#172033}h1,h2,h3{line-height:1.3}table{border-collapse:collapse;display:block;overflow:auto}th,td{border:1px solid #d9e0ea;padding:8px;text-align:left;vertical-align:top}pre{background:#f6f8fb;padding:16px;overflow:auto}code{font-size:.9em}a{color:#155eef}@media(max-width:600px){body{margin:16px auto;padding:0 12px}}</style></head><body><p><a href="../design/features/map-and-location.md">权威 Markdown 契约</a></p><h1 id="map-location-开发契约">Map / Location 开发契约</h1>
+<blockquote>
+<p>Owner：A；依赖顺序参考 Wave 4；2026-09-17 Issue #31 修订。
+状态：实现重构完成，本轮证据与未交付边界见执行检查。</p>
+</blockquote>
+<p>本契约按 <a href="https://github.com/chewjs-wm25/LocateMY/issues/31">Issue #31</a> 与
+<a href="../adr/0017-minimal-account-and-online-user-records.md">ADR 0017</a> 修订。
+产品事实和公式以知识库为准；字段、权限和 migration 只在
+<a href="../design/data/schema-catalog.md">Schema Catalog</a> 定义。普通页面传参与具名服务替代通用导航／贡献框架。</p>
+<p>产品事实源：<a href="../knowledge_base/locatemy_product/features/map_location.md">map_location</a>。</p>
+<h2 id="地点与在线收藏">地点与在线收藏</h2>
+<p>地图真实浏览、搜索和坐标选点。单点、A、B 独立保留；合法马来西亚地点才可分析，
+无地点不套默认城市，相同点不能比较，交换只改变 A/B 顺序。
+收藏在线命名保存、读取、选择和删除；同账号登录后重新读取云端。
+无私有 SQLite 收藏缓存、离线创建、重放或同步状态。联网失败明确未保存／读取失败。</p>
+<h2 id="公开协作">公开协作</h2>
+<p>唯一入口 <code>lib/features/map_location/map_location.dart</code>。<code>LocationCoordinator</code> 管理选择、角色、收藏；
+<code>loadSavedLocations</code> 只在线读取。<code>MapLocationRuntime</code> 由登录页面树创建，按账号注入在线存储。
+页面接收 <code>onAnalysis(location)</code>、<code>onComparison(a,b)</code>、<code>onLayerSelected(intent)</code> 三个明确回调。
+普通 Navigator 路由携带不可变 <code>ValidLocationReference</code>；地图专属 marker action 是必要业务对象，
+不再实现 ShellIntent。地理服务保留行政候选的 resolved／unresolved／ambiguous 口径。
+六类分析入口和比较目录保留；未接入的分析明确标明尚未实现，不能用成功 fixture 替代。</p>
+<h2 id="图层与-ui">图层与 UI</h2>
+<p>保留 MapLayerHost／MapWorkspace 作为地图业务接口，provider 不改全局选点。
+viewport version 防止旧视口结果覆盖新视口；分类聚合、点击放大／列表和隐藏仍可观察。
+<code>markerKind</code> 为可选呈现元数据，默认 generic；设施和隐患各五种分类图标。
+分类来自提供方的原始业务类型，不从 id 或 action 猜测。混合聚合保留原始每项分类和动作。
+右侧工具栏按钮至少 48×48，含双语 tooltip／读屏名；上报、确认／取消与管理操作在地图下方。
+详情突出地点名与精确坐标，不展示内部 id；小屏／放大文字支持换行和滚动。</p>
+<h2 id="验收">验收</h2>
+<p>A 本模块：合法／范围外／缺失候选、晚到选点、独立角色、相同点拒绝、A/B 交换，
+在线收藏成功／失败／删除、无离线重放，五类分类／混合聚合与视口过期。
+A 应用联验：首页往返、退出结束页面、换号读取所属收藏、设施／隐患图层及分析入口；最迟 Wave 4／5。
+复用 <code>test/features/map_location/</code>；在线归属 smoke 为 <code>test/live/map_location_live_test.dart</code>。</p>
+<h2 id="生命周期与验收责任">生命周期与验收责任</h2>
+<p>页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
+Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保存，网络失败显示未保存并允许用户重试；
+不建立自动同步、清理屏障或离线队列。公共分析保留真实来源、日期、缓存／部分／不可用状态，不以零替代缺失。</p>
+<p>主要验收 seam 为应用页面入口；使用可见内容、动作、导航与保存／读取结果断言。
+复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
+本次重构的统一证据见 <a href="../design/system/issue-31-validation.md">Issue #31 执行检查</a>；
+设备、真实外部服务证据缺失时不得宣称新版本 <code>Implemented</code> 或 <code>Integrated</code>。</p></body></html>
