@@ -57,11 +57,9 @@
   "homeEconomy": "Economic momentum",
   "homeIncome": "Household median income",
   "homeNational": "Malaysia · National outlook",
-  "homeDisclaimer": "A relative recent-history index, not a government rating or a guarantee.",
   "homeRefresh": "Refresh",
   "homeExplore": "Explore map",
   "homeLoading": "Loading national outlook…",
-  "homeNominal": "At current-year prices, not adjusted for inflation",
   "homeCostDirection": "Higher scores mean lower relative cost pressure.",
   "homeLaborCaveat": "Census benchmark changes may affect comparisons.",
   "homePartial": "Some indicators are unavailable; available results are retained.",
@@ -138,7 +136,6 @@
       }
     }
   },
-  "homeTrendApproximation": "Reconstructed from current observations; historical revisions may affect this comparison.",
   "homeTrendUnavailable": "Historical trend unavailable; see the direction summary above.",
   "homeGreeting": "Ready to plan your next move?",
   "homeIndicators": "Key indicators",

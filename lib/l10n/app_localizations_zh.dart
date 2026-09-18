@@ -182,9 +182,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNational => '马来西亚 · 全国搬迁环境';
 
   @override
-  String get homeDisclaimer => '相对近期历史的指数，不是政府评级或对未来的保证。';
-
-  @override
   String get homeRefresh => '刷新';
 
   @override
@@ -192,9 +189,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeLoading => '正在读取全国搬迁环境…';
-
-  @override
-  String get homeNominal => '按当年价格，未按通胀调整';
 
   @override
   String get homeCostDirection => '分数越高，表示相对成本压力越低。';
@@ -312,9 +306,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String homeTrendSummary(int count) {
     return '近期趋势 · $count 个观测';
   }
-
-  @override
-  String get homeTrendApproximation => '根据当前观测重建；历史资料修订可能影响比较。';
 
   @override
   String get homeTrendUnavailable => '历史趋势暂不可用；请参阅上方方向说明。';

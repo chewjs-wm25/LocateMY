@@ -310,8 +310,8 @@ Widget _risk(BuildContext context, PropertyInspectionRecord record) {
               ? '${f['reporting_state']} · ${_text(context, 'State safety index', '州级安全指数')} ${f['safety_index']} · ${_text(context, 'Nearby pending hazards', '附近待处理隐患')} ${f['hazard_pending_count']}'
               : _text(
                   context,
-                  'Snapshot unavailable — missing data is not zero.',
-                  '风险快照不可用 — 缺失资料不等于0。',
+                  'Snapshot unavailable',
+                  '风险快照不可用',
                 ),
           style: const TextStyle(fontSize: 13, color: _ink),
         ),
@@ -532,17 +532,6 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
           }
           if (widget.deleted) {
             items.add(
-              _box(
-                Text(
-                  _text(
-                    context,
-                    'Deleted inspections and photos remain recoverable. Permanent deletion may partly complete; retained records can be retried.',
-                    '实勘与照片保留且可恢复。永久删除可能部分完成，保留记录可重试。',
-                  ),
-                ),
-              ),
-            );
-            items.add(
               FilledButton(
                 onPressed: acting || vm.records.isEmpty
                     ? null
@@ -576,6 +565,7 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
             items.add(const SizedBox(height: 24));
           }
           if (!vm.busy && vm.error == null && vm.records.isEmpty) {
+            items.add(SizedBox(height: 20));
             items.add(
               _box(
                 Text(
@@ -700,8 +690,8 @@ final class _PortfolioState extends State<PropertyInspectionPortfolioPage> {
               Text(
                 _text(
                   context,
-                  'Select 2–3 active inspections. Comparison is not saved.',
-                  '选择2–3份活动实勘临时并排比较，结果不会保存。',
+                  'Select 2–3 active inspections.',
+                  '选择2–3份活动实勘临时并排比较',
                 ),
               ),
             );

@@ -26,7 +26,7 @@ final class HomeTrendChart extends StatelessWidget {
     }
     final String summary = summaries.join('; ');
     return Semantics(
-      label: '$summary; ${l.homeTrendApproximation}',
+      label: summary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -71,7 +71,6 @@ final class HomeTrendChart extends StatelessWidget {
               ),
             ],
           ),
-          if (!compact) Text(l.homeTrendApproximation),
         ],
       ),
     );

@@ -16,6 +16,7 @@ final class CrimeSecurityPage extends StatefulWidget {
   final void Function(ValidLocationReference)? onShowMap;
   final VoidCallback? onPortfolio;
   final void Function(ValidLocationReference)? onAddProperty;
+
   const CrimeSecurityPage({
     required CrimeSecurity crime,
     required ValidLocationReference location,
@@ -30,6 +31,7 @@ final class CrimeSecurityPage extends StatefulWidget {
        onShowMap = onShowMap,
        onPortfolio = onPortfolio,
        onAddProperty = onAddProperty;
+
   @override
   State<CrimeSecurityPage> createState() {
     return _CrimeSecurityPageState();
@@ -38,29 +40,35 @@ final class CrimeSecurityPage extends StatefulWidget {
 
 final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
   late SafetyViewModel _model;
+
   @override
   void initState() {
     super.initState();
+
     _model = SafetyViewModel(
       widget.crime,
       widget.location,
       locationB: widget.locationB,
     );
+
     _model.load();
   }
 
   @override
   void didUpdateWidget(CrimeSecurityPage oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.crime != widget.crime ||
         oldWidget.location != widget.location ||
         oldWidget.locationB != widget.locationB) {
       _model.dispose();
+
       _model = SafetyViewModel(
         widget.crime,
         widget.location,
         locationB: widget.locationB,
       );
+
       _model.load();
     }
   }
@@ -74,6 +82,7 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
   @override
   Widget build(BuildContext context) {
     final SafetyStrings s = SafetyStrings(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
       appBar: AppBar(
@@ -84,7 +93,10 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
             : 56,
         title: Text(
           s.title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
           softWrap: true,
           maxLines: 3,
         ),
@@ -100,6 +112,7 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
               icon: const Icon(Icons.map_outlined),
               color: const Color(0xFF155EEF),
             ),
+
           if (widget.locationB == null &&
               widget.onShowMap != null &&
               MediaQuery.textScalerOf(context).scale(20) <= 28)
@@ -122,6 +135,7 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                 ),
               ),
             ),
+
           if (widget.locationB != null)
             IconButton(
               tooltip: s.text('Swap A/B', '交换 A/B'),
@@ -132,122 +146,220 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
             ),
         ],
       ),
+
       body: AnimatedBuilder(
         animation: _model,
         builder: (BuildContext context, Widget? child) {
           final SafetyComparison? comparison = _model.comparison;
+
           final List<SafetyAnalysis> analyses = <SafetyAnalysis>[];
+
           if (comparison != null) {
             if (_model.swapped) {
-              analyses.addAll(<SafetyAnalysis>[comparison.b, comparison.a]);
+              analyses.addAll(
+                <SafetyAnalysis>[
+                  comparison.b,
+                  comparison.a,
+                ],
+              );
             } else {
-              analyses.addAll(<SafetyAnalysis>[comparison.a, comparison.b]);
+              analyses.addAll(
+                <SafetyAnalysis>[
+                  comparison.a,
+                  comparison.b,
+                ],
+              );
             }
           } else if (_model.analysis != null) {
             analyses.add(_model.analysis!);
           }
+
           final SafetyAnalysis? result = _model.analysis;
+
           final List<Widget> children = <Widget>[];
+
           if (widget.locationB == null) {
             children.add(
               Text(
                 widget.location.displayName ??
-                    s.text('Selected location', '所选地点'),
+                    s.text(
+                      'Selected location',
+                      '所选地点',
+                    ),
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             );
-            children.add(const SizedBox(height: 4));
+
+            children.add(
+              const SizedBox(height: 4),
+            );
+
             children.add(
               Text(
-                '${result?.reportingState ?? '—'} · ${s.text('Reporting state', '统计州口径')}',
-                style: const TextStyle(fontSize: 13, color: Color(0xFF667085)),
+                '${result?.reportingState ?? '—'} · '
+                '${s.text('Reporting state', '统计州口径')}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF667085),
+                ),
               ),
             );
-            children.add(const SizedBox(height: 20));
+
+            children.add(
+              const SizedBox(height: 20),
+            );
           }
+
           if (_model.loading) {
             children.add(
               LinearProgressIndicator(
-                semanticsLabel: s.text('Loading crime data', '正在加载治安资料'),
+                semanticsLabel: s.text(
+                  'Loading crime data',
+                  '正在加载治安资料',
+                ),
               ),
             );
-            children.add(const SizedBox(height: 16));
+
+            children.add(
+              const SizedBox(height: 16),
+            );
           }
+
           if (comparison != null) {
             String message = s.text(
               'Not comparable: one side is unavailable.',
               '不可比：一侧资料暂不可用。',
             );
+
             if (comparison.reason == SafetyComparisonReason.incomplete) {
-              message = s.text('Not comparable: partial data.', '不可比：资料不完整。');
+              message = s.text(
+                'Not comparable: partial data.',
+                '不可比：资料不完整。',
+              );
             }
+
             if (comparison.reason == SafetyComparisonReason.scopeMismatch) {
               message = s.text(
                 'Not comparable: statistical scope differs.',
                 '不可比：统计口径不同。',
               );
             }
+
             if (comparison.difference != null) {
               double difference = comparison.difference!;
+
               if (_model.swapped) {
                 difference = -difference;
               }
+
               message =
-                  'B − A: ${NumberFormat.decimalPattern(s.zh ? 'zh' : 'en').format(difference)}';
+                  'B − A: '
+                  '${NumberFormat.decimalPattern(
+                    s.zh ? 'zh' : 'en',
+                  ).format(difference)}';
             }
-            children.add(Text(message));
-            children.add(const SizedBox(height: 16));
+
+            children.add(
+              Text(message),
+            );
+
+            children.add(
+              const SizedBox(height: 16),
+            );
           }
+
           for (int index = 0; index < analyses.length; index++) {
             final SafetyAnalysis result = analyses[index];
+
             if (comparison != null) {
               String role = 'A';
+
               if (index == 1) {
                 role = 'B';
               }
+
               children.add(
                 Text(
-                  '$role · ${result.location.displayName ?? s.text('Selected location', '所选地点')}',
+                  '$role · '
+                  '${result.location.displayName ?? s.text(
+                    'Selected location',
+                    '所选地点',
+                  )}',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               );
+
               children.add(
                 Text(
-                  '${result.reportingState ?? '—'} · ${s.text('Reporting state', '统计州口径')}',
+                  '${result.reportingState ?? '—'} · '
+                  '${s.text(
+                    'Reporting state',
+                    '统计州口径',
+                  )}',
                 ),
               );
-              children.add(const SizedBox(height: 12));
+
+              children.add(
+                const SizedBox(height: 12),
+              );
             }
-            children.add(SafetyResultCard(analysis: result));
-            if (comparison != null && widget.onShowMap != null) {
+
+            children.add(
+              SafetyResultCard(
+                analysis: result,
+              ),
+            );
+
+            if (comparison != null &&
+                widget.onShowMap != null) {
               children.add(
                 TextButton.icon(
                   onPressed: () {
-                    widget.onShowMap!(result.location);
+                    widget.onShowMap!(
+                      result.location,
+                    );
                   },
-                  icon: const Icon(Icons.map_outlined),
-                  label: Text(s.text('Main map', '主地图')),
+                  icon: const Icon(
+                    Icons.map_outlined,
+                  ),
+                  label: Text(
+                    s.text(
+                      'Main map',
+                      '主地图',
+                    ),
+                  ),
                 ),
               );
             }
-            children.add(const SizedBox(height: 20));
+
+            children.add(
+              const SizedBox(height: 20),
+            );
+
             if (result.trends.isNotEmpty) {
               children.add(
                 Text(
-                  s.text('Last 5 years', '最近 5 年趋势'),
+                  s.text(
+                    'Last 5 years',
+                    '最近 5 年趋势',
+                  ),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               );
-              children.add(const SizedBox(height: 4));
+
+              children.add(
+                const SizedBox(height: 4),
+              );
+
               children.add(
                 Text(
                   s.text(
@@ -260,80 +372,208 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                   ),
                 ),
               );
-              children.add(const SizedBox(height: 8));
+
+              children.add(
+                const SizedBox(height: 8),
+              );
+
+              // ============================================================
+              // General crime category filters
+              // ============================================================
+
               final List<Widget> chips = <Widget>[];
-              final List<String> keys = <String>['all', 'assault', 'property'];
+
+              final List<String> keys = <String>[
+                'all',
+                'assault',
+                'property',
+              ];
+
               for (final String key in keys) {
-                final List<CrimeYearCount>? series = result.trends[key];
-                final int? count = series?.last.count;
-                String label = s.category(key);
+                final List<CrimeYearCount>? series =
+                    result.trends[key];
+
+                final int? count =
+                    series?.last.count;
+
+                String label =
+                    s.category(key);
+
                 if (count != null) {
                   label =
-                      '$label (${NumberFormat.decimalPattern(s.zh ? 'zh' : 'en').format(count)})';
+                      '$label '
+                      '(${NumberFormat.decimalPattern(
+                        s.zh ? 'zh' : 'en',
+                      ).format(count)})';
                 }
+
                 chips.add(
                   ChoiceChip(
                     label: Text(label),
-                    selected: _model.filter == key,
-                    onSelected: (bool selected) {
+                    selected:
+                        _model.filter == key,
+                    onSelected:
+                        (bool selected) {
                       if (selected) {
                         _model.select(key);
                       }
                     },
-                    shape: const StadiumBorder(),
-                    side: BorderSide.none,
-                    selectedColor: const Color(0xFF155EEF),
-                    backgroundColor: Colors.white,
-                    labelStyle: TextStyle(
+                    shape:
+                        const StadiumBorder(),
+                    side:
+                        BorderSide.none,
+                    selectedColor:
+                        const Color(
+                          0xFF155EEF,
+                        ),
+                    backgroundColor:
+                        Colors.white,
+                    labelStyle:
+                        TextStyle(
                       fontSize: 13,
-                      color: _model.filter == key
-                          ? Colors.white
-                          : const Color(0xFF172033),
+                      color:
+                          _model.filter ==
+                                  key
+                              ? Colors.white
+                              : const Color(
+                                  0xFF172033,
+                                ),
                     ),
                     showCheckmark: false,
                   ),
                 );
               }
-              children.add(Wrap(spacing: 8, runSpacing: 4, children: chips));
-              final List<PopupMenuEntry<String>> types =
-                  <PopupMenuEntry<String>>[];
-              for (final String key in result.trends.keys) {
-                if (!key.startsWith('type:')) {
+
+              children.add(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: chips,
+                ),
+              );
+
+              // ============================================================
+              // Specific crime type filter
+              // ============================================================
+
+              final List<
+                  PopupMenuEntry<
+                      String>> types =
+                  <PopupMenuEntry<
+                      String>>[
+                // "None" means:
+                //
+                // Do not apply a specific crime-type filter.
+                //
+                // Internally this reuses the existing "all" filter instead
+                // of introducing a new "none" value.
+                PopupMenuItem<String>(
+                  value: 'all',
+                  child: Text(
+                    s.text(
+                      'None',
+                      '无',
+                    ),
+                  ),
+                ),
+              ];
+
+              for (final String key
+                  in result.trends.keys) {
+                if (!key.startsWith(
+                  'type:',
+                )) {
                   continue;
                 }
-                String label = s.category(key);
-                final int? count = result.trends[key]!.last.count;
+
+                String label =
+                    s.category(key);
+
+                final int? count =
+                    result
+                        .trends[key]!
+                        .last
+                        .count;
+
                 if (count != null) {
                   label =
-                      '$label (${NumberFormat.decimalPattern(s.zh ? 'zh' : 'en').format(count)})';
+                      '$label '
+                      '(${NumberFormat.decimalPattern(
+                        s.zh ? 'zh' : 'en',
+                      ).format(count)})';
                 }
+
                 types.add(
-                  PopupMenuItem<String>(value: key, child: Text(label)),
+                  PopupMenuItem<String>(
+                    value: key,
+                    child: Text(label),
+                  ),
                 );
               }
-              if (types.isNotEmpty) {
-                String label = s.text('Specific crime type', '具体犯罪类型');
-                if (_model.filter.startsWith('type:')) {
-                  label = s.category(_model.filter);
+
+              // Only show this menu when at least one actual
+              // specific crime type exists.
+              //
+              // types always contains "None", so > 1 means there
+              // is at least one type:* entry.
+              if (types.length > 1) {
+                String selectedTypeLabel =
+                    s.text(
+                  'None',
+                  '无',
+                );
+
+                if (_model.filter.startsWith(
+                  'type:',
+                )) {
+                  selectedTypeLabel =
+                      s.category(
+                    _model.filter,
+                  );
                 }
+
                 children.add(
                   PopupMenuButton<String>(
-                    tooltip: s.text('Select crime type', '选择犯罪类型'),
-                    onSelected: _model.select,
-                    itemBuilder: (BuildContext context) {
+                    tooltip: s.text(
+                      'Select crime type',
+                      '选择犯罪类型',
+                    ),
+
+                    // Selecting "None" passes "all" here,
+                    // restoring the default unfiltered trend.
+                    onSelected:
+                        _model.select,
+
+                    itemBuilder:
+                        (BuildContext context) {
                       return types;
                     },
+
                     child: Container(
-                      constraints: const BoxConstraints(minHeight: 48),
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(
+                      constraints:
+                          const BoxConstraints(
+                        minHeight: 48,
+                      ),
+                      alignment:
+                          Alignment.centerLeft,
+                      padding:
+                          const EdgeInsets
+                              .symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
                       child: Text(
-                        '$label ▾',
-                        style: const TextStyle(
-                          color: Color(0xFF155EEF),
+                        '${s.text(
+                          'Specific crime type',
+                          '具体犯罪类型',
+                        )}: '
+                        '$selectedTypeLabel ▾',
+                        style:
+                            const TextStyle(
+                          color:
+                              Color(
+                            0xFF155EEF,
+                          ),
                           fontSize: 14,
                         ),
                       ),
@@ -341,56 +581,75 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                   ),
                 );
               }
-              children.add(const SizedBox(height: 12));
+
+              children.add(
+                const SizedBox(height: 12),
+              );
+
+              // ============================================================
+              // Trend chart
+              // ============================================================
+
               children.add(
                 SafetyTrendCard(
                   points:
-                      result.trends[_model.filter] ?? const <CrimeYearCount>[],
+                      result.trends[
+                              _model
+                                  .filter] ??
+                          const <
+                              CrimeYearCount>[],
                 ),
               );
-              children.add(const SizedBox(height: 20));
+
+              children.add(
+                const SizedBox(height: 20),
+              );
             }
-            if (result.availability == SafetyAvailability.unavailable) {
-              children.add(Text(s.failure(result.failure)));
-              children.add(const SizedBox(height: 8));
+
+            if (result.availability ==
+                SafetyAvailability.unavailable) {
+              children.add(
+                Text(
+                  s.failure(
+                    result.failure,
+                  ),
+                ),
+              );
+
+              children.add(
+                const SizedBox(height: 8),
+              );
             }
           }
+
           children.add(
             TextButton.icon(
-              onPressed: _model.loading
-                  ? null
-                  : () {
-                      _model.load(refresh: true);
-                    },
-              icon: const Icon(Icons.refresh),
-              label: Text(s.text('Retry / refresh', '重试 / 刷新')),
-            ),
-          );
-          children.add(const SizedBox(height: 12));
-          children.add(
-            Text(
-              s.text('About these statistics', '统计说明'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-          );
-          children.add(const SizedBox(height: 8));
-          children.add(
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF1FF),
-                borderRadius: BorderRadius.circular(16),
+              onPressed:
+                  _model.loading
+                      ? null
+                      : () {
+                          _model.load(
+                            refresh: true,
+                          );
+                        },
+              icon:
+                  const Icon(
+                Icons.refresh,
               ),
-              child: Text(
+              label:
+                  Text(
                 s.text(
-                  'Police-district records are aggregated by reporting state. Convicted cases are not all reported crimes. This state-level index is not an official rating or an individual risk estimate.',
-                  '按统计州汇总警区原始记录，不解析警区边界。统计为已定罪案件，不代表全部报案；州级指数不是官方评级或个人受害概率。',
+                  'Retry / refresh',
+                  '重试 / 刷新',
                 ),
-                style: const TextStyle(fontSize: 14),
               ),
             ),
           );
-          children.add(const SizedBox(height: 16));
+
+          children.add(
+            const SizedBox(height: 12),
+          );
+
           children.add(
             Wrap(
               spacing: 8,
@@ -398,32 +657,60 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
               children: <Widget>[
                 OutlinedButton(
                   onPressed: () {
-                    final VoidCallback? action = widget.onPortfolio;
+                    final VoidCallback?
+                        action =
+                        widget
+                            .onPortfolio;
+
                     if (action != null) {
                       action();
                     } else {
-                      _propertySlot(false);
+                      _propertySlot(
+                        false,
+                      );
                     }
                   },
-                  child: Text(s.text('Property portfolio', '房产档案')),
+                  child: Text(
+                    s.text(
+                      'Property portfolio',
+                      '房产档案',
+                    ),
+                  ),
                 ),
                 OutlinedButton(
                   onPressed: () {
-                    final void Function(ValidLocationReference)? action =
-                        widget.onAddProperty;
+                    final void Function(
+                      ValidLocationReference,
+                    )? action =
+                        widget
+                            .onAddProperty;
+
                     if (action != null) {
-                      action(widget.location);
+                      action(
+                        widget.location,
+                      );
                     } else {
-                      _propertySlot(true);
+                      _propertySlot(
+                        true,
+                      );
                     }
                   },
-                  child: Text(s.text('Add property inspection', '新增房产实勘')),
+                  child: Text(
+                    s.text(
+                      'Add property inspection',
+                      '新增房产实勘',
+                    ),
+                  ),
                 ),
               ],
             ),
           );
+
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding:
+                const EdgeInsets.all(
+              16,
+            ),
             children: children,
           );
         },
@@ -432,10 +719,12 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
   }
 
   void _propertySlot(bool add) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       SnackBar(
         content: Text(
-          SafetyStrings(context).text(
+          SafetyStrings(context)
+              .text(
             'Property inspection is unavailable in this harness.',
             '此测试入口未接入房产实勘。',
           ),

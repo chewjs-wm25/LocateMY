@@ -1286,7 +1286,7 @@ final class LocationAnalysisMenu extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
                   Text(
                     zh ? '六类地区分析' : 'Regional analysis',
                     style: const TextStyle(
@@ -1335,22 +1335,6 @@ final class LocationAnalysisMenu extends StatelessWidget {
                             children: rows,
                           );
                         },
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEAF2FF),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      zh ? '各类分析分别展示统计或覆盖情况，不合并为地点总分。' : 'Each category presents its own statistics or coverage, without a combined location score.',
-                      style: const TextStyle(
-                        color: Color(0xFF667085),
-                        fontSize: 13,
-                        height: 1.5,
-                      ),
-                    ),
                   ),
                 ],
               ),

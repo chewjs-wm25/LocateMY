@@ -184,12 +184,6 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
         ),
         const SizedBox(height: 8),
         Text(text.failure(failure)),
-        Text(
-          text.pick(
-            '无法确认的资料不会显示为零设施。',
-            'Unknown coverage is never shown as zero facilities.',
-          ),
-        ),
         Align(
           alignment: Alignment.centerLeft,
           child: FilledButton(
@@ -395,25 +389,6 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
           child: const Text(
             '© OpenStreetMap contributors',
             style: TextStyle(fontSize: 12),
-          ),
-        ),
-      ),
-      const SizedBox(height: 14),
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF3DE),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Text(
-          text.pick(
-            '仅显示已收录设施；未收录不代表不存在。',
-            'Only recorded facilities are shown; missing records do not mean facilities do not exist.',
-          ),
-          style: const TextStyle(
-            color: Color(0xFFB76E00),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),

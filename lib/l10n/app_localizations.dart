@@ -440,12 +440,6 @@ abstract class AppLocalizations {
   /// **'Malaysia · National outlook'**
   String get homeNational;
 
-  /// No description provided for @homeDisclaimer.
-  ///
-  /// In en, this message translates to:
-  /// **'A relative recent-history index, not a government rating or a guarantee.'**
-  String get homeDisclaimer;
-
   /// No description provided for @homeRefresh.
   ///
   /// In en, this message translates to:
@@ -463,12 +457,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading national outlook…'**
   String get homeLoading;
-
-  /// No description provided for @homeNominal.
-  ///
-  /// In en, this message translates to:
-  /// **'At current-year prices, not adjusted for inflation'**
-  String get homeNominal;
 
   /// No description provided for @homeCostDirection.
   ///
@@ -613,12 +601,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent trend · {count} observations'**
   String homeTrendSummary(int count);
-
-  /// No description provided for @homeTrendApproximation.
-  ///
-  /// In en, this message translates to:
-  /// **'Reconstructed from current observations; historical revisions may affect this comparison.'**
-  String get homeTrendApproximation;
 
   /// No description provided for @homeTrendUnavailable.
   ///

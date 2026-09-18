@@ -160,14 +160,6 @@ final class _PublicTransportationPageState
                   if (outcome is TransitUnavailable) ...<Widget>[
                     _notice(_reason(outcome.reason)),
                   ],
-                  const SizedBox(height: 14),
-                  Text(
-                    _t(
-                      '公共交通覆盖读数，不评价实际通勤便利或服务质量。距离为直线距离，步行分钟仅为粗略提示。',
-                      'Transportation coverage reading; it does not assess commuting convenience or service quality. Distances are straight lines; walking minutes are rough hints.',
-                    ),
-                    style: _style(12, FontWeight.w400, const Color(0xFF667085)),
-                  ),
                 ],
               ),
             ),

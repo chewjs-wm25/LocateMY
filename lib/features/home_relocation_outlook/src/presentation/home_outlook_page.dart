@@ -330,14 +330,6 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
                     child: Text(l.homeExplore),
                   ),
                   if (snapshot != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      l.homeDisclaimer,
-                      style: HomeVisualStyle.text(
-                        11,
-                        color: HomeVisualStyle.muted,
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     Text(
                       l.homeIndicators,
@@ -407,25 +399,8 @@ final class _HomeOutlookPageState extends State<HomeOutlookPage> {
                           '${l.homeUnavailable}: ${l.homeReason(snapshot.householdMedianIncome.unavailableReason!.name)}',
                           style: HomeVisualStyle.text(13),
                         ),
-                      Text(
-                        l.homeNominal,
-                        style: HomeVisualStyle.text(
-                          12,
-                          color: HomeVisualStyle.muted,
-                        ),
-                      ),
                     ]),
                     const SizedBox(height: 12),
-                    if (vm.trendHistory.metrics.values.any(
-                      (points) => points.length >= 2,
-                    ))
-                      Text(
-                        l.homeTrendApproximation,
-                        style: HomeVisualStyle.text(
-                          11,
-                          color: HomeVisualStyle.muted,
-                        ),
-                      ),
                   ],
                 ],
               ),

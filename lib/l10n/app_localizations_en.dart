@@ -193,10 +193,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNational => 'Malaysia · National outlook';
 
   @override
-  String get homeDisclaimer =>
-      'A relative recent-history index, not a government rating or a guarantee.';
-
-  @override
   String get homeRefresh => 'Refresh';
 
   @override
@@ -204,10 +200,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeLoading => 'Loading national outlook…';
-
-  @override
-  String get homeNominal =>
-      'At current-year prices, not adjusted for inflation';
 
   @override
   String get homeCostDirection =>
@@ -329,10 +321,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String homeTrendSummary(int count) {
     return 'Recent trend · $count observations';
   }
-
-  @override
-  String get homeTrendApproximation =>
-      'Reconstructed from current observations; historical revisions may affect this comparison.';
 
   @override
   String get homeTrendUnavailable =>

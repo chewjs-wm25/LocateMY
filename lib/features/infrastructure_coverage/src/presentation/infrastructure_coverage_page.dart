@@ -132,18 +132,7 @@ final class _InfrastructureCoveragePageState
                       '对比采用中性权重 5。',
                       'Comparison uses neutral priorities of 5.',
                     ),
-                  ),
-                const SizedBox(height: 16),
-                Text(
-                  _t(
-                    '覆盖读数不代表服务质量。',
-                    'Coverage readings do not assess service quality.',
-                  ),
-                  style: const TextStyle(
-                    color: Color(0xFF667085),
-                    fontSize: 12,
-                  ),
-                ),
+                  )
               ],
             ),
           ),

@@ -132,10 +132,6 @@ final class _SocioEconomicPageState extends State<SocioEconomicPage> {
             content.add(_analysis(_model.b!, 'B'));
             content.add(_comparison(SocioComparison(_model.a!, _model.b!)));
           }
-          if (_model.a != null) {
-            content.add(const SizedBox(height: 24));
-            content.add(_disclosure());
-          }
           return RefreshIndicator(
             onRefresh: () {
               return _model.load(refresh: true);
@@ -299,14 +295,7 @@ final class _SocioEconomicPageState extends State<SocioEconomicPage> {
         Text(
           '${_money(position.householdIncome)} · ${position.year}',
           style: _style(12),
-        ),
-      Text(
-        _text(
-          'Saved current scenario · household gross income',
-          '已保存当前预案 · 家庭总收入',
-        ),
-        style: _style(11, FontWeight.w400, _muted),
-      ),
+        )
     ]);
     content.add(
       LayoutBuilder(
@@ -397,33 +386,6 @@ final class _SocioEconomicPageState extends State<SocioEconomicPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: content,
-    );
-  }
-
-  Widget _disclosure() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF2FF),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            _text('About estimates', '关于估算'),
-            style: _style(14, FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _text(
-              'State reference estimates, not official district income groups or class classifications. Nominal RM/month, not adjusted for inflation. Higher Gini means greater income inequality.',
-              '州级参考估算，不是行政区官方收入组或阶层判定。名义 RM/月，未按通胀调整。基尼越高表示收入不平等程度越高。',
-            ),
-            style: _style(13),
-          ),
-        ],
-      ),
     );
   }
 

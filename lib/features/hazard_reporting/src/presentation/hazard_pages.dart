@@ -757,13 +757,6 @@ final class _HazardDetailPageState extends State<HazardDetailPage> {
           const SizedBox(height: 20),
           _heading(l.text('Community feedback', '社区反馈'), size: 18),
           const SizedBox(height: 4),
-          Text(
-            l.text(
-              'Each account can support, oppose or withdraw its vote.',
-              '每个账户可赞成、反对或撤回一次',
-            ),
-            style: const TextStyle(fontSize: 12, color: _muted),
-          ),
           Wrap(
             spacing: 12,
             children: [
@@ -840,13 +833,6 @@ final class _HazardDetailPageState extends State<HazardDetailPage> {
                 children: [
                   _heading(l.text('Your report', '你的报告'), size: 14),
                   const SizedBox(height: 8),
-                  Text(
-                    l.text(
-                      'Status is your own record, not platform verification.',
-                      '处理状态只代表你的记录，不是平台核验。',
-                    ),
-                    style: const TextStyle(fontSize: 12, color: _muted),
-                  ),
                   Wrap(
                     spacing: 16,
                     children: [
