@@ -1,5 +1,3 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
 
 import '../../../authentication_session/authentication_session.dart';
@@ -7,7 +5,6 @@ import '../../../cost_of_living_budget/cost_of_living_budget.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../l10n/language_controller.dart';
 
-/// Account actions use the same online services as location analysis.
 final class AccountCenterPage extends StatelessWidget {
   final AuthenticationViewModel authentication;
   final CurrentBudgetReader? currentBudget;

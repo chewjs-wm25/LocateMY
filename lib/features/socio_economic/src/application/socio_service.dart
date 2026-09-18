@@ -1,6 +1,6 @@
 import '../../../cost_of_living_budget/cost_of_living_budget.dart';
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import '../../../map_location/map_location.dart';
 import '../../../../modules/geographic_context/geographic_context.dart';
 import '../domain/socio_models.dart';
@@ -158,7 +158,7 @@ final class SocioService implements SocioEconomic {
           });
         }
       } catch (_) {
-        /* A failed cache write does not discard real observations. */
+        
       }
     }
     return _fromData(

@@ -1,4 +1,4 @@
-// Public TRANSIT-001 entry point.  Consumers must not import src/.
+
 export 'src/application/public_transportation_service.dart';
 export 'src/data/supabase_transit_reader.dart';
 export 'src/application/transit_analysis_reader.dart';

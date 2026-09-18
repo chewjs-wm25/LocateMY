@@ -1,8 +1,3 @@
-// ignore_for_file: prefer_initializing_formals
-
-// Explicit constructor parameter types and initialization lists are intentional:
-// this public model is read alongside Java-oriented collaboration contracts.
-
 sealed class SessionSnapshot {
   const SessionSnapshot();
 }

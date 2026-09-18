@@ -1,8 +1,8 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'socio_models.dart';
 
-/// Deterministic DOSM readings and percentile rules; no SDK or private records.
+
 final class SocioInputRules {
   const SocioInputRules();
   SocioReading? reading(

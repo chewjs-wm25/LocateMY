@@ -1,5 +1,5 @@
-// Explicit constructors follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
@@ -372,7 +372,7 @@ final class _NearbyFacilitiesPageState extends State<NearbyFacilitiesPage> {
                 return;
               }
             } catch (_) {
-              // Keep the URL selectable if the device has no browser.
+              
             }
             if (mounted) {
               await showDialog<void>(

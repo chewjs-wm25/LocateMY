@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:locatemy/features/map_location/map_location.dart';
 
 abstract interface class HazardReporting {
@@ -88,8 +88,8 @@ final class HazardViewport {
 }
 
 final class HazardPageRequest {
-  /// Selected map location; map queries use its 2 km radius.
-  /// Other paged readers continue to use the supplied viewport.
+  
+  
   final GeographicPoint? mapCenter;
   final String viewportVersion;
   final HazardViewport viewport;

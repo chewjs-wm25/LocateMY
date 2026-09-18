@@ -157,7 +157,7 @@ void main() {
         (value as GeographicLevelUnresolved).failure,
         GeographicContextFailure.noCoverage,
       );
-      expect(value.provenance, isNull); // RPC zero rows carries no provenance.
+      expect(value.provenance, isNull); 
     }
   });
   test(

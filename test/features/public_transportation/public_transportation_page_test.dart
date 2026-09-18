@@ -31,7 +31,7 @@ void main() {
       payload['availability_status'] = 'incomplete';
       payload['feeds'] = partialFeeds();
       if (distanceOnly) {
-        // All sources can be usable while the date-specific reference grid is missing.
+        
         payload['feeds'] = usableFeeds();
         payload['score_basis'] = 'distance_only';
       }

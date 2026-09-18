@@ -48,7 +48,7 @@ void main() {
           (s) => s.datasetId == 'gdp_qtr_real_sa',
         ),
         isEmpty,
-      ); // Official snapshot contains abs only; 70% remaining economic weight is valid.
+      ); 
       expect(snapshot.householdMedianIncome.surveyYear, 2024);
       await expectLater(
         anon.rpc('read_home_metrics'),

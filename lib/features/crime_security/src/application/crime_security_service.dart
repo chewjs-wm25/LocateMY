@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
@@ -125,7 +125,7 @@ final class CrimeSecurityService implements CrimeSecurity {
           SafetyCachedScope(state, boundaryVersion, data, analysis.capturedAt),
         );
       } catch (_) {
-        /* Public persistence failure leaves the online result usable. */
+        
       }
     }
     return analysis;
@@ -230,12 +230,12 @@ final class CrimeSecurityService implements CrimeSecurity {
         try {
           await _cache.write(data, _clock().toUtc());
         } catch (_) {
-          // Public cache write failures do not discard a verified online result.
+          
         }
       }
       return data;
     } catch (_) {
-      // Recheck expiry after the request: a slow failure cannot revive old data.
+      
       final Map<String, Object?>? fallback = await _cache.read();
       if (fallback != null) {
         return fallback;

@@ -16,7 +16,6 @@ AuthenticationSession createAuthenticationSession(SupabaseClient client) {
   return SupabaseAuthenticationSessionAdapter(client);
 }
 
-// Composition helpers; AUTH-001 declarations and Feature consumption stay fixed.
 AuthenticationViewModel createAuthenticationViewModel(
   AuthenticationSession session,
 ) {

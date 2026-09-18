@@ -1,9 +1,9 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import '../domain/location_models.dart';
 
-/// Online persistence boundary for the current account.
+
 abstract interface class LocationStorage {
   Future<List<SavedRecord>> readRemote();
   Future<SavedRecord> createRemote(SavedRecord record);

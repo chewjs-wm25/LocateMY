@@ -106,7 +106,7 @@ void main() {
       response.complete(const AuthenticatedSession(accountA));
       await initializing;
       expect(fake.changes.hasListener, false);
-      // Replace the disposed instance for tearDown.
+      
       vm = AuthenticationViewModel(AuthenticationUseCase(fake));
     },
   );

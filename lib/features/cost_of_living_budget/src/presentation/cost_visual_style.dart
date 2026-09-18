@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Penpot: LocateMY · Mobile UI / 05 · 生活成本 and 00 · UI Foundations.
+
 abstract final class CostVisualStyle {
   static const Color primary = Color(0xFF155EEF);
   static const Color ink = Color(0xFF172033);

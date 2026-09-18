@@ -11,7 +11,7 @@ void mapDiagnostic(
   void Function(Map<String, Object>)? sink,
 ]) {
   final int ms = elapsed.inMilliseconds;
-  // Fixed schema, enum outcomes and process-local IDs only. No inputs/payloads.
+  
   String bucket = '10sOrMore';
   if (ms < 100) {
     bucket = 'under100ms';
@@ -34,7 +34,7 @@ void mapDiagnostic(
       Zone.current.print(jsonEncode(event));
     }
   } catch (_) {
-    /* Diagnostics never block the operation. */
+    
   }
 }
 

@@ -1,6 +1,3 @@
-// Explicit constructor initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,7 +72,6 @@ Future<void> startLocateMy() async {
   final Database database = await openDatabase(
     '${await getDatabasesPath()}/locatemy-map-private.db',
   );
-  // One-time removal of the obsolete private cache. Public facility data stays.
   await database.execute('DROP TABLE IF EXISTS map_saved_records');
   final LocationSearch search = createLocationSearch(
     apiKey: const String.fromEnvironment('GEOAPIFY_API_KEY').isNotEmpty
@@ -102,7 +98,6 @@ Future<void> startLocateMy() async {
   );
 }
 
-/// Page entry seam used by the app and its existing Widget test harness.
 final class LocateMyApp extends StatefulWidget {
   final LanguageController? languageController;
   final AuthenticationViewModel authenticationViewModel;
@@ -167,7 +162,6 @@ final class _LocateMyAppState extends State<LocateMyApp> {
                         widget.authenticationViewModel.state.session;
                     if (session is AuthenticatedSession &&
                         widget.signedInBuilder != null) {
-                      // The account-keyed MaterialApp owns the ordinary route stack.
                       return InheritedAuthentication(
                         viewModel: widget.authenticationViewModel,
                         child: widget.signedInBuilder!(
@@ -191,7 +185,6 @@ final class _LocateMyAppState extends State<LocateMyApp> {
   }
 }
 
-/// Shared presentation tokens mirrored from the LocateMY mobile prototype.
 ThemeData _locateMyTheme() {
   const Color primary = Color(0xFF155EEF);
   const Color primarySoft = Color(0xFFEAF2FF);
@@ -487,7 +480,6 @@ final class _ProductionPagesState extends State<_ProductionPages> {
   }
 }
 
-/// Signed-in production pages composed from the existing business services.
 final class LocateMyPages extends StatefulWidget {
   final LocationCoordinator locations;
   final HazardReporting hazards;
@@ -997,7 +989,6 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
   }
 }
 
-/// Ordinary routes carry validated coordinates; pending analyses stay explicit.
 final class LocationAnalysisMenu extends StatelessWidget {
   final ValidLocationReference location;
   final ValidLocationReference? locationB;

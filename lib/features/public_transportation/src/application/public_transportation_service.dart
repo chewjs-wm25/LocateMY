@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'dart:math' as math;
 
 import 'package:locatemy/features/map_location/map_location.dart';
@@ -384,8 +384,8 @@ final class PublicTransportationService implements PublicTransportation {
               halfLongitudeSin;
       final double geometricDistance =
           6371008.8 * 2 * math.asin(math.sqrt(haversine.clamp(0, 1)));
-      // PostGIS uses the WGS84 ellipsoid; this spherical sanity check allows
-      // its maximum 0.6% deviation plus integer-rounding tolerance.
+      
+      
       if ((geometricDistance - distance).abs() >
           2 + geometricDistance * 0.006) {
         throw const FormatException(

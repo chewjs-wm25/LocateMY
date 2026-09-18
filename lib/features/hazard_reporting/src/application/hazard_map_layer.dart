@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -188,7 +188,7 @@ final class HazardMapLayer extends ChangeNotifier {
       if (contribution is MapLayerRejected) {
         switch (contribution.failure) {
           case MapLayerFailure.staleViewport:
-            // The host moved ahead; the next viewport request replaces this page.
+            
             break;
           case MapLayerFailure.scopeUnavailable:
             failure = HazardReadFailure.scopeUnavailable;

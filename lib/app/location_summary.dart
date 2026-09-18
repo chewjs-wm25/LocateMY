@@ -1,5 +1,3 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 import '../features/map_location/map_location.dart';
 import '../features/crime_security/crime_security.dart';
 import '../features/cost_of_living_budget/cost_of_living_budget.dart';
@@ -7,7 +5,6 @@ import '../features/nearby_facilities/nearby_facilities.dart';
 import '../features/public_transportation/public_transportation.dart';
 import '../features/infrastructure_coverage/infrastructure_coverage.dart';
 
-/// Composes native business readings without calculating a location total.
 final class BusinessLocationSummaryReader implements LocationSummaryReader {
   final CrimeSecurity? crime;
   final CostOfLivingBudget? cost;
@@ -57,7 +54,6 @@ final class BusinessLocationSummaryReader implements LocationSummaryReader {
     try {
       return await read();
     } catch (_) {
-      // One unavailable provider must not suppress the other four readings.
       return LocationSummaryReading(metric);
     }
   }
@@ -230,7 +226,6 @@ final class BusinessLocationSummaryReader implements LocationSummaryReader {
     ValidLocationReference location,
     DateTime date,
   ) async {
-    // Summary always uses neutral priorities, never account preview weights.
     final InfrastructureLoadOutcome? outcome = await infrastructure?.summary(
       location,
       date,

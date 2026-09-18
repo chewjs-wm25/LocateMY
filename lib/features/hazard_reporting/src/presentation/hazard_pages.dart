@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
@@ -874,7 +874,7 @@ final class _HazardDetailPageState extends State<HazardDetailPage> {
   }
 }
 
-/// Loads through the Feature seam and refreshes authoritative details after writes.
+
 final class HazardDetailLoader extends StatefulWidget {
   final HazardReporting hazards;
   final bool showHeading;

@@ -1,5 +1,5 @@
-// Explicit constructor parameters make immutable field initialization visible.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'package:locatemy/features/map_location/map_location.dart';
 

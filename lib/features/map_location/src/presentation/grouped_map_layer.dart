@@ -1,5 +1,5 @@
-// Explicit constructor types follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,7 +8,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../domain/location_models.dart';
 
-/// Groups dense overlays in screen space without discarding provider data.
+
 class GroupedMapLayer extends StatelessWidget {
   final List<MapLayerItem> items;
   final MapController controller;
@@ -160,7 +160,7 @@ class GroupedMapLayer extends StatelessWidget {
       );
       return;
     }
-    // Co-located points remain individually accessible at the closest zoom.
+    
     showModalBottomSheet<void>(
       context: context,
       useRootNavigator: false,
@@ -191,7 +191,7 @@ class GroupedMapLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Reading the inherited camera regroups points on pan, zoom and resize.
+    
     final MapCamera camera = MapCamera.of(context);
     final AppLocalizations l10n =
         AppLocalizations.of(context) ??
@@ -297,8 +297,8 @@ class GroupedMapLayer extends StatelessWidget {
                             const SizedBox(width: 2),
                             Text(
                               '${group.items.length}',
-                              // Map symbols keep a fixed size; the tooltip exposes
-                              // the full localized count to assistive technology.
+                              
+                              
                               textScaler: TextScaler.noScaling,
                               style: TextStyle(
                                 color: color,

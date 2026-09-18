@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:locatemy/features/map_location/map_location.dart';
 
 abstract interface class SafetyInputsCache {
@@ -12,8 +12,8 @@ abstract interface class SafetyInputsCache {
   Future<void> write(Map<String, Object?> inputs, DateTime fetched);
 }
 
-// Cached public analysis context; contains no account, location name or record id.
-// Explicit initialization follows Development Standard §7.
+
+
 final class SafetyCachedScope {
   final String state;
   final String boundaryVersion;

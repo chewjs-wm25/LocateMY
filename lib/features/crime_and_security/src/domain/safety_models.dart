@@ -1,12 +1,12 @@
 import 'package:locatemy/features/map_location/map_location.dart';
 
-/// SAFETY-001: Official crime statistics and safety index.
+
 abstract interface class CrimeAndSecurity {
   Future<SafetyLoadOutcome> load(SafetyRequest request);
   Future<SafetyComparisonOutcome> compare(SafetyComparisonRequest request);
 }
 
-/// Shell intent to return to the map with the current location context.
+
 final class CrimeReturnToMapIntent {
   final ValidLocationReference location;
   final Object? returnContext;
@@ -14,7 +14,7 @@ final class CrimeReturnToMapIntent {
   const CrimeReturnToMapIntent({required this.location, this.returnContext});
 }
 
-/// Shell intent to open the Crime & Security page.
+
 final class OpenCrimeSecurityIntent {
   final ValidLocationReference location;
   final Object? returnContext;
@@ -22,7 +22,7 @@ final class OpenCrimeSecurityIntent {
   const OpenCrimeSecurityIntent({required this.location, this.returnContext});
 }
 
-/// Shell intent to open the Crime & Security comparison page.
+
 final class OpenCrimeSecurityComparisonIntent {
   final ValidLocationReference locationA;
   final ValidLocationReference locationB;
@@ -35,14 +35,14 @@ final class OpenCrimeSecurityComparisonIntent {
   });
 }
 
-/// Shell intent to open the property archive.
+
 final class PropertyArchiveIntent {
   final Object? returnContext;
 
   const PropertyArchiveIntent({this.returnContext});
 }
 
-/// Shell intent to add a new property.
+
 final class PropertyAddIntent {
   final Object? returnContext;
 

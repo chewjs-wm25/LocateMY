@@ -34,7 +34,7 @@ final class SupabaseGeoRepository implements GeographicContextRepository {
       }
       return response.cast<Map<String, dynamic>>();
     } on PostgrestException catch (e) {
-      // Postgrest wraps a malformed 2xx JSON body using its HTTP status code.
+      
       final int? status = int.tryParse(e.code ?? '');
       if (status != null && status >= 200 && status < 300) {
         throw GeographicContextFailure.versionUnverifiable;

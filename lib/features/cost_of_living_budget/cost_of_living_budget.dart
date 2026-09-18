@@ -1,5 +1,3 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
@@ -27,13 +25,11 @@ export 'src/presentation/cost_budget_page.dart';
 export 'src/presentation/budget_scenarios_page.dart';
 export 'src/presentation/budget_account_panel.dart';
 
-/// COST-001: The primary interface for Cost of Living analysis.
 abstract interface class CostOfLivingBudget {
   Future<CostAnalysisOutcome> analyse(CostAnalysisRequest request);
   Future<CostComparisonOutcome> compare(CostComparisonRequest request);
 }
 
-/// COST-002: The store for managing user budget scenarios.
 abstract interface class BudgetScenarioStore {
   Future<BudgetScenariosOutcome> read();
   Stream<BudgetScenariosOutcome> watch();

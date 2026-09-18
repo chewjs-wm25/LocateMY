@@ -44,7 +44,7 @@ Future<T> observeFacility<T>(
       }),
     );
   } catch (_) {
-    // Diagnostics contain no user input and never block the operation.
+    
   }
   return outcome;
 }

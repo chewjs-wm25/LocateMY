@@ -1,4 +1,4 @@
-// Explicit local types follow Development Standard §7.
+
 import 'dart:convert';
 
 import 'package:locatemy/features/cost_of_living_budget/cost_of_living_budget.dart';

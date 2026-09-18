@@ -1,5 +1,3 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 import 'package:sqflite/sqflite.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
 
@@ -78,7 +76,7 @@ final class CostService implements CostOfLivingBudget {
     try {
       await _cache?.write(key, result);
     } catch (_) {
-      /* Public cache failure does not discard successful online reads. */
+      
     }
     return result;
   }

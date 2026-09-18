@@ -1,5 +1,3 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 final class BudgetScenario {
   final String id;
   final String name;

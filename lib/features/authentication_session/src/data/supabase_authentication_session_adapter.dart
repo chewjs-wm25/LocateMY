@@ -131,8 +131,6 @@ final class SupabaseAuthenticationSessionAdapter
   }
 
   SignOutOutcome _deviceSignOutOutcome(SignOutFailure failure) {
-    // SDK local logout clears its identity before requesting remote revocation.
-    // A failed remote request must not recreate a signed-in UI for that identity.
     if (_client.auth.currentSession == null) {
       return const SignOutSucceeded();
     }

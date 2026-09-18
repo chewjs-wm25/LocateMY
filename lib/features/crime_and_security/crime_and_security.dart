@@ -9,7 +9,7 @@ import 'src/data/crime_repository.dart';
 export 'src/domain/safety_models.dart';
 export 'src/presentation/crime_security_page.dart';
 
-/// Factory function to create the Crime & Security service.
+
 CrimeAndSecurity createCrimeAndSecurity({
   required SupabaseClient supabaseClient,
   required Database database,

@@ -41,7 +41,7 @@ final class HomeService implements HomeRelocationOutlook, HomeTrendReader {
     final HomeLoadOutcome outcome = await _execute(request);
     final String result = _resultName(outcome);
     final int milliseconds = elapsed.elapsedMilliseconds;
-    // Fixed fields and generated IDs: no remote content or account identifiers.
+    
     Zone.current.print(
       jsonEncode({
         'event': 'home.load.completed',

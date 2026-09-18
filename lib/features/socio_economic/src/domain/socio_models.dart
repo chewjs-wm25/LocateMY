@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import '../../../map_location/map_location.dart';
 
 final class SocioReading {
@@ -16,7 +16,7 @@ final class SocioReading {
 
 final class SocioAnalysis {
   final ValidLocationReference location;
-  // Government source facts stay internal; no user or account data is cached.
+  
   static const String modelVersion = 'socio-v1';
   static const Map<String, String> sourceUrls = <String, String>{
     'hh_income_district':
@@ -39,12 +39,12 @@ final class SocioAnalysis {
   final SocioFailure? failure;
   final IncomePosition? position;
 
-  /// Latest complete median series used for income-position estimation.
+  
   final List<double> distribution;
   final int? distributionYear;
   final int? completeDistributionYear;
 
-  /// Survey-aligned observed curve, including a partial year; never padded or smoothed.
+  
   final Map<int, double> distributionPoints;
   final SocioStructure? structure;
   const SocioAnalysis({

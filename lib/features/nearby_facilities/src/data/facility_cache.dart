@@ -1,5 +1,5 @@
-// Explicit constructors follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'dart:convert';
 
@@ -9,7 +9,7 @@ import 'package:sqflite/sqflite.dart';
 import '../domain/facility_models.dart';
 import '../application/facility_cache.dart';
 
-/// Stores only complete public OSM observations, never location names or accounts.
+
 final class PublicFacilityCache implements FacilityCache {
   final Database? database;
   final Map<String, OverpassFacilityComplete> _memory =
@@ -28,8 +28,8 @@ final class PublicFacilityCache implements FacilityCache {
           !columns.any((Map<String, Object?> column) {
             return column['name'] == 'expires_at';
           })) {
-        // Public cache is disposable. Invalidate legacy observations whose
-        // provenance and completion metadata cannot be verified.
+        
+        
         await connection.execute('DROP TABLE facility_public_cache');
       }
       await connection.execute(
@@ -93,7 +93,7 @@ final class PublicFacilityCache implements FacilityCache {
         queriedAt: queriedAt,
       );
     } catch (_) {
-      // A damaged or unavailable cache is a miss; it is never an empty result.
+      
       return null;
     }
   }
@@ -135,7 +135,7 @@ final class PublicFacilityCache implements FacilityCache {
         }),
       }, conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (_) {
-      // A cache write failure does not erase a successful live observation.
+      
     }
   }
 }

@@ -175,7 +175,7 @@ void main() {
     ).load(HomeLoadRequest.cacheAllowed);
     expect(result, isA<HomeLoaded>());
     final snapshot = (result as HomeLoaded).snapshot;
-    // Level: 35/36 * 100. All -3 point changes tie: trend score 0.
+    
     expect(snapshot.costPressure.score, 78);
     expect(snapshot.costPressure.source.observedAt, DateTime.utc(2024, 12));
     expect(snapshot.costPressure.directionExplanation, 'cost.easing');
@@ -209,8 +209,8 @@ void main() {
       openCache: () async => db,
     ).load(HomeLoadRequest.cacheAllowed);
     final snapshot = (result as HomeLoaded).snapshot;
-    // Unemployment 47/48*100; annual growth minimum rank 1/36*100;
-    // participation changes all tie at the maximum percentile.
+    
+    
     expect(snapshot.employmentStability.score, 65);
     expect(
       snapshot.employmentStability.source.observedAt,
@@ -258,7 +258,7 @@ void main() {
       client,
       openCache: () async => db,
     ).load(HomeLoadRequest.cacheAllowed)) as HomeLoaded).snapshot;
-    // 0.4*75 + 0.3*(1/42*100) + 0.3*100 = 60.714.
+    
     expect(snapshot.economicMomentum.score, 61);
     expect(snapshot.economicMomentum.directionExplanation, 'economy.expanding');
     expect(snapshot.economicMomentum.source.observedAt, DateTime.utc(2024, 12));
@@ -680,7 +680,7 @@ void main() {
       client,
       openCache: () async => db,
     ).load(HomeLoadRequest.cacheAllowed)) as HomeLoaded).snapshot;
-    // 30 + 30/42 + 30/17 = 32.479; GDP latest is not aligned back to December.
+    
     expect(snapshot.economicMomentum.score, 32);
     expect(snapshot.economicMomentum.source.observedAt, DateTime.utc(2024, 12));
     expect(
@@ -705,7 +705,7 @@ void main() {
       client,
       openCache: () async => db,
     ).load(HomeLoadRequest.cacheAllowed);
-    // External SQLite fault setup; verify recovery only through HOME-001.
+    
     final row = (await db.query('home_public_cache')).single;
     final corrupt = jsonDecode(row['result_payload'] as String) as Map;
     corrupt['costPressure']['score'] = 300;

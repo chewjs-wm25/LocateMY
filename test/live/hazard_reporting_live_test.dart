@@ -208,8 +208,8 @@ void main() {
       final HazardNearbyCountAvailable baseline = await counter.countPending(
         const HazardNearbyCountRequest(center),
       ) as HazardNearbyCountAvailable;
-      // Independent worked points on the same meridian: 1999 m, 2000 m,
-      // 2001 m north, then two at the centre (one resolved).
+      
+      
       const List<double> latitudes = [
         3.091777438902315,
         3.0917864321183745,

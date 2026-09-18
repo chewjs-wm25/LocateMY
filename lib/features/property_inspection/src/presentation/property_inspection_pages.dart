@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
@@ -94,7 +94,7 @@ Widget _box(Widget child) {
   );
 }
 
-// Dimensions and colours follow Penpot boards 16–18. Large text stacks cards.
+
 const Color _ink = Color(0xFF172033);
 const Color _muted = Color(0xFF667085);
 const Color _blue = Color(0xFF155EEF);
@@ -1263,7 +1263,7 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
         );
       },
     );
-    // Route animations may still own the text field after showDialog resolves.
+    
     if (!mounted || result == null) {
       return;
     }

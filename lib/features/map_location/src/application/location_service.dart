@@ -1,5 +1,5 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'dart:async';
 import 'dart:math';
@@ -99,8 +99,8 @@ class LocationService
     layerChanges.add(null);
   }
 
-  // The frozen interfaces have no transport-error variant. Fail closed using
-  // scopeUnavailable without claiming the point is outside Malaysia.
+  
+  
   Future<bool?> _validate(GeographicPoint point) async {
     try {
       return await validatePoint(point);
@@ -209,8 +209,8 @@ class LocationService
   Future<void> _tail = Future<void>.value();
 
   Future<T> _serialized<T>(Future<T> Function() run) {
-    // A Future chain is necessary here to preserve the one-at-a-time durable
-    // storage contract while allowing a prior failure to be reported normally.
+    
+    
     final Future<T> result = _tail.then((_) => run());
     _tail = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return result;

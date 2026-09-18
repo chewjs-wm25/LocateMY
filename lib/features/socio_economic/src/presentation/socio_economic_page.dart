@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 

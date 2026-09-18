@@ -1,5 +1,3 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../application/cost_service.dart';

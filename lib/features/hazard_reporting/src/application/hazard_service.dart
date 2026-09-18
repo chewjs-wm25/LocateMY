@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import '../domain/hazard_models.dart';
 
@@ -124,7 +124,7 @@ final class HazardService implements HazardReporting, HazardRiskCounter {
         developer.log(jsonEncode(diagnostic), name: 'locatemy');
       }
     } catch (_) {
-      /* Diagnostics never change a business outcome. */
+      
     }
     return result;
   }

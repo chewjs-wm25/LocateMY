@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
@@ -377,9 +377,9 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                 const SizedBox(height: 8),
               );
 
-              // ============================================================
-              // General crime category filters
-              // ============================================================
+              
+              
+              
 
               final List<Widget> chips = <Widget>[];
 
@@ -452,21 +452,21 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                 ),
               );
 
-              // ============================================================
-              // Specific crime type filter
-              // ============================================================
+              
+              
+              
 
               final List<
                   PopupMenuEntry<
                       String>> types =
                   <PopupMenuEntry<
                       String>>[
-                // "None" means:
-                //
-                // Do not apply a specific crime-type filter.
-                //
-                // Internally this reuses the existing "all" filter instead
-                // of introducing a new "none" value.
+                
+                
+                
+                
+                
+                
                 PopupMenuItem<String>(
                   value: 'all',
                   child: Text(
@@ -511,11 +511,11 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                 );
               }
 
-              // Only show this menu when at least one actual
-              // specific crime type exists.
-              //
-              // types always contains "None", so > 1 means there
-              // is at least one type:* entry.
+              
+              
+              
+              
+              
               if (types.length > 1) {
                 String selectedTypeLabel =
                     s.text(
@@ -539,8 +539,8 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                       '选择犯罪类型',
                     ),
 
-                    // Selecting "None" passes "all" here,
-                    // restoring the default unfiltered trend.
+                    
+                    
                     onSelected:
                         _model.select,
 
@@ -586,9 +586,9 @@ final class _CrimeSecurityPageState extends State<CrimeSecurityPage> {
                 const SizedBox(height: 12),
               );
 
-              // ============================================================
-              // Trend chart
-              // ============================================================
+              
+              
+              
 
               children.add(
                 SafetyTrendCard(

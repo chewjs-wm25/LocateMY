@@ -1,5 +1,5 @@
-// Explicit constructor parameters follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -270,7 +270,7 @@ void main() {
         DateTime(2026, 9, 18),
       ) as InfrastructureAvailable;
       expect(result.snapshot.categories.last.score, 87);
-      // Fixture observes water 100, power 0, healthcare 50; education is missing.
+      
     expect(result.snapshot.score, 59);
       expect(result.snapshot.transitPartial, isTrue);
       expect(result.snapshot.transitDistanceOnly, isTrue);

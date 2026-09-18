@@ -18,7 +18,7 @@ final class SafetyService implements CrimeAndSecurity {
 
   @override
   Future<SafetyLoadOutcome> load(SafetyRequest request) async {
-    // 1. Resolve Geographic Context
+    
     final geoOutcome = await geographicContext.resolve(
       GeographicContextRequest(
         location: request.location,
@@ -55,7 +55,7 @@ final class SafetyService implements CrimeAndSecurity {
     );
     final boundaryVersion = stateOutcome.provenance.sourceVersion;
 
-    // 2. Check Cache
+    
     if (request.policy == SafetyLoadPolicy.cacheAllowed) {
       final cached = await repository.getCachedSafety(
         reportingState.stableId,
@@ -63,23 +63,23 @@ final class SafetyService implements CrimeAndSecurity {
         boundaryVersion,
       );
       if (cached != null && !cached.isExpired) {
-        // Deserialize and return cached snapshot
-        // For simplicity in this implementation, we re-parse from JSON.
-        // In a real app, you might use a proper serializer.
+        
+        
+        
         try {
-          // We would normally use a serializer here.
-          // For now, let's assume we proceed to fetch fresh if cache deserialization fails.
+          
+          
         } catch (_) {}
       }
     }
 
-    // 3. Fetch Fresh Data
+    
     final rawData = await repository.fetchCrimeData(reportingState.name);
     if (rawData.isEmpty) {
       return const SafetyUnavailable(SafetyUnavailableReason.sourceMissing);
     }
 
-    // Determine latest complete year (Y)
+    
     final years = rawData
         .map((e) => int.tryParse(e.date.split('-')[0]) ?? 0)
         .where((y) => y > 0)
@@ -90,13 +90,13 @@ final class SafetyService implements CrimeAndSecurity {
     }
     final latestYear = years.reduce(math.max);
 
-    // Fetch peer data for percentile calculation
+    
     final peerRows = await repository.fetchOtherStatesData(latestYear);
     if (peerRows.isEmpty) {
       return const SafetyUnavailable(SafetyUnavailableReason.sourceMissing);
     }
 
-    // 4. Calculate Safety Index
+    
     final snapshot = _calculateSnapshot(
       request: request,
       reportingState: reportingState,
@@ -110,8 +110,8 @@ final class SafetyService implements CrimeAndSecurity {
       return const SafetyUnavailable(SafetyUnavailableReason.noValidCategory);
     }
 
-    // 5. Cache result
-    // (Serialization omitted for brevity, would use jsonEncode(snapshot.toJson()))
+    
+    
 
     return snapshot.completeness == SafetyCompleteness.complete
         ? SafetyAvailable(snapshot)
@@ -164,12 +164,12 @@ final class SafetyService implements CrimeAndSecurity {
     required List<String> peerRows,
     required String boundaryVersion,
   }) {
-    // Filter by year
+    
     final currentYearData = rawData
         .where((e) => e.date.startsWith(latestYear.toString()))
         .toList();
 
-    // Sum crimes by category for the target state
+    
     int assaultCrimes = 0;
     int propertyCrimes = 0;
     for (final e in currentYearData) {
@@ -177,7 +177,7 @@ final class SafetyService implements CrimeAndSecurity {
       if (e.category.toLowerCase() == 'property') propertyCrimes += e.crimes;
     }
 
-    // Aggregate peer data
+    
     final peerStats = <String, Map<String, int>>{};
     for (final rowJson in peerRows) {
       final data = jsonDecode(rowJson);
@@ -192,7 +192,7 @@ final class SafetyService implements CrimeAndSecurity {
       }
     }
 
-    // Calculate percentiles
+    
     final assaultPercentile = _calculatePercentile(
       targetCrimes: assaultCrimes,
       allCrimes: peerStats.values.map((s) => s['assault'] ?? 0).toList()
@@ -204,7 +204,7 @@ final class SafetyService implements CrimeAndSecurity {
         ..add(propertyCrimes),
     );
 
-    // Calculate Risk Score and Safety Index
+    
     double riskScore = 0;
     double totalWeight = 0;
     bool hasAssault =
@@ -227,7 +227,7 @@ final class SafetyService implements CrimeAndSecurity {
 
     final finalScore = (100 - (riskScore / totalWeight)).clamp(0, 100).round();
 
-    // Prepare Trend
+    
     final trendPoints = _generateTrend(rawData, request.filter, latestYear);
 
     return SafetySnapshot(

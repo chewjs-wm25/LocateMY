@@ -1,8 +1,8 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:locatemy/features/map_location/map_location.dart';
 
-/// Shared enums and domain models for the Infrastructure Coverage feature.
+
 enum InfrastructureLoadPolicy { cacheAllowed, refresh }
 
 final class InfrastructureWeightSettings {

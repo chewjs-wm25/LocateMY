@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -184,8 +184,8 @@ final class CountingPrices implements CostPublicReader {
   }
 }
 
-// External current stream seam: cancellation cannot retract a callback that a
-// source has already queued. Deliver that callback after the page leaves.
+
+
 final class LateCurrentStream extends Stream<BudgetScenariosOutcome> {
   void Function(BudgetScenariosOutcome)? _queued;
   @override

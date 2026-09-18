@@ -1,5 +1,5 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'package:flutter/material.dart';
 
@@ -122,7 +122,7 @@ class _MapLocationPageState extends State<MapLocationPage>
   }
 
   String locationSummary(LocationRole role, ValidLocationReference location) {
-    // Exhaustive enum matching makes a newly added role a compile-time error here.
+    
     final String label = switch (role) {
       LocationRole.single => l10n.mapSelectedAnalysisLocation,
       LocationRole.locationA => l10n.mapLocationA,

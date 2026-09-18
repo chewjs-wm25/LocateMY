@@ -1,5 +1,5 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'dart:async';
 
@@ -220,7 +220,7 @@ class MapViewModel extends ChangeNotifier {
       final SavedLocationOutcome result = await locations.save(
         SaveLocationRequest(location: location, name: name),
       );
-      // This ordinary switch remains exhaustive over the sealed save result.
+      
       switch (result) {
         case SavedLocationSaved():
           message = 'saved';

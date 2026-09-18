@@ -1,11 +1,11 @@
-// Explicit constructor initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:flutter/foundation.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/transit_models.dart';
 
-/// Owns request identity and selection for one page, never global Map state.
+
 final class TransitViewModel extends ChangeNotifier {
   final PublicTransportation _transportation;
   final MapLayerHost? _mapLayerHost;
@@ -201,7 +201,7 @@ final class TransitViewModel extends ChangeNotifier {
         ),
       );
     } catch (_) {
-      // The owned workspace was already invalidated synchronously above.
+      
     }
   }
 

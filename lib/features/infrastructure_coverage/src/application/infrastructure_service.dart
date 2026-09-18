@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/features/public_transportation/public_transportation.dart';
 import 'package:locatemy/modules/geographic_context/geographic_context.dart';
@@ -75,14 +75,14 @@ final class InfrastructureService {
       try {
         await previous;
       } catch (_) {
-        /* A failed older write must not block a newer observation. */
+        
       }
     }
     if (_cacheRevisions[key] != revision) {
       return;
     }
-    // A newer write for this key queues behind an already in-flight write,
-    // ensuring the old completion cannot subsequently overwrite the new data.
+    
+    
     await cache?.write(key, payload);
   }
 
@@ -266,7 +266,7 @@ final class InfrastructureService {
                 'inputs': inputs,
               }, revision);
             } catch (_) {
-              /* Readable observations survive cache write failure. */
+              
             }
           }
         }

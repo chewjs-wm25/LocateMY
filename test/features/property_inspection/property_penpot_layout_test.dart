@@ -80,7 +80,7 @@ void main() {
     final FontLoader icons = FontLoader('MaterialIcons');
     icons.addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
     await icons.load();
-    // Optional captures use a local CJK fallback; CI assertions do not require it.
+    
     if (const bool.fromEnvironment('PROPERTY_UI_CAPTURE')) {
       final File cjkFont = File(
         '/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc',
@@ -175,7 +175,7 @@ void main() {
               '$page-$language-${large ? 'large' : 'normal'}',
             );
             if (page == 'comparison') {
-              // Unavailable snapshots must not expose stale counts; real zero stays zero.
+              
               expect(find.text('99'), findsNothing);
               expect(find.text('0'), findsNWidgets(2));
               expect(find.text('—'), findsNWidgets(3));
@@ -196,7 +196,7 @@ void main() {
               );
               expect(tester.takeException(), isNull);
             } else {
-              // Both rows remain editable and the saved average comes from all four ratings.
+              
               final Finder lighting = find.byType(DropdownButton<int>).last;
               await tester.scrollUntilVisible(
                 lighting,

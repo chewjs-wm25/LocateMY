@@ -85,7 +85,7 @@ HomeTrendHistory reconstructHomeTrends(
           card.source.datasetId,
           snapshot,
         );
-        // A missing month is a gap, not a repeated historical point.
+        
         if (metric.score != null && effectiveDate(snapshot, metric) == at) {
           points.add(HomeTrendPoint(at, metric.score!));
         }

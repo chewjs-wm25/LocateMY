@@ -1,5 +1,5 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -139,7 +139,7 @@ void main() {
     'state safety uses 60:40 category percentiles across actual states',
     () async {
       final SafetyAnalysis result = await crime.analyse(sunway);
-      // Assault rank 1/3, property rank 3/3 => risk 60, safety 40.
+      
       expect(result.score, closeTo(40, 0.00001));
       expect(result.latestCount, 40);
       expect(result.availability, SafetyAvailability.complete);

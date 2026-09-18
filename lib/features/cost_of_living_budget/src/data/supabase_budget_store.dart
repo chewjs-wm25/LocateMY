@@ -1,5 +1,3 @@
-// Explicit field initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';

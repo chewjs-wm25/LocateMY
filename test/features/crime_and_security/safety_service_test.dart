@@ -127,10 +127,10 @@ void main() {
       final snapshot = (outcome as SafetyAvailable).snapshot;
       expect(snapshot.score.value, isNotNull);
       expect(snapshot.latestCompleteYearCount.year, 2023);
-      // KL (100, 200) vs Selangor (50, 150). KL has more crimes, so risk should be higher, safety lower.
-      // log(101) > log(51), log(201) > log(151).
-      // KL is 100th percentile for both (in this 2-state set).
-      // Risk = 0.6*100 + 0.4*100 = 100. Safety = 100 - 100 = 0.
+      
+      
+      
+      
       expect(snapshot.score.value, 0);
     });
 

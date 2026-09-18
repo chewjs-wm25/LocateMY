@@ -60,7 +60,7 @@ void main() {
       for (final FacilityCategoryResult category in analysis.categories) {
         counts.add(category.count);
       }
-      // Sanitized evidence: no account identifiers or precise coordinates.
+      
       debugPrint(
         'FACILITY_LIVE: complete; radius=2000; counts=$counts; observedAt=${analysis.observedAt.toUtc()}; durable cache=PASS',
       );

@@ -4,7 +4,7 @@ import 'package:locatemy/features/public_transportation/public_transportation.da
 
 import 'src/application/infrastructure_service.dart';
 import 'src/data/infrastructure_cache.dart';
-// Infrastructure COVERAGE entry point. Consumers must not import src/.
+
 export 'src/application/infrastructure_service.dart';
 export 'src/domain/infrastructure_models.dart';
 export 'src/presentation/infrastructure_coverage_page.dart';

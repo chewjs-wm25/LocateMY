@@ -1,5 +1,5 @@
-// Explicit constructors follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'domain/facility_models.dart';
 

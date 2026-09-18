@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// Penpot: LocateMY · Mobile UI / 02 · 首页 and 00 · UI Foundations.
+
 abstract final class HomeVisualStyle {
   static const primary = Color(0xFF155EEF);
   static const ink = Color(0xFF172033);

@@ -1,5 +1,5 @@
-// Real production app/routes/services. Credentials are supplied only at runtime
-// by an adb-reversed, loopback-only QA fixture server and are never in the APK.
+
+
 import 'dart:convert';
 import 'dart:io';
 

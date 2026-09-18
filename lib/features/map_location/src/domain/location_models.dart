@@ -1,5 +1,5 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 abstract interface class LocationCoordinator {
   Future<LocationSelectionOutcome> select(LocationSelectionRequest request);
@@ -197,7 +197,7 @@ final class MapLayerContribution {
 
 enum MapLayerVisibility { visible, hidden }
 
-/// Presentation categories shared by providers without exposing Flutter icons.
+
 enum MapMarkerKind {
   generic,
   facilityHealth,

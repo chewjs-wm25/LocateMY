@@ -1,5 +1,5 @@
-// Explicit constructor types follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -252,7 +252,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      // The network layer completes after the map has already been displayed.
+      
       await tester.pump(const Duration(seconds: 75));
       final List<MapLayerItem> items = <MapLayerItem>[];
       for (int index = 0; index < 600; index += 1) {
@@ -296,7 +296,7 @@ void main() {
       }
       expect(locationWorkspace(locations).visibleLayerItems.length, 600);
       expect(find.text('600'), findsOneWidget);
-      // Republishing the same layer replaces its contents rather than accumulating.
+      
       expect(
         await locationLayerHost(locations).contribute(contribution),
         isA<MapLayerAccepted>(),

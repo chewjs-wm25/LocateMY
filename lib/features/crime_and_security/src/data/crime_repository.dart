@@ -73,10 +73,10 @@ class CrimeRepository {
   }
 
   Future<List<RawCrimeData>> fetchCrimeData(String stateName) async {
-    // The contract specifies using read_safety_inputs RPC or view.
-    // Given it's "proposed", I'll use the table name if RPC isn't available,
-    // but the contract says "Flutter doesn't query mirror tables directly, but via read-only View or RPC".
-    // I'll try calling the RPC 'read_safety_inputs' with state filter.
+    
+    
+    
+    
     try {
       final response = await supabaseClient
           .from('crime_district')
@@ -86,14 +86,14 @@ class CrimeRepository {
       final List<dynamic> data = response as List<dynamic>;
       return data.map((json) => RawCrimeData.fromJson(json)).toList();
     } catch (e) {
-      // Fallback or error handling
+      
       return [];
     }
   }
 
   Future<List<String>> fetchOtherStatesData(int year) async {
-    // Fetch aggregated data for other states in the same year to calculate percentiles.
-    // Exclude 'Malaysia' as per contract.
+    
+    
     try {
       final response = await supabaseClient
           .from('crime_district')
@@ -101,9 +101,9 @@ class CrimeRepository {
           .filter('date', 'like', '$year%')
           .neq('state', 'Malaysia');
 
-      // This logic should probably be in an RPC for performance,
-      // but for now we aggregate in the service if the RPC isn't ready.
-      // Returning raw data for aggregation.
+      
+      
+      
       return (response as List<dynamic>).map((e) => jsonEncode(e)).toList();
     } catch (e) {
       return [];

@@ -1,8 +1,8 @@
-// Explicit initialization follows Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import '../domain/location_models.dart';
 
-/// The five native readings shown in expanded map location details.
+
 abstract interface class LocationSummaryReader {
   Future<List<LocationSummaryReading>> read(
     ValidLocationReference location,

@@ -1,5 +1,5 @@
-// Explicit constructors follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../domain/facility_models.dart';
 
-/// Coordinates provider work without changing Map's selected point or viewport.
+
 final class FacilityMapViewModel {
   final NearbyFacilities facilities;
   final LocationCoordinator locations;
@@ -61,7 +61,7 @@ final class FacilityMapViewModel {
       return;
     }
     if (_published != null) {
-      // Invalidate before notifying Map; its change event schedules the new query.
+      
       _published = null;
       await locationLayerHost(locations).contribute(
         MapLayerContribution(
@@ -94,7 +94,7 @@ final class FacilityMapViewModel {
         return;
       }
       if (result is FacilityAnalysisAvailable) {
-        // Mark before Map notifies its own change stream; avoid a feedback loop.
+        
         _published = identity;
         final FacilityLayerOutcome layer = await facilities.contributeLayer(
           FacilityLayerRequest(
