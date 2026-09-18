@@ -9,7 +9,6 @@ import 'package:locatemy/l10n/app_localizations.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../support/fake_application_shell.dart';
 import 'home_load_test.dart' show fullData;
 
 void main() {
@@ -43,10 +42,7 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: HomeOutlookPage(
-              home: home,
-              applicationShell: FakeApplicationShell(),
-            ),
+            body: HomeOutlookPage(home: home, onExploreMap: () {}),
           ),
         ),
       );
@@ -104,10 +100,7 @@ void main() {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
-            body: HomeOutlookPage(
-              home: home,
-              applicationShell: FakeApplicationShell(),
-            ),
+            body: HomeOutlookPage(home: home, onExploreMap: () {}),
           ),
         ),
       );

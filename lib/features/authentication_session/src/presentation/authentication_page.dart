@@ -9,11 +9,9 @@ import 'authentication_view_state.dart';
 final class AuthenticationPage extends StatefulWidget {
   final AuthenticationViewModel viewModel;
   final Future<void> Function()? onSignOut;
-  final Future<void> Function()? onRetryProfile;
   const AuthenticationPage({
     required this.viewModel,
     this.onSignOut,
-    this.onRetryProfile,
     super.key,
   });
 
@@ -127,59 +125,15 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
             children: const [Center(child: CircularProgressIndicator())],
           );
         }
-        if (state.signOutBlocked) {
-          return _statusPage(
-            title: AppLocalizations.of(context)!.signOutIncomplete,
-            children: [
-              if (state.messageKey != null)
-                _FeedbackBanner(messageKey: state.messageKey!),
-              FilledButton(
-                onPressed: widget.onSignOut,
-                child: Text(AppLocalizations.of(context)!.retrySignOut),
-              ),
-            ],
-          );
-        }
         final SessionSnapshot? snapshot = state.session;
-        if (snapshot is SessionUnavailable) {
-          return _statusPage(
-            title: AppLocalizations.of(context)!.sessionUnavailableTitle,
-            children: [
-              Text(_sessionFailureHint(context, snapshot.failure)),
-              if (snapshot.failure == SessionFailure.retryableUnavailable)
-                FilledButton(
-                  onPressed: widget.viewModel.retrySession,
-                  child: Text(AppLocalizations.of(context)!.retry),
-                ),
-              if (widget.onSignOut != null)
-                TextButton(
-                  onPressed: _confirmSignOut,
-                  child: Text(AppLocalizations.of(context)!.signOutDevice),
-                ),
-            ],
-          );
-        }
         if (snapshot is AuthenticatedSession) {
           return _statusPage(
             title: AppLocalizations.of(context)!.signedIn,
             children: [
               const Icon(Icons.account_circle_outlined, size: 64),
               Text(snapshot.account.email, textAlign: TextAlign.center),
-              Text(
-                _confirmationLabel(context, snapshot.account.confirmation),
-                textAlign: TextAlign.center,
-              ),
               if (state.messageKey != null)
                 _FeedbackBanner(messageKey: state.messageKey!),
-              if (widget.onRetryProfile != null)
-                TextButton(
-                  onPressed:
-                      state.actionStatus ==
-                          AuthenticationActionStatus.submitting
-                      ? null
-                      : widget.onRetryProfile,
-                  child: Text(AppLocalizations.of(context)!.retryUsername),
-                ),
               if (widget.onSignOut != null)
                 FilledButton(
                   onPressed: _confirmSignOut,
@@ -476,33 +430,6 @@ final class _AuthenticationPageState extends State<AuthenticationPage> {
     }
   }
 
-  String _sessionFailureHint(BuildContext context, SessionFailure failure) {
-    final AppLocalizations strings = AppLocalizations.of(context)!;
-    switch (failure) {
-      case SessionFailure.retryableUnavailable:
-        return strings.sessionRetryHint;
-      case SessionFailure.remoteRejected:
-        return strings.sessionRejectedHint;
-      case SessionFailure.unsupportedClient:
-        return strings.sessionUnsupportedHint;
-    }
-  }
-
-  String _confirmationLabel(
-    BuildContext context,
-    EmailConfirmation confirmation,
-  ) {
-    final AppLocalizations strings = AppLocalizations.of(context)!;
-    switch (confirmation) {
-      case EmailConfirmation.confirmed:
-        return strings.emailConfirmed;
-      case EmailConfirmation.verificationRequired:
-        return strings.emailVerificationRequired;
-      case EmailConfirmation.unavailable:
-        return strings.emailConfirmationUnavailable;
-    }
-  }
-
   @override
   void dispose() {
     _emailFocus.dispose();
@@ -524,7 +451,6 @@ final class _FeedbackBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSuccess =
         messageKey.contains('succeeded') ||
-        messageKey.startsWith('verification_') ||
         messageKey.startsWith('registration_authenticated');
     final color = isSuccess ? const Color(0xFF16865C) : const Color(0xFFC9362B);
     return Semantics(
@@ -560,10 +486,6 @@ final class _FeedbackBanner extends StatelessWidget {
         return strings.registrationAuthenticated;
       case 'registration_authenticated_profile_failed':
         return strings.registrationProfileFailed;
-      case 'verification_email_sent':
-        return strings.verificationEmailSent;
-      case 'verification_email_sent_profile_retry_needed':
-        return strings.verificationProfileRetryNeeded;
       case 'registration_invalid_input':
         return strings.registrationInvalidInput;
       case 'registration_account_exists':
@@ -572,12 +494,6 @@ final class _FeedbackBanner extends StatelessWidget {
         return strings.serviceUnavailable;
       case 'registration_unsupported_client':
         return strings.registrationUnsupportedClient;
-      case 'profile_retry_succeeded':
-        return strings.profileRetrySucceeded;
-      case 'profile_retry_failed':
-        return strings.profileRetryFailed;
-      case 'profile_retry_skipped':
-        return strings.profileRetrySkipped;
       case 'sign_out_retryable_unavailable':
         return strings.signOutRetryableUnavailable;
       case 'sign_out_remote_rejected':

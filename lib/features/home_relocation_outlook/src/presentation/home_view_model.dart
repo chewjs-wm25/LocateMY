@@ -1,16 +1,17 @@
+
+
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:locatemy/app/application_shell.dart';
 
-import '../../home_relocation_outlook.dart' show ExploreMapIntent;
 import '../domain/home_models.dart';
 import '../domain/home_trends.dart';
 import '../application/home_dependencies.dart';
 
 final class HomeViewModel extends ChangeNotifier {
   final HomeRelocationOutlook home;
-  final ApplicationShell shell;
+  final void Function() onExploreMap;
   HomeOutlookSnapshot? snapshot;
   HomeTrendHistory trendHistory = const HomeTrendHistory({});
   HomeUnavailableReason? unavailable;
@@ -20,7 +21,9 @@ final class HomeViewModel extends ChangeNotifier {
   bool _disposed = false;
   Timer? _timer;
 
-  HomeViewModel(this.home, this.shell);
+  HomeViewModel(HomeRelocationOutlook home, void Function() onExploreMap)
+    : home = home,
+      onExploreMap = onExploreMap;
 
   Future<void> initialize() {
     return _load(HomeLoadRequest.cacheAllowed);
@@ -117,20 +120,7 @@ final class HomeViewModel extends ChangeNotifier {
     if (_disposed) {
       return;
     }
-    final ShellIntentOutcome outcome = await shell.submit(
-      const ExploreMapIntent(),
-    );
-    if (_disposed) {
-      return;
-    }
-    if (outcome is ShellIntentAccepted) {
-      navigationReason = null;
-    } else if (outcome is ShellAuthenticationRequired) {
-      navigationReason = 'authenticationRequired';
-    } else if (outcome is ShellIntentRejected) {
-      navigationReason = outcome.reason.name;
-    }
-    notifyListeners();
+    onExploreMap();
   }
 
   @override

@@ -11,140 +11,18 @@ final class SupabaseAuthenticationSessionAdapter
   final SupabaseClient _client;
   SupabaseAuthenticationSessionAdapter(SupabaseClient client)
     : _client = client;
-  String? _pendingProfileEmail;
-  String? _pendingUsername;
-
-  Future<ProfileRegistrationOutcome> retryOptionalProfile() async {
-    final SessionSnapshot snapshot = await restoreSession();
-    if (snapshot is! AuthenticatedSession ||
-        snapshot.account.email.toLowerCase() !=
-            _pendingProfileEmail?.toLowerCase() ||
-        _pendingUsername == null) {
-      return const ProfileRegistrationSkipped();
-    }
-    final ProfileRegistrationOutcome result = await _writeOptionalProfile(
-      accountId: snapshot.account.accountId,
-      username: _pendingUsername,
-    );
-    if (result is ProfileRegistered) {
-      _pendingUsername = null;
-      _pendingProfileEmail = null;
-    }
-    return result;
-  }
-
   static const _requestTimeout = Duration(seconds: 15);
 
   @override
   Future<SessionSnapshot> restoreSession() async {
-    try {
-      final Session? session = await _client.auth.getSession().timeout(
-        _requestTimeout,
-      );
-      if (session == null) {
-        return const UnauthenticatedSession();
-      }
-      if (_isExpired(session)) {
-        return const SessionUnavailable(SessionFailure.retryableUnavailable);
-      }
-      final User? user =
-          (await _client.auth
-                  .getUser(session.accessToken)
-                  .timeout(_requestTimeout))
-              .user;
-      // A response for an old token must never resurrect a signed-out account.
-      if (_client.auth.currentSession?.accessToken != session.accessToken ||
-          user == null ||
-          user.id != session.user.id) {
-        return const SessionUnavailable(SessionFailure.remoteRejected);
-      }
-      final AuthenticatedAccount account = _mapAccount(user);
-      return AuthenticatedSession(account);
-    } on SocketException {
-      return const SessionUnavailable(SessionFailure.retryableUnavailable);
-    } on TimeoutException {
-      return const SessionUnavailable(SessionFailure.retryableUnavailable);
-    } on AuthRetryableFetchException {
-      return const SessionUnavailable(SessionFailure.retryableUnavailable);
-    } on AuthException {
-      return const SessionUnavailable(SessionFailure.remoteRejected);
-    } catch (_) {
-      return const SessionUnavailable(SessionFailure.unsupportedClient);
-    }
+    return _mapSession(_client.auth.currentSession);
   }
 
   @override
   Stream<SessionSnapshot> watchSession() {
-    late StreamController<SessionSnapshot> controller;
-    StreamSubscription<AuthState>? subscription;
-    Timer? expiryTimer;
-    int revision = 0;
-
-    void emit(SessionSnapshot snapshot) {
-      if (controller.isClosed) {
-        return;
-      }
-      expiryTimer?.cancel();
-      controller.add(snapshot);
-      if (snapshot is AuthenticatedSession) {
-        final int? expiry = _client.auth.currentSession?.expiresAt;
-        if (expiry != null) {
-          final Duration remaining = DateTime.fromMillisecondsSinceEpoch(
-            expiry * 1000,
-          ).difference(DateTime.now());
-          expiryTimer = Timer(
-            remaining.isNegative ? Duration.zero : remaining,
-            () {
-              controller.add(
-                const SessionUnavailable(SessionFailure.retryableUnavailable),
-              );
-            },
-          );
-        }
-      }
-    }
-
-    Future<void> verify() async {
-      final int requestRevision = ++revision;
-      final SessionSnapshot snapshot = await restoreSession();
-      if (requestRevision == revision) {
-        emit(snapshot);
-      }
-    }
-
-    controller = StreamController<SessionSnapshot>(
-      onListen: () {
-        subscription = _client.auth.onAuthStateChange.listen(
-          (state) {
-            if (state.event == AuthChangeEvent.initialSession) {
-              // SDK callbacks must finish before calling methods that refresh.
-              unawaited(Future<void>(verify));
-            } else {
-              ++revision;
-              final bool sessionWasRejected =
-                  state.signOutReason == SignOutReason.sessionExpired ||
-                  state.signOutReason == SignOutReason.sessionMissing;
-              if (sessionWasRejected) {
-                emit(const SessionUnavailable(SessionFailure.remoteRejected));
-              } else {
-                emit(_mapSession(state.session));
-              }
-            }
-          },
-          onError: (Object error, StackTrace stack) {
-            ++revision;
-            emit(SessionUnavailable(_mapSessionFailure(error)));
-          },
-        );
-        unawaited(Future<void>(verify));
-      },
-      onCancel: () async {
-        ++revision;
-        expiryTimer?.cancel();
-        await subscription?.cancel();
-      },
-    );
-    return controller.stream;
+    return _client.auth.onAuthStateChange.map((AuthState state) {
+      return _mapSession(state.session);
+    });
   }
 
   @override
@@ -163,14 +41,7 @@ final class SupabaseAuthenticationSessionAdapter
       if (session == null) {
         return const SignInRejected(SignInFailure.unsupportedClient);
       }
-      if (_isExpired(session)) {
-        return const SignInRejected(SignInFailure.retryableUnavailable);
-      }
-      if (_pendingProfileEmail?.toLowerCase() !=
-          session.user.email?.toLowerCase()) {
-        _pendingProfileEmail = null;
-        _pendingUsername = null;
-      }
+
       final AuthenticatedAccount account = _mapAccount(session.user);
       return SignInSucceeded(account);
     } on SocketException {
@@ -199,32 +70,13 @@ final class SupabaseAuthenticationSessionAdapter
       return const RegistrationRejected(RegistrationFailure.invalidInput);
     }
     try {
-      _pendingProfileEmail = email.trim();
-      _pendingUsername = username?.trim();
       final AuthResponse response = await _client.auth
           .signUp(email: email.trim(), password: password)
           .timeout(_requestTimeout);
       final Session? session = response.session;
       if (session == null) {
-        if (response.user == null) {
-          return const RegistrationRejected(
-            RegistrationFailure.unsupportedClient,
-          );
-        }
-        final String? normalizedUsername = username?.trim();
-        final ProfileRegistrationOutcome profile;
-        if (normalizedUsername == null || normalizedUsername.isEmpty) {
-          profile = const ProfileRegistrationSkipped();
-        } else {
-          profile = const ProfileRegistrationFailed(
-            ProfileFailure.permissionDenied,
-          );
-        }
-        return RegistrationVerificationRequired(email.trim(), profile);
-      }
-      if (_isExpired(session)) {
         return const RegistrationRejected(
-          RegistrationFailure.retryableUnavailable,
+          RegistrationFailure.unsupportedClient,
         );
       }
       final AuthenticatedAccount account = _mapAccount(session.user);
@@ -232,11 +84,7 @@ final class SupabaseAuthenticationSessionAdapter
         accountId: account.accountId,
         username: username,
       );
-      if (profile is ProfileRegistered ||
-          profile is ProfileRegistrationSkipped) {
-        _pendingProfileEmail = null;
-        _pendingUsername = null;
-      }
+
       if (_client.auth.currentSession?.user.id != account.accountId) {
         return const RegistrationRejected(
           RegistrationFailure.retryableUnavailable,
@@ -268,41 +116,36 @@ final class SupabaseAuthenticationSessionAdapter
       await _client.auth
           .signOut(scope: SignOutScope.local)
           .timeout(_requestTimeout);
-      _pendingUsername = null;
-      _pendingProfileEmail = null;
-      return const SignOutSucceeded();
+      return _deviceSignOutOutcome(SignOutFailure.remoteRejected);
     } on SocketException {
-      return const SignOutRejected(SignOutFailure.retryableUnavailable);
+      return _deviceSignOutOutcome(SignOutFailure.retryableUnavailable);
     } on TimeoutException {
-      return const SignOutRejected(SignOutFailure.retryableUnavailable);
+      return _deviceSignOutOutcome(SignOutFailure.retryableUnavailable);
     } on AuthRetryableFetchException {
-      return const SignOutRejected(SignOutFailure.retryableUnavailable);
+      return _deviceSignOutOutcome(SignOutFailure.retryableUnavailable);
     } on AuthException {
-      return const SignOutRejected(SignOutFailure.remoteRejected);
+      return _deviceSignOutOutcome(SignOutFailure.remoteRejected);
     } catch (_) {
-      return const SignOutRejected(SignOutFailure.unsupportedClient);
+      return _deviceSignOutOutcome(SignOutFailure.unsupportedClient);
     }
   }
 
-  bool _isExpired(Session session) {
-    final int? expiry = session.expiresAt;
-    if (expiry == null) {
-      return true;
+  SignOutOutcome _deviceSignOutOutcome(SignOutFailure failure) {
+    if (_client.auth.currentSession == null) {
+      return const SignOutSucceeded();
     }
-    return DateTime.now().millisecondsSinceEpoch >= expiry * 1000;
+    return SignOutRejected(failure);
   }
 
   SessionSnapshot _mapSession(Session? session) {
     if (session == null) {
       return const UnauthenticatedSession();
     }
-    if (_isExpired(session)) {
-      return const SessionUnavailable(SessionFailure.retryableUnavailable);
-    }
+
     try {
       return AuthenticatedSession(_mapAccount(session.user));
     } on FormatException {
-      return const SessionUnavailable(SessionFailure.unsupportedClient);
+      return const UnauthenticatedSession();
     }
   }
 
@@ -311,17 +154,7 @@ final class SupabaseAuthenticationSessionAdapter
     if (email == null || email.isEmpty) {
       throw const FormatException('Email/password user has no email.');
     }
-    final EmailConfirmation confirmation;
-    if (user.emailConfirmedAt != null) {
-      confirmation = EmailConfirmation.confirmed;
-    } else {
-      confirmation = EmailConfirmation.verificationRequired;
-    }
-    return AuthenticatedAccount(
-      accountId: user.id,
-      email: email.trim(),
-      confirmation: confirmation,
-    );
+    return AuthenticatedAccount(accountId: user.id, email: email.trim());
   }
 
   Future<ProfileRegistrationOutcome> _writeOptionalProfile({
@@ -354,18 +187,6 @@ final class SupabaseAuthenticationSessionAdapter
     } catch (_) {
       return const ProfileRegistrationFailed(ProfileFailure.unknown);
     }
-  }
-
-  SessionFailure _mapSessionFailure(Object error) {
-    if (error is TimeoutException ||
-        error is SocketException ||
-        error is AuthRetryableFetchException) {
-      return SessionFailure.retryableUnavailable;
-    }
-    if (error is AuthException) {
-      return SessionFailure.remoteRejected;
-    }
-    return SessionFailure.unsupportedClient;
   }
 
   SignInFailure _mapSignInFailure(AuthException error) {

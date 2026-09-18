@@ -1,10 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:locatemy/app/app.dart';
-import 'package:locatemy/app/application_shell.dart';
 import 'package:locatemy/features/authentication_session/authentication_session.dart';
-import 'package:locatemy/features/account_privacy/account_privacy.dart';
 import 'package:locatemy/features/home_relocation_outlook/home_relocation_outlook.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,22 +24,6 @@ void main() {
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     final dir = await Directory.systemTemp.createTemp('locatemy-home-live-');
     final auth = createAuthenticationSession(client);
-    late AccountPrivacy privacy;
-    late ShellRuntime shell;
-    shell = ShellRuntime.compose(
-      authentication: auth,
-      privacy: () => privacy,
-      intents: [homeExploreMapBinding(() => shell)],
-    );
-    privacy = createAccountPrivacy(
-      authenticationSession: auth,
-      participants: [createAuthenticationPrivacyParticipant(auth), shell],
-      requiredParticipants: const {
-        AccountPrivacyParticipantId.authenticationSession,
-        AccountPrivacyParticipantId.applicationShell,
-      },
-      stateDirectory: dir,
-    );
     try {
       expect(
         await auth.signIn(
@@ -51,8 +32,6 @@ void main() {
         ),
         isA<SignInSucceeded>(),
       );
-      await shell.initialize();
-      expect(shell.state.gate, ShellGate.opened);
       final snapshot = ((await createHomeRelocationOutlook(
         client,
         openCache: () async => db,
@@ -69,14 +48,8 @@ void main() {
           (s) => s.datasetId == 'gdp_qtr_real_sa',
         ),
         isEmpty,
-      ); // Official snapshot contains abs only; 70% remaining economic weight is valid.
+      ); 
       expect(snapshot.householdMedianIncome.surveyYear, 2024);
-      expect(
-        await shell.applicationShell!.submit(const ExploreMapIntent()),
-        isA<ShellIntentAccepted>(),
-      );
-      expect(shell.state.selectedTab, ShellTab.map);
-      expect(shell.state.routes, isEmpty);
       await expectLater(
         anon.rpc('read_home_metrics'),
         throwsA(
@@ -106,14 +79,12 @@ void main() {
           ),
         );
       }
-      await shell.signOut();
-      expect(shell.state.gate, ShellGate.authentication);
+      expect(await auth.signOut(), isA<SignOutSucceeded>());
       expect((await db.query('home_public_cache')).length, 1);
       stdout.writeln(
-        'PASS: real RPC complete five cards; independent source dates; authenticated read; anonymous execute deny; five mirrors update deny; real Shell map tab and signout; public cache retained.',
+        'PASS: real RPC complete five cards; independent source dates; authenticated read; anonymous execute deny; five mirrors update deny; SDK signout; public cache retained.',
       );
     } finally {
-      await shell.dispose();
       await client.dispose();
       await anon.dispose();
       await db.close();

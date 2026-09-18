@@ -26,7 +26,7 @@
 
 依赖方向遵循技术架构中的 `View → ViewModel → Application use case → Domain/Application seam ← Data Adapter`。跨模块只消费唯一公开入口。shared module 没有页面时只保留所需层；内部类名、文件数量和 helper 拆分由实现者决定，分层责任与依赖方向才是架构验收依据。
 
-提供方先交付公开 seam，再实现真实 Adapter；消费者通过同一 seam 使用 fake 独立开发。本期负责的上游真实依赖须接入。后续 Wave 槽位可使用明确标识的占位页面或开发 harness，并登记接入责任与期限。开发运行入口也须满足适用的账户门控、权限和隐私屏障。
+提供方先交付公开 seam，再实现真实 Adapter；消费者通过同一 seam 使用 fake 独立开发。本期负责的上游真实依赖须接入。后续 Wave 槽位可使用明确标识的占位页面或开发 harness，并登记接入责任与期限。开发运行入口也须满足适用的普通登录门控和适用的数据权限。
 
 ## 3. 本模块实现门槛：Implemented
 
@@ -65,11 +65,11 @@
 
 当前任务是否完成按其明确范围判定：模块开发按第 3 节，Wave 交付按第 4 节。本模块可为 `Implemented`，同时本 Wave 因到期集成而未完成。
 
-## 6. Authentication 边界示例
+## 6. Issue #31 适用边界
 
-Authentication 在 Wave 1 负责认证、当前设备会话、类型化结果和自身页面。Shell 的导航与门控、Privacy 的私有数据清理及 Account Center 的消费行为分别归其 owning contract。
-
-Authentication 可以先验证自身恢复、登录、注册、确认状态、退出及失败映射，再由后续 Wave 补齐联合场景。其 mock HTTP Adapter 测试与页面 fake 测试是独立证据，真实开发环境验证仍需满足第 3 节。本示例不宣告现有 Authentication 已通过全部门槛，也不替既有联合场景指定期限；期限在开发前的验收分配中明确。
+最小账号仅消费 SDK 当前用户及默认身份变化，退出失败普通重试。应用 root 负责普通登录页面树与路由；
+不建立 Account Privacy、清理证明／屏障或通用导航框架。账号记录只在线保存，公共分析可按已有 SQLite 缓存降级。
+未实现预算 JSON、房产／风险／回收站与其他分析以对应新契约后续验收，不通过 fake 成功标记 Implemented。
 
 ## 7. Java 阅读习惯与 Dart 可读性约束
 

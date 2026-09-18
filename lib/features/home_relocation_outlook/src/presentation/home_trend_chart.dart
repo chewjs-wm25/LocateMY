@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
 import '../domain/home_trends.dart';
@@ -18,30 +18,20 @@ final class HomeTrendChart extends StatelessWidget {
         style: HomeVisualStyle.text(11, color: HomeVisualStyle.muted),
       );
     }
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final range =
-        '${DateFormat.yMMM(locale).format(points.first.observedAt)} – ${DateFormat.yMMM(locale).format(points.last.observedAt)}';
     final List<String> summaries = <String>[];
     for (final HomeTrendPoint point in points) {
       summaries.add(
-        '${DateFormat.yMMM(locale).format(point.observedAt)}: ${point.score} / 100',
+        '${DateFormat.yMMM(Localizations.localeOf(context).languageCode).format(point.observedAt)}: ${point.score} / 100',
       );
     }
     final String summary = summaries.join('; ');
     return Semantics(
-      label: '$summary; ${l.homeTrendApproximation}',
+      label: summary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             l.homeTrendSummary(points.length),
-            style: HomeVisualStyle.text(
-              compact ? 11 : 13,
-              color: HomeVisualStyle.muted,
-            ),
-          ),
-          Text(
-            range,
             style: HomeVisualStyle.text(
               compact ? 11 : 13,
               color: HomeVisualStyle.muted,
@@ -55,7 +45,32 @@ final class HomeTrendChart extends StatelessWidget {
               ),
             ),
           ),
-          if (!compact) Text(l.homeTrendApproximation),
+          Row(
+            children: [
+              Expanded(
+                child: FittedBox(
+                  alignment: Alignment.centerLeft,
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    DateFormat.yMMM(
+                      Localizations.localeOf(context).languageCode,
+                    ).format(points.first.observedAt),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: FittedBox(
+                  alignment: Alignment.centerRight,
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    DateFormat.yMMM(
+                      Localizations.localeOf(context).languageCode,
+                    ).format(points.last.observedAt),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

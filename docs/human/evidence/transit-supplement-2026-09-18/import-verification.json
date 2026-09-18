@@ -1,0 +1,95 @@
+{
+  "snapshot_id": "manual-2026-09-18-supplement",
+  "previous_snapshot_id": "manual-2026-09-17-complete",
+  "analysis_date": "2026-09-18",
+  "supplement_feeds": [
+    {
+      "feed_id": "gtfs_static_mybas_ipoh",
+      "status": "usable",
+      "stops": 2079,
+      "routes": 17,
+      "links": 1511,
+      "service_dates": 1,
+      "sha256": "16cdcfeba295b28dc421daff130e90c9bc461855ba6a980f814e9244ef96957a",
+      "source_url": "https://api.data.gov.my/gtfs-static/mybas-ipoh"
+    },
+    {
+      "feed_id": "gtfs_static_mybas_seremban_a",
+      "status": "usable",
+      "stops": 966,
+      "routes": 11,
+      "links": 851,
+      "service_dates": 1,
+      "sha256": "00641f6edf5d2441ef102f7a75c0d233441ccbc7fbe040cb959936f39628be69",
+      "source_url": "https://api.data.gov.my/gtfs-static/mybas-seremban-a"
+    },
+    {
+      "feed_id": "gtfs_static_mybas_seremban_b",
+      "status": "usable",
+      "stops": 1423,
+      "routes": 11,
+      "links": 1359,
+      "service_dates": 1,
+      "sha256": "43af67adc2759b1d776443fa263d2866f36ef5154fa8090e3d7fa4c23bebec1b",
+      "source_url": "https://api.data.gov.my/gtfs-static/mybas-seremban-b"
+    }
+  ],
+  "verified_normalized_rows": {
+    "gtfs_feed_snapshots": 16,
+    "gtfs_stops": 17611,
+    "gtfs_routes": 452,
+    "gtfs_service_dates": 42707,
+    "gtfs_stop_service_links": 44823
+  },
+  "reference_grid": {
+    "snapshot_id": "manual-2026-09-18-supplement",
+    "analysis_date": "2026-09-18",
+    "reference_grid_version": "utm-wgs84-1km-stopcatchment-v1",
+    "method": "UTM EPSG:32647–32651 fixed origin (0,0), 1000m cells, centers zone-clipped; geography radius 1500m",
+    "integrity": {
+      "negative_routes": 0,
+      "nonpositive_density": 0,
+      "outside_service_area": 0
+    },
+    "zone_distribution": {
+      "47": 5372,
+      "48": 4351,
+      "49": 548
+    },
+    "grid_count": 10271,
+    "grid_sha256": "c88f13ab4c96ee7cee0a50408317f7f04e940080d9e57d35338170155b7c4770",
+    "input_sha256": "bf17c6a5e525de0fa436efa4951308a7520add88fdd12b4ccf7257e80e070807",
+    "usable_feed_ids": [
+      "gtfs_static_ktmb",
+      "gtfs_static_mybas_alor_setar",
+      "gtfs_static_mybas_ipoh",
+      "gtfs_static_mybas_johor",
+      "gtfs_static_mybas_kangar",
+      "gtfs_static_mybas_kota_bharu",
+      "gtfs_static_mybas_kuala_terengganu",
+      "gtfs_static_mybas_kuching",
+      "gtfs_static_mybas_melaka",
+      "gtfs_static_mybas_seremban_a",
+      "gtfs_static_mybas_seremban_b",
+      "gtfs_static_prasarana_rapid_bus_kl",
+      "gtfs_static_prasarana_rapid_bus_kuantan",
+      "gtfs_static_prasarana_rapid_bus_mrtfeeder",
+      "gtfs_static_prasarana_rapid_bus_penang",
+      "gtfs_static_prasarana_rapid_rail_kl"
+    ],
+    "prepared_at": "2026-09-18T03:14:33.954933+00:00"
+  },
+  "authenticated_rpc": {
+    "latitude": 3.139,
+    "longitude": 101.6869,
+    "availability_status": "available",
+    "score_basis": "full_formula",
+    "transit_score": 93,
+    "unique_stop_count": 49,
+    "unique_route_count": 24,
+    "nearest_distance_m": 192,
+    "density_percentile": 95.99844221594782,
+    "route_percentile": 99.90263849673839
+  },
+  "verification_method": "Remote normalized rows compared via service-role REST; complete grid compared before promotion; public RPC verified under authenticated database role in rollback transaction."
+}

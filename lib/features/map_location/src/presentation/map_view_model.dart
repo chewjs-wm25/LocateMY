@@ -1,28 +1,31 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../../app/application_shell.dart';
 import '../domain/location_models.dart';
-import '../domain/location_intents.dart';
 import '../application/map_workspace.dart';
 import '../application/location_search.dart';
 
 class MapViewModel extends ChangeNotifier {
   MapViewModel(
     LocationCoordinator locations,
-    ApplicationShell shell,
     LocationSearch search,
     MapLayerHost layerHost,
-    MapWorkspace workspace,
-  ) : locations = locations,
-      shell = shell,
-      search = search,
-      layerHost = layerHost,
-      workspace = workspace {
+    MapWorkspace workspace, {
+    required void Function(ValidLocationReference) onAnalysis,
+    required void Function(ValidLocationReference, ValidLocationReference)
+    onComparison,
+    required void Function(MapLayerIntent) onLayerSelected,
+  }) : locations = locations,
+       search = search,
+       layerHost = layerHost,
+       workspace = workspace,
+       onAnalysis = onAnalysis,
+       onComparison = onComparison,
+       onLayerSelected = onLayerSelected {
     subscription = locations.watchSavedLocations().listen((
       SavedLocationsSnapshot snapshot,
     ) {
@@ -30,8 +33,7 @@ class MapViewModel extends ChangeNotifier {
       if (snapshot is SavedLocationsAvailable) {
         lastAvailable = snapshot;
       }
-      if (snapshot is SavedLocationsUnavailable &&
-          snapshot.failure == SavedLocationFailure.scopeUnavailable) {
+      if (snapshot is SavedLocationsUnavailable) {
         lastAvailable = null;
       }
       _notify();
@@ -43,7 +45,10 @@ class MapViewModel extends ChangeNotifier {
   final LocationCoordinator locations;
   final MapLayerHost layerHost;
   final MapWorkspace workspace;
-  final ApplicationShell shell;
+  final void Function(ValidLocationReference) onAnalysis;
+  final void Function(ValidLocationReference, ValidLocationReference)
+  onComparison;
+  final void Function(MapLayerIntent) onLayerSelected;
   final LocationSearch search;
   late final StreamSubscription<SavedLocationsSnapshot> subscription;
   StreamSubscription<void>? layersSubscription;
@@ -172,24 +177,10 @@ class MapViewModel extends ChangeNotifier {
     _notify();
   }
 
-  Future<void> navigate(ShellIntent intent) async {
-    final ShellIntentOutcome result = await shell.submit(intent);
-    // This ordinary switch remains exhaustive over the sealed Shell result.
-    switch (result) {
-      case ShellIntentAccepted():
-        message = null;
-      case ShellAuthenticationRequired():
-        message = 'authenticationRequired';
-      case ShellIntentRejected(:final reason):
-        message = reason.name;
-    }
-    _notify();
-  }
-
   Future<void> analyze() async {
     final ValidLocationReference? selected = read(LocationRole.single);
     if (selected != null) {
-      await navigate(OpenAnalysisIntent(location: selected));
+      onAnalysis(selected);
     }
   }
 
@@ -197,7 +188,7 @@ class MapViewModel extends ChangeNotifier {
     final ValidLocationReference? a = read(LocationRole.locationA),
         b = read(LocationRole.locationB);
     if (a != null && b != null) {
-      await navigate(OpenLocationComparisonIntent(locationA: a, locationB: b));
+      onComparison(a, b);
     }
   }
 
@@ -207,7 +198,9 @@ class MapViewModel extends ChangeNotifier {
         point,
       );
       if (result is MapLayerIntentAccepted) {
-        await navigate(OpenMapLayerIntent(result.intent));
+        if (!_disposed) {
+          onLayerSelected(result.intent);
+        }
       } else {
         message = (result as MapLayerIntentRejected).failure.name;
       }
@@ -227,12 +220,10 @@ class MapViewModel extends ChangeNotifier {
       final SavedLocationOutcome result = await locations.save(
         SaveLocationRequest(location: location, name: name),
       );
-      // This ordinary switch remains exhaustive over the sealed save result.
+      
       switch (result) {
         case SavedLocationSaved():
           message = 'saved';
-        case SavedLocationQueued():
-          message = 'queued';
         case SavedLocationRejected(:final failure):
           message = failure.name;
       }
@@ -270,7 +261,7 @@ class MapViewModel extends ChangeNotifier {
     busy = true;
     _notify();
     try {
-      saved = await locations.synchronizeSavedLocations();
+      saved = await locations.loadSavedLocations();
     } finally {
       busy = false;
       _notify();

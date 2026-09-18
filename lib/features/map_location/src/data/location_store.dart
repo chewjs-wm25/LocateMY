@@ -1,31 +1,21 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:sqflite/sqflite.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/location_models.dart';
 import '../application/location_storage.dart';
 
 class LocationStore implements LocationStorage {
-  LocationStore(SupabaseClient client, Database database, String accountId)
+  LocationStore(SupabaseClient client, String accountId)
     : client = client,
-      database = database,
       accountId = accountId;
   final SupabaseClient client;
-  final Database database;
   final String accountId;
-  Future<void> _schema() {
-    return database.execute(
-      'CREATE TABLE IF NOT EXISTS map_saved_records (account_id TEXT NOT NULL, client_key TEXT NOT NULL, payload TEXT NOT NULL, PRIMARY KEY(account_id,client_key))',
-    );
-  }
-
   void _authorize() {
     if (client.auth.currentUser?.id != accountId) {
       throw SavedLocationFailure.scopeUnavailable;
@@ -37,22 +27,8 @@ class LocationStore implements LocationStorage {
       latitude: (record['latitude'] as num).toDouble(),
       longitude: (record['longitude'] as num).toDouble(),
     );
-    final Object? failureValue = record['last_failure'];
-    SavedLocationFailure? lastFailure;
-    if (failureValue != null) {
-      lastFailure = SavedLocationFailure.values.byName(failureValue as String);
-    }
-    final Object? syncStateValue = record['sync_state'];
-    SavedLocationSyncState syncState = SavedLocationSyncState.synchronized;
-    if (syncStateValue != null) {
-      syncState = SavedLocationSyncState.values.byName(
-        syncStateValue as String,
-      );
-    }
     return SavedRecord(
       clientKey: record['client_key'] as String,
-      attempts: (record['attempts'] as num?)?.toInt() ?? 0,
-      lastFailure: lastFailure,
       deleted: record['deleted_at'] != null,
       version: (record['version'] as num).toInt(),
       saved: SavedLocation(
@@ -63,75 +39,7 @@ class LocationStore implements LocationStorage {
           point: point,
         ),
         createdAt: DateTime.parse(record['created_at'] as String),
-        syncState: syncState,
       ),
-    );
-  }
-
-  Map<String, dynamic> _encode(SavedRecord record) {
-    String? deletedAt;
-    if (record.deleted) {
-      deletedAt = 'deleted';
-    }
-    return {
-      'id': record.saved.id,
-      'client_key': record.clientKey,
-      'name': record.saved.name,
-      'latitude': record.saved.location.point.latitude,
-      'longitude': record.saved.location.point.longitude,
-      'created_at': record.saved.createdAt.toIso8601String(),
-      'deleted_at': deletedAt,
-      'version': record.version,
-      'sync_state': record.saved.syncState.name,
-      'attempts': record.attempts,
-      'last_failure': record.lastFailure?.name,
-    };
-  }
-
-  @override
-  Future<List<SavedRecord>> readLocal() async {
-    await _schema();
-    final List<Map<String, Object?>> rows = await database.query(
-      'map_saved_records',
-      where: 'account_id = ?',
-      whereArgs: [accountId],
-    );
-    final List<SavedRecord> records = <SavedRecord>[];
-    for (final Map<String, Object?> row in rows) {
-      final String payload = row['payload'] as String;
-      final Map<String, dynamic> decoded =
-          jsonDecode(payload) as Map<String, dynamic>;
-      records.add(_decode(decoded));
-    }
-    return records;
-  }
-
-  @override
-  Future<void> writeLocal(List<SavedRecord> records) async {
-    await _schema();
-    await database.transaction((tx) async {
-      await tx.delete(
-        'map_saved_records',
-        where: 'account_id = ?',
-        whereArgs: [accountId],
-      );
-      for (final SavedRecord r in records) {
-        await tx.insert('map_saved_records', {
-          'account_id': accountId,
-          'client_key': r.clientKey,
-          'payload': jsonEncode(_encode(r)),
-        });
-      }
-    });
-  }
-
-  @override
-  Future<void> clearLocal() async {
-    await _schema();
-    await database.delete(
-      'map_saved_records',
-      where: 'account_id = ?',
-      whereArgs: [accountId],
     );
   }
 
@@ -225,8 +133,12 @@ class LocationStore implements LocationStorage {
         }
         throw SavedLocationFailure.conflict;
       }
-      final List<SavedRecord> records = await readRemote();
-      return records.firstWhere((row) => row.saved.id == r.saved.id);
+      return SavedRecord(
+        saved: r.saved,
+        clientKey: r.clientKey,
+        deleted: true,
+        version: r.version + 1,
+      );
     });
   }
 }

@@ -1,0 +1,10 @@
+{
+  "base_head": "17e77869fa29b3e50da1cd91affa1fb55ce92f65",
+  "source_sha256": "9f974ecda00c13ed05283eed156b85e98a448bf91beebfaf1c819d435bd92663",
+  "apk_sha256": "150d8666f80d82397c1e80c6bf3108cc9654c4968266f9d4f360a3ba40b20658",
+  "secret_scan": "PASS",
+  "device": "owner-b-emulator",
+  "final_production_start": "PASS",
+  "latest_independent_statistical_years": "PASS",
+  "bilingual": "PASS"
+}

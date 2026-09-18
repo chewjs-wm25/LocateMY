@@ -12,8 +12,12 @@ final class LanguageController extends ChangeNotifier {
 
   LanguageController({SharedPreferences? preferences}) {
     _preferences = preferences;
-    final savedLanguage = preferences?.get(preferenceKey);
-    _setLocale(savedLanguage == 'en' ? 'en' : 'zh');
+    final Object? savedLanguage = preferences?.get(preferenceKey);
+    if (savedLanguage == 'zh') {
+      _setLocale('zh');
+    } else {
+      _setLocale('en');
+    }
   }
 
   Locale get locale {

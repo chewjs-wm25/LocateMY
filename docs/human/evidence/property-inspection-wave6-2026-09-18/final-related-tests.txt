@@ -1,0 +1,19 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart
+00:00 +0: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +1: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +2: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +3: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +4: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +5: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +6: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +7: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +8: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +9: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +10: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:00 +11: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: detail photo reservation failure retains current selection for retry
+00:01 +12: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: empty cloud portfolio shows add and recycle bin without fabricated records
+00:01 +13: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: photo reservation failure retains selected bytes for visible current-page retry
+00:02 +14: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: disposed portfolio ignores late cloud response
+00:02 +15: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: en online save failure retains input and 320dp 200% page remains usable
+00:03 +16: /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_pages_test.dart: zh online save failure retains input and 320dp 200% page remains usable
+00:03 +17: All tests passed!

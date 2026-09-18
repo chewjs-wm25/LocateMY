@@ -44,39 +44,27 @@ void main() {
     expect(fake.signInCalls, 0);
   });
 
-  testWidgets(
-    'registration mismatch, verification and mode switch clear passwords',
-    (tester) async {
-      await launch(tester);
-      await tester.ensureVisible(find.text('还没有账户？创建账户'));
-      await tester.tap(find.text('还没有账户？创建账户'));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextFormField).at(1), 'a@example.com');
-      await tester.enterText(find.byType(TextFormField).at(2), 'password123');
-      await tester.enterText(find.byType(TextFormField).at(3), 'different');
-      await tester.ensureVisible(find.widgetWithText(FilledButton, '创建账户'));
-      await tester.tap(find.widgetWithText(FilledButton, '创建账户'));
-      await tester.pump();
-      expect(find.text('两次输入的密码不一致。'), findsOneWidget);
-      await tester.enterText(find.byType(TextFormField).at(3), 'password123');
-      await tester.ensureVisible(find.widgetWithText(FilledButton, '创建账户'));
-      await tester.tap(find.widgetWithText(FilledButton, '创建账户'));
-      await tester.pumpAndSettle();
-      expect(find.text('请查看邮件，完成邮箱验证后再登录。'), findsOneWidget);
-      expect(find.text('已登录'), findsNothing);
-      await tester.ensureVisible(find.text('已有账户？登录'));
-      await tester.tap(find.text('已有账户？登录'));
-      await tester.pumpAndSettle();
-      expect(
-        tester
-            .widget<TextFormField>(find.byType(TextFormField).at(1))
-            .controller!
-            .text,
-        isEmpty,
-      );
-      expect(find.text('两次输入的密码不一致。'), findsNothing);
-    },
-  );
+  testWidgets('registration validates confirmation and signs in immediately', (
+    tester,
+  ) async {
+    await launch(tester);
+    await tester.ensureVisible(find.text('还没有账户？创建账户'));
+    await tester.tap(find.text('还没有账户？创建账户'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(1), 'a@example.com');
+    await tester.enterText(find.byType(TextFormField).at(2), 'password123');
+    await tester.enterText(find.byType(TextFormField).at(3), 'different');
+    await tester.ensureVisible(find.widgetWithText(FilledButton, '创建账户'));
+    await tester.tap(find.widgetWithText(FilledButton, '创建账户'));
+    await tester.pump();
+    expect(find.text('两次输入的密码不一致。'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).at(3), 'password123');
+    await tester.ensureVisible(find.widgetWithText(FilledButton, '创建账户'));
+    await tester.tap(find.widgetWithText(FilledButton, '创建账户'));
+    await tester.pumpAndSettle();
+    expect(find.text('已登录'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNothing);
+  });
 
   testWidgets('signed in identity, confirmation and confirmed local sign out', (
     tester,
@@ -84,7 +72,7 @@ void main() {
     fake.restored = const AuthenticatedSession(accountA);
     await launch(tester);
     expect(find.text('a@example.com'), findsOneWidget);
-    expect(find.text('邮箱已验证'), findsOneWidget);
+    expect(find.text('邮箱已验证'), findsNothing);
     expect(find.byType(TextFormField), findsNothing);
     await tester.tap(find.text('退出当前设备'));
     await tester.pumpAndSettle();
@@ -96,36 +84,6 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, '退出'));
     await tester.pumpAndSettle();
     expect(find.text('a@example.com'), findsNothing);
-    expect(find.byType(TextFormField), findsNWidgets(2));
-  });
-
-  testWidgets('unknown confirmation is never displayed as verified', (
-    tester,
-  ) async {
-    fake.restored = const AuthenticatedSession(
-      AuthenticatedAccount(
-        accountId: 'a',
-        email: 'a@example.com',
-        confirmation: EmailConfirmation.unavailable,
-      ),
-    );
-    await launch(tester);
-    expect(find.text('邮箱验证状态暂不可用'), findsOneWidget);
-    expect(find.text('邮箱已验证'), findsNothing);
-  });
-
-  testWidgets('unavailable session shows retry gate and no credentials', (
-    tester,
-  ) async {
-    fake.restored = const SessionUnavailable(
-      SessionFailure.retryableUnavailable,
-    );
-    await launch(tester);
-    expect(find.text('重试'), findsOneWidget);
-    expect(find.byType(TextFormField), findsNothing);
-    fake.restored = const UnauthenticatedSession();
-    await tester.tap(find.text('重试'));
-    await tester.pumpAndSettle();
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
 

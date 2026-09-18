@@ -1,0 +1,5 @@
+00:39 +281 ~11: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: missing Auth email never establishes successful registration       
+00:39 +282 ~11: /home/AC79/Desktop/LocateMY/test/features/authentication_session/supabase_authentication_session_adapter_test.dart: missing Auth email never establishes successful registration       
+00:39 +282 ~11: 11 skipped tests.                                                                                                                                                                      
+
+00:39 +282 ~11: All other tests passed!                                                                                                                                                                

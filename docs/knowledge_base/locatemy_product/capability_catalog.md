@@ -19,7 +19,7 @@ canonical: true
 | NAV-03 | 中英文切换 | placeholder | 原型显示语言入口，但没有可验证的切换行为 | `required` |
 | AUTH-01 | 邮箱密码登录 | prototype | 原型展示邮箱/密码字段和登录入口；真实校验、认证和反馈未开发 | `required` |
 | AUTH-02 | 账户注册 | prototype | 原型展示用户名、邮箱、密码和确认密码字段；真实校验和注册未开发 | `required` |
-| AUTH-03 | 真实验证状态 | placeholder | Verified User 对所有登录用户固定显示 | `required` |
+| AUTH-03 | 真实验证状态 | excluded | 2026-09-17 取消邮箱确认及验证界面 | `excluded` |
 | HOME-01 | 搬迁建议与指数 | prototype | 原型展示建议、指数及宏观解释；数值是示例 | `required` |
 | HOME-02 | 宏观指标仪表盘 | prototype | 原型展示失业/就业、收入、成本压力和经济动能卡片；目标数据来自政府开放数据 | `required` |
 | HOME-03 | 首页刷新 | placeholder | 当前原型没有刷新按钮或下拉刷新控件 | `required` |
@@ -29,11 +29,12 @@ canonical: true
 | MAP-04 | 两地对比选择 | prototype | 原型可选择/清除 A/B、交换并阻止相同地点比较 | `required` |
 | MAP-05 | 收藏地点 | prototype | 原型展示收藏按钮和固定地点列表；正式收藏记录、删除和同步未开发 | `required` |
 | MAP-06 | 六类分析入口 | prototype | 单点可进入六类分析；两地可进入 A/B 六类比较总览；数值为原型 fixture | `required` |
-| MAP-07 | 个人化地点适配度 | prototype | 原型按五项评估偏好加权展示 0–100 读数；安全维度固定缺失导致默认不可用 | `required` |
+| MAP-07 | 个人化地点适配度 | excluded | 2026-09-17 取消总分，保留各项分析与预算压力 | `excluded` |
 | COST-01 | 生活成本分析与比较 | partial | 有单点生活成本报告和 A/B 生活成本比较；数据和部分结果为原型 fixture | `required` |
-| COST-02 | 临时月预算换算 | partial | 无预案时显示页面内存临时输入，离页丢失 | `required` |
+| COST-02 | 临时月预算换算 | excluded | 2026-09-18 用户明确删除 CPI 等效预算换算器 | `excluded` |
 | COST-03 | 预算预案 CRUD | partial | 远端增查改删名称及三类金额，但页面编辑能力不完整 | `required` |
 | COST-04 | 查看商家 | placeholder | 按钮无回调 | `excluded` |
+| COST-05 | 预算 JSON 导出与读取 | excluded | 2026-09-18 用户明确移除本机导出文件与 JSON 导出／读取功能 | `excluded` |
 | SAFE-01 | 州级安全指数与趋势 | working | 州级整体指数、犯罪分类、按类趋势 | `required` |
 | SAFE-02 | 安全地图 | excluded | 警区边界资料不可获取，警区地图已从范围移除 | `excluded` |
 | SAFE-03 | 犯罪类别筛选 | working | 仅改变州级趋势线，不改变总分 | `required` |
@@ -63,11 +64,13 @@ canonical: true
 | ACCOUNT-05 | 保存的对比 | placeholder | 两条固定示例，点击无效 | `excluded` |
 | ACCOUNT-06 | 评论/点赞统计 | placeholder | 固定 3 与 12，无详情功能 | `excluded` |
 | ACCOUNT-07 | 退出登录 | prototype | 原型有退出入口并跳转登录页；真实会话清除和隔离未开发 | `required` |
-| ACCOUNT-08 | 账户评估偏好 | partial | 原型展示五项 `1–10` 滑块与适配度设置意图；未连接账户服务 | `required` |
+| ACCOUNT-08 | 账户评估偏好 | excluded | 2026-09-17 随适配度总分删除设置、保存逻辑与数据依赖 | `excluded` |
 | ACCOUNT-09 | 当前评估预案 | partial | 原型展示预案摘要行并可进入生活成本页；未连接账户服务 | `required` |
 | CLIMATE-01 | 独立气候/水灾页 | excluded | 当前无页面、入口或隐藏路由 | `excluded` |
 
 ## 产品范围基线（2026-09-13）
+
+2026-09-17 已确认修订：`AUTH-03`、`MAP-07`、`ACCOUNT-08` 改为 `excluded`。2026-09-18 用户明确将 `COST-05` 预算 JSON 导出与读取改为 `excluded`，不再保留本机导出文件。在线账号记录、退出、照片和房产风险的成果按下表更新；历史原型事实不等同于当前代码状态。
 
 分类含义：`required` 在交付范围内实现并验收，大学提交承诺覆盖的能力全部属于此类；`excluded` 本次不做，重新引入需要新的明确需求；`deferred` 推迟但不阻塞 required 流程；`superseded` 已被取代。当前 `deferred` 与 `superseded` 为空，已废弃的数据表属于 schema 迁移问题，不构成 Capability。
 
@@ -80,21 +83,22 @@ canonical: true
 | NAV-02 | [global_navigation](features/global_navigation.md) | 用户可在首页与地图两个一级 Tab 间切换并返回，同进程内保留各自页面状态 |
 | NAV-03 | [global_navigation](features/global_navigation.md)、[ui_design_spec](ui_design_spec.md) | 用户可切换中英文，同一功能集合的页面、状态与错误信息均以所选语言显示，偏好跨重启保留 |
 | AUTH-01 | [authentication](features/authentication.md) | 已注册用户可用邮箱和密码登录并建立会话；失败时看到可恢复反馈 |
-| AUTH-02 | [authentication](features/authentication.md) | 新用户可用邮箱、密码和确认密码注册，并进入查收验证邮件状态 |
-| AUTH-03 | [authentication](features/authentication.md) | 账户页显示与真实邮箱确认状态一致的验证状态，未确认时不显示已验证徽章 |
-| HOME-01 | [home](features/home.md)、[home_index_scoring](home_index_scoring.md) | 首页显示 0–100 全国搬家时机分、状态、最多三条原因和数据日期 |
-| HOME-02 | [home_index_scoring](home_index_scoring.md) | 首页显示成本压力、就业、经济动能与家庭收入中位数卡，各带单位和数据集日期 |
+| AUTH-02 | [authentication](features/authentication.md) | 新用户可用邮箱、密码和确认密码注册，成功后进入应用，无邮箱确认流程 |
+| AUTH-03 | [authentication](features/authentication.md) | 已排除：取消邮箱确认要求与验证界面 |
+| HOME-01 | [home](features/home.md)、[home_index_scoring](home_index_scoring.md) | 首页显示 0–100 全国搬家时机分、状态和最多三条原因 |
+| HOME-02 | [home_index_scoring](home_index_scoring.md) | 首页显示成本压力、就业、经济动能与家庭收入中位数卡及单位 |
 | HOME-03 | [home](features/home.md) | 用户可通过按钮或下拉刷新宏观指标；成功刷新后 60 秒内提示剩余冷却秒数 |
 | MAP-01 | [map_location](features/map_location.md)、[submission_commitments](submission_commitments.md) | 用户可在可缩放、可拖动的 OpenStreetMap 上浏览和点选，看到图钉与图层；范围外坐标被拒绝 |
 | MAP-02 | [map_location](features/map_location.md)、[submission_commitments](submission_commitments.md) | 用户输入地点名时获得限于马来西亚的自动补全结果并选定坐标 |
 | MAP-03 | [map_location](features/map_location.md) | 单点模式下地图显示一个主色 Marker 与该地点的可折叠摘要 |
 | MAP-04 | [map_location](features/map_location.md) | 两地模式下用户可选择、清除并交换地点 A/B，相同地点被阻止，A/B 只表示呈现顺序 |
-| MAP-05 | [map_location](features/map_location.md)、[submission_commitments](submission_commitments.md) | 用户可按账户保存、查看和删除收藏地点，跨设备恢复，离线创建后在前台同步 |
+| MAP-05 | [map_location](features/map_location.md)、[submission_commitments](submission_commitments.md) | 用户可按账户保存、查看和删除收藏地点，登录同一账户可直接在线读取云端记录，无离线创建与同步队列 |
 | MAP-06 | [map_location](features/map_location.md) | 用户可从合法单点进入六类分析，或从有效 A/B 进入六类比较总览；缺少合法地点时不可进入 |
-| MAP-07 | [map_location](features/map_location.md)、[domain_objects](domain_objects.md) | 地点详情折叠态显示 0–100 个人化地点适配度，或说明缺少的偏好、预案或数据维度 |
+| MAP-07 | [map_location](features/map_location.md) | 已排除：不再显示个人化地点适配度总分 |
 | COST-01 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 单点报告显示本地价格、篮子估算月支出、生活成本指数与资料覆盖；比较页以相同口径并列 A/B |
-| COST-02 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 没有可用预案金额时，用户可输入当前月支出获得 CPI 等效换算，离开页面后不保存 |
+| COST-02 | [submission_commitments](submission_commitments.md) | 已排除：不再提供临时 CPI 等效预算换算器 |
 | COST-03 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 用户可按账户新增、重命名、选择、编辑金额和删除预算预案；切换后依赖读数立即重算 |
+| COST-05 | [cost_of_living](features/cost_of_living.md) | 已排除：不再导出、读取或保留预算 JSON 本机文件 |
 | SAFE-01 | [crime_security](features/crime_security.md) | 单点页显示州级安全指数 0–100、最新完整年度案件数和最近五年趋势 |
 | SAFE-03 | [crime_security](features/crime_security.md) | 切换犯罪类别只改变州级趋势图，并在控件下说明作用域 |
 | SOCIO-01 | [socio_economic](features/socio_economic.md) | 单点页显示行政区（或标注州级回退）收入中位数、B40/M40/T20 和基尼系数及各自统计年份 |
@@ -107,18 +111,18 @@ canonical: true
 | TRANSIT-02 | [transportation](features/transportation.md) | 选中站点时列表与分布图关联高亮并显示距离和步行提示，不改变全局选点 |
 | TRANSIT-03 | [transportation](features/transportation.md) | 站点分布图显示分析中心、1.5 公里范围圆和站点 Marker |
 | PROP-01 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 用户可新增和编辑房产实勘，记录跨重启保留 |
-| PROP-02 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 用户可从相机或相册添加最多 20 张压缩后的私有照片，编辑说明与封面，并看到上传和同步状态 |
-| PROP-03 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 用户可打开档案与详情，看到四项评分、综合评分、照片和带采集时间的风险快照，并可显式刷新风险上下文 |
+| PROP-02 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 用户可从相机或相册添加最多 20 张压缩后的私有照片，编辑说明与封面，并看到在线上传成功或失败反馈 |
+| PROP-03 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 用户可打开档案与详情，看到四项评分、综合评分、照片和带采集时间的风险快照；风险仅在新增或坐标变化时重算，无手动刷新 |
 | PROP-04 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 用户可并排对比 2–3 份房产记录 |
 | PROP-05 | [property_inspection](features/property_inspection.md)、[submission_commitments](submission_commitments.md) | 删除的实勘进入可见回收站，可恢复或确认后永久清空（含照片文件） |
 | HAZ-01 | [hazard_reporting](features/hazard_reporting.md)、[submission_commitments](submission_commitments.md) | 用户可在地图上以必填类型和标题创建隐患报告，并看到加载、成功或失败反馈 |
 | HAZ-02 | [hazard_reporting](features/hazard_reporting.md)、[submission_commitments](submission_commitments.md) | 所有登录用户可在地图图层查看公共隐患并打开详情 |
 | HAZ-03 | [hazard_reporting](features/hazard_reporting.md)、[submission_commitments](submission_commitments.md) | 每个登录账户可对同一报告赞成、反对或撤回，计数由投票记录计算 |
 | HAZ-04 | [hazard_reporting](features/hazard_reporting.md)、[submission_commitments](submission_commitments.md) | 用户可查看本人报告列表、定位到地图并删除自己的报告 |
-| ACCOUNT-01 | [account](features/account.md)、[authentication](features/authentication.md) | 账户页显示真实邮箱与真实验证状态 |
+| ACCOUNT-01 | [account](features/account.md)、[authentication](features/authentication.md) | 账户页显示真实邮箱，不展示验证徽章 |
 | ACCOUNT-02 | [account](features/account.md) | 用户可从账户进入房产实勘档案和我的隐患报告 |
-| ACCOUNT-07 | [account](features/account.md)、[authentication](features/authentication.md) | 用户退出后回到登录页，该账户私有本机状态被清除，其他设备会话不受影响 |
-| ACCOUNT-08 | [account](features/account.md)、[domain_objects](domain_objects.md) | 用户可设置五项必填 `1–10` 评估偏好，并在重启或换设备后恢复 |
-| ACCOUNT-09 | [account](features/account.md)、[domain_objects](domain_objects.md) | 用户可选择并保存一份当前评估预案，切换后预算压力与适配度立即重算 |
+| ACCOUNT-07 | [account](features/account.md)、[authentication](features/authentication.md) | 用户退出当前设备后回到登录页，不等待跨模块清理证明，不删除预算导出文件，其他设备会话不受影响 |
+| ACCOUNT-08 | [account](features/account.md) | 已排除：删除五项评估偏好设置、保存逻辑与数据依赖 |
+| ACCOUNT-09 | [account](features/account.md)、[domain_objects](domain_objects.md) | 用户可选择并保存一份当前评估预案，切换后预算压力等依赖预案的读数立即重算 |
 
-本基线由项目负责人于 2026-09-13 逐项确认：`COST-04`、`FAC-02`、`ACCOUNT-03`–`ACCOUNT-06` 定为 `excluded`；语言偏好存本机键值存储且不绑定账号；ICI 权重按账户保存、默认 5、只影响基础设施单点 ICI；新增 `MAP-07`、`ACCOUNT-08`、`ACCOUNT-09`。`COST-02`、`HAZ-03`、`PROP-05` 与 [ui_design_spec](ui_design_spec.md) 的冲突已按[提交承诺](submission_commitments.md)修正。2026-09-14，项目负责人因警区多边形边界资料不可获取，将 `SAFE-02` 改为 `excluded`，并将 `SAFE-01`／`SAFE-03` 固定为州级口径。Issue #1 追踪。
+本基线由项目负责人于 2026-09-13 逐项确认：`COST-04`、`FAC-02`、`ACCOUNT-03`–`ACCOUNT-06` 定为 `excluded`；语言偏好存本机键值存储且不绑定账号；ICI 权重按账户保存、默认 5、只影响基础设施单点 ICI；新增 `MAP-07`、`ACCOUNT-08`、`ACCOUNT-09`。`HAZ-03`、`PROP-05` 与 [ui_design_spec](ui_design_spec.md) 的冲突已按[提交承诺](submission_commitments.md)修正。2026-09-14，项目负责人因警区多边形边界资料不可获取，将 `SAFE-02` 改为 `excluded`，并将 `SAFE-01`／`SAFE-03` 固定为州级口径。2026-09-18 用户明确将 `COST-02` 列为 `excluded`。Issue #1 追踪。

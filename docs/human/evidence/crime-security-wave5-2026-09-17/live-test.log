@@ -1,0 +1,3 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/live/crime_security_live_test.dart
+00:00 +0: verified official crime inputs resolve actual states with authenticated read and write/anonymous deny
+00:02 +1: All tests passed!

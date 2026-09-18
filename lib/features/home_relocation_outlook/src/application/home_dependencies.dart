@@ -15,7 +15,7 @@ final class HomeReadFailure implements Exception {
   const HomeReadFailure(this.reason);
 }
 
-// Feature-internal presentation port. Consumers still depend only on HOME-001.
+
 abstract interface class HomeTrendReader {
   HomeTrendHistory get trendHistory;
 }

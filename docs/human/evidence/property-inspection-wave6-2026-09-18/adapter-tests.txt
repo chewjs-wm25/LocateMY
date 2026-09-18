@@ -1,0 +1,4 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/property_inspection/property_adapter_test.dart
+00:00 +0: real SDK maps database errors then permits ordinary online read retry without caching a fake success
+00:00 +1: malformed authoritative row is rejected instead of receiving default coordinates or zero price
+00:00 +2: All tests passed!

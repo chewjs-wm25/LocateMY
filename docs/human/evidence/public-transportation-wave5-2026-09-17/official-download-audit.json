@@ -1,0 +1,255 @@
+[
+  {
+    "feed_id": "gtfs_static_ktmb",
+    "url": "https://api.data.gov.my/gtfs-static/ktmb",
+    "sha256": "75e85524f0c69046d352f6a26152a9d72829873ec3576565b83bae71a25db423",
+    "files": [
+      "calendar_dates.txt",
+      "trips.txt",
+      "agency.txt",
+      "calendar.txt",
+      "routes.txt",
+      "stop_times.txt",
+      "stops.txt"
+    ],
+    "bytes": 46184
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_rail_kl",
+    "url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-rail-kl",
+    "sha256": "532afb6c518489ec612912cefe957c3f05ccb66efad9ce3f61b95981f67df669",
+    "files": [
+      "agency.txt",
+      "__MACOSX/._agency.txt",
+      "calendar.txt",
+      "__MACOSX/._calendar.txt",
+      "frequencies.txt",
+      "__MACOSX/._frequencies.txt",
+      "routes.txt",
+      "__MACOSX/._routes.txt",
+      "shapes.txt",
+      "__MACOSX/._shapes.txt",
+      "stop_times.txt",
+      "__MACOSX/._stop_times.txt",
+      "stops.txt",
+      "__MACOSX/._stops.txt",
+      "trips.txt",
+      "__MACOSX/._trips.txt"
+    ],
+    "bytes": 80595
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_kl",
+    "url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-kl",
+    "sha256": "4b18ad5ed88eb1a1c450f44cf716dfaff9798e491bb7e3989a24c0fd8c20c0f0",
+    "files": [
+      "shapes.txt",
+      "agency.txt",
+      "frequencies.txt",
+      "calendar.txt",
+      "stop_times.txt",
+      "routes.txt",
+      "trips.txt",
+      "stops.txt"
+    ],
+    "bytes": 1679821
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_penang",
+    "url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-penang",
+    "sha256": "4ce84aaad9b0c039f4d9184d7474ca598051a2db3a4f56e24c198ac267c2ae32",
+    "files": [
+      "agency.txt",
+      "calendar.txt",
+      "routes.txt",
+      "shapes.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "trips.txt"
+    ],
+    "bytes": 3450036
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_kuantan",
+    "url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-kuantan",
+    "failure": "HTTPError"
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_mrtfeeder",
+    "url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-mrtfeeder",
+    "sha256": "561c14ce5297498d8d3ae132b49bc8fb1bc88d60b0866ee6cc00cd1377b512c2",
+    "files": [
+      "agency.txt",
+      "calendar.txt",
+      "calendar_dates.txt",
+      "routes.txt",
+      "shapes.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "trips.txt"
+    ],
+    "bytes": 2017575
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kangar",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-kangar",
+    "sha256": "a522ea199de6272b7cb2a49615e1b6be7797d93dc3e1f255602eb9845e0ea0a6",
+    "files": [
+      "calendar.txt",
+      "trips.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "shapes.txt",
+      "routes.txt",
+      "agency.txt"
+    ],
+    "bytes": 129082
+  },
+  {
+    "feed_id": "gtfs_static_mybas_alor_setar",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-alor-setar",
+    "sha256": "20ff1d306e804e4031d7ff80461541e58c8c9e2b64068c8eb1df0309e9c13d1e",
+    "files": [
+      "calendar.txt",
+      "trips.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "shapes.txt",
+      "routes.txt",
+      "agency.txt"
+    ],
+    "bytes": 208347
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kota_bharu",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-kota-bharu",
+    "sha256": "95f29e6e0a9144623bcae4d6fb308d6920f9d320196ab5bcd47fe1e618abb1d1",
+    "files": [
+      "calendar.txt",
+      "trips.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "shapes.txt",
+      "routes.txt",
+      "agency.txt"
+    ],
+    "bytes": 299861
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kuala_terengganu",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-kuala-terengganu",
+    "sha256": "94724a5418d6c7ada0c7441df967297a4d59e93c28fd6ef243ccbba03b252d1e",
+    "files": [
+      "calendar.txt",
+      "trips.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "shapes.txt",
+      "routes.txt",
+      "agency.txt"
+    ],
+    "bytes": 133129
+  },
+  {
+    "feed_id": "gtfs_static_mybas_ipoh",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-ipoh",
+    "sha256": "67c267fef8b3c051ff625f809c021af4c888e97771ff09df7bde497be60d25de",
+    "files": [
+      "agency.txt",
+      "calendar.txt",
+      "routes.txt",
+      "shapes.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "trips.txt"
+    ],
+    "bytes": 156485
+  },
+  {
+    "feed_id": "gtfs_static_mybas_seremban_a",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-seremban-a",
+    "sha256": "50ff3663157e9a102693732293be99bbc7dd4a53bcc236e689802ee6daaecd02",
+    "files": [
+      "agency.txt",
+      "calendar.txt",
+      "routes.txt",
+      "shapes.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "trips.txt"
+    ],
+    "bytes": 131874
+  },
+  {
+    "feed_id": "gtfs_static_mybas_seremban_b",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-seremban-b",
+    "sha256": "609a0346b6092343920a9f8774bffd6d76d7f5dba41e158749f4707b97b4fadb",
+    "files": [
+      "agency.txt",
+      "calendar.txt",
+      "routes.txt",
+      "shapes.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "trips.txt"
+    ],
+    "bytes": 192175
+  },
+  {
+    "feed_id": "gtfs_static_mybas_melaka",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-melaka",
+    "sha256": "950cd1b05a759415a524993b4dfecf3dc4ee87af6b14e60eb272a10e9ebe29b1",
+    "files": [
+      "trips.txt",
+      "stop_times.txt",
+      "routes.txt",
+      "agency.txt",
+      "calendar.txt",
+      "stops.txt",
+      "areas.txt",
+      "stop_areas.txt",
+      "shapes.txt",
+      "fare_media.txt",
+      "rider_categories.txt",
+      "fare_leg_rules.txt",
+      "fare_products.txt"
+    ],
+    "bytes": 2227622
+  },
+  {
+    "feed_id": "gtfs_static_mybas_johor",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-johor",
+    "sha256": "c5ed7690f04314de819f596592a6b2451c025aa006b79db3d40096ea87fc1c1e",
+    "files": [
+      "trips.txt",
+      "stop_times.txt",
+      "routes.txt",
+      "agency.txt",
+      "calendar.txt",
+      "stops.txt",
+      "areas.txt",
+      "stop_areas.txt",
+      "shapes.txt",
+      "fare_media.txt",
+      "rider_categories.txt",
+      "fare_leg_rules.txt",
+      "fare_products.txt"
+    ],
+    "bytes": 4865232
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kuching",
+    "url": "https://api.data.gov.my/gtfs-static/mybas-kuching",
+    "sha256": "5ecec61564ee9c438c725710e837bce3af801c44463732f678938c9cd414781c",
+    "files": [
+      "calendar.txt",
+      "trips.txt",
+      "stops.txt",
+      "stop_times.txt",
+      "shapes.txt",
+      "routes.txt",
+      "agency.txt"
+    ],
+    "bytes": 95767
+  }
+]

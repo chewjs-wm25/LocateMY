@@ -2,25 +2,18 @@ import 'dart:async';
 
 import 'package:locatemy/features/authentication_session/authentication_session.dart';
 
-const accountA = AuthenticatedAccount(
-  accountId: 'a',
-  email: 'a@example.com',
-  confirmation: EmailConfirmation.confirmed,
-);
-const accountB = AuthenticatedAccount(
-  accountId: 'b',
-  email: 'b@example.com',
-  confirmation: EmailConfirmation.verificationRequired,
-);
+const accountA = AuthenticatedAccount(accountId: 'a', email: 'a@example.com');
+const accountB = AuthenticatedAccount(accountId: 'b', email: 'b@example.com');
 
 final class FakeAuthenticationSession implements AuthenticationSession {
   final changes = StreamController<SessionSnapshot>.broadcast(sync: true);
   SessionSnapshot restored = const UnauthenticatedSession();
   Future<SessionSnapshot>? pendingRestore;
   Future<SignInOutcome>? pendingSignIn;
+  Future<SignOutOutcome>? pendingSignOut;
   SignInOutcome signedIn = const SignInSucceeded(accountA);
-  RegistrationOutcome registered = const RegistrationVerificationRequired(
-    'a@example.com',
+  RegistrationOutcome registered = const RegistrationAuthenticated(
+    accountA,
     ProfileRegistrationSkipped(),
   );
   SignOutOutcome signedOut = const SignOutSucceeded();
@@ -68,6 +61,10 @@ final class FakeAuthenticationSession implements AuthenticationSession {
 
   @override
   Future<SignOutOutcome> signOut() async {
+    final Future<SignOutOutcome>? pending = pendingSignOut;
+    if (pending != null) {
+      return pending;
+    }
     if (signedOut is SignOutSucceeded) {
       restored = const UnauthenticatedSession();
       changes.add(restored);

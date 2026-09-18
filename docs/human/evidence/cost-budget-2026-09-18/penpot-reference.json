@@ -1,0 +1,14 @@
+{
+  "page": "Mobile UI",
+  "board_id": "f8bc3597-5a95-809e-8008-a3e66fa9c8c9",
+  "board": "05 生活成本",
+  "inspection": "Penpot MCP high-level overview, actual board and UI Foundations inspected; board PNG exported and visually inspected during development",
+  "font": "SourceSansPro",
+  "canvas": "#F6F8FB",
+  "ink": "#172033",
+  "primary": "#155EEF",
+  "hero": "#0B1F44",
+  "page_margin_px": 16,
+  "card_radius_px": 16,
+  "canonical_corrections": "Index is unitless; pressure and data quality follow cost_basket_v1 rather than prototype fixture values"
+}

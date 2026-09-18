@@ -29,9 +29,9 @@ final class AuthenticationViewModel extends ChangeNotifier {
   Future<void> _initialize() async {
     _sessionSubscription = _useCase.watchSession().listen(
       _acceptSession,
-      onError: (_) => _acceptSession(
-        const SessionUnavailable(SessionFailure.retryableUnavailable),
-      ),
+      onError: (Object error, StackTrace stack) {
+        _publish(_state.copyWith(messageKey: 'session_unavailable'));
+      },
     );
     await retrySession();
   }
@@ -42,13 +42,8 @@ final class AuthenticationViewModel extends ChangeNotifier {
         _state.actionStatus == AuthenticationActionStatus.submitting) {
       ++_actionRevision;
     }
-    if (_state.isSigningOut || _state.signOutBlocked) {
-      return;
-    }
     String? messageKey;
-    if (snapshot is SessionUnavailable) {
-      messageKey = 'session_unavailable';
-    } else if (_isCurrentAccount(snapshot)) {
+    if (_isCurrentAccount(snapshot)) {
       messageKey = _state.messageKey;
     }
     _publish(
@@ -61,7 +56,7 @@ final class AuthenticationViewModel extends ChangeNotifier {
   }
 
   Future<void> retrySession() async {
-    if (_disposed || _state.isSigningOut || _state.signOutBlocked) {
+    if (_disposed || _state.isSigningOut) {
       return;
     }
     final int revision = ++_sessionRevision;
@@ -74,22 +69,13 @@ final class AuthenticationViewModel extends ChangeNotifier {
     }
   }
 
-  // Invoked by the composition root after its UI barrier is in place.
-  // Wave 1 contains no private scopes; full privacy close belongs to Shell.
   Future<void> signOut() async {
     if (_disposed || _state.isSigningOut) {
       return;
     }
     ++_sessionRevision;
     ++_actionRevision;
-    _publish(
-      _state.copyWith(
-        session: null,
-        isSigningOut: true,
-        signOutBlocked: true,
-        messageKey: null,
-      ),
-    );
+    _publish(_state.copyWith(isSigningOut: true, messageKey: null));
     final SignOutOutcome outcome = await _useCase.signOut();
     switch (outcome) {
       case SignOutSucceeded():
@@ -98,7 +84,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
             _state.copyWith(
               session: const UnauthenticatedSession(),
               isSigningOut: false,
-              signOutBlocked: false,
               mode: AuthenticationMode.signIn,
               actionStatus: AuthenticationActionStatus.idle,
               messageKey: null,
@@ -140,7 +125,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
   Future<void> signIn({required String email, required String password}) async {
     if (_disposed ||
         _state.isRestoring ||
-        _state.signOutBlocked ||
         _state.session is! UnauthenticatedSession ||
         _state.actionStatus == AuthenticationActionStatus.submitting) {
       return;
@@ -201,7 +185,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
   }) async {
     if (_disposed ||
         _state.isRestoring ||
-        _state.signOutBlocked ||
         _state.session is! UnauthenticatedSession ||
         _state.actionStatus == AuthenticationActionStatus.submitting) {
       return;
@@ -242,18 +225,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
             ),
           );
         }
-      case RegistrationVerificationRequired(
-        :final ProfileRegistrationOutcome profile,
-      ):
-        {
-          _publish(
-            _state.copyWith(
-              actionStatus: AuthenticationActionStatus.succeeded,
-              session: const UnauthenticatedSession(),
-              messageKey: _verificationMessageKey(profile),
-            ),
-          );
-        }
       case RegistrationRejected(:final RegistrationFailure failure):
         {
           String? fieldErrorKey;
@@ -269,37 +240,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
           );
         }
     }
-  }
-
-  Future<void> retryProfile(
-    Future<ProfileRegistrationOutcome> Function() retry,
-  ) async {
-    if (_state.session is! AuthenticatedSession ||
-        _state.actionStatus == AuthenticationActionStatus.submitting ||
-        _disposed) {
-      return;
-    }
-    final String accountId =
-        (_state.session as AuthenticatedSession).account.accountId;
-    final int actionRevision = _actionRevision;
-    _publish(
-      _state.copyWith(actionStatus: AuthenticationActionStatus.submitting),
-    );
-    final ProfileRegistrationOutcome result = await retry();
-    if (_disposed ||
-        actionRevision != _actionRevision ||
-        _state.session is! AuthenticatedSession ||
-        _hasDifferentAccount(accountId)) {
-      _publish(_state.copyWith(actionStatus: AuthenticationActionStatus.idle));
-      return;
-    }
-    final String messageKey = _profileRetryMessageKey(result);
-    _publish(
-      _state.copyWith(
-        actionStatus: AuthenticationActionStatus.idle,
-        messageKey: messageKey,
-      ),
-    );
   }
 
   void clearFeedback() {
@@ -345,13 +285,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
     return 'registration_authenticated';
   }
 
-  String _verificationMessageKey(ProfileRegistrationOutcome profile) {
-    if (profile is ProfileRegistrationFailed) {
-      return 'verification_email_sent_profile_retry_needed';
-    }
-    return 'verification_email_sent';
-  }
-
   String _signOutMessageKey(SignOutFailure failure) {
     switch (failure) {
       case SignOutFailure.retryableUnavailable:
@@ -361,16 +294,6 @@ final class AuthenticationViewModel extends ChangeNotifier {
       case SignOutFailure.unsupportedClient:
         return 'sign_out_unsupported_client';
     }
-  }
-
-  String _profileRetryMessageKey(ProfileRegistrationOutcome result) {
-    if (result is ProfileRegistrationFailed) {
-      return 'profile_retry_failed';
-    }
-    if (result is ProfileRegistered) {
-      return 'profile_retry_succeeded';
-    }
-    return 'profile_retry_skipped';
   }
 
   bool _isCurrentAccount(SessionSnapshot snapshot) {

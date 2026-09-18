@@ -85,37 +85,6 @@ void main() {
     expect(requests, isEmpty);
   });
 
-  test('restore checks Auth and uses its current email confirmation', () async {
-    await seed();
-    respond = (_) async =>
-        jsonResponse(jsonEncode(user(confirmed: false)), 200);
-    final result = await adapter.restoreSession() as AuthenticatedSession;
-    expect(requests.single.url.path, '/auth/v1/user');
-    expect(result.account.confirmation, EmailConfirmation.verificationRequired);
-  });
-
-  test('offline restore cannot authorize cached identity', () async {
-    await seed();
-    respond = (_) async => throw TimeoutException('offline');
-    final result = await adapter.restoreSession() as SessionUnavailable;
-    expect(result.failure, SessionFailure.retryableUnavailable);
-  });
-
-  test('expired session refreshes before restoring identity', () async {
-    respond = (request) async => jsonResponse(
-      jsonEncode(request.url.path.endsWith('/token') ? session() : user()),
-      200,
-    );
-    final errors = client.auth.onAuthStateChange.listen(
-      (_) {},
-      onError: (_) {},
-    );
-    await seed(expired: true);
-    await errors.cancel();
-    expect(await adapter.restoreSession(), isA<AuthenticatedSession>());
-    expect(requests.last.url.path, '/auth/v1/user');
-  });
-
   test('sign in maps invalid credentials', () async {
     respond = (_) async => jsonResponse(
       '{"code":"invalid_credentials","msg":"Invalid login credentials"}',
@@ -126,22 +95,6 @@ void main() {
       password: 'incorrect',
     ) as SignInRejected;
     expect(result.failure, SignInFailure.invalidCredentials);
-  });
-
-  test('registration without a session requires verification', () async {
-    respond = (_) async =>
-        jsonResponse(jsonEncode(user(confirmed: false)), 200);
-    final result = await adapter.register(
-      email: 'a@example.com',
-      password: 'password123',
-      passwordConfirmation: 'password123',
-    );
-    expect(result, isA<RegistrationVerificationRequired>());
-    expect(
-      (result as RegistrationVerificationRequired).profile,
-      isA<ProfileRegistrationSkipped>(),
-    );
-    expect(requests.where((r) => r.url.path.contains('profiles')), isEmpty);
   });
 
   test('profile failure does not undo authenticated registration', () async {
@@ -170,6 +123,21 @@ void main() {
     expect(client.auth.currentSession, isNull);
   });
 
+  test(
+    'normal logout response cannot claim success for a newer SDK identity',
+    () async {
+      await seed();
+      respond = (http.Request request) async {
+        final Map<String, dynamic> replacement = session();
+        replacement['user'] = user(id: 'account-b');
+        await client.auth.setInitialSession(jsonEncode(replacement));
+        return jsonResponse('', 204);
+      };
+      expect(await adapter.signOut(), isA<SignOutRejected>());
+      expect(client.auth.currentUser!.id, 'account-b');
+    },
+  );
+
   test('invalid inputs never call Auth', () async {
     expect(
       await adapter.signIn(email: '', password: ''),
@@ -186,7 +154,7 @@ void main() {
     expect(requests, isEmpty);
   });
 
-  test('watch provides first verified snapshot and handles sign out', () async {
+  test('watch provides first SDK snapshot and handles sign out', () async {
     await seed();
     final snapshots = <SessionSnapshot>[];
     final subscription = adapter.watchSession().listen(snapshots.add);
@@ -198,62 +166,6 @@ void main() {
     expect(snapshots.last, isA<UnauthenticatedSession>());
     await subscription.cancel();
   });
-  test('remote rejection never authorizes a cached session', () async {
-    await seed();
-    respond = (_) async => jsonResponse(
-      '{"code":"session_not_found","message":"Session revoked"}',
-      401,
-    );
-    final result = await adapter.restoreSession() as SessionUnavailable;
-    expect(result.failure, SessionFailure.remoteRejected);
-  });
-
-  test('failed expired refresh does not authorize expired cache', () async {
-    await seed(expired: true);
-    respond = (_) async => jsonResponse('{"message":"Unavailable"}', 503);
-    final errors = client.auth.onAuthStateChange.listen(
-      (_) {},
-      onError: (_) {},
-    );
-    final result = await adapter.restoreSession() as SessionUnavailable;
-    expect(result.failure, SessionFailure.retryableUnavailable);
-    await errors.cancel();
-  });
-
-  test('late restore cannot resurrect identity after sign out', () async {
-    await seed();
-    final response = Completer<http.Response>();
-    respond = (_) => response.future;
-    final restoring = adapter.restoreSession();
-    await Future<void>.delayed(Duration.zero);
-    respond = (_) async => jsonResponse('', 204);
-    await adapter.signOut();
-    response.complete(jsonResponse(jsonEncode(user()), 200));
-    expect(await restoring, isA<SessionUnavailable>());
-  });
-
-  test(
-    'profile can be retried separately from successful registration',
-    () async {
-      respond = (request) async => request.url.path.contains('profiles')
-          ? jsonResponse('{"code":"42501","message":"Denied"}', 403)
-          : jsonResponse(jsonEncode(session()), 200);
-      await adapter.register(
-        email: 'account-a@example.com',
-        password: 'password123',
-        passwordConfirmation: 'password123',
-        username: 'Test User',
-      );
-      respond = (request) async => request.url.path.contains('profiles')
-          ? jsonResponse('null', 201)
-          : jsonResponse(jsonEncode(user()), 200);
-      expect(await adapter.retryOptionalProfile(), isA<ProfileRegistered>());
-      expect(
-        await adapter.retryOptionalProfile(),
-        isA<ProfileRegistrationSkipped>(),
-      );
-    },
-  );
 
   test('rate limits offer retry and weak password offers correction', () async {
     respond = (_) async => jsonResponse(
@@ -274,36 +186,7 @@ void main() {
     ) as RegistrationRejected;
     expect(registration.failure, RegistrationFailure.invalidInput);
   });
-  test(
-    'expired registration cannot establish authenticated result or profile',
-    () async {
-      respond = (_) async =>
-          jsonResponse(jsonEncode(session(expired: true)), 200);
-      final result = await adapter.register(
-        email: 'a@example.com',
-        password: 'password123',
-        passwordConfirmation: 'password123',
-        username: 'Test User',
-      );
-      expect(result, isA<RegistrationRejected>());
-      expect(requests.where((r) => r.url.path.contains('profiles')), isEmpty);
-    },
-  );
 
-  test(
-    'blank optional username is skipped when verification is required',
-    () async {
-      respond = (_) async =>
-          jsonResponse(jsonEncode(user(confirmed: false)), 200);
-      final result = await adapter.register(
-        email: 'a@example.com',
-        password: 'password123',
-        passwordConfirmation: 'password123',
-        username: ' ',
-      ) as RegistrationVerificationRequired;
-      expect(result.profile, isA<ProfileRegistrationSkipped>());
-    },
-  );
   for (final failure in [
     ('validation_failed', 422, SignInFailure.invalidInput),
     ('unexpected_error', 400, SignInFailure.unsupportedClient),
@@ -338,12 +221,13 @@ void main() {
     });
   }
   test(
-    'network sign out failure preserves rejection and retry recovery',
+    'SDK local logout remains complete when remote revocation is offline',
     () async {
       await seed();
       respond = (_) async => throw TimeoutException('offline');
-      final result = await adapter.signOut() as SignOutRejected;
-      expect(result.failure, SignOutFailure.retryableUnavailable);
+      expect(await adapter.signOut(), isA<SignOutSucceeded>());
+      expect(client.auth.currentSession, isNull);
+      expect(await adapter.restoreSession(), isA<UnauthenticatedSession>());
       respond = (_) async => jsonResponse('', 204);
       expect(await adapter.signOut(), isA<SignOutSucceeded>());
     },

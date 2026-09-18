@@ -1,0 +1,107 @@
+{
+  "date_utc": "2026-09-18T02:02:49.571454+00:00",
+  "base_head": "ffd28a154ff174fbf26ad48275ebf5dbb3c8ddde",
+  "production_source_sha256": "13b45c053e83a3573db07c2b498cdb0d2eafde387eeaf356c2fc770ac8c3bfcc",
+  "changed_code_sha256": "0cdb5c6647c11c91ed7f209db43997b13c4276ca28118175b0e28b941952d20c",
+  "changed_code_files": [
+    "lib/app/app.dart",
+    "lib/app/location_summary.dart",
+    "lib/features/account_center/account_center.dart",
+    "lib/features/account_center/src/presentation/account_center_page.dart",
+    "lib/features/cost_of_living_budget/src/presentation/budget_account_panel.dart",
+    "lib/features/map_location/map_location.dart",
+    "lib/features/map_location/src/application/location_summary_reader.dart",
+    "lib/features/map_location/src/presentation/location_summary_panel.dart",
+    "lib/features/map_location/src/presentation/map_location_page.dart",
+    "test/app/account_integration_test.dart",
+    "test/app/location_summary_integration_test.dart",
+    "test/live/cost_budget_live_test.dart",
+    "tool/verify_integration_build.py",
+    "tool/verify_integration_devices.py"
+  ],
+  "tests": {
+    "passed": 348,
+    "default_skipped_opt_in_live": 14,
+    "explicit_live_suites": [
+      "Cost/Budget/Socio",
+      "Property/Risk/Storage",
+      "Infrastructure/Transit/Weights"
+    ]
+  },
+  "devices": {
+    "owner_a": "Android 14 real device",
+    "owner_b": "Android 16 emulator",
+    "result": "PASS"
+  },
+  "review": {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "standards": {
+      "result": "PASS",
+      "hard_violations": 0,
+      "nonblocking_heuristics": [
+        "Budget five-field display duplication",
+        "Facility category label mapping duplication"
+      ],
+      "final_incremental_review": "PASS"
+    },
+    "spec": {
+      "result": "PASS",
+      "findings": 0
+    },
+    "production_source_sha256": "13b45c053e83a3573db07c2b498cdb0d2eafde387eeaf356c2fc770ac8c3bfcc"
+  },
+  "files": {
+    "analyze.log": "ae85f94acbb2240ef633c12299105bdf0f84509b18a20f1ad1fa61579792e7d1",
+    "cost-live.source.json": "8b4aab310554413593f7024b3f866fda38b8e90888e4b1facf0c601d72ca7c05",
+    "cost-socio-live.log": "b94e4d025d61023349c86adfbb00862f9b3c2788f3dafcbec24362eb326d2bdd",
+    "infrastructure-live.log": "e43789abc189f13fd6ceffba182673fee7f0fe0f478f18a980343bbf3d2a558e",
+    "infrastructure-live.source.json": "6e67528714627ada72481e96a127d4423624342b70d324616cc162c71afa1a26",
+    "owner-a-device-account-zh-redacted.xml": "3e3703b0b59e58a3fa96662d8fd681528955018658d3d9042e021e6e09bde56e",
+    "owner-a-device-analysis-0.xml": "14bcf92cf59d94a9c7ba15eb3c44d17bb051cfa9bb028ad1d06f374370680ae6",
+    "owner-a-device-analysis-1.xml": "aee398427c6628c702170322a10f6fd8d10c736fb03da1af2be893fb1ef2eece",
+    "owner-a-device-analysis-2.xml": "728b695252b81a1f8b878567da9345cb6cc71e884fbc60d784ac25426cc19143",
+    "owner-a-device-analysis-3.xml": "b84243c73b1648be16d0bcf6948dbb08db23d0a2a57103c44d46e6b4ab222028",
+    "owner-a-device-analysis-4.xml": "8ece8f68b6816950c83d4084203b9676a599196f188544e0f99e3e3fbf40f43d",
+    "owner-a-device-analysis-5.xml": "f464675fc5ab072ebd0e162f5e9b6322db8f3c39c331aecc534320304cc5b707",
+    "owner-a-device-analysis-menu-zh.xml": "3b963168c3389b7ca5da4e653272bef52737aa7411a717414988a7dd347b4c06",
+    "owner-a-device-budget-zh.xml": "2cbcd81f376de78ccf3eaa3c679927555e7196849ce9aacc680a2d59762b19fc",
+    "owner-a-device-build.source.json": "dde9f764d7d00afc5a42e82e1e4a989e5ebece924ccc658ed99fe2fcdaf160e7",
+    "owner-a-device-location-summary-0.png": "e234a71a4ab90a4730f5316217fcba77a37cc83bfc9558b9ab65e0e11653dfc5",
+    "owner-a-device-location-summary-0.xml": "e6512ecec0c230285adb82a933c9b7d223e8c73fd69df5d6ad1884875078107c",
+    "owner-a-device-location-summary-1.png": "760742bc027454b8e1097855394b756a4d013656cea0db2d1cbf5db3fb6295dd",
+    "owner-a-device-location-summary-1.xml": "123308fc8ae80e79477dc9ecabeb46a588d55ed718782a0e3fa98de2d3760940",
+    "owner-a-device-location-summary-2.xml": "5bba2cf358e77a989963390ef3a411f9ebf059e33521bf16cbebf24fda933e24",
+    "owner-a-device-location-summary-3.xml": "5bba2cf358e77a989963390ef3a411f9ebf059e33521bf16cbebf24fda933e24",
+    "owner-a-device-location-summary-4.xml": "5bba2cf358e77a989963390ef3a411f9ebf059e33521bf16cbebf24fda933e24",
+    "owner-a-device-my-hazards-zh.xml": "520970d3a131fcad59586536ee3e13f00afbb64f415d7eede2174d9b8d3776c0",
+    "owner-a-device-portfolio-zh.xml": "b25cacfc533e5583de665ab6d8842684dd965855318e7f116aa74cfc9f4f6224",
+    "owner-a-device.log": "ee6d142cad1810abfcfacc8e3d5a8366d2fcfc4ac5f807c0e465c7b7f3f1e4bb",
+    "owner-b-device-build.source.json": "16a59817b6ab84bc357730b5e72cf9678f7bef5ec476713dfaeb54eeee0baf87",
+    "owner-b-device.log": "38da24eaa1d7d6f8993dccbd28e130e89325f6b69b39ffd114d15366c89672de",
+    "owner-b-emulator-account-zh-redacted.xml": "996f91059bda7fe7ea7c75898f849ad3bdd5da4a3e31422c0f5019f522476852",
+    "owner-b-emulator-analysis-0.xml": "51433179d632f0bcd97520ca1f0b980c1b5f347526f8d2b631941f3a2c40a773",
+    "owner-b-emulator-analysis-1.xml": "1ec9b85145fb736dee63f8b6f35bacb23c8a8687e9ad2490f5874e6500ab7cb3",
+    "owner-b-emulator-analysis-2.xml": "d5db2d30e495109f4b07cb287084e3add2c3e22dcd4f21de429cfcadae78058b",
+    "owner-b-emulator-analysis-3.xml": "7e1522cb7fa290a76517865d05ca6fc87e7e63970eebed92a09418dd839911e2",
+    "owner-b-emulator-analysis-4.xml": "8840ce71f3baa24c95497bb5c5d854a143e16cafa1de297da91c25f3e78d1a28",
+    "owner-b-emulator-analysis-5.xml": "22a03370a9fe715bd2dc461ca04c2144c1e3bff721c6634a58bc84763182cd33",
+    "owner-b-emulator-analysis-menu-zh.xml": "970af5b126f3303a221424c95756dd5ca8d91920f52cbd79a49486019353ad4d",
+    "owner-b-emulator-budget-zh.xml": "bfa9387f88093d798497cc23d72176ee87411d0895b5051988bdbdeb614b8785",
+    "owner-b-emulator-location-summary-0.png": "ee90fc37d117d228fd0573a343cca1da45b9f17a09ac7bd7fc0440b16c0ce95b",
+    "owner-b-emulator-location-summary-0.xml": "e54be2b01aa64892f5b93a9fcfee3806d769f734ef3060d92012c7a000f7e1a1",
+    "owner-b-emulator-location-summary-1.png": "1aefc3584c4f3f43b15f159f1ec3e30d3843737c7378a5bc3a262d084b27102b",
+    "owner-b-emulator-location-summary-1.xml": "8488e822f15d2e4a1f1fda34c4fd35226fee5647920eeccf1c482ce1d795466e",
+    "owner-b-emulator-location-summary-2.xml": "8488e822f15d2e4a1f1fda34c4fd35226fee5647920eeccf1c482ce1d795466e",
+    "owner-b-emulator-location-summary-3.xml": "8488e822f15d2e4a1f1fda34c4fd35226fee5647920eeccf1c482ce1d795466e",
+    "owner-b-emulator-location-summary-4.xml": "8488e822f15d2e4a1f1fda34c4fd35226fee5647920eeccf1c482ce1d795466e",
+    "owner-b-emulator-my-hazards-zh.xml": "554bb77c3be9822fb948a94fba4dd94a43feb2203d182944c4653ba54f50447c",
+    "owner-b-emulator-portfolio-zh.xml": "2042a3f5aa08f6deefb536c412ea30d6030e66063e11de9ff855dfb8a04a1f00",
+    "production-build.log": "90f343e5de2c2fd8652018a4be998e44037dc4fb87b2cfe224ae55f81ca7f271",
+    "production-build.source.json": "ce008651bdc9e2c9863a6a19f2071d59b2a16d78984f3dc8ab800e0055475ae4",
+    "property-live.log": "05d3f186eb9fb4fab6c7808c275c34a5fb7289b9d155bd6bcc36ac271dee1a7e",
+    "property-live.source.json": "910bdc648326eebc681590595b2e5102749334df8706afd3c134600dd6b89265",
+    "review.json": "fa740348451d55afc5e42bf24fd0409b6ae9d2679465d311778613bf9bf46581",
+    "tests.log": "7753d2a1d5388e75fe916a01f6d91b61294b71825c5050d8df9ebb1b2de86d98"
+  }
+}

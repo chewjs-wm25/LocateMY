@@ -1,0 +1,158 @@
+[
+  {
+    "feed_id": "gtfs_static_ktmb",
+    "status": "usable",
+    "stops": 156,
+    "routes": 9,
+    "links": 289,
+    "service_dates": 266,
+    "sha256": "75e85524f0c69046d352f6a26152a9d72829873ec3576565b83bae71a25db423",
+    "source_url": "https://api.data.gov.my/gtfs-static/ktmb"
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_rail_kl",
+    "status": "usable",
+    "stops": 187,
+    "routes": 8,
+    "links": 561,
+    "service_dates": 21914,
+    "sha256": "532afb6c518489ec612912cefe957c3f05ccb66efad9ce3f61b95981f67df669",
+    "source_url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-rail-kl"
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_kl",
+    "status": "usable",
+    "stops": 4053,
+    "routes": 137,
+    "links": 12090,
+    "service_dates": 5112,
+    "sha256": "4b18ad5ed88eb1a1c450f44cf716dfaff9798e491bb7e3989a24c0fd8c20c0f0",
+    "source_url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-kl"
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_penang",
+    "status": "usable",
+    "stops": 1931,
+    "routes": 47,
+    "links": 11748,
+    "service_dates": 67,
+    "sha256": "4ce84aaad9b0c039f4d9184d7474ca598051a2db3a4f56e24c198ac267c2ae32",
+    "source_url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-penang"
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_kuantan",
+    "status": "failed",
+    "reason": "HTTPError",
+    "source_url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-kuantan"
+  },
+  {
+    "feed_id": "gtfs_static_prasarana_rapid_bus_mrtfeeder",
+    "status": "usable",
+    "stops": 2112,
+    "routes": 91,
+    "links": 4856,
+    "service_dates": 87,
+    "sha256": "561c14ce5297498d8d3ae132b49bc8fb1bc88d60b0866ee6cc00cd1377b512c2",
+    "source_url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-mrtfeeder"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kangar",
+    "status": "usable",
+    "stops": 455,
+    "routes": 9,
+    "links": 1000,
+    "service_dates": 1158,
+    "sha256": "a522ea199de6272b7cb2a49615e1b6be7797d93dc3e1f255602eb9845e0ea0a6",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-kangar"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_alor_setar",
+    "status": "usable",
+    "stops": 393,
+    "routes": 14,
+    "links": 1236,
+    "service_dates": 1158,
+    "sha256": "20ff1d306e804e4031d7ff80461541e58c8c9e2b64068c8eb1df0309e9c13d1e",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-alor-setar"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kota_bharu",
+    "status": "usable",
+    "stops": 755,
+    "routes": 16,
+    "links": 2332,
+    "service_dates": 1158,
+    "sha256": "95f29e6e0a9144623bcae4d6fb308d6920f9d320196ab5bcd47fe1e618abb1d1",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-kota-bharu"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kuala_terengganu",
+    "status": "usable",
+    "stops": 394,
+    "routes": 9,
+    "links": 1050,
+    "service_dates": 1158,
+    "sha256": "94724a5418d6c7ada0c7441df967297a4d59e93c28fd6ef243ccbba03b252d1e",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-kuala-terengganu"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_ipoh",
+    "status": "usable",
+    "stops": 2079,
+    "routes": 17,
+    "links": 1511,
+    "service_dates": 1,
+    "sha256": "67c267fef8b3c051ff625f809c021af4c888e97771ff09df7bde497be60d25de",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-ipoh"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_seremban_a",
+    "status": "usable",
+    "stops": 966,
+    "routes": 11,
+    "links": 851,
+    "service_dates": 1,
+    "sha256": "50ff3663157e9a102693732293be99bbc7dd4a53bcc236e689802ee6daaecd02",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-seremban-a"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_seremban_b",
+    "status": "usable",
+    "stops": 1423,
+    "routes": 11,
+    "links": 1359,
+    "service_dates": 1,
+    "sha256": "609a0346b6092343920a9f8774bffd6d76d7f5dba41e158749f4707b97b4fadb",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-seremban-b"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_melaka",
+    "status": "usable",
+    "stops": 678,
+    "routes": 22,
+    "links": 1502,
+    "service_dates": 2178,
+    "sha256": "950cd1b05a759415a524993b4dfecf3dc4ee87af6b14e60eb272a10e9ebe29b1",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-melaka"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_johor",
+    "status": "usable",
+    "stops": 988,
+    "routes": 21,
+    "links": 1507,
+    "service_dates": 2178,
+    "sha256": "c5ed7690f04314de819f596592a6b2451c025aa006b79db3d40096ea87fc1c1e",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-johor"
+  },
+  {
+    "feed_id": "gtfs_static_mybas_kuching",
+    "status": "usable",
+    "stops": 406,
+    "routes": 13,
+    "links": 1142,
+    "service_dates": 1158,
+    "sha256": "5ecec61564ee9c438c725710e837bce3af801c44463732f678938c9cd414781c",
+    "source_url": "https://api.data.gov.my/gtfs-static/mybas-kuching"
+  }
+]

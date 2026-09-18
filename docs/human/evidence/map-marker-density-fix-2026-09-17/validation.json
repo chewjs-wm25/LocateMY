@@ -1,0 +1,31 @@
+{
+  "base_head": "1e5acab14b665a896cc86c5e21dc0c657c9cc8aa",
+  "lib_source_sha256": "39c1b2839d604e545d8d914a883a13a6ae605405a4db899af45924a2c1c4e0b1",
+  "apk_sha256": "b682c7e1484a3e5dec60cd2f0fa36f9ef8da79cf6bfea25675031f4da313cc39",
+  "original_device_visible_overlay_controls": 591,
+  "original_device_hazard_reports": 0,
+  "regression_before_fix": {
+    "command": "flutter test test/features/map_location/map_marker_density_test.dart --reporter expanded",
+    "expected": "fewer than 100 drawn overlay markers",
+    "actual": 600,
+    "status": "FAIL"
+  },
+  "regression_after_fix": "PASS: dense overlays, complete provider data, zoom, co-located item selection, provider symbols, offscreen culling, visibility toggle",
+  "full_tests": {
+    "passed": 284,
+    "skipped": 11
+  },
+  "analyze": "No issues found",
+  "debug_apk": "PASS; mobile configuration allowlisted and secret scan passed",
+  "device": {
+    "model": "SM_A528B",
+    "location": [
+      3.1502928816003237,
+      101.69585552517447
+    ],
+    "idle_seconds_after_layer_completion": 45,
+    "after_visible_overlay_controls": 26,
+    "after_idle_visible_overlay_controls": 26,
+    "verdict": "PASS"
+  }
+}

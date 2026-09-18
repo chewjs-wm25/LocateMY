@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import '../../../account_privacy/account_privacy.dart';
 import '../domain/location_models.dart';
 
 int _sequence = 0;
@@ -12,7 +11,7 @@ void mapDiagnostic(
   void Function(Map<String, Object>)? sink,
 ]) {
   final int ms = elapsed.inMilliseconds;
-  // Fixed schema, enum outcomes and process-local IDs only. No inputs/payloads.
+  
   String bucket = '10sOrMore';
   if (ms < 100) {
     bucket = 'under100ms';
@@ -35,7 +34,7 @@ void mapDiagnostic(
       Zone.current.print(jsonEncode(event));
     }
   } catch (_) {
-    /* Diagnostics never block the operation. */
+    
   }
 }
 
@@ -58,10 +57,6 @@ Future<T> observeMap<T>(
     result = outcome.failure.name;
   } else if (outcome is MapLayerIntentRejected) {
     result = outcome.failure.name;
-  } else if (outcome is PrivateStateClearIncomplete) {
-    result = outcome.failure.name;
-  } else if (outcome is SavedLocationQueued) {
-    result = 'queued';
   } else if (outcome is MapLayerHidden) {
     result = 'hidden';
   }

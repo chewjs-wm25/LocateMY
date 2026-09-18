@@ -14,7 +14,6 @@ final class AuthenticationViewState {
   final String? fieldErrorKey;
   final bool isRestoring;
   final bool isSigningOut;
-  final bool signOutBlocked;
 
   const AuthenticationViewState({
     required this.mode,
@@ -24,7 +23,6 @@ final class AuthenticationViewState {
     required this.fieldErrorKey,
     this.isRestoring = false,
     this.isSigningOut = false,
-    this.signOutBlocked = false,
   });
 
   factory AuthenticationViewState.initial() {
@@ -41,7 +39,6 @@ final class AuthenticationViewState {
   AuthenticationViewState copyWith({
     bool? isRestoring,
     bool? isSigningOut,
-    bool? signOutBlocked,
     AuthenticationMode? mode,
     AuthenticationActionStatus? actionStatus,
     Object? session = _unset,
@@ -69,7 +66,6 @@ final class AuthenticationViewState {
     return AuthenticationViewState(
       isRestoring: isRestoring ?? this.isRestoring,
       isSigningOut: isSigningOut ?? this.isSigningOut,
-      signOutBlocked: signOutBlocked ?? this.signOutBlocked,
       mode: mode ?? this.mode,
       actionStatus: actionStatus ?? this.actionStatus,
       session: nextSession,

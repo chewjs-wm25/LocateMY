@@ -1,92 +1,34 @@
 # LocateMY 设计与开发入口
 
-本目录是 LocateMY 中文设计的唯一权威。产品范围、领域语义、公式和数据边界仍以
-[`CONTEXT.md`](../../CONTEXT.md) 与
-[`docs/knowledge_base/locatemy_product/`](../knowledge_base/locatemy_product/) 为准；本目录把这些事实转成可由两名 Owner 独立实现并集成的 Development Contract。
+2026-09-17 [Issue #31](https://github.com/chewjs-wm25/LocateMY/issues/31) 执行
+[ADR 0017](../adr/0017-minimal-account-and-online-user-records.md)：最小账号、在线记录与普通 Flutter 导航。
+当前设计取代冲突的历史框架；历史批准与实现证据仅描述原版本，不能自动证明修改后的完成状态。
+产品术语／公式以 CONTEXT 与知识库为准，字段／RLS／migration 以 Schema Catalog 为准。
 
-开始前先读 [ADR 0011](../adr/0011-human-coded-ai-designed-delivery-process.md)、
-[ADR 0015](../adr/0015-contract-first-two-person-development-handoff.md) 与
-[ADR 0016](../adr/0016-ai-managed-supabase-development-environment.md)，再按任务读取：
+本轮分析页面精简按 [知识库 UI 边界](../knowledge_base/locatemy_product/ui_design_spec.md#分析页面精简边界2026-09-17) 执行；它覆盖冲突的技术元数据展示要求，不更改既有分析算法／缓存。既有分析页面尚待后续任务实施；治安 Wave 5 已按此边界实现。
 
-- 系统边界、依赖波次或基线变更：[`system/README.md`](system/README.md)
-- Feature Development Contract：[`features/_template.md`](features/_template.md)
-- shared-module Development Contract：[`modules/_template.md`](modules/_template.md)
-- 数据对象、RLS 与 migration：[`data/schema-catalog.md`](data/schema-catalog.md)
-- 给人阅读的 HTML 导出：[`handoff/README.md`](handoff/README.md)
+先读 [开发标准](development-standard.md)（手写 Dart 遵循第 7 节）、[系统入口](system/README.md)，
+再读 owning 契约。仅在实际跨 Owner 业务需要时固定公开 declarations，不保留空层或框架包装。
+AI 可修改、测试全部代码；Integrated 由项目负责人批准。当前验收见 [执行检查](system/issue-31-validation.md)。
 
-## 权威产物与代码边界
+| 类型 | Owner | 当前契约／状态 |
+| --- | --- | --- |
+| Auth | A | [最小账号](features/authentication-and-session.md)，已有实现重构 |
+| Geo | B | [地理语境](modules/geographic-context.md)，保留业务服务 |
+| App | A | [最小装配](modules/application-shell.md)，已有实现重构 |
+| Home | A | [首页](features/home-and-relocation-outlook.md)，已有实现 |
+| Map | A | [地图／收藏](features/map-and-location.md)，已有实现重构 |
+| Cost／Budget | B | [生活成本／预算／JSON](features/cost-of-living-and-budget.md)，Implemented；Luna High 复审通过，Account/Socio 联验通过 |
+| Crime | B | [治安](features/crime-and-security.md)，Implemented；Wave 5 本期验收通过，房产消费 Wave 6 |
+| Facilities | A | [周边设施](features/nearby-facilities.md)，已有实现重构 |
+| Transit | A | [公共交通](features/public-transportation.md)，已有实现重构 |
+| Hazard | A | [隐患](features/hazard-reporting.md)，已有实现重构 |
+| Socio | B | [社会经济](features/socio-economic.md)，Implemented；Luna High 审查通过，完整预算联动已接线，见全模块验收 |
+| Infrastructure | B | [基础设施](features/infrastructure-coverage.md)，Implemented；Luna High 规格/规范复审通过，地图中性摘要已接线，见全模块验收 |
+| Property | B | [房产](features/property-inspection.md)，Implemented；Luna High 最终审查通过，真实风险／照片／地图／账户联验通过 |
+| Account | A | [账户](features/account-center.md)，Implemented；真实预算／房产／本人隐患联合验收通过 |
 
-每个 owning Feature/shared module 的 Markdown 是唯一 Development Contract；`docs/human/` 中同 basename HTML 只是语义等价的阅读导出。Git 与 PR 保存历史，不建立 PDF、Manifest、checksum 或独立发布生命周期。
+[Account Privacy](modules/account-privacy.md) 已取消；[Personalized Location Suitability](features/personalized-location-suitability.md) 已排除。
+HTML 仅从 owning Markdown 导出，见 [交接规则](handoff/README.md)。不得将未实现目标或占位入口称为成功功能。
 
-AI 可以固定跨 Owner 所必需的精确 `import`、公开 Dart declaration、调用方可见类型、结果、失败、生命周期、权限、副作用和联合情景，也可以编写、修改和测试 Flutter 函数体、Widget、私有 helper、SDK 映射及应用测试实现。
-
-AI 可以建立和保护 Supabase 开发环境，包括 CLI/config、migration、RLS、导入支持及环境验证；其边界见 ADR 0016。Flutter 中的 Supabase client 装配可由 AI 或 Owner 编写，并须使用运行时注入的项目 URL 与 publishable key，不能提交 service-role key 或继续依赖硬编码 legacy anon key。
-
-公式正文只在产品知识库维护；字段、RLS 和 migration 只在 Schema Catalog 维护。Development Contract 引用它们并固定调用方必须遵守的口径。
-
-## 角色与协作
-
-- **项目负责人 / Owner A**：产品与架构决策、shared file、composition root、migration 顺序和最终整合。
-- **Owner B**：实现分配给 B 的契约；与 A 共同确认所消费的公开 Interface 变更。
-- **AI**：可维护设计和 HTML、执行审查、编写及测试全部项目代码，并依 ADR 0013 批准 owning contract 的 `Ready for Development`。
-
-提供方先合并一个模块唯一的公开入口和契约 declarations，再实现真实 Adapter；消费方只依赖该入口并用 fake 开发。公开 Interface 变更由提供方说明原因和受影响消费者，全部消费者确认，并在同一 PR 更新 declarations、owning contract、同名 HTML 与受影响测试。
-
-## Ready for Development
-
-一份 owning contract 只有同时满足以下四项才可进入开发：
-
-1. **成果可观察**：范围、成功、空、失败、离线/权限及恢复结果明确。
-2. **边界可编译**：唯一公开入口、完整 declarations、结果/失败/lifecycle/权限和依赖均无猜测。
-3. **资料可复现**：数据对象、公式 ID、单位、边界和来源指向唯一事实源。
-4. **协作可验收**：Owner、fake/Adapter 分工、联合场景、变更协议和阻塞项明确。
-
-正文 Ready Gate 必须自证这四项；Issue 评论和 Change Log 只保留历史，不能替代正文。
-
-## 开发节奏
-
-开发前的验收分配、`Implemented` 门槛、Wave 完成条件和审查报告格式统一遵循
-[各 Wave 开发与完成判定规范](development-standard.md)。开发、实现审查和 Wave 验收时必须读取。
-
-编写、修改或审查手写 Dart 代码，以及设计新的公开 Dart declaration 时，遵循该规范[第 7 节的 Java 阅读习惯约束](development-standard.md#7-java-阅读习惯与-dart-可读性约束)。
-
-1. 系统基线和全部 owning contract 已就绪；按依赖 DAG 从 Wave 1 开始。
-2. 每个 provider 先交付公开 seam 与 fake 所需 declaration，再并行开发 provider/consumer。
-3. Owner 或 AI 可在分支中实现 Flutter 代码和测试；共享接线由 A 整合。
-4. 每个 PR 运行格式检查、静态分析、测试和 debug APK 构建；仓库已有 [Flutter CI](../../.github/workflows/flutter.yml)。
-5. 实现者可声明 `Implemented`；项目负责人完成跨 Owner 验收后批准 `Integrated`。
-
-设备策略不构成开发阻塞：Owner B 使用 Android Studio 自带虚拟设备；Owner A 使用真实 Android 设备进行无线调试。两人均需在自己的目标设备保留首屏、失败分支和返回/重启流程证据。
-
-## 单一真相与变更规则
-
-- Capability 产品含义只在产品知识库定义。
-- 系统 Interface 注册表只列 ID、Owner、消费者、用途、状态及 owning contract 链接。
-- 完整 Interface declarations 和协调语义只在 owning contract 定义。
-- 数据对象完整定义只在 Schema Catalog；Feature 只写访问方式和业务口径。
-- 模型对话与推理不入库；只保留决定、影响、验证证据和未关闭项。
-
-基线后变更必须记录原因及受影响的 Capability、Feature、Interface、数据对象和测试。发生公开 Interface 或数据模型变化时，受影响 contract 退回 `Draft`，完成影响审查和同 PR 同步后才能恢复。
-
-## 设计索引
-
-系统设计为 `Baselined`（`5d11769`）。以下全部 owning contract 已达到 `Ready for Development`；波次表示依赖顺序，不表示人员工期。
-
-| 类型 | 名称 | Owner | 波次 | Development Contract |
-| --- | --- | --- | --- | --- |
-| Feature | Authentication & Session | A | 1 | [Markdown](features/authentication-and-session.md) · [HTML](../human/authentication-and-session.html) |
-| Module | Geographic Context | B | 1 | [Markdown](modules/geographic-context.md) · [HTML](../human/geographic-context.html) |
-| Module | Account Privacy | A | 2 | [Markdown](modules/account-privacy.md) · [HTML](../human/account-privacy.html) |
-| Module | Application Shell | A | 3 | [Markdown](modules/application-shell.md) · [HTML](../human/application-shell.html) |
-| Feature | Home & Relocation Outlook | A | 4 | [Markdown](features/home-and-relocation-outlook.md) · [HTML](../human/home-and-relocation-outlook.html) |
-| Feature | Map / Location | A | 4 | [Markdown](features/map-and-location.md) · [HTML](../human/map-and-location.html) |
-| Feature | Cost of Living & Budget | B | 5 | [Markdown](features/cost-of-living-and-budget.md) · [HTML](../human/cost-of-living-and-budget.html) |
-| Feature | Crime & Security | B | 5 | [Markdown](features/crime-and-security.md) · [HTML](../human/crime-and-security.html) |
-| Feature | Nearby Facilities | A | 5 | [Markdown](features/nearby-facilities.md) · [HTML](../human/nearby-facilities.html) |
-| Feature | Public Transportation | A | 5 | [Markdown](features/public-transportation.md) · [HTML](../human/public-transportation.html) |
-| Feature | Hazard Reporting | A | 5 | [Markdown](features/hazard-reporting.md) · [HTML](../human/hazard-reporting.html) |
-| Feature | Socio-economic | B | 6 | [Markdown](features/socio-economic.md) · [HTML](../human/socio-economic.html) |
-| Feature | Infrastructure Coverage | B | 6 | [Markdown](features/infrastructure-coverage.md) · [HTML](../human/infrastructure-coverage.html) |
-| Feature | Property Inspection | B | 6 | [Markdown](features/property-inspection.md) · [HTML](../human/property-inspection.html) |
-| Feature | Account Center | A | 6 | [Markdown](features/account-center.md) · [HTML](../human/account-center.html) |
-| Feature | Personalized Location Suitability | B | 7 | [Markdown](features/personalized-location-suitability.md) · [HTML](../human/personalized-location-suitability.html) |
+全模块集成接线与独立审查：[2026-09-18 验收报告](../human/integration-2026-09-18.md)。Integrated 仍由负责人批准。

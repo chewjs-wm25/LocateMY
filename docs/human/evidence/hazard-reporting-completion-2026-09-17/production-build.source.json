@@ -1,0 +1,8 @@
+{
+  "hazard_source_sha256": "6dc7fc92fc6b82c76fc071fc8b7fc7da5488e035a35de405cb17f8586fa7bcfc",
+  "base_head": "1e5acab14b665a896cc86c5e21dc0c657c9cc8aa",
+  "source_sha256": "6e4e3072b112ad72fdf1b063ede7576e442762a1f5ff412986ffb92781764691",
+  "apk_sha256": "9ae8da2ef89d2b7c3e3be76703dbfb12a24217e99e6252364862a5af38780fd8",
+  "secret_scan": "PASS",
+  "application_id": "com.locatemy.app"
+}

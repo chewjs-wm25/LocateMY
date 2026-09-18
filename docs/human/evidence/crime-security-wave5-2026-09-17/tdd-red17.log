@@ -1,0 +1,25 @@
+00:00 +0: loading /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart
+00:00 +0: state safety uses 60:40 category percentiles across actual states
+00:00 +1: one category normalizes its weight and marks partial without inventing total
+00:00 +2: unresolved and ambiguous locations never choose a default state
+00:00 +3: unverified sources and empty latest year remain unavailable
+00:00 +4: five year trends retain gaps and dynamic types, excluding national totals
+00:00 +5: malformed, negative and duplicate source rows cannot produce a safety score
+00:00 +6: durable public cache survives restart and offline refresh but expires after three days
+00:00 +7: A/B returns a neutral B minus A difference only for complete matching scope
+00:00 +8: failed Geo lookup is an unavailable result and recovers on retry
+00:00 +9: tied crime scales share the inclusive rank and all-zero counts are real data
+00:00 +10: A/B preserves the successful side when the other state has no data
+00:00 +11: corrupt public cache is ignored and online retry restores a valid result
+00:00 +12: an older concurrent response cannot overwrite the most recent cached input
+00:00 +13: a cached state result remains readable when both Geo and crime sources are offline
+00:00 +14: unexpected states and mismatched source years are unverifiable
+00:00 +15: missing latest year does not discard a valid historical trend
+00:00 +15 -1: missing latest year does not discard a valid historical trend [E]
+  Null check operator used on a null value
+  test/features/crime_security/crime_security_test.dart 446:64  main.<fn>
+  
+00:00 +15 -1: Some tests failed.
+
+Failing tests:
+  /home/AC79/Desktop/LocateMY/test/features/crime_security/crime_security_test.dart: missing latest year does not discard a valid historical trend

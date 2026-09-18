@@ -48,3 +48,8 @@ This is a single-context repo. See `docs/agents/domain.md`.
 
 - 需要登录的真实、live 或设备测试开始前，读取根目录的 `test_credentials.local.md`，并按其中的变量名注入测试环境。
 - 该文件只存在于本地，内容按敏感信息处理；不要在回复、日志、截图、提交或其他版本控制内容中暴露账号和密码。
+
+
+## 备注
+
+- 在结束会话前，Commit

@@ -1,39 +1,25 @@
-// Explicit parameter types and initialization follow Development Standard §7.
-// ignore_for_file: prefer_initializing_formals
+
+
 
 import 'dart:async';
 import 'dart:math';
 
-import '../../../account_privacy/account_privacy.dart';
 import '../domain/location_models.dart';
 import 'location_storage.dart';
 import 'map_workspace.dart';
 import 'map_diagnostics.dart';
 
 class LocationService
-    implements
-        LocationCoordinator,
-        AccountPrivacyParticipant,
-        MapLayerHost,
-        MapWorkspace {
+    implements LocationCoordinator, MapLayerHost, MapWorkspace {
   LocationService({
-    required AccountScope scope,
-    required AccountScopeSnapshot Function() readScope,
+    required String accountId,
     required Future<bool> Function(GeographicPoint) validatePoint,
     LocationStorage? storage,
     void Function(Map<String, Object>)? diagnosticSink,
-  }) : scope = scope,
-       readScope = readScope,
+  }) : accountId = accountId,
        validatePoint = validatePoint,
        storage = storage,
        diagnosticSink = diagnosticSink;
-  @override
-  Future<PrivateStateClearOutcome> clearPrivateState(
-    AccountScope closingScope,
-  ) {
-    return _observe('privacy', () => _clearPrivateState(closingScope));
-  }
-
   @override
   Future<LocationSelectionOutcome> select(LocationSelectionRequest request) {
     return _observe('select', () => _select(request));
@@ -62,8 +48,7 @@ class LocationService
   }
 
   final LocationStorage? storage;
-  final AccountScope scope;
-  final AccountScopeSnapshot Function() readScope;
+  final String accountId;
   final Future<bool> Function(GeographicPoint) validatePoint;
   final Map<LocationRole, ValidLocationReference> roles = {};
   final Set<ValidLocationReference> _issued = {};
@@ -75,13 +60,9 @@ class LocationService
     }
   }
 
-  bool _closed = false;
   @override
   bool get opened {
-    final AccountScopeSnapshot current = readScope();
-    return !_closed &&
-        current is AccountScopeOpened &&
-        identical(current.scope, scope);
+    return true;
   }
 
   @override
@@ -118,49 +99,13 @@ class LocationService
     layerChanges.add(null);
   }
 
-  // The frozen interfaces have no transport-error variant. Fail closed using
-  // scopeUnavailable without claiming the point is outside Malaysia.
+  
+  
   Future<bool?> _validate(GeographicPoint point) async {
     try {
       return await validatePoint(point);
     } catch (_) {
       return null;
-    }
-  }
-
-  @override
-  AccountPrivacyParticipantId get participantId {
-    return AccountPrivacyParticipantId.mapLocation;
-  }
-
-  Future<PrivateStateClearOutcome> _clearPrivateState(
-    AccountScope closingScope,
-  ) async {
-    if (closingScope.accountId != scope.accountId) {
-      return PrivateStateCleared(participantId, closingScope);
-    }
-    _closed = true;
-    roles.clear();
-    _issued.clear();
-    _requests.clear();
-    layers.clear();
-    viewport = 'closed';
-    layerChanges.add(null);
-    _events.add(
-      const SavedLocationsUnavailable(
-        failure: SavedLocationFailure.scopeUnavailable,
-      ),
-    );
-    try {
-      await _tail;
-      await storage?.clearLocal();
-      return PrivateStateCleared(participantId, closingScope);
-    } catch (_) {
-      return PrivateStateClearIncomplete(
-        participantId,
-        closingScope,
-        PrivateStateClearFailure.localStoreUnavailable,
-      );
     }
   }
 
@@ -264,8 +209,8 @@ class LocationService
   Future<void> _tail = Future<void>.value();
 
   Future<T> _serialized<T>(Future<T> Function() run) {
-    // A Future chain is necessary here to preserve the one-at-a-time durable
-    // storage contract while allowing a prior failure to be reported normally.
+    
+    
     final Future<T> result = _tail.then((_) => run());
     _tail = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return result;
@@ -294,68 +239,30 @@ class LocationService
       );
     }
     final String key = _newClientKey();
-    SavedRecord queued = SavedRecord(
-      attempts: 1,
+    final SavedRecord record = SavedRecord(
       clientKey: key,
       saved: SavedLocation(
         id: key,
         name: name,
         location: request.location,
         createdAt: DateTime.now().toUtc(),
-        syncState: SavedLocationSyncState.queued,
       ),
     );
     try {
-      final List<SavedRecord> local = await storage!.readLocal();
-      if (!opened) {
-        return const SavedLocationRejected(
-          failure: SavedLocationFailure.scopeUnavailable,
-        );
-      }
-      local.add(queued);
-      await storage!.writeLocal(local);
-      try {
-        final SavedRecord created = await storage!.createRemote(queued);
-        if (!opened) {
-          return const SavedLocationRejected(
-            failure: SavedLocationFailure.scopeUnavailable,
-          );
-        }
-        _removeRecordWithClientKey(local, key);
-        local.add(created);
-        await storage!.writeLocal(local);
-        _emit(local);
-        return SavedLocationSaved(savedLocation: created.saved);
-      } on SavedLocationFailure catch (failure) {
-        if (!opened) {
-          return const SavedLocationRejected(
-            failure: SavedLocationFailure.scopeUnavailable,
-          );
-        }
-        if (failure == SavedLocationFailure.retryableUnavailable) {
-          queued = SavedRecord(
-            saved: queued.saved,
-            clientKey: key,
-            attempts: queued.attempts,
-            lastFailure: failure,
-          );
-          _removeRecordWithClientKey(local, key);
-          local.add(queued);
-          await storage!.writeLocal(local);
-          _emit(local);
-          return SavedLocationQueued(savedLocation: queued.saved);
-        }
-        _removeRecordWithClientKey(local, key);
-        await storage!.writeLocal(local);
-        _emit(local);
-        return SavedLocationRejected(failure: failure);
-      }
+      final SavedRecord created = await storage!.createRemote(record);
+      _rows.add(created);
+      _emit(_rows);
+      return SavedLocationSaved(savedLocation: created.saved);
+    } on SavedLocationFailure catch (failure) {
+      return SavedLocationRejected(failure: failure);
     } catch (_) {
       return const SavedLocationRejected(
         failure: SavedLocationFailure.retryableUnavailable,
       );
     }
   }
+
+  final List<SavedRecord> _rows = <SavedRecord>[];
 
   String _newClientKey() {
     final Random random = Random.secure();
@@ -383,7 +290,7 @@ class LocationService
       );
     }
     try {
-      final List<SavedRecord> rows = await storage!.readLocal();
+      final List<SavedRecord> rows = await storage!.readRemote();
       final Iterable<SavedRecord> found = rows.where(
         (r) => r.saved.id == id && !r.deleted,
       );
@@ -400,15 +307,11 @@ class LocationService
       }
       _removeRecordWithClientKey(rows, deleted.clientKey);
       rows.add(deleted);
-      await storage!.writeLocal(rows);
+      _rows.clear();
+      _rows.addAll(rows);
       _emit(rows);
       return SavedLocationSaved(savedLocation: deleted.saved);
     } on SavedLocationFailure catch (failure) {
-      if (failure == SavedLocationFailure.retryableUnavailable) {
-        return const SavedLocationRejected(
-          failure: SavedLocationFailure.offlineDeleteUnsupported,
-        );
-      }
       return SavedLocationRejected(failure: failure);
     } catch (_) {
       return const SavedLocationRejected(
@@ -426,7 +329,7 @@ class LocationService
             controller.add(snapshot);
           });
       controller.onCancel = subscription.cancel;
-      synchronizeSavedLocations();
+      loadSavedLocations();
     });
   }
 
@@ -452,11 +355,11 @@ class LocationService
   }
 
   @override
-  Future<SavedLocationsSnapshot> synchronizeSavedLocations() {
+  Future<SavedLocationsSnapshot> loadSavedLocations() {
     return _observe(
-      'sync',
+      'load_saved',
       () => _serialized(() async {
-        final SavedLocationsSnapshot result = await _synchronize();
+        final SavedLocationsSnapshot result = await _loadSaved();
         if (result is SavedLocationsUnavailable) {
           _events.add(result);
         }
@@ -465,69 +368,20 @@ class LocationService
     );
   }
 
-  Future<SavedLocationsSnapshot> _synchronize() async {
+  Future<SavedLocationsSnapshot> _loadSaved() async {
     if (!opened || storage == null) {
       return const SavedLocationsUnavailable(
         failure: SavedLocationFailure.scopeUnavailable,
       );
     }
-    List<SavedRecord> local = [];
     try {
-      local = await storage!.readLocal();
       final List<SavedRecord> remote = await storage!.readRemote();
-      if (!opened) {
-        return const SavedLocationsUnavailable(
-          failure: SavedLocationFailure.scopeUnavailable,
-        );
-      }
-      final List<SavedRecord> queuedRecords = <SavedRecord>[];
-      for (final SavedRecord record in local) {
-        if (record.saved.syncState != SavedLocationSyncState.synchronized) {
-          queuedRecords.add(record);
-        }
-      }
-      for (final SavedRecord queued in queuedRecords) {
-        if (remote.any((r) => r.clientKey == queued.clientKey)) {
-          continue;
-        }
-        final SavedRecord attempt = SavedRecord(
-          saved: queued.saved,
-          clientKey: queued.clientKey,
-          attempts: queued.attempts + 1,
-        );
-        local[local.indexOf(queued)] = attempt;
-        await storage!.writeLocal(local);
-        SavedRecord created;
-        try {
-          created = await storage!.createRemote(attempt);
-        } on SavedLocationFailure catch (failure) {
-          local[local.indexOf(attempt)] = SavedRecord(
-            saved: queued.saved,
-            clientKey: queued.clientKey,
-            attempts: attempt.attempts,
-            lastFailure: failure,
-          );
-          await storage!.writeLocal(local);
-          rethrow;
-        }
-        if (!opened) {
-          return const SavedLocationsUnavailable(
-            failure: SavedLocationFailure.scopeUnavailable,
-          );
-        }
-        remote.add(created);
-      }
-      await storage!.writeLocal(remote);
-      _emit(remote);
-      return _snapshot(remote);
+      _rows.clear();
+      _rows.addAll(remote);
+      _emit(_rows);
+      return _snapshot(_rows);
     } on SavedLocationFailure catch (failure) {
-      if (opened && local.isNotEmpty) {
-        mapDiagnostic('cache', 'cached', Duration.zero, diagnosticSink);
-        _emit(local);
-      }
-      return SavedLocationsUnavailable(
-        failure: opened ? failure : SavedLocationFailure.scopeUnavailable,
-      );
+      return SavedLocationsUnavailable(failure: failure);
     } catch (_) {
       return const SavedLocationsUnavailable(
         failure: SavedLocationFailure.retryableUnavailable,
