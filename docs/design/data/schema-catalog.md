@@ -206,7 +206,6 @@ id/client_key/name/latitude/longitude/created_at/deleted_at/version。新版 RPC
 坐标失配失效 trigger，并保持收藏 RPC 形状而过滤历史 soft delete。
 不删除历史 migration／远端数据，不调整公式，不自动重算风险。
 预算、三项 ICI、完整房产的 auth.users 外键、Storage 父实勘权限和地点非空仍为后续对应 Feature migration 责任。
-本机新增对象是预算 JSON v1 导出（implemented，应用文件目录；Cost Feature 已通过真实文件及设备生命周期验收），格式与读取验收见 Cost 契约；退出保留，不写回云端。
 不存在私有收藏缓存、房产跨重启草稿／照片待传队列或清理屏障的新 schema。
 
 ### Wave 5 Hazard Reporting 运行时 API（2026-09-17）

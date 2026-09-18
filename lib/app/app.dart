@@ -423,9 +423,6 @@ final class _ProductionPagesState extends State<_ProductionPages> {
   );
   late final CurrentBudgetReader _currentBudget =
       createSupabaseCurrentBudgetReader(widget.client);
-  late final BudgetJsonFiles _budgetFiles = createBudgetJsonFiles(
-    budgetStore: _budget,
-  );
   late final CostOfLivingBudget _cost = createCostOfLivingBudget(
     geographicContext: createGeographicContext(widget.client),
     reader: SupabaseCostPublicReader(widget.client),
@@ -484,7 +481,6 @@ final class _ProductionPagesState extends State<_ProductionPages> {
       cost: _cost,
       budgetStore: _budget,
       currentBudget: _currentBudget,
-      budgetFiles: _budgetFiles,
       property: _property,
       photoPicker: _photoPicker,
     );
@@ -505,7 +501,6 @@ final class LocateMyPages extends StatefulWidget {
   final CostOfLivingBudget? cost;
   final BudgetScenarioStore? budgetStore;
   final CurrentBudgetReader? currentBudget;
-  final BudgetJsonFiles? budgetFiles;
   final PropertyInspectionService? property;
   final PropertyPhotoPicker? photoPicker;
   final Future<ValidLocationReference?> Function(BuildContext)?
@@ -524,7 +519,6 @@ final class LocateMyPages extends StatefulWidget {
     CostOfLivingBudget? cost,
     BudgetScenarioStore? budgetStore,
     CurrentBudgetReader? currentBudget,
-    BudgetJsonFiles? budgetFiles,
     PropertyInspectionService? property,
     PropertyPhotoPicker? photoPicker,
     Future<ValidLocationReference?> Function(BuildContext)?
@@ -543,7 +537,6 @@ final class LocateMyPages extends StatefulWidget {
        cost = cost,
        budgetStore = budgetStore,
        currentBudget = currentBudget,
-       budgetFiles = budgetFiles,
        property = property,
        photoPicker = photoPicker,
        choosePropertyLocation = choosePropertyLocation,
@@ -790,7 +783,6 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
         cost: widget.cost,
         budgetStore: widget.budgetStore,
         currentBudget: widget.currentBudget,
-        budgetFiles: widget.budgetFiles,
         property: widget.property,
         photoPicker: widget.photoPicker,
         choosePropertyLocation: _choosePropertyLocation,
@@ -929,7 +921,6 @@ final class _LocateMyPagesState extends State<LocateMyPages> {
                     authentication: InheritedAuthentication.of(context),
                     currentBudget: widget.currentBudget,
                     budgetStore: widget.budgetStore,
-                    budgetFiles: widget.budgetFiles,
                     onMyHazards: _mine,
                     onPropertyPortfolio: widget.property == null
                         ? null
@@ -1018,7 +1009,6 @@ final class LocationAnalysisMenu extends StatelessWidget {
   final CostOfLivingBudget? cost;
   final BudgetScenarioStore? budgetStore;
   final CurrentBudgetReader? currentBudget;
-  final BudgetJsonFiles? budgetFiles;
   final PropertyInspectionService? property;
   final PropertyPhotoPicker? photoPicker;
   final Future<ValidLocationReference?> Function(BuildContext)?
@@ -1035,7 +1025,6 @@ final class LocationAnalysisMenu extends StatelessWidget {
     CostOfLivingBudget? cost,
     BudgetScenarioStore? budgetStore,
     CurrentBudgetReader? currentBudget,
-    BudgetJsonFiles? budgetFiles,
     PropertyInspectionService? property,
     PropertyPhotoPicker? photoPicker,
     Future<ValidLocationReference?> Function(BuildContext)?
@@ -1052,7 +1041,6 @@ final class LocationAnalysisMenu extends StatelessWidget {
        cost = cost,
        budgetStore = budgetStore,
        currentBudget = currentBudget,
-       budgetFiles = budgetFiles,
        property = property,
        photoPicker = photoPicker,
        choosePropertyLocation = choosePropertyLocation,
@@ -1101,7 +1089,6 @@ final class LocationAnalysisMenu extends StatelessWidget {
                     service: cost!,
                     budgetStore: budgetStore,
                     currentBudget: currentBudget,
-                    files: budgetFiles,
                   ),
                 );
               },

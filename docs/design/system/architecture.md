@@ -16,7 +16,7 @@ Navigator.push/pop 及明确 location／id／A/B 参数承担页面往返，普�
 
 账号业务记录在线保存 Supabase，owner-only RLS；公开隐患 authenticated 可读、作者管理、本人唯一票。
 照片在线 Storage，权限按实勘 owner。公共政府镜像仍一次性受控导入，Flutter 只读 View/RPC。
-SQLite 仅公共分析缓存，KV 语言／简单设置，预算 JSON 应用文件目录导出与读取。
+SQLite 仅公共分析缓存，KV 用于语言／简单设置。
 无收藏私有缓存、离线创建／重放、照片待传或跨重启房产草稿。
 
 国际化仍中英文，当前与失败状态均支持，小屏／放大文字／读屏保留。

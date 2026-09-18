@@ -34,37 +34,6 @@ Account 与 Socio 仅读 current 服务，不各自写预案表。接口需在�
 本次不保留庞大的旧 Shell／Privacy／Suitability declarations，不宣称它们 Ready。
 公共模型缓存可用 SQLite，预案及个人输入不能进入公共缓存。
 
-## COST-05 本机预算 JSON
-
-导出对象必须是已经成功在线保存的预案，读取副本不调用云端创建／更新。
-文件保存在 path_provider 应用文件目录的 `budget_exports/`，文件名含预案 id 与导出时刻；
-每次导出单份预案，不覆盖同名旧文件。应用提供本机文件列表与打开展示，可跨重启／退出保留。
-格式以本契约为权威：UTF-8 JSON 对象，顶层 `format = locatemy-budget-scenario`、整数 `version = 1`、
-UTC ISO-8601 `exported_at`、对象 `scenario`。不导出账号 id、认证数据或云端 current 选择，不新增分享功能。
-
-```json
-{
-  "format": "locatemy-budget-scenario",
-  "version": 1,
-  "exported_at": "2026-09-17T08:00:00Z",
-  "scenario": {
-    "id": "saved-scenario-id",
-    "name": "My budget",
-    "extra_living_expenses_rm": null,
-    "housing_rm": 0,
-    "transport_rm": 150,
-    "monthly_net_income_rm": 3500,
-    "household_monthly_gross_income_rm": null
-  }
-}
-```
-
-v1 必须含全部上述金额键，值为 null 或有限非负 JSON number；null 展示“未填写”，0 展示 RM 0。
-缺键属于损坏格式，不能猜测补零；预案 id 和 name 必须非空且 name ≤120。
-损坏 JSON、缺失文件／字段、无效日期／格式／金额反馈读取失败；不支持 version 单独反馈版本不支持。
-展示预案名称、各金额／缺失状态和导出时间，并明确“导出副本”；不根据副本更改账户 current。
-导出失败不显示成功；成功反馈可再次打开真实文件。
-
 ## 后续验收分配
 
 | 可观察场景 | 责任／证据 | 最迟 |
@@ -72,11 +41,9 @@ v1 必须含全部上述金额键，值为 null 或有限非负 JSON number；nu
 | 成本口径、部分篮子指数／压力、缺失、有效零和 A/B 提示 | B 本模块；公式与页面测试 | Wave 5 |
 | 在线预案 CRUD、current 唯一／删除、失败不切换 | B 本模块；页面与真实归属 smoke | Wave 5 |
 | 临时换算无预案可用、同月与缺失失败、不写入 | B 本模块；页面行为 | Wave 5 |
-| 导出真实文件、重启／退出保留、读取 null 与零 | B；真实临时目录及页面展示 | Wave 5 |
-| 损坏／缺键／无效金额／不支持版本／文件缺失 | B；只读展示失败且云端不变 | Wave 5 |
 | Account current、预算压力与 Socio 家庭收入位置随切换更新 | B 主责、A 接线联合验证 | Wave 6 |
 
-预算 JSON 与完整预算业务本期实现，验收证据见本次交付报告。
+预算业务本期实现，验收证据见本次交付报告。预算 JSON 导出与本机文件读取已于 2026-09-18 按用户要求移除。
 ## 生命周期与验收责任
 
 页面只在登录后的业务树内建立；退出成功或换账号后结束旧业务页面，新页面按当前 SDK 用户读取记录。
@@ -94,11 +61,11 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 `CurrentBudgetReader.readCurrent(): Future<BudgetScenariosOutcome>` 与 `watchCurrent(): Stream<BudgetScenariosOutcome>` 从唯一入口导出。
 `createSupabaseCurrentBudgetReader(client)` 提供真实 owner-only 在线读取；null 家庭收入与 0 区分，网络失败 typed unavailable，不以月净收入替代。
 观察期间每 10 秒在线检查已保存的 current；消费者取消订阅后停止。当前读取与预算 writer 共用同一真实 store；本期联合验证覆盖成功变更通知及 Socio 的独立家庭收入用途。
-完整预算 CRUD、JSON 与成本服务现已实现；字段以 Schema Catalog 为准。
+完整预算 CRUD 与成本服务现已实现；字段以 Schema Catalog 为准。
 
 ## 本次开发固定范围（2026-09-18）
 
-Ready Gate 自主固定：沿用 COST-001、COST-002 与 CurrentBudgetReader；新增 BudgetJsonFiles 为真实应用目录文件边界。
+Ready Gate 自主固定：沿用 COST-001、COST-002 与 CurrentBudgetReader。
 最高验收 seams 为上述服务和应用页面；Issue #25 Q2 已确认此策略，本次用户授权自行决策。
 生产成本 factory 注入 GeographicContext、CostPublicReader、CurrentBudgetReader、可选 SQLite；
 预算 factory 注入 SupabaseClient，同一 writer 实现 CurrentBudgetReader 并在成功变更后通知消费者。
@@ -110,8 +77,6 @@ Ready Gate 自主固定：沿用 COST-001、COST-002 与 CurrentBudgetReader；�
 | C03 A/B同篮子/日期/current与不可比、过期响应 | 本模块 | 真实Geo/RPC；服务/页面 | B / Wave 5 | 已验证 | 不适用 |
 | B01 在线CRUD/current原子唯一、失败保留、删除不自动选 | 本模块 | Supabase开发环境allow/deny与恢复 | B / Wave 5 | 已验证 | 不适用 |
 | B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 已验证 | 本期writer/reader、Account current设备及Socio live已验证；Wave 6 真实选择及缺失联验通过 |
-| J01 只导出已保存、真实UTF8/唯一文件、列表/打开/null/zero | 本模块 | path_provider/临时真文件与页面 | B / Wave 5 | 已验证 | 不适用 |
-| J02 损坏/缺键/无效日期金额/version/缺文件、无云写 | 本模块 | 真实临时目录/页面、重启退出保留 | B / Wave 5 | 已验证 | 不适用 |
 | U01 中英文小屏200%/读屏、离线权限恢复、dispose晚响应 | 本模块 | emulator-5554/页面测试 | B / Wave 5 | 已验证 | 不适用 |
 | H01 地图地点摘要消费（按现行 UI 事实源修正消费者） | 联合 | 本期真实Map与Cost | A主责 B参与 / Wave 6 | 不适用 | 已接线；summary integration 测试与设备验证，见全模块报告 |
 

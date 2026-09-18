@@ -16,7 +16,6 @@ final class CostBudgetPage extends StatefulWidget {
   final CostOfLivingBudget service;
   final BudgetScenarioStore? budgetStore;
   final CurrentBudgetReader? currentBudget;
-  final BudgetJsonFiles? files;
   final Object? returnContext;
   const CostBudgetPage({
     required ValidLocationReference location,
@@ -24,7 +23,6 @@ final class CostBudgetPage extends StatefulWidget {
     ValidLocationReference? locationB,
     BudgetScenarioStore? budgetStore,
     CurrentBudgetReader? currentBudget,
-    BudgetJsonFiles? files,
     Object? returnContext,
     super.key,
   }) : location = location,
@@ -32,7 +30,6 @@ final class CostBudgetPage extends StatefulWidget {
        locationB = locationB,
        budgetStore = budgetStore,
        currentBudget = currentBudget,
-       files = files,
        returnContext = returnContext;
   @override
   State<CostBudgetPage> createState() {
@@ -80,10 +77,7 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return BudgetScenariosPage(
-            store: widget.budgetStore!,
-            files: widget.files,
-          );
+          return BudgetScenariosPage(store: widget.budgetStore!);
         },
       ),
     );

@@ -34,7 +34,7 @@ canonical: true
 | COST-02 | 临时月预算换算 | excluded | 2026-09-18 用户明确删除 CPI 等效预算换算器 | `excluded` |
 | COST-03 | 预算预案 CRUD | partial | 远端增查改删名称及三类金额，但页面编辑能力不完整 | `required` |
 | COST-04 | 查看商家 | placeholder | 按钮无回调 | `excluded` |
-| COST-05 | 预算 JSON 导出与读取 | 待实现 | 2026-09-17 用户确认用于 Datafile 展示 | `required` |
+| COST-05 | 预算 JSON 导出与读取 | excluded | 2026-09-18 用户明确移除本机导出文件与 JSON 导出／读取功能 | `excluded` |
 | SAFE-01 | 州级安全指数与趋势 | working | 州级整体指数、犯罪分类、按类趋势 | `required` |
 | SAFE-02 | 安全地图 | excluded | 警区边界资料不可获取，警区地图已从范围移除 | `excluded` |
 | SAFE-03 | 犯罪类别筛选 | working | 仅改变州级趋势线，不改变总分 | `required` |
@@ -70,7 +70,7 @@ canonical: true
 
 ## 产品范围基线（2026-09-13）
 
-2026-09-17 已确认修订：`AUTH-03`、`MAP-07`、`ACCOUNT-08` 改为 `excluded`；新增 `COST-05` 预算 JSON 导出与读取为 `required`。原 44 项 required 调整为 42 项。在线账号记录、退出、照片和房产风险的成果按下表更新；历史原型事实不等同于当前代码状态。
+2026-09-17 已确认修订：`AUTH-03`、`MAP-07`、`ACCOUNT-08` 改为 `excluded`。2026-09-18 用户明确将 `COST-05` 预算 JSON 导出与读取改为 `excluded`，不再保留本机导出文件。在线账号记录、退出、照片和房产风险的成果按下表更新；历史原型事实不等同于当前代码状态。
 
 分类含义：`required` 在交付范围内实现并验收，大学提交承诺覆盖的能力全部属于此类；`excluded` 本次不做，重新引入需要新的明确需求；`deferred` 推迟但不阻塞 required 流程；`superseded` 已被取代。当前 `deferred` 与 `superseded` 为空，已废弃的数据表属于 schema 迁移问题，不构成 Capability。
 
@@ -98,7 +98,7 @@ canonical: true
 | COST-01 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 单点报告显示本地价格、篮子估算月支出、生活成本指数与资料覆盖；比较页以相同口径并列 A/B |
 | COST-02 | [submission_commitments](submission_commitments.md) | 已排除：不再提供临时 CPI 等效预算换算器 |
 | COST-03 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 用户可按账户新增、重命名、选择、编辑金额和删除预算预案；切换后依赖读数立即重算 |
-| COST-05 | [cost_of_living](features/cost_of_living.md)、[persistence_matrix](persistence_matrix.md) | 用户可导出预算预案为本机 JSON 并读取展示；文件跨重启、退出保留，不自动同步或写回云端 |
+| COST-05 | [cost_of_living](features/cost_of_living.md) | 已排除：不再导出、读取或保留预算 JSON 本机文件 |
 | SAFE-01 | [crime_security](features/crime_security.md) | 单点页显示州级安全指数 0–100、最新完整年度案件数和最近五年趋势 |
 | SAFE-03 | [crime_security](features/crime_security.md) | 切换犯罪类别只改变州级趋势图，并在控件下说明作用域 |
 | SOCIO-01 | [socio_economic](features/socio_economic.md) | 单点页显示行政区（或标注州级回退）收入中位数、B40/M40/T20 和基尼系数及各自统计年份 |

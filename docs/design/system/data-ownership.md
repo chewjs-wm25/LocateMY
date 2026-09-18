@@ -12,7 +12,6 @@
 | 三项 ICI 权重 | Infrastructure／Supabase | 默认 5，单点可调，摘要／A/B 中性 |
 | 公共分析缓存 | owning 分析／SQLite | 退出保留，日期／来源／旧缓存可见 |
 | 语言与简单设置 | app／KV | 退出、重启保留 |
-| 预算 JSON | Cost／应用文件目录 | 导出副本，退出、重启保留，读取不写回云端 |
 
 字段／RLS／migration 唯一见 [Schema Catalog](../data/schema-catalog.md)。
 五项评估偏好停用；历史 migration 不删。私有队列／照片待传／草稿／清理屏障不再有 owner 或消费者。

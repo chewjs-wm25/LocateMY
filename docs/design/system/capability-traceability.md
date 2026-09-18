@@ -1,7 +1,7 @@
 # Capability 追踪（Issue #31）
 
 完整 Capability 分类以 [产品目录](../../knowledge_base/locatemy_product/capability_catalog.md) 为权威。
-只取消明确排除项，核心分析／A/B／投票／房产回收站／风险保留，新增 COST-05 设计。
+只取消明确排除项，核心分析／A/B／投票／房产回收站／风险保留。
 
 | 能力族 | 唯一责任／契约 | 验收成果 |
 | --- | --- | --- |
@@ -9,7 +9,7 @@
 | NAV、语言 | [Application Shell](../modules/application-shell.md)，A | 登录入口、双 Tab、普通路由、语言 KV |
 | HOME | [Home](../features/home-and-relocation-outlook.md)，A | 真实宏观卡、来源／日期、趋势／公共缓存 |
 | MAP-01–06 | [Map](../features/map-and-location.md)，A | 合法角色／A/B、在线收藏、六类入口、业务图层 |
-| COST-01、COST-03、COST-05 | [Cost](../features/cost-of-living-and-budget.md)，B | 原生成本／压力、在线预案、v1 JSON 导出读取 |
+| COST-01、COST-03 | [Cost](../features/cost-of-living-and-budget.md)，B | 原生成本／压力、在线预案 |
 | SAFE-01/03 | [Crime](../features/crime-and-security.md)，B | 州级安全／趋势／A/B |
 | SOCIO | [Socio](../features/socio-economic.md)，B | 地区统计及 current 家庭收入位置 |
 | INFRA | [Infrastructure](../features/infrastructure-coverage.md)，B | 分项／ICI、在线三权重、摘要和 A/B 中性 |
@@ -20,4 +20,4 @@
 | ACCOUNT-01/02/09 | [Account](../features/account-center.md)，A | 真实邮箱、已接入业务入口、当前预算预案 |
 
 AUTH-03、MAP-07、ACCOUNT-08 排除；既有其他 excluded 项沿用产品目录，不恢复入口。
-2026-09-18 预算 JSON、房产、六类分析和地图摘要均已接入生产；实际证据见[全模块报告](../../human/integration-2026-09-18.md)，负责人 Integrated 批准独立保留。
+2026-09-18 房产、六类分析和地图摘要均已接入生产；预算 JSON 已按用户要求移除。实际证据见[全模块报告](../../human/integration-2026-09-18.md)，负责人 Integrated 批准独立保留。

@@ -7,17 +7,14 @@ import '../../cost_of_living_budget.dart';
 final class CostBudgetAccountPanel extends StatefulWidget {
   final CurrentBudgetReader? reader;
   final BudgetScenarioStore? store;
-  final BudgetJsonFiles? files;
   final Widget child;
   const CostBudgetAccountPanel({
     CurrentBudgetReader? reader,
     BudgetScenarioStore? store,
-    BudgetJsonFiles? files,
     required Widget child,
     super.key,
   }) : reader = reader,
        store = store,
-       files = files,
        child = child;
   @override
   State<CostBudgetAccountPanel> createState() {
@@ -95,7 +92,6 @@ final class _CostBudgetAccountPanelState extends State<CostBudgetAccountPanel> {
                                   builder: (BuildContext context) {
                                     return BudgetScenariosPage(
                                       store: widget.store!,
-                                      files: widget.files,
                                     );
                                   },
                                 ),

@@ -12,7 +12,6 @@ final class AccountCenterPage extends StatelessWidget {
   final AuthenticationViewModel authentication;
   final CurrentBudgetReader? currentBudget;
   final BudgetScenarioStore? budgetStore;
-  final BudgetJsonFiles? budgetFiles;
   final VoidCallback onMyHazards;
   final VoidCallback? onPropertyPortfolio;
 
@@ -21,14 +20,12 @@ final class AccountCenterPage extends StatelessWidget {
     required VoidCallback onMyHazards,
     CurrentBudgetReader? currentBudget,
     BudgetScenarioStore? budgetStore,
-    BudgetJsonFiles? budgetFiles,
     VoidCallback? onPropertyPortfolio,
     super.key,
   }) : authentication = authentication,
        onMyHazards = onMyHazards,
        currentBudget = currentBudget,
        budgetStore = budgetStore,
-       budgetFiles = budgetFiles,
        onPropertyPortfolio = onPropertyPortfolio;
 
   Future<void> _signOut(BuildContext context) async {
@@ -86,7 +83,6 @@ final class AccountCenterPage extends StatelessWidget {
         return CostBudgetAccountPanel(
           reader: currentBudget,
           store: budgetStore,
-          files: budgetFiles,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[

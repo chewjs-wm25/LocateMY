@@ -1,7 +1,6 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'cost_visual_style.dart';
 
@@ -19,13 +18,8 @@ String budgetText(BuildContext context, String en, String zh) {
 
 final class BudgetScenariosPage extends StatefulWidget {
   final BudgetScenarioStore store;
-  final BudgetJsonFiles? files;
-  const BudgetScenariosPage({
-    required BudgetScenarioStore store,
-    BudgetJsonFiles? files,
-    super.key,
-  }) : store = store,
-       files = files;
+  const BudgetScenariosPage({required BudgetScenarioStore store, super.key})
+    : store = store;
   @override
   State<BudgetScenariosPage> createState() {
     return _BudgetScenariosPageState();
@@ -34,9 +28,6 @@ final class BudgetScenariosPage extends StatefulWidget {
 
 final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
   late final BudgetViewModel _model = BudgetViewModel(widget.store);
-  final ScrollController _scroll = ScrollController();
-  BudgetJsonOutcome? _export;
-  bool _exporting = false;
   @override
   void initState() {
     super.initState();
@@ -45,7 +36,6 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
 
   @override
   void dispose() {
-    _scroll.dispose();
     _model.dispose();
     super.dispose();
   }
@@ -84,43 +74,6 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
     }
   }
 
-  Future<void> _exportFile(BudgetScenario scenario) async {
-    if (_exporting) {
-      return;
-    }
-    setState(() {
-      _exporting = true;
-      _export = null;
-    });
-    final BudgetJsonOutcome result = await widget.files!.exportSaved(scenario);
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _exporting = false;
-      _export = result;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((Duration elapsed) {
-      if (mounted && _scroll.hasClients) {
-        _scroll.animateTo(
-          0,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  void _openCopy(String path) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return BudgetExportViewer(files: widget.files!, path: path);
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,31 +94,6 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
             ),
             const SizedBox(height: 16),
           ];
-          final BudgetJsonOutcome? exported = _export;
-          if (_exporting) {
-            children.add(const LinearProgressIndicator());
-          }
-          if (exported is BudgetJsonExported) {
-            children.add(Text(_t('Export saved on this device', '导出已保存至本机')));
-            children.add(
-              TextButton(
-                onPressed: () {
-                  _openCopy(exported.file.path);
-                },
-                child: Text(_t('Open exported copy', '打开导出副本')),
-              ),
-            );
-          }
-          if (exported is BudgetJsonFailed) {
-            children.add(
-              Text(
-                _t(
-                  'Export failed. Retry from a saved online scenario.',
-                  '导出失败，请从已在线保存的预案重试。',
-                ),
-              ),
-            );
-          }
           if (_model.loading) {
             children.add(const LinearProgressIndicator());
           }
@@ -262,15 +190,6 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
                                   },
                             child: Text(_t('Delete', '删除')),
                           ),
-                          if (widget.files != null)
-                            TextButton(
-                              onPressed: _exporting
-                                  ? null
-                                  : () {
-                                      _exportFile(scenario);
-                                    },
-                              child: Text(_t('Export JSON', '导出 JSON')),
-                            ),
                         ],
                       ),
                     ],
@@ -279,23 +198,6 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
               );
             }
           }
-          if (widget.files != null) {
-            children.add(
-              OutlinedButton(
-                key: const ValueKey<String>('budget-files'),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) {
-                        return BudgetExportsPage(files: widget.files!);
-                      },
-                    ),
-                  );
-                },
-                child: Text(_t('Local exported files', '本机导出文件')),
-              ),
-            );
-          }
           children.add(
             OutlinedButton(
               onPressed: _model.busy ? null : _model.load,
@@ -303,7 +205,6 @@ final class _BudgetScenariosPageState extends State<BudgetScenariosPage> {
             ),
           );
           return SingleChildScrollView(
-            controller: _scroll,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -548,207 +449,6 @@ final class _BudgetEditorPageState extends State<BudgetEditorPage> {
       backgroundColor: CostVisualStyle.canvas,
       appBar: AppBar(
         title: Text(_t('Edit budget scenario', '编辑预算预案')),
-        actions: const <Widget>[LanguageButton()],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
-      ),
-    );
-  }
-}
-
-final class BudgetExportsPage extends StatefulWidget {
-  final BudgetJsonFiles files;
-  const BudgetExportsPage({required BudgetJsonFiles files, super.key})
-    : files = files;
-  @override
-  State<BudgetExportsPage> createState() {
-    return _BudgetExportsPageState();
-  }
-}
-
-final class _BudgetExportsPageState extends State<BudgetExportsPage> {
-  List<BudgetJsonFile>? _files;
-  bool _failed = false;
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final List<BudgetJsonFile> files = await widget.files.list();
-      if (mounted) {
-        setState(() {
-          _files = files;
-          _failed = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _failed = true;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> children = <Widget>[
-      Text(
-        budgetText(
-          context,
-          'Local copies remain after restart or sign out. Opening never changes cloud budgets.',
-          '本机副本跨重启及退出保留；读取不会改变云端预算。',
-        ),
-      ),
-    ];
-    if (_failed) {
-      children.add(
-        Text(
-          budgetText(context, 'Unable to list files. Retry.', '暂无法列出文件，请重试。'),
-        ),
-      );
-    }
-    if (_files == null && !_failed) {
-      children.add(const LinearProgressIndicator());
-    }
-    if (_files?.isEmpty ?? false) {
-      children.add(Text(budgetText(context, 'No exported files', '尚无导出文件')));
-    }
-    for (final BudgetJsonFile file in _files ?? <BudgetJsonFile>[]) {
-      children.add(
-        ListTile(
-          title: Text(file.name),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return BudgetExportViewer(
-                    files: widget.files,
-                    path: file.path,
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      );
-    }
-    children.add(
-      OutlinedButton(
-        onPressed: _load,
-        child: Text(budgetText(context, 'Retry / refresh', '重试 / 刷新')),
-      ),
-    );
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(budgetText(context, 'Local exported files', '本机导出文件')),
-        actions: const <Widget>[LanguageButton()],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
-      ),
-    );
-  }
-}
-
-final class BudgetExportViewer extends StatefulWidget {
-  final BudgetJsonFiles files;
-  final String path;
-  const BudgetExportViewer({
-    required BudgetJsonFiles files,
-    required String path,
-    super.key,
-  }) : files = files,
-       path = path;
-  @override
-  State<BudgetExportViewer> createState() {
-    return _BudgetExportViewerState();
-  }
-}
-
-final class _BudgetExportViewerState extends State<BudgetExportViewer> {
-  BudgetJsonOutcome? _outcome;
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final BudgetJsonOutcome result = await widget.files.open(widget.path);
-    if (mounted) {
-      setState(() {
-        _outcome = result;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> children = <Widget>[];
-    final BudgetJsonOutcome? outcome = _outcome;
-    if (outcome == null) {
-      children.add(const LinearProgressIndicator());
-    }
-    if (outcome is BudgetJsonAvailable) {
-      children.add(
-        Text(
-          outcome.copy.scenario.name,
-          style: CostVisualStyle.text(22, weight: FontWeight.w700),
-        ),
-      );
-      final String locale = Localizations.localeOf(context).languageCode;
-      children.add(
-        Text(
-          '${budgetText(context, 'Exported', '导出时间')}: ${DateFormat.yMMMd(locale).add_Hm().format(outcome.copy.exportedAt.toLocal())}',
-        ),
-      );
-      children.addAll(budgetAmountWidgets(context, outcome.copy.scenario));
-      children.add(
-        Text(
-          budgetText(
-            context,
-            'Exported copy. Does not select a current scenario or write to cloud.',
-            '导出副本。不会选择当前预案或写入云端。',
-          ),
-        ),
-      );
-    }
-    if (outcome is BudgetJsonFailed) {
-      children.add(
-        Text(
-          outcome.failure == BudgetJsonFailure.unsupportedVersion
-              ? budgetText(context, 'Unsupported file version', '不支持此文件版本')
-              : budgetText(
-                  context,
-                  'Unable to read: file missing or invalid format.',
-                  '读取失败：文件缺失或格式损坏。',
-                ),
-        ),
-      );
-      children.add(
-        OutlinedButton(
-          onPressed: _load,
-          child: Text(budgetText(context, 'Retry', '重试')),
-        ),
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(budgetText(context, 'Exported copy', '导出副本')),
         actions: const <Widget>[LanguageButton()],
       ),
       body: SingleChildScrollView(

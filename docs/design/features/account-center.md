@@ -17,7 +17,7 @@
 ACCOUNT-08 五项评估偏好和个人化总分已排除；ACCOUNT-09 当前预算预案保留。
 当前预案显示名称、业务金额与缺失状态，进入预算页面切换；选择至多一份，在线成功后依赖读数更新。
 三个 ICI 权重由基础设施服务管理，不以删除五项偏好为由取消。
-唯一入口 `lib/features/account_center/account_center.dart` 导出 `AccountCenterPage`，消费 AuthenticationViewModel 和共享 CurrentBudgetReader／BudgetScenarioStore／BudgetJsonFiles；
+唯一入口 `lib/features/account_center/account_center.dart` 导出 `AccountCenterPage`，消费 AuthenticationViewModel 和共享 CurrentBudgetReader／BudgetScenarioStore；
 房产与隐患通过 app 的具名普通路由回调进入。账户页不直接读取或写入数据表。
 整页可滚动，当前预案展示五项金额；null 为未填写，零为 RM 0。读取中、无 current 与读取失败分别表达。
 

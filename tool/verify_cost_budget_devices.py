@@ -29,15 +29,13 @@ PACKAGE = 'com.locatemy.costbudgetqa'
 parser = argparse.ArgumentParser()
 parser.add_argument('--devices', nargs='+', required=True)
 parser.add_argument('--presentation-only',action='store_true')
-parser.add_argument('--resume-files',action='store_true')
-parser.add_argument('--files-only',action='store_true')
 args = parser.parse_args()
 EVIDENCE.mkdir(parents=True, exist_ok=True)
 values = read_values(ROOT / '.env')
 credentials = read_values(ROOT / 'test_credentials.local.md')
 fixture = {key: credentials[key] for key in ['LOCATEMY_EMAIL', 'LOCATEMY_PASSWORD']}
 redactions = [*values.values(), *credentials.values()]
-# Preserve account budgets around device interactions; JSON copies are local only.
+# Preserve account budgets around device interactions.
 def budget_api(path,method='GET',body=None,token=None):
     headers={'apikey':values['SUPABASE_PUBLISHABLE_KEY'],'Content-Type':'application/json'}
     if token:headers['Authorization']='Bearer '+token
@@ -48,17 +46,9 @@ qa_session=budget_api('/auth/v1/token?grant_type=password','POST',{'email':crede
 qa_token=qa_session['access_token'];redactions.append(qa_token)
 # These reserved QA names were absent before the first device run. Remove only
 # our interrupted-run fixtures before backing up the user's untouched selection.
-if args.resume_files:
-    for row in budget_api('/rest/v1/user_budget_scenarios?select=id,scenario_name',token=qa_token):
-        if row['scenario_name'] in ['QABudgetCost','ShouldNotSave']:
-            budget_api('/rest/v1/user_budget_scenarios?id=eq.'+row['id'],'DELETE',token=qa_token)
 original_budgets=budget_api('/rest/v1/user_budget_scenarios?select=id,is_current',token=qa_token)
 original_ids={row['id'] for row in original_budgets}
 original_current=next((row['id'] for row in original_budgets if row['is_current']),None)
-if args.resume_files:
-    budget_api('/rest/v1/user_budget_scenarios','POST',{'user_id':qa_session['user']['id'],'scenario_name':'QABudgetCost','housing_expense':0,'transport_expense':0,'monthly_net_income':3500,'household_monthly_gross_income_rm':8000},token=qa_token)
-    resume_row=next(row for row in budget_api('/rest/v1/user_budget_scenarios?select=id,scenario_name',token=qa_token) if row['scenario_name']=='QABudgetCost')
-    budget_api('/rest/v1/rpc/select_current_budget','POST',{'scenario_id':resume_row['id']},token=qa_token)
 def restore_budgets():
     for row in budget_api('/rest/v1/user_budget_scenarios?select=id,scenario_name',token=qa_token):
         if row['id'] not in original_ids and row['scenario_name'] in ['QABudgetCost','ShouldNotSave']:
@@ -252,49 +242,21 @@ try:
             run(adb+['shell','settings','put','system','screen_off_timeout','600000'])
             run(adb+['shell','input','keyevent','224']);run(adb+['shell','wm','dismiss-keyguard']);run(adb+['logcat','-c'])
             run(adb+['shell','am','start','-n',PACKAGE+'/com.locatemy.app.MainActivity'])
-            if args.files_only:
-                wait('探索地图');open_cost();top();tap('预案');wait('QABudgetCost')
-                tap('导出 JSON');wait('导出已保存至本机');tap('打开导出副本');wait('导出副本');capture('json-final-copy-zh');back()
-                local_before=run(adb+['shell','run-as',PACKAGE,'find','app_flutter/budget_exports','-name',"'*.json'"]).decode()
-                json_paths=sorted(line.strip() for line in local_before.splitlines() if line.strip().endswith('.json'))
-                if len(json_paths)!=1:raise RuntimeError('Expected one actual JSON export')
-                tap('本机导出文件');wait('.json');capture('json-final-files-zh')
-                run(adb+['shell','am','force-stop',PACKAGE]);run(adb+['shell','am','start','-n',PACKAGE+'/com.locatemy.app.MainActivity']);wait('探索地图');open_cost();top();tap('预案');tap('本机导出文件');wait('.json');capture('json-final-restart-zh');back();back();back();back()
-                tap('账户');wait('QABudgetCost')
-                (EVIDENCE/(tag+'-account-current.xml')).write_text(clean(ET.tostring(tree(),encoding='unicode')))
-                tap('退出当前设备');tap('退出');wait('登录');capture('json-final-signed-out')
-                local_after=run(adb+['shell','run-as',PACKAGE,'find','app_flutter/budget_exports','-name',"'*.json'"]).decode()
-                if sorted(line.strip() for line in local_after.splitlines() if line.strip().endswith('.json'))!=json_paths:raise RuntimeError('Actual JSON file names changed on sign out')
-                run(adb+['shell','am','force-stop',PACKAGE]);run(adb+['shell','am','start','-n',PACKAGE+'/com.locatemy.app.MainActivity']);wait('探索地图');open_cost();top();tap('预案');tap('本机导出文件');wait('.json');tap(Path(json_paths[0]).name);wait('导出副本');capture('json-final-relogin-copy-zh')
-                (EVIDENCE/(tag+'-json-verification.json')).write_text(json.dumps({**stamp,'actual_json_file_paths':json_paths,'export_visible_feedback_open':'PASS','restart_public_list':'PASS','logout_file_retention':'PASS','relogin_same_copy_open':'PASS','account_shared_current':'PASS'},indent=2)+'\n')
-                print(tag,'JSON LIFECYCLE ALL PASS',flush=True)
-                continue
-            if args.resume_files:
-                wait('探索地图');open_cost();top();tap('预案');wait('QABudgetCost')
-            else:
-                wait('探索地图');open_cost();capture('cost-single-zh')
-                tap('语言');wait('Core market basket estimated monthly spending');capture('cost-single-en');tap('Language')
-                top();tap('预案');wait('新增预案');tap('新增预案');tap('在线保存');wait('请输入 1–120 个字符');capture('budget-invalid-name-zh')
-                fill('名称','QABudgetCost');fill('住房支出','0');fill('交通支出','0');fill('月净收入','3500');fill('家庭月度总收入','8000')
-                tap('在线保存');wait('QABudgetCost');tap('选为当前');wait('保存成功');capture('budget-current-zero-zh')
-            tap('导出 JSON');wait('导出已保存至本机');tap('打开导出副本');wait('导出副本');capture('json-copy-zh');back()
-            tap('本机导出文件');wait('.json');capture('json-files-zh');back()
+            wait('探索地图');open_cost();capture('cost-single-zh')
+            tap('语言');wait('Core market basket estimated monthly spending');capture('cost-single-en');tap('Language')
+            top();tap('预案');wait('新增预案');tap('新增预案');tap('在线保存');wait('请输入 1–120 个字符');capture('budget-invalid-name-zh')
+            fill('名称','QABudgetCost');fill('住房支出','0');fill('交通支出','0');fill('月净收入','3500');fill('家庭月度总收入','8000')
+            tap('在线保存');wait('QABudgetCost');tap('选为当前');wait('保存成功');capture('budget-current-zero-zh')
             offline(True);top();tap('新增预案');fill('名称','ShouldNotSave');tap('在线保存');wait('尚未保存',seconds=35);capture('budget-offline-failed-zh')
             offline(False);tap('在线保存');wait('ShouldNotSave');capture('budget-retry-saved-zh')
             tap('语言');wait('New scenario');capture('budget-en');tap('Language');back()
-            # Authenticated routes close on restart; local copies remain on disk.
-            local_before=run(adb+['shell','run-as',PACKAGE,'find','app_flutter/budget_exports','-name',"'*.json'"]).decode()
-            if not local_before.strip():raise RuntimeError('Real export file absent')
-            run(adb+['shell','am','force-stop',PACKAGE]);run(adb+['shell','am','start','-n',PACKAGE+'/com.locatemy.app.MainActivity']);wait('探索地图');open_cost();tap('预案');tap('本机导出文件');wait('.json');capture('json-after-restart-zh');back();back();back();back()
             tap('两地比较');choose('3.0738','101.6077');tap('地点 B');choose('1.4927','103.7414');tap('查看地点比较');tap('生活成本');wait('两地点不可比较');capture('cost-comparison-zh');back();back()
             tap('单点');tap('查看完整分析');tap('生活成本');wait('核心市场篮子估算月支出')
             run(adb+['shell','settings','put','system','font_scale','2.0']);time.sleep(2);capture('cost-small-200-zh');top();tap('语言');capture('cost-small-200-en');top()
             run(adb+['shell','settings','put','system','font_scale','1.0']);back();back();tap('Account');tap('Sign out of this device');tap('Sign out');wait('Sign in');capture('signed-out')
-            local_after=run(adb+['shell','run-as',PACKAGE,'find','app_flutter/budget_exports','-name',"'*.json'"]).decode()
-            if local_after!=local_before:raise RuntimeError('Export copies changed after sign out')
             pid=run(adb+['shell','pidof','-s',PACKAGE]).decode().strip();logs=clean(run(adb+['logcat','-d','--pid',pid]).decode(errors='replace'));(EVIDENCE/(tag+'-device.log')).write_text(logs)
             if any(m in logs for m in ['A RenderFlex overflowed','EXCEPTION CAUGHT BY','COST_DEVICE: FAILED']):raise RuntimeError('Flutter exception retained')
-            (EVIDENCE/(tag+'-verification.json')).write_text(json.dumps({**stamp,'single':'PASS','comparison_partial':'PASS','budget_online_zero_null_current':'PASS','offline_save_retry':'PASS','bilingual':'PASS','small_font_200':'PASS','real_json_export_restart_logout':'PASS','semantics_xml':'PASS'},indent=2)+'\n')
+            (EVIDENCE/(tag+'-verification.json')).write_text(json.dumps({**stamp,'single':'PASS','comparison_partial':'PASS','budget_online_zero_null_current':'PASS','offline_save_retry':'PASS','bilingual':'PASS','small_font_200':'PASS','semantics_xml':'PASS'},indent=2)+'\n')
             print(tag,'ALL PASS',flush=True)
         except Exception:
             pid = run(adb + ['shell', 'pidof', '-s', PACKAGE]).decode().strip()

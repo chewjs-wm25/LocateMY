@@ -21,7 +21,6 @@ import 'src/application/cost_of_living_budget_fake.dart';
 import 'src/application/budget_scenario_store_fake.dart';
 
 export 'src/domain/cost_models.dart';
-export 'src/application/budget_json.dart';
 export 'src/application/current_budget_reader.dart';
 export 'src/domain/budget_models.dart';
 export 'src/presentation/cost_budget_page.dart';

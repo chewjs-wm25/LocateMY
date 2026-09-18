@@ -12,8 +12,6 @@ import 'package:locatemy/l10n/language_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../support/fake_authentication_session.dart';
-import '../features/cost_of_living_budget/budget_json_test.dart'
-    show SavedStore;
 
 void main() {
   for (final String language in <String>['en', 'zh']) {
@@ -68,7 +66,7 @@ void main() {
                     return AccountCenterPage(
                       authentication: model,
                       currentBudget: reader,
-                      budgetStore: SavedStore(),
+                      budgetStore: BudgetStore(),
                       onMyHazards: () {
                         open('Hazard records');
                       },
@@ -234,5 +232,20 @@ final class BudgetReader implements CurrentBudgetReader {
   @override
   Stream<BudgetScenariosOutcome> watchCurrent() {
     return events.stream;
+  }
+}
+
+final class BudgetStore implements BudgetScenarioStore {
+  @override
+  Future<BudgetScenariosOutcome> read() async {
+    return BudgetScenariosAvailable(
+      scenarios: <BudgetScenario>[],
+      current: NoCurrentBudgetScenario(version: 1),
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    throw StateError('No cloud mutation permitted');
   }
 }

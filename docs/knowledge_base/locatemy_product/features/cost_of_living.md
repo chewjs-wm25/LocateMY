@@ -1,7 +1,7 @@
 ---
 kb_id: feature-cost-of-living
 kind: feature-spec
-capabilities: [COST-01, COST-03, COST-04, COST-05]
+capabilities: [COST-01, COST-03, COST-04]
 tags: [cost, budget, prices]
 ---
 
@@ -9,7 +9,7 @@ tags: [cost, budget, prices]
 
 页面辅助信息按 [UI 精简边界](../ui_design_spec.md#分析页面精简边界2026-09-17) 呈现；本轮不改变本文件的指标、公式、取数、缓存与可用性语义。统计年份可集中标示，来源与技术错误字段保留内部用途。
 
-2026-09-17 用户确认：预算预案只在线读写 Supabase；个人化地点适配度总分及五项评估偏好删除。新增 `COST-05`：将已保存预算预案导出为本机 JSON，并在应用中读取展示；文件是导出副本，跨重启与退出保留，不自动同步或写回云端。读取失败、文件损坏或版本不支持时明确反馈，不修改云端预案。
+2026-09-17 用户确认：预算预案只在线读写 Supabase；个人化地点适配度总分及五项评估偏好删除。2026-09-18 用户明确排除 `COST-05`：不导出、读取或保留预算预案的本机 JSON 文件。
 
 ## 当前原型功能
 
