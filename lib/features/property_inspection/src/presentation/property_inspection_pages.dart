@@ -1,6 +1,7 @@
 // Explicit initialization follows Development Standard §7.
 // ignore_for_file: prefer_initializing_formals
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:locatemy/features/map_location/map_location.dart';
 
 import '../../../../l10n/language_controller.dart';
@@ -87,9 +88,176 @@ Widget _box(Widget child) {
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: const Color(0xFFD9E0EA)),
+      border: Border.all(color: const Color(0xFFD5DEEF)),
     ),
     child: child,
+  );
+}
+
+// Dimensions and colours follow Penpot boards 16–18. Large text stacks cards.
+const Color _ink = Color(0xFF172033);
+const Color _muted = Color(0xFF667085);
+const Color _blue = Color(0xFF155EEF);
+
+Widget _section(String title) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 12, bottom: 16),
+    child: Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: _ink,
+      ),
+    ),
+  );
+}
+
+Widget _grid(List<Widget> cards) {
+  return LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      final bool stacked =
+          constraints.maxWidth < 340 ||
+          MediaQuery.textScalerOf(context).scale(14) > 20;
+      final double width = stacked
+          ? constraints.maxWidth
+          : (constraints.maxWidth - 8) / 2;
+      return Wrap(
+        spacing: 8,
+        children: <Widget>[
+          for (final Widget card in cards) SizedBox(width: width, child: card),
+        ],
+      );
+    },
+  );
+}
+
+String _price(double value) {
+  return NumberFormat('#,##0.##', 'en_MY').format(value);
+}
+
+String _captured(Object? value) {
+  if (value == null) {
+    return '—';
+  }
+  final DateTime? time = DateTime.tryParse(value.toString());
+  if (time == null) {
+    return value.toString();
+  }
+  return DateFormat('yyyy-MM-dd HH:mm').format(time.toLocal());
+}
+
+Widget _score(BuildContext context, double value) {
+  return Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: const Color(0xFFEAF2FF),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          _text(context, 'On-site average', '综合现场评分'),
+          style: const TextStyle(color: _muted, fontSize: 13),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${value.toStringAsFixed(1)} / 5',
+          style: const TextStyle(
+            color: _blue,
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _rating(
+  BuildContext context,
+  String label,
+  int value, {
+  ValueChanged<int?>? onChanged,
+}) {
+  Widget score = Text(
+    '$value / 5',
+    style: const TextStyle(fontWeight: FontWeight.w700),
+  );
+  if (onChanged != null) {
+    score = DropdownButton<int>(
+      value: value,
+      underline: const SizedBox(),
+      iconEnabledColor: _blue,
+      items: <DropdownMenuItem<int>>[
+        for (int i = 1; i <= 5; i++)
+          DropdownMenuItem<int>(
+            value: i,
+            child: Text(
+              '★ $i',
+              style: const TextStyle(color: Color(0xFFB76E00)),
+            ),
+          ),
+      ],
+      onChanged: onChanged,
+    );
+  }
+  return Container(
+    constraints: const BoxConstraints(minHeight: 48),
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: const Color(0xFFD5DEEF)),
+    ),
+    child: Row(
+      children: <Widget>[
+        Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
+        const SizedBox(width: 8),
+        Semantics(label: label, child: score),
+      ],
+    ),
+  );
+}
+
+Widget _photoActions(
+  BuildContext context,
+  bool enabled,
+  void Function(PropertyPhotoSource) pick,
+) {
+  final ButtonStyle style = TextButton.styleFrom(
+    foregroundColor: _blue,
+    backgroundColor: Colors.white,
+    minimumSize: const Size.fromHeight(54),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: const BorderSide(color: Color(0xFFD5DEEF)),
+    ),
+  );
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    child: _grid(<Widget>[
+      TextButton(
+        style: style,
+        onPressed: enabled
+            ? () {
+                pick(PropertyPhotoSource.camera);
+              }
+            : null,
+        child: Text(_text(context, 'Take photo', '相机拍摄')),
+      ),
+      TextButton(
+        style: style,
+        onPressed: enabled
+            ? () {
+                pick(PropertyPhotoSource.gallery);
+              }
+            : null,
+        child: Text(_text(context, 'Choose from gallery', '从相册选择')),
+      ),
+    ]),
   );
 }
 
@@ -97,6 +265,7 @@ Widget _cover(
   BuildContext context,
   PropertyInspectionRecord record, {
   double height = 100,
+  double width = 100,
 }) {
   final String? url = record.cover?.url;
   return Semantics(
@@ -106,7 +275,7 @@ Widget _cover(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         height: height,
-        width: 100,
+        width: width,
         child: url == null
             ? const ColoredBox(
                 color: Color(0xFFE7EBF1),
@@ -133,7 +302,7 @@ Widget _risk(BuildContext context, PropertyInspectionRecord record) {
       children: <Widget>[
         Text(
           _text(context, 'Property risk snapshot', '房产风险快照'),
-          style: const TextStyle(fontWeight: FontWeight.w700),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         Text(
@@ -144,14 +313,17 @@ Widget _risk(BuildContext context, PropertyInspectionRecord record) {
                   'Snapshot unavailable — missing data is not zero.',
                   '风险快照不可用 — 缺失资料不等于0。',
                 ),
+          style: const TextStyle(fontSize: 13, color: _ink),
         ),
         if (f['snapshot_captured_at'] != null)
           Text(
-            '${_text(context, 'Captured', '采集于')} ${f['snapshot_captured_at']}',
+            '${_text(context, 'Captured', '采集于')} ${_captured(f['snapshot_captured_at'])}',
+            style: const TextStyle(fontSize: 11, color: _muted),
           ),
         if (record.snapshot.available)
           Text(
             '${_text(context, 'Source year', '来源年份')} ${f['safety_source_year']} · 2,000 m',
+            style: const TextStyle(fontSize: 11, color: _muted),
           ),
       ],
     ),
@@ -755,7 +927,20 @@ final class _FormState extends State<PropertyInspectionFormPage> {
         controller: controller,
         keyboardType: keyboard,
         maxLines: lines,
-        decoration: InputDecoration(labelText: _text(context, en, zh)),
+        decoration: InputDecoration(
+          labelText: _text(context, en, zh),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFD5DEEF)),
+          ),
+        ),
       ),
     );
   }
@@ -807,37 +992,27 @@ final class _FormState extends State<PropertyInspectionFormPage> {
       _text(context, 'Humidity', '湿度'),
       _text(context, 'Lighting', '照明'),
     ];
+    final List<Widget> ratingCards = <Widget>[];
     for (int i = 0; i < 4; i++) {
-      fields.add(
-        _box(
-          Row(
-            children: <Widget>[
-              Expanded(child: Text(labels[i])),
-              DropdownButton<int>(
-                value: ratings[i],
-                items: <DropdownMenuItem<int>>[
-                  for (int j = 1; j <= 5; j++)
-                    DropdownMenuItem<int>(value: j, child: Text('$j')),
-                ],
-                onChanged: busy
-                    ? null
-                    : (int? value) {
-                        if (value != null) {
-                          setState(() {
-                            ratings[i] = value;
-                          });
-                        }
-                      },
-              ),
-            ],
-          ),
+      ratingCards.add(
+        _rating(
+          context,
+          labels[i],
+          ratings[i],
+          onChanged: (int? value) {
+            if (!busy && value != null) {
+              setState(() {
+                ratings[i] = value;
+              });
+            }
+          },
         ),
       );
     }
+    fields.add(AbsorbPointer(absorbing: busy, child: _grid(ratingCards)));
     fields.addAll(<Widget>[
-      Text(
-        '${_text(context, 'Average', '综合现场评分')}: ${((ratings[0] + ratings[1] + ratings[2] + ratings[3]) / 4).toStringAsFixed(1)} / 5',
-      ),
+      _score(context, (ratings[0] + ratings[1] + ratings[2] + ratings[3]) / 4),
+      const SizedBox(height: 16),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(_text(context, 'Flood evidence', '发现当地水灾迹象')),
@@ -851,32 +1026,15 @@ final class _FormState extends State<PropertyInspectionFormPage> {
               },
       ),
       _field('Notes', '备注', notes, lines: 3),
+      _section(_text(context, 'Photos', '照片')),
       Text(
         '${_text(context, 'Photos', '照片')}: ${picked.length + (widget.record?.photos.length ?? 0)} / 20',
       ),
-      Wrap(
-        spacing: 8,
-        children: <Widget>[
-          TextButton.icon(
-            onPressed: busy || widget.photoPicker == null
-                ? null
-                : () {
-                    _pick(PropertyPhotoSource.camera);
-                  },
-            icon: const Icon(Icons.camera_alt_outlined),
-            label: Text(_text(context, 'Take photo', '相机拍摄')),
-          ),
-          TextButton.icon(
-            onPressed: busy || widget.photoPicker == null
-                ? null
-                : () {
-                    _pick(PropertyPhotoSource.gallery);
-                  },
-            icon: const Icon(Icons.photo_library_outlined),
-            label: Text(_text(context, 'Choose from gallery', '从相册选择')),
-          ),
-        ],
-      ),
+      _photoActions(context, !busy && widget.photoPicker != null, (
+        PropertyPhotoSource source,
+      ) {
+        _pick(source);
+      }),
       for (int i = 0; i < picked.length; i++)
         _box(
           Column(
@@ -901,6 +1059,16 @@ final class _FormState extends State<PropertyInspectionFormPage> {
           style: const TextStyle(color: Colors.red),
         ),
       if (busy) const LinearProgressIndicator(),
+      _box(
+        Text(
+          _text(
+            context,
+            'Photos upload after saving. If an upload fails, retry on this page.',
+            '保存后才会上传照片；失败可在当前页重试。',
+          ),
+          style: const TextStyle(color: Color(0xFFB76E00)),
+        ),
+      ),
       const SizedBox(height: 16),
       FilledButton(
         onPressed: busy ? null : _save,
@@ -910,6 +1078,7 @@ final class _FormState extends State<PropertyInspectionFormPage> {
     return PopScope(
       canPop: !busy,
       child: Scaffold(
+        backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
           toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
               ? 144
@@ -1149,43 +1318,86 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
           r.name,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
         ),
-        Text('${r.address} · RM ${r.price.toStringAsFixed(2)}'),
-        const SizedBox(height: 16),
-        _cover(context, r, height: 160),
-        const SizedBox(height: 16),
-        _box(
-          Text(
-            '${_text(context, 'On-site average', '综合现场评分')} ${r.rating.toStringAsFixed(1)} / 5',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-          ),
+        const SizedBox(height: 4),
+        Text(
+          '${r.address} · RM ${_price(r.price)}',
+          style: const TextStyle(color: _muted, fontSize: 13),
         ),
-        _risk(context, r),
+        const SizedBox(height: 16),
+        _cover(context, r, height: 170, width: double.infinity),
+        if (r.cover != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '${_text(context, 'Cover', '封面')} · ${r.cover!.caption}',
+              style: const TextStyle(color: _muted),
+            ),
+          ),
+        const SizedBox(height: 24),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            if (constraints.maxWidth < 340 ||
+                MediaQuery.textScalerOf(context).scale(14) > 20) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  _score(context, r.rating),
+                  const SizedBox(height: 16),
+                  _risk(context, r),
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(flex: 1, child: _score(context, r.rating)),
+                const SizedBox(width: 16),
+                Expanded(flex: 2, child: _risk(context, r)),
+              ],
+            );
+          },
+        ),
+        _section(_text(context, 'On-site records', '现场记录')),
+        _grid(<Widget>[
+          _rating(context, _text(context, 'Drainage', '排水'), r.draft.drainage),
+          _rating(
+            context,
+            _text(context, 'Waterproofing', '防水'),
+            r.draft.waterproofing,
+          ),
+          _rating(context, _text(context, 'Humidity', '湿度'), r.draft.humidity),
+          _rating(context, _text(context, 'Lighting', '照明'), r.draft.lighting),
+        ]),
         _box(
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                '${_text(context, 'Drainage', '排水')}: ${r.draft.drainage} / 5',
-              ),
-              Text(
-                '${_text(context, 'Waterproofing', '防水')}: ${r.draft.waterproofing} / 5',
-              ),
-              Text(
-                '${_text(context, 'Humidity', '湿度')}: ${r.draft.humidity} / 5',
-              ),
-              Text(
-                '${_text(context, 'Lighting', '照明')}: ${r.draft.lighting} / 5',
-              ),
-              Text(
                 '${_text(context, 'Flood evidence', '当地水灾迹象')}: ${r.draft.floodRisk ? _text(context, 'Yes', '有') : _text(context, 'Not observed', '未发现')}',
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              Text('${_text(context, 'Notes', '备注')}: ${r.notes}'),
+              const SizedBox(height: 8),
               Text(
-                '${r.location.point.latitude}, ${r.location.point.longitude}',
+                '${_text(context, 'Notes', '备注')}: ${r.notes}',
+                style: const TextStyle(color: _muted),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${r.location.point.latitude.toStringAsFixed(5)}, ${r.location.point.longitude.toStringAsFixed(5)}',
+                style: const TextStyle(color: _muted, fontSize: 12),
               ),
             ],
           ),
         ),
+        Text(
+          _text(
+            context,
+            'Viewing details does not update the risk snapshot.',
+            '查看详情不会自动更新风险快照。',
+          ),
+          style: const TextStyle(color: _muted),
+        ),
+        _section(_text(context, 'Photo library', '照片库')),
         Text('${_text(context, 'Photos', '照片')}: ${r.photos.length} / 20'),
       ]);
       for (final PropertyPhoto photo in r.photos) {
@@ -1286,29 +1498,11 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
         );
       }
       children.addAll(<Widget>[
-        Wrap(
-          spacing: 8,
-          children: <Widget>[
-            TextButton.icon(
-              onPressed: busy || widget.photoPicker == null
-                  ? null
-                  : () {
-                      _add(PropertyPhotoSource.camera);
-                    },
-              icon: const Icon(Icons.camera_alt_outlined),
-              label: Text(_text(context, 'Take photo', '相机拍摄')),
-            ),
-            TextButton.icon(
-              onPressed: busy || widget.photoPicker == null
-                  ? null
-                  : () {
-                      _add(PropertyPhotoSource.gallery);
-                    },
-              icon: const Icon(Icons.photo_library_outlined),
-              label: Text(_text(context, 'Choose from gallery', '从相册选择')),
-            ),
-          ],
-        ),
+        _photoActions(context, !busy && widget.photoPicker != null, (
+          PropertyPhotoSource source,
+        ) {
+          _add(source);
+        }),
         OutlinedButton(
           onPressed: busy
               ? null
@@ -1325,6 +1519,7 @@ final class _DetailState extends State<PropertyInspectionDetailPage> {
       ]);
     }
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
             ? 144
@@ -1384,72 +1579,58 @@ final class PropertyInspectionComparisonPage extends StatelessWidget {
     required List<PropertyInspectionRecord> records,
     super.key,
   }) : records = List<PropertyInspectionRecord>.unmodifiable(records);
-  @override
-  Widget build(BuildContext context) {
-    final List<DataRow> rows = <DataRow>[];
-    void row(String title, String Function(PropertyInspectionRecord) value) {
-      rows.add(
-        DataRow(
-          cells: <DataCell>[
-            DataCell(Text(title)),
-            for (final PropertyInspectionRecord r in records)
-              DataCell(Text(value(r))),
-          ],
+  Widget _metric(
+    BuildContext context,
+    String title,
+    List<String> values,
+    bool shaded,
+    double labelWidth,
+    double valueWidth,
+  ) {
+    final List<Widget> cells = <Widget>[
+      SizedBox(
+        width: labelWidth,
+        child: Text(
+          title,
+          style: const TextStyle(
+            color: _muted,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ];
+    for (int i = 0; i < values.length; i++) {
+      cells.add(
+        SizedBox(
+          width: valueWidth,
+          child: Semantics(
+            label:
+                '${String.fromCharCode(65 + i)} · ${records[i].name} · $title',
+            child: Text(
+              values[i],
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
       );
     }
-
-    row(_text(context, 'Price (RM)', '价格（RM）'), (PropertyInspectionRecord r) {
-      return r.price.toStringAsFixed(2);
-    });
-    rows.add(
-      DataRow(
-        cells: <DataCell>[
-          DataCell(Text(_text(context, 'Cover', '封面'))),
-          for (final PropertyInspectionRecord r in records)
-            DataCell(_cover(context, r, height: 48)),
-        ],
+    return Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      decoration: BoxDecoration(
+        color: shaded ? const Color(0xFFEEF2F7) : null,
+        borderRadius: BorderRadius.circular(8),
       ),
+      child: Row(children: cells),
     );
-    row(_text(context, 'On-site average', '综合现场评分'), (
-      PropertyInspectionRecord r,
-    ) {
-      return '${r.rating.toStringAsFixed(1)} / 5';
-    });
-    row(_text(context, 'State safety index', '州级安全指数'), (
-      PropertyInspectionRecord r,
-    ) {
-      return r.snapshot.fields['safety_index']?.toString() ?? '—';
-    });
-    row(_text(context, 'Nearby pending hazards', '附近待处理隐患'), (
-      PropertyInspectionRecord r,
-    ) {
-      return r.snapshot.fields['hazard_pending_count']?.toString() ?? '—';
-    });
-    row(_text(context, 'Captured', '采集时间'), (PropertyInspectionRecord r) {
-      return r.snapshot.fields['snapshot_captured_at']?.toString() ?? '—';
-    });
-    row(_text(context, 'Reporting state', '统计州'), (PropertyInspectionRecord r) {
-      return r.snapshot.fields['reporting_state']?.toString() ?? '—';
-    });
-    row(_text(context, 'Flood evidence', '水灾迹象'), (PropertyInspectionRecord r) {
-      return r.draft.floodRisk
-          ? _text(context, 'Yes', '有')
-          : _text(context, 'Not observed', '未发现');
-    });
-    row(_text(context, 'Drainage', '排水'), (PropertyInspectionRecord r) {
-      return '${r.draft.drainage} / 5';
-    });
-    row(_text(context, 'Waterproofing', '防水'), (PropertyInspectionRecord r) {
-      return '${r.draft.waterproofing} / 5';
-    });
-    row(_text(context, 'Humidity', '湿度'), (PropertyInspectionRecord r) {
-      return '${r.draft.humidity} / 5';
-    });
-    row(_text(context, 'Lighting', '照明'), (PropertyInspectionRecord r) {
-      return '${r.draft.lighting} / 5';
-    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(20) > 28
             ? 144
@@ -1461,36 +1642,225 @@ final class PropertyInspectionComparisonPage extends StatelessWidget {
         ),
         actions: const <Widget>[LanguageButton()],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: <Widget>[
-          Text(
-            _text(
-              context,
-              '2–3 active records. Comparison is not saved. — means unavailable, not zero.',
-              '2–3份活动记录，比较结果不保存。—表示不可用，不等于0。',
-            ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              dataRowMaxHeight: MediaQuery.textScalerOf(context).scale(16) > 22
-                  ? 240
-                  : 100,
-              headingRowHeight: MediaQuery.textScalerOf(context).scale(16) > 22
-                  ? 144
-                  : 72,
-              columns: <DataColumn>[
-                DataColumn(
-                  label: Text(_text(context, 'Risk and on-site', '风险与现场')),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: <Widget>[
+              Text(
+                _text(
+                  context,
+                  '2–3 active records. Comparison is not saved.',
+                  '2–3份活动记录临时并列，比较结果不保存。',
                 ),
-                for (final PropertyInspectionRecord r in records)
-                  DataColumn(label: SizedBox(width: 150, child: Text(r.name))),
-              ],
-              rows: rows,
-            ),
+                style: const TextStyle(color: _muted, fontSize: 12),
+              ),
+              const SizedBox(height: 24),
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final bool largeText =
+                      MediaQuery.textScalerOf(context).scale(14) > 20;
+                  final double minimumWidth = largeText ? 640 : 340;
+                  final double width = constraints.maxWidth < minimumWidth
+                      ? minimumWidth
+                      : constraints.maxWidth;
+                  final double cardWidth =
+                      (width - (records.length - 1) * 8) / records.length;
+                  final double labelWidth = largeText ? 200 : 132;
+                  final double valueWidth =
+                      (width - 16 - labelWidth) / records.length;
+                  final List<Widget> cards = <Widget>[];
+                  const List<Color> colours = <Color>[
+                    _blue,
+                    Color(0xFF109488),
+                    Color(0xFFB76E00),
+                  ];
+                  for (int i = 0; i < records.length; i++) {
+                    final PropertyInspectionRecord record = records[i];
+                    cards.add(
+                      SizedBox(
+                        width: cardWidth,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFD5DEEF)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: colours[i % colours.length],
+                                child: Text(
+                                  String.fromCharCode(65 + i),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              _cover(
+                                context,
+                                record,
+                                height: 48,
+                                width: double.infinity,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                record.name,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                'RM ${_price(record.price)}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: _muted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  final List<Widget> content = <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: cards,
+                    ),
+                    _section(_text(context, 'Risk snapshots', '风险快照')),
+                    Text(
+                      _text(
+                        context,
+                        'State safety and nearby pending hazards are saved snapshots for each inspection.',
+                        '州级安全指数与附近待处理隐患为各实勘保存的快照。',
+                      ),
+                      style: const TextStyle(color: _muted, fontSize: 13),
+                    ),
+                    const SizedBox(height: 16),
+                  ];
+                  void metric(
+                    String title,
+                    String Function(PropertyInspectionRecord) value,
+                    bool shaded,
+                  ) {
+                    final List<String> values = <String>[];
+                    for (final PropertyInspectionRecord record in records) {
+                      values.add(value(record));
+                    }
+                    content.add(
+                      _metric(
+                        context,
+                        title,
+                        values,
+                        shaded,
+                        labelWidth,
+                        valueWidth,
+                      ),
+                    );
+                  }
+
+                  metric(_text(context, 'State safety index', '州级安全指数'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return r.snapshot.available
+                        ? r.snapshot.fields['safety_index']?.toString() ?? '—'
+                        : '—';
+                  }, true);
+                  metric(_text(context, 'Nearby pending hazards', '附近待处理隐患'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return r.snapshot.available
+                        ? r.snapshot.fields['hazard_pending_count']
+                                  ?.toString() ??
+                              '—'
+                        : '—';
+                  }, false);
+                  content.add(
+                    _section(_text(context, 'On-site records', '现场记录')),
+                  );
+                  metric(_text(context, 'On-site average', '综合现场评分'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return '${r.rating.toStringAsFixed(1)} / 5';
+                  }, true);
+                  metric(_text(context, 'Flood evidence', '水灾迹象'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return r.draft.floodRisk
+                        ? _text(context, 'Yes', '有')
+                        : _text(context, 'Not observed', '未发现');
+                  }, false);
+                  metric(_text(context, 'Drainage', '排水'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return '${r.draft.drainage} / 5';
+                  }, true);
+                  metric(_text(context, 'Waterproofing', '防水'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return '${r.draft.waterproofing} / 5';
+                  }, false);
+                  metric(_text(context, 'Humidity', '湿度'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return '${r.draft.humidity} / 5';
+                  }, true);
+                  metric(_text(context, 'Lighting', '照明'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return '${r.draft.lighting} / 5';
+                  }, false);
+                  content.add(
+                    _section(_text(context, 'Snapshot context', '快照采集信息')),
+                  );
+                  metric(_text(context, 'Reporting state', '统计州'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return r.snapshot.available
+                        ? r.snapshot.fields['reporting_state']?.toString() ??
+                              '—'
+                        : '—';
+                  }, true);
+                  metric(_text(context, 'Captured', '采集时间'), (
+                    PropertyInspectionRecord r,
+                  ) {
+                    return r.snapshot.fields['snapshot_captured_at']
+                            ?.toString() ??
+                        '—';
+                  }, false);
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: width,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: content,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _text(
+                  context,
+                  '— means unavailable, not zero. Each snapshot retains its own capture time.',
+                  '—表示资料暂不可用，不等于0。风险快照保留各自采集时间。',
+                ),
+                style: const TextStyle(color: _muted, fontSize: 12),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
