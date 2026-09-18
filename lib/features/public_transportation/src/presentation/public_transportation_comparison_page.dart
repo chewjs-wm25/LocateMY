@@ -269,10 +269,20 @@ final class _TransitComparisonPageState
               ),
             ],
             if (partial != null) ...<Widget>[
+              if (partial.score != null)
+                Text(
+                  _t(
+                    '部分交通分 ${partial.score!.value} / 100',
+                    'Partial transportation score ${partial.score!.value} / 100',
+                  ),
+                  style: _style(24, FontWeight.w700),
+                ),
+              if (partial.distanceOnly) Text(_t('仅距离项', 'Distance only')),
+
               Text(
                 _t(
-                  '资料不完整，无法生成完整交通分',
-                  'Data is incomplete; a complete score is unavailable',
+                  '资料不完整；以下为已读取资料',
+                  'Data is incomplete; observed data is shown',
                 ),
                 style: _style(14, FontWeight.w600),
               ),

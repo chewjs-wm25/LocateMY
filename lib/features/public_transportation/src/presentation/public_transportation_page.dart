@@ -253,10 +253,32 @@ final class _PublicTransportationPageState
 
   List<Widget> _partial(TransitPartialSnapshot snapshot) {
     return <Widget>[
+      if (snapshot.score != null)
+        Text(
+          _t(
+            '部分交通分 ${snapshot.score!.value} / 100',
+            'Partial transportation score ${snapshot.score!.value} / 100',
+          ),
+          style: _style(24, FontWeight.w700),
+        ),
+      if (snapshot.distanceOnly)
+        Text(
+          _t(
+            '仅距离项；密度与路线参照资料缺失。',
+            'Distance only; density and route reference data are missing.',
+          ),
+        ),
+      if (snapshot.score == null)
+        Text(
+          _t(
+            '资料不完整；没有足够的站点或有效路线资料，交通分暂不可用。',
+            'Data is incomplete; insufficient stop or active route data to score.',
+          ),
+        ),
       _notice(
         _t(
-          '资料不完整，无法生成完整交通分。以下为成功读取部分。',
-          'Data is incomplete; a complete transportation score is unavailable. Successfully read stations are shown.',
+          '资料不完整；可用交通分基于已读取资料计算。',
+          'Data is incomplete; available scores use successfully read data.',
         ),
       ),
       const SizedBox(height: 8),

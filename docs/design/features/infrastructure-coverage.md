@@ -71,3 +71,5 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 Luna Spec三项阻塞修复证据见报告复审节：每数据集独立最新有效完整聚合、每cache key串行写防旧完成覆盖、分项/人口真实年份及必要呈现；Luna High 复审已确认三项解除；公开模型防御性不可变拷贝亦通过规范复审。
 
 2026-09-18 消费者追踪修正：地点摘要位于地图展开详情，不属于全国宏观首页；按现行 UI 事实源接入 `BusinessLocationSummaryReader`，始终调用中性 `summary(location,date)`。
+
+2026-09-18：按用户要求，交通分项也消费 TransitIncomplete 的可用部分分数；保留 transitPartial / transitDistanceOnly 提示，权重重算不得丢失提示。对应公共交通事实源；其余 ICI 缺项门槛不变。

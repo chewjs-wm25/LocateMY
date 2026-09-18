@@ -204,6 +204,16 @@ final class _InfrastructureCoveragePageState
       result.add(_note(_t('读取失败，请重试。', 'Could not load. Please retry.')));
     }
     if (snapshot != null) {
+      if (snapshot.transitPartial) {
+        String zh = '交通资料不完整；ICI 使用部分交通分。';
+        String en =
+            'Transit data is incomplete; ICI uses a partial transportation score.';
+        if (snapshot.transitDistanceOnly) {
+          zh += '交通分仅含距离项。';
+          en += ' Transportation score includes distance only.';
+        }
+        result.add(_note(_t(zh, en)));
+      }
       final int? score = snapshot.score;
       result.add(
         Container(

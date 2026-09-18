@@ -47,13 +47,25 @@ do $$ declare result jsonb; begin
  end if;
 end $$;
 reset role;
--- Failed expected feed retains successful stations and suppresses scoring.
+-- Missing date-specific reference data excludes both percentile components.
+insert into public.gtfs_service_dates values('test-transit-rpc','gtfs_static_ktmb','weekday','2026-09-18',true);
+set local role authenticated;
+do $$ declare result jsonb; begin
+ result=public.read_transit_analysis(3.0738,101.6077,'2026-09-18',true);
+ if result->>'availability_status' is distinct from 'incomplete' or
+ result->>'transit_score' is distinct from '100' or
+ result->>'score_basis' is distinct from 'distance_only' or
+ result->>'density_percentile' is not null or result->>'route_percentile' is not null then
+ raise exception 'Missing grid must return a labelled distance-only score'; end if;
+end $$;
+reset role;
+-- Failed expected feed retains successful stations and observed scoring.
 update public.gtfs_feed_snapshots set parse_status='failed',failure_reason='test parse failure'
 where snapshot_id='test-transit-rpc' and feed_id='gtfs_static_mybas_kuching';
 set local role authenticated;
 do $$ declare result jsonb; begin
  result=public.read_transit_analysis(3.0738,101.6077,'2026-09-17',true);
- if result->>'availability_status'<>'incomplete' or result->>'transit_score' is not null or
+ if result->>'availability_status'<>'incomplete' or result->>'transit_score'<>'75' or
  result->>'unique_stop_count'<>'1' then raise exception 'Partial feed matrix violated'; end if;
 end $$;
 reset role;

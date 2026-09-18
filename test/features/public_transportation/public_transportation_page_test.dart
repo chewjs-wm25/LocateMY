@@ -4,12 +4,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:locatemy/l10n/app_localizations.dart';
 
-import 'public_transportation_test.dart' show usableFeeds;
+import 'public_transportation_test.dart' show usableFeeds, partialFeeds;
 
 import 'package:locatemy/features/map_location/map_location.dart';
 import 'package:locatemy/features/public_transportation/public_transportation.dart';
 
 void main() {
+  for (final bool distanceOnly in <bool>[false, true]) {
+    testWidgets('partial score is visible with distance-only=$distanceOnly', (
+      WidgetTester tester,
+    ) async {
+      final PendingReader reader = PendingReader();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PublicTransportationPage(
+            transportation: createPublicTransportation(reader),
+            location: const ValidLocationReference(
+              locationId: 'partial-score',
+              point: GeographicPoint(latitude: 3.0738, longitude: 101.6077),
+            ),
+            analysisDate: DateTime(2026, 9, 17),
+          ),
+        ),
+      );
+      final Map<String, Object?> payload = stationPayload('Mentari BRT');
+      payload['availability_status'] = 'incomplete';
+      payload['feeds'] = partialFeeds();
+      if (distanceOnly) {
+        // All sources can be usable while the date-specific reference grid is missing.
+        payload['feeds'] = usableFeeds();
+        payload['score_basis'] = 'distance_only';
+      }
+      reader.pending['partial-score']!.complete(payload);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Partial transportation score 68 / 100'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Data is incomplete; available scores use successfully read data.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Distance only; density and route reference data are missing.',
+        ),
+        distanceOnly ? findsOneWidget : findsNothing,
+      );
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
   for (final bool hasStops in <bool>[false, true]) {
     testWidgets(
       'known ${hasStops ? 'no active routes' : 'no stops'} renders unscored facts and a centre circle',

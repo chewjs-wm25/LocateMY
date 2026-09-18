@@ -21,7 +21,7 @@
 保留固定 1.5 km 的站点／有效路线、连通性、局部站点图、完整计数、最近 30 项和选中描述。
 全部预期 16 feed 及同 snapshot/date/grid 的来源完整性规则继续适用。
 [ICI／交通模型](../../knowledge_base/locatemy_product/infrastructure_index_scoring.md) 为分数唯一来源。
-no_stops 与 no_active_routes 是已知服务结果，分数仍不可用；incomplete 展示成功部分且不评分。
+no_stops 与 no_active_routes 是已知服务结果，分数仍不可用；incomplete 基于成功部分计算并显示部分交通分；缺同日期网格时仅距离项归一化，明确标示缺项。A/B 并列显示部分分数，不计算差异。
 固定参照组是可用 feed 站点 1.5 km 圆并集中的固定 1 km 米制网格，不随用户地点变化。
 
 唯一入口 `lib/features/public_transportation/public_transportation.dart`。`PublicTransportation.load/compare`
@@ -47,3 +47,16 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 复用仍有效的公式、地理、Adapter 与存储测试，完成格式、分析、测试、debug APK 构建。
 本次重构的统一证据见 [Issue #31 执行检查](../system/issue-31-validation.md)；
 设备、真实外部服务证据缺失时不得宣称新版本 `Implemented` 或 `Integrated`。
+
+## 2026-09-18 部分资料评分变更与验收
+
+用户要求资料不完整仍计算并显示交通分，取代旧 incomplete 不评分规则。公共 seam `TransitPartialSnapshot` 增加可空 score 和 distanceOnly，仍保留 TransitIncomplete，不冒充完整资料。已有请求和比较调用方式不变。
+
+| 场景 | 验证责任 | 依赖与证据 | 状态 |
+| --- | --- | --- | --- |
+| 部分 feed 成功仍按原公式评分 | A 本模块 | 服务 fake + 开发 Supabase SQL 受控算例 | 已通过 |
+| 同日期网格缺失，16 feed 也可返回 incomplete 距离分 | A 本模块 | 页面 fake + 开发 Supabase SQL | 已通过 |
+| 部分交通分、缺项双语及 A/B 并列 | A 本模块 | 页面 Widget 与原 A/B 回归 | 已通过；本次未重跑设备实测 |
+| ICI 消费同一部分分数并保留提示 | A/B 联合 | 真实 InfrastructureService + canonical seam fake | 自动验证通过；本次未重跑设备实测 |
+
+证据与实际吉隆坡查询见 `docs/human/transit-partial-score-2026-09-18.md`。本次不重新判定完整 Wave / Integrated 状态。

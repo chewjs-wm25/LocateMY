@@ -104,7 +104,7 @@
 
 迁移：`20260917051623_public_transportation_analysis.sql`、`20260917053457_transit_source_validation.sql`、`20260917053658_transit_canonical_result_view.sql`、`20260917054002_transit_missing_batch_sources.sql`、`20260917062031_transit_missing_source_identity.sql`；已应用本地及开发 Supabase。全部基础表启用 RLS，authenticated 仅 SELECT 且需非空 `auth.uid()`；anon 无读权限，authenticated/anon 无写权限。RPC 为 security invoker，固定空 search path，匿名无 EXECUTE。
 
-`read_transit_analysis` 固定登记产品预期的 16 个官方 feed，左连接所选 snapshot；缺行仍返回独立 missing 状态及官方来源，不伪装空 feed。partial 保留成功站点但不评分。正式全资料评分仍需已准备的同 snapshot/date/grid 参照组；无 grid 则 source unverifiable。现有 `official-2026-09-17` 为 15 usable + 1 failed 的 partial batch，此实际来源不产生完整分数。完整评分函数已在真实开发 Supabase 的 authenticated 角色下用受控算例验证为 75，事务 rollback；不得把该算例描述成官方全资料结果。
+`read_transit_analysis` 固定登记产品预期的 16 个官方 feed，左连接所选 snapshot；缺行仍返回独立 missing 状态及官方来源，不伪装空 feed。partial 保留成功站点并返回部分 transit_score；有同 snapshot/date/grid 参照组时原公式，缺同日期 grid 时距离项权重归一化，并返回 score_basis=distance_only。缺 grid 标记 incomplete，不填零或借用其他日期。现有 `official-2026-09-17` 为 15 usable + 1 failed 的 partial batch，此实际来源不产生完整分数。完整评分函数已在真实开发 Supabase 的 authenticated 角色下用受控算例验证为 75，事务 rollback；不得把该算例描述成官方全资料结果。
 
 正式 `official-2026-09-17` / `2026-09-17` 参照组已有 9,641 点，版本 `utm-wgs84-1km-stopcatchment-v1`。方法：UTM WGS84 EPSG:32647–32651，固定原点 `(0,0)`；1,000 m 单元中心 `(i+0.5,j+0.5)*1000`，按中心所在经度分区裁剪以避免 zone 重叠；grid ID 为 `zone:i:j`。中心须满足可用 feed 站点的 1,500 m geography 距离条件；密度为圈内唯一 `(feed_id,stop_id)` 数除以 `π×2.25 km²`，路线为分析日期 active 的唯一 `(feed_id,route_id)` 数。参照组绑定 snapshot/date/method，不随用户地点变化。生成方法使用 [PostGIS ST_SquareGrid](https://postgis.net/docs/ST_SquareGrid.html) 的固定米制网格与 [ST_DWithin](https://postgis.net/docs/ST_DWithin.html) 的 geography 米制距离。
 
@@ -270,3 +270,5 @@ Cost Adapter 读取 id/scenario_name/household_monthly_gross_income_rm/monthly_n
 SQLite `socio_public_cache`：cache_key、version=1、公开原始 payload、fetched_at、expires_at（3 天）；key 为 state/district/boundary version 或精确坐标。
 只保存成功取得的公共输入与地区/边界事实，失败读取不延长期限；个人收入/预案/账号/收藏名不入库。
 过期、未来采集时间及损坏 JSON 安全失效；退出允许保留。Geo 来源断网可用精确坐标快照，scopeUnavailable/ambiguity/noCoverage 不据旧快照伪造解析。
+
+2026-09-18：`20260918010000_partial_transit_score.sql` 更新 canonical RPC，新增 `score_basis`（full_formula / distance_only），保留 security invoker、现有 EXECUTE 权限及全部表 RLS。

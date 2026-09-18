@@ -242,8 +242,11 @@ void main() {
     expect(snapshot.stations.single.name, 'Mentari BRT');
   });
 
-  test('an incomplete feed result never exposes a score', () async {
-    final FakeTransitReader reader = FakeTransitReader(_incompletePayload());
+  test('an incomplete feed result exposes its observed score', () async {
+    final Map<String, Object?> payload = _incompletePayload();
+    payload['unique_route_count'] = 4;
+    payload['transit_score'] = 68;
+    final FakeTransitReader reader = FakeTransitReader(payload);
     final TransitLoadOutcome outcome = await createPublicTransportation(reader)
         .load(
           TransitRequest(
@@ -257,6 +260,7 @@ void main() {
     final TransitPartialSnapshot snapshot =
         (outcome as TransitIncomplete).snapshot;
     expect(snapshot.uniqueStopCount, 1);
+    expect(snapshot.score?.value, 68);
     expect(
       snapshot.feeds
           .where((FeedStatus feed) {
@@ -419,6 +423,7 @@ Map<String, Object?> servedPayload() {
 Map<String, Object?> _incompletePayload() {
   return <String, Object?>{
     'availability_status': 'incomplete',
+    'transit_score': null,
     'radius_m': 1500,
     'unique_stop_count': 1,
     'nearest_distance_m': 180,

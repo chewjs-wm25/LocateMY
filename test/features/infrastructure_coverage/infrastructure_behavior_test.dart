@@ -126,9 +126,13 @@ final class Inputs implements InfrastructureInputsReader {
 
 final class Transit implements PublicTransportation {
   TransitRequest? last;
+  TransitLoadOutcome? result;
   @override
   Future<TransitLoadOutcome> load(TransitRequest request) async {
     last = request;
+    if (result != null) {
+      return result!;
+    }
     return const TransitUnavailable(
       TransitUnavailableReason.noUsableFeed,
       <FeedStatus>[],
@@ -232,6 +236,46 @@ final class DelayedCache implements InfrastructurePublicCache {
 }
 
 void main() {
+  test(
+    'ICI consumes and labels the canonical partial transportation score',
+    () async {
+      final Transit transit = Transit();
+      transit.result = TransitIncomplete(
+        TransitPartialSnapshot(
+          location: location,
+          analysisDate: DateTime(2026, 9, 18),
+          radiusMeters: 1500,
+          stations: const <TransitStation>[],
+          uniqueStopCount: 49,
+          nearestDistanceMeters: 192,
+          uniqueRouteCount: 24,
+          feeds: const <FeedStatus>[],
+          provenance: TransitProvenance(
+            snapshotId: 'partial',
+            referenceGridVersion: 'grid',
+            generatedAt: DateTime.utc(2026, 9, 18),
+          ),
+          score: const TransitScore(87),
+          distanceOnly: true,
+        ),
+      );
+      final InfrastructureService api = service(
+        GeoFixture(),
+        Inputs(),
+        transit,
+        Weights(),
+      );
+      final InfrastructureAvailable result = await api.fetch(
+        location,
+        DateTime(2026, 9, 18),
+      ) as InfrastructureAvailable;
+      expect(result.snapshot.categories.last.score, 87);
+      // Fixture observes water 100, power 0, healthcare 50; education is missing.
+    expect(result.snapshot.score, 59);
+      expect(result.snapshot.transitPartial, isTrue);
+      expect(result.snapshot.transitDistanceOnly, isTrue);
+    },
+  );
   test('education reference percentiles use each target input year and reject entire invalid newest aggregate', () async {
     final Inputs inputs = Inputs();
     inputs.payload['schools'] = <Object?>[

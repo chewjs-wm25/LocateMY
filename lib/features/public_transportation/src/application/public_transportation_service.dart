@@ -246,7 +246,7 @@ final class PublicTransportationService implements PublicTransportation {
       }
     }
     if ((availability == 'available' && usable != 16) ||
-        (availability == 'incomplete' && (usable == 0 || usable == 16))) {
+        (availability == 'incomplete' && usable == 0)) {
       return TransitUnavailable(
         TransitUnavailableReason.sourceUnverifiable,
         feeds,
@@ -285,6 +285,14 @@ final class PublicTransportationService implements PublicTransportation {
       throw const FormatException('Incomplete station facts');
     }
     if (availability == 'incomplete') {
+      TransitScore? partialScore;
+      if (raw['transit_score'] != null) {
+        final int value = _count(raw, 'transit_score');
+        if (stops == 0 || routes == 0 || value > 100) {
+          throw const FormatException('Invalid partial scoring facts');
+        }
+        partialScore = TransitScore(value);
+      }
       return TransitIncomplete(
         TransitPartialSnapshot(
           location: request.location,
@@ -296,6 +304,8 @@ final class PublicTransportationService implements PublicTransportation {
           uniqueRouteCount: routes,
           feeds: feeds,
           provenance: provenance,
+          score: partialScore,
+          distanceOnly: raw['score_basis'] == 'distance_only',
         ),
       );
     }

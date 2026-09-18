@@ -169,6 +169,8 @@ final class TransitPartialSnapshot {
   final int uniqueRouteCount;
   final List<FeedStatus> feeds;
   final TransitProvenance provenance;
+  final TransitScore? score;
+  final bool distanceOnly;
   const TransitPartialSnapshot({
     required ValidLocationReference location,
     required DateTime analysisDate,
@@ -179,6 +181,8 @@ final class TransitPartialSnapshot {
     required int uniqueRouteCount,
     required List<FeedStatus> feeds,
     required TransitProvenance provenance,
+    TransitScore? score,
+    bool distanceOnly = false,
   }) : location = location,
        analysisDate = analysisDate,
        radiusMeters = radiusMeters,
@@ -187,7 +191,9 @@ final class TransitPartialSnapshot {
        nearestDistanceMeters = nearestDistanceMeters,
        uniqueRouteCount = uniqueRouteCount,
        feeds = feeds,
-       provenance = provenance;
+       provenance = provenance,
+       score = score,
+       distanceOnly = distanceOnly;
 }
 
 final class TransitComparisonRequest {

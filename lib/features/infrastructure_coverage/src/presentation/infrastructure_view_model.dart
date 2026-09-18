@@ -151,6 +151,8 @@ final class InfrastructureViewModel extends ChangeNotifier {
       district: snapshot.district,
       sourceYears: snapshot.sourceYears,
       populationYears: snapshot.populationYears,
+      transitPartial: snapshot.transitPartial,
+      transitDistanceOnly: snapshot.transitDistanceOnly,
     );
     if (recalculated.score == null) {
       _outcome = InfrastructurePartial(recalculated);

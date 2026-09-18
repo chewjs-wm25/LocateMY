@@ -77,6 +77,8 @@ final class InfrastructureCoverage {
   final String? state;
   final Map<String, int> sourceYears;
   final Map<String, int> populationYears;
+  final bool transitPartial;
+  final bool transitDistanceOnly;
 
   InfrastructureCoverage({
     required int? score,
@@ -89,7 +91,11 @@ final class InfrastructureCoverage {
     String? state,
     Map<String, int> sourceYears = const <String, int>{},
     Map<String, int> populationYears = const <String, int>{},
-  }) : score = score,
+    bool transitPartial = false,
+    bool transitDistanceOnly = false,
+  }) : transitPartial = transitPartial,
+       transitDistanceOnly = transitDistanceOnly,
+       score = score,
        location = location,
        analysisDate = analysisDate,
        weights = weights,

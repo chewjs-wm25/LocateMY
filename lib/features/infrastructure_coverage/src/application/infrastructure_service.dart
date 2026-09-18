@@ -95,6 +95,8 @@ final class InfrastructureService {
     String? district,
     Map<String, int> sourceYears = const <String, int>{},
     Map<String, int> populationYears = const <String, int>{},
+    bool transitPartial = false,
+    bool transitDistanceOnly = false,
   }) {
     if (!weights.valid) {
       throw ArgumentError('Priorities must be 1–10');
@@ -165,6 +167,8 @@ final class InfrastructureService {
     }
     return InfrastructureCoverage(
       score: score,
+      transitPartial: transitPartial,
+      transitDistanceOnly: transitDistanceOnly,
       location: location,
       analysisDate: analysisDate,
       weights: weights,
@@ -290,6 +294,8 @@ final class InfrastructureService {
       );
       if (transit is TransitAvailable) {
         scores['transit'] = transit.snapshot.score?.value.toDouble();
+      } else if (transit is TransitIncomplete) {
+        scores['transit'] = transit.snapshot.score?.value.toDouble();
       }
       final InfrastructureCoverage result = evaluate(
         location,
@@ -300,6 +306,9 @@ final class InfrastructureService {
         district: district,
         sourceYears: readings.sourceYears,
         populationYears: readings.populationYears,
+        transitPartial: transit is TransitIncomplete,
+        transitDistanceOnly:
+            transit is TransitIncomplete && transit.snapshot.distanceOnly,
       );
       if (result.score == null) {
         return InfrastructurePartial(result);
