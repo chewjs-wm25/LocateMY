@@ -274,7 +274,6 @@ try:
             else:
                 wait('探索地图');open_cost();capture('cost-single-zh')
                 tap('语言');wait('Core market basket estimated monthly spending');capture('cost-single-en');tap('Language')
-                tap('当前月支出 (RM)');run(adb+['shell','input','text','1000']);back();tap('换算 / 重试');wait('暂无州及全国同月');capture('cpi-real-missing-zh')
                 top();tap('预案');wait('新增预案');tap('新增预案');tap('在线保存');wait('请输入 1–120 个字符');capture('budget-invalid-name-zh')
                 fill('名称','QABudgetCost');fill('住房支出','0');fill('交通支出','0');fill('月净收入','3500');fill('家庭月度总收入','8000')
                 tap('在线保存');wait('QABudgetCost');tap('选为当前');wait('保存成功');capture('budget-current-zero-zh')
@@ -289,13 +288,13 @@ try:
             run(adb+['shell','am','force-stop',PACKAGE]);run(adb+['shell','am','start','-n',PACKAGE+'/com.locatemy.app.MainActivity']);wait('探索地图');open_cost();tap('预案');tap('本机导出文件');wait('.json');capture('json-after-restart-zh');back();back();back();back()
             tap('两地比较');choose('3.0738','101.6077');tap('地点 B');choose('1.4927','103.7414');tap('查看地点比较');tap('生活成本');wait('两地点不可比较');capture('cost-comparison-zh');back();back()
             tap('单点');tap('查看完整分析');tap('生活成本');wait('核心市场篮子估算月支出')
-            run(adb+['shell','settings','put','system','font_scale','2.0']);time.sleep(2);capture('cost-small-200-zh');tap('当前月支出 (RM)');capture('cost-bottom-200-zh');back();top();tap('语言');capture('cost-small-200-en');tap('Current monthly spend (RM)');capture('cost-bottom-200-en');back()
+            run(adb+['shell','settings','put','system','font_scale','2.0']);time.sleep(2);capture('cost-small-200-zh');top();tap('语言');capture('cost-small-200-en');top()
             run(adb+['shell','settings','put','system','font_scale','1.0']);back();back();tap('Account');tap('Sign out of this device');tap('Sign out');wait('Sign in');capture('signed-out')
             local_after=run(adb+['shell','run-as',PACKAGE,'find','app_flutter/budget_exports','-name',"'*.json'"]).decode()
             if local_after!=local_before:raise RuntimeError('Export copies changed after sign out')
             pid=run(adb+['shell','pidof','-s',PACKAGE]).decode().strip();logs=clean(run(adb+['logcat','-d','--pid',pid]).decode(errors='replace'));(EVIDENCE/(tag+'-device.log')).write_text(logs)
             if any(m in logs for m in ['A RenderFlex overflowed','EXCEPTION CAUGHT BY','COST_DEVICE: FAILED']):raise RuntimeError('Flutter exception retained')
-            (EVIDENCE/(tag+'-verification.json')).write_text(json.dumps({**stamp,'single':'PASS','comparison_partial':'PASS','real_CPI_missing':'PASS','budget_online_zero_null_current':'PASS','offline_save_retry':'PASS','bilingual':'PASS','small_font_200':'PASS','real_json_export_restart_logout':'PASS','semantics_xml':'PASS'},indent=2)+'\n')
+            (EVIDENCE/(tag+'-verification.json')).write_text(json.dumps({**stamp,'single':'PASS','comparison_partial':'PASS','budget_online_zero_null_current':'PASS','offline_save_retry':'PASS','bilingual':'PASS','small_font_200':'PASS','real_json_export_restart_logout':'PASS','semantics_xml':'PASS'},indent=2)+'\n')
             print(tag,'ALL PASS',flush=True)
         except Exception:
             pid = run(adb + ['shell', 'pidof', '-s', PACKAGE]).decode().strip()

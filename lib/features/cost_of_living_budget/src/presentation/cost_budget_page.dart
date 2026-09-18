@@ -47,7 +47,6 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
     locationB: widget.locationB,
     budget: widget.currentBudget,
   );
-  final TextEditingController _input = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -57,7 +56,6 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
   @override
   void dispose() {
     _model.dispose();
-    _input.dispose();
     super.dispose();
   }
 
@@ -177,8 +175,6 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
               child: Text(_t('Retry / refresh', '重试 / 刷新')),
             ),
           );
-          reports.add(const SizedBox(height: 20));
-          reports.add(_cpi());
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             child: Column(
@@ -262,6 +258,22 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
             '$observedItems · ${a.availableMonths} ${_t('months', '个月')}',
             style: CostVisualStyle.text(13, color: CostVisualStyle.heroUnit),
           ),
+          const SizedBox(height: 8),
+          Text(
+            _t(
+              'For each available month, local observed-item prices are multiplied by the fixed basket quantities and added; the displayed amount is the average across those months.',
+              '每个可用月份将本地可观测商品价格乘以固定篮子数量后相加；显示金额为这些月份的平均值。',
+            ),
+            style: CostVisualStyle.text(14, color: CostVisualStyle.heroUnit),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _t(
+              'This is a single adult\'s estimated core-market-goods spend per month. It excludes housing, transport and extra living expenses; it is not a complete personal budget or CPI.',
+              '这代表单身成年人在当地购买核心市场商品的估算每月支出；不含住房、交通和额外生活开销，也不是完整个人预算或 CPI。',
+            ),
+            style: CostVisualStyle.text(14, color: Colors.white),
+          ),
           if (a.isPartialBasket)
             Text(
               _t(
@@ -310,66 +322,5 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
         ], color: const Color(0xFFEAF2FF)),
       ],
     );
-  }
-
-  Widget _cpi() {
-    final List<Widget> children = <Widget>[
-      Text(
-        _t('Temporary CPI equivalent budget', '临时 CPI 等效预算'),
-        style: CostVisualStyle.text(18, weight: FontWeight.w700),
-      ),
-      Text(
-        _t(
-          'National monthly spend; conversion only, never saved to a scenario.',
-          '全国当前月支出；仅供换算，不保存至预案。',
-        ),
-      ),
-      const SizedBox(height: 12),
-      TextField(
-        key: const ValueKey<String>('cpi-input'),
-        controller: _input,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: _t('Current monthly spend (RM)', '当前月支出 (RM)'),
-        ),
-      ),
-      const SizedBox(height: 12),
-      FilledButton(
-        onPressed: _model.cpiLoading
-            ? null
-            : () {
-                _model.convert(_input.text);
-              },
-        child: Text(_t('Convert / retry', '换算 / 重试')),
-      ),
-    ];
-    final CpiEquivalentOutcome? result = _model.cpi;
-    if (_model.cpiLoading) {
-      children.add(const LinearProgressIndicator());
-    }
-    if (result is CpiEquivalentAvailable) {
-      children.add(
-        Text(
-          '${_t('Equivalent', '等效金额')}: ${_rm(result.reading.equivalentRm)}',
-          style: CostVisualStyle.text(22, weight: FontWeight.w700),
-        ),
-      );
-    }
-    if (result is CpiEquivalentUnavailable) {
-      String message = _t(
-        'No matching state and national headline CPI data. Retry when connected.',
-        '暂无州及全国同月总体 CPI 资料，请联网重试。',
-      );
-      if (result.failure == CpiEquivalentFailure.invalidInput) {
-        message = _t('Enter a finite nonnegative amount.', '请输入有效的非负金额。');
-      }
-      children.add(
-        Text(
-          message,
-          style: CostVisualStyle.text(15, color: CostVisualStyle.warning),
-        ),
-      );
-    }
-    return _card(children);
   }
 }

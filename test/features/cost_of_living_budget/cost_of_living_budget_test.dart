@@ -46,28 +46,6 @@ void main() {
 
       expect(outcome, isA<CostAnalysisUnavailable>());
     });
-
-    test('calculateCpiEquivalent returns reading', () async {
-      final ValidLocationReference location = const ValidLocationReference(
-        locationId: 'loc-1',
-        point: GeographicPoint(latitude: 3.1390, longitude: 101.6869),
-      );
-
-      final CpiEquivalentOutcome outcome = await costOfLiving
-          .calculateCpiEquivalent(
-            CpiEquivalentRequest(
-              location: location,
-              inputMonthlySpendRm: 1000,
-              refreshPolicy: CostRefreshPolicy.cacheAllowed,
-            ),
-          );
-
-      expect(outcome, isA<CpiEquivalentAvailable>());
-      expect(
-        (outcome as CpiEquivalentAvailable).reading.equivalentRm,
-        greaterThan(1000),
-      );
-    });
   });
 
   group('Legacy budget fixture only (not production evidence)', () {

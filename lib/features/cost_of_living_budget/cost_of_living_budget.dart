@@ -32,10 +32,6 @@ export 'src/presentation/budget_account_panel.dart';
 abstract interface class CostOfLivingBudget {
   Future<CostAnalysisOutcome> analyse(CostAnalysisRequest request);
   Future<CostComparisonOutcome> compare(CostComparisonRequest request);
-  Future<CpiEquivalentOutcome> calculateCpiEquivalent(
-    CpiEquivalentRequest request,
-  );
-  void clearTemporaryCpiInput();
 }
 
 /// COST-002: The store for managing user budget scenarios.

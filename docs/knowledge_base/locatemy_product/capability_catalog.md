@@ -31,7 +31,7 @@ canonical: true
 | MAP-06 | 六类分析入口 | prototype | 单点可进入六类分析；两地可进入 A/B 六类比较总览；数值为原型 fixture | `required` |
 | MAP-07 | 个人化地点适配度 | excluded | 2026-09-17 取消总分，保留各项分析与预算压力 | `excluded` |
 | COST-01 | 生活成本分析与比较 | partial | 有单点生活成本报告和 A/B 生活成本比较；数据和部分结果为原型 fixture | `required` |
-| COST-02 | 临时月预算换算 | partial | 无预案时显示页面内存临时输入，离页丢失 | `required` |
+| COST-02 | 临时月预算换算 | excluded | 2026-09-18 用户明确删除 CPI 等效预算换算器 | `excluded` |
 | COST-03 | 预算预案 CRUD | partial | 远端增查改删名称及三类金额，但页面编辑能力不完整 | `required` |
 | COST-04 | 查看商家 | placeholder | 按钮无回调 | `excluded` |
 | COST-05 | 预算 JSON 导出与读取 | 待实现 | 2026-09-17 用户确认用于 Datafile 展示 | `required` |
@@ -96,7 +96,7 @@ canonical: true
 | MAP-06 | [map_location](features/map_location.md) | 用户可从合法单点进入六类分析，或从有效 A/B 进入六类比较总览；缺少合法地点时不可进入 |
 | MAP-07 | [map_location](features/map_location.md) | 已排除：不再显示个人化地点适配度总分 |
 | COST-01 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 单点报告显示本地价格、篮子估算月支出、生活成本指数与资料覆盖；比较页以相同口径并列 A/B |
-| COST-02 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 没有可用预案金额时，用户可输入当前月支出获得 CPI 等效换算，离开页面后不保存 |
+| COST-02 | [submission_commitments](submission_commitments.md) | 已排除：不再提供临时 CPI 等效预算换算器 |
 | COST-03 | [cost_of_living](features/cost_of_living.md)、[submission_commitments](submission_commitments.md) | 用户可按账户新增、重命名、选择、编辑金额和删除预算预案；切换后依赖读数立即重算 |
 | COST-05 | [cost_of_living](features/cost_of_living.md)、[persistence_matrix](persistence_matrix.md) | 用户可导出预算预案为本机 JSON 并读取展示；文件跨重启、退出保留，不自动同步或写回云端 |
 | SAFE-01 | [crime_security](features/crime_security.md) | 单点页显示州级安全指数 0–100、最新完整年度案件数和最近五年趋势 |
@@ -125,4 +125,4 @@ canonical: true
 | ACCOUNT-08 | [account](features/account.md) | 已排除：删除五项评估偏好设置、保存逻辑与数据依赖 |
 | ACCOUNT-09 | [account](features/account.md)、[domain_objects](domain_objects.md) | 用户可选择并保存一份当前评估预案，切换后预算压力等依赖预案的读数立即重算 |
 
-本基线由项目负责人于 2026-09-13 逐项确认：`COST-04`、`FAC-02`、`ACCOUNT-03`–`ACCOUNT-06` 定为 `excluded`；语言偏好存本机键值存储且不绑定账号；ICI 权重按账户保存、默认 5、只影响基础设施单点 ICI；新增 `MAP-07`、`ACCOUNT-08`、`ACCOUNT-09`。`COST-02`、`HAZ-03`、`PROP-05` 与 [ui_design_spec](ui_design_spec.md) 的冲突已按[提交承诺](submission_commitments.md)修正。2026-09-14，项目负责人因警区多边形边界资料不可获取，将 `SAFE-02` 改为 `excluded`，并将 `SAFE-01`／`SAFE-03` 固定为州级口径。Issue #1 追踪。
+本基线由项目负责人于 2026-09-13 逐项确认：`COST-04`、`FAC-02`、`ACCOUNT-03`–`ACCOUNT-06` 定为 `excluded`；语言偏好存本机键值存储且不绑定账号；ICI 权重按账户保存、默认 5、只影响基础设施单点 ICI；新增 `MAP-07`、`ACCOUNT-08`、`ACCOUNT-09`。`HAZ-03`、`PROP-05` 与 [ui_design_spec](ui_design_spec.md) 的冲突已按[提交承诺](submission_commitments.md)修正。2026-09-14，项目负责人因警区多边形边界资料不可获取，将 `SAFE-02` 改为 `excluded`，并将 `SAFE-01`／`SAFE-03` 固定为州级口径。2026-09-18 用户明确将 `COST-02` 列为 `excluded`。Issue #1 追踪。

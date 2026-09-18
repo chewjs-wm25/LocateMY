@@ -30,20 +30,6 @@ final class CostComparisonRequest {
        refreshPolicy = refreshPolicy;
 }
 
-final class CpiEquivalentRequest {
-  final ValidLocationReference location;
-  final double inputMonthlySpendRm;
-  final CostRefreshPolicy refreshPolicy;
-
-  const CpiEquivalentRequest({
-    required ValidLocationReference location,
-    required double inputMonthlySpendRm,
-    required CostRefreshPolicy refreshPolicy,
-  }) : location = location,
-       inputMonthlySpendRm = inputMonthlySpendRm,
-       refreshPolicy = refreshPolicy;
-}
-
 sealed class CostAnalysisOutcome {
   const CostAnalysisOutcome();
 }
@@ -93,22 +79,6 @@ final class CostComparisonUnavailable extends CostComparisonOutcome {
     : failure = failure;
 }
 
-sealed class CpiEquivalentOutcome {
-  const CpiEquivalentOutcome();
-}
-
-final class CpiEquivalentAvailable extends CpiEquivalentOutcome {
-  final CpiEquivalentReading reading;
-  const CpiEquivalentAvailable(CpiEquivalentReading reading)
-    : reading = reading;
-}
-
-final class CpiEquivalentUnavailable extends CpiEquivalentOutcome {
-  final CpiEquivalentFailure failure;
-  const CpiEquivalentUnavailable(CpiEquivalentFailure failure)
-    : failure = failure;
-}
-
 enum CostAnalysisFailure {
   invalidLocation,
   sameComparisonPoint,
@@ -118,15 +88,6 @@ enum CostAnalysisFailure {
   retryableUnavailable,
   scopeUnavailable,
   incompatibleMetadata,
-}
-
-enum CpiEquivalentFailure {
-  invalidInput,
-  geographicContextUnavailable,
-  cpiUnavailable,
-  noCommonMonth,
-  retryableUnavailable,
-  scopeUnavailable,
 }
 
 enum CostAvailabilityGap {
@@ -241,21 +202,4 @@ final class CostItem {
        premiseCount = premiseCount,
        recordCount = recordCount,
        months = List<DateTime>.unmodifiable(months);
-}
-
-final class CpiEquivalentReading {
-  final double equivalentRm;
-  final DateTime date;
-  final String reportingStateName;
-  final String cpiScope; // Headline/Overall
-
-  const CpiEquivalentReading({
-    required double equivalentRm,
-    required DateTime date,
-    required String reportingStateName,
-    required String cpiScope,
-  }) : equivalentRm = equivalentRm,
-       date = date,
-       reportingStateName = reportingStateName,
-       cpiScope = cpiScope;
 }

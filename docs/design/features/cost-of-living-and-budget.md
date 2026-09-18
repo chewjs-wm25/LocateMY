@@ -20,8 +20,7 @@
 保留本地价格、统一核心篮子 RM/月、相对同组全国基准的成本指数与当前预案的预算压力。
 缺失项目不补零／最近月份／州或全国价；每月以实际有地点价格且有全国代表价的同一商品子集计算部分篮子指数。资料不完整仍显示部分篮子指数及部分篮子预算压力，并提示不完整、显示可观测项目数（/11）和月份数；住房、交通或月净收入缺失仍不能计算预算压力。
 A/B 保持同篮子／来源日期／当前预案口径并列；各边可直接显示部分篮子指数，但须保留其各自资料不完整提示，不能暗示观察到相同商品集合。
-没有 current 时仍可查看成本和临时 CPI 等效换算，不用临时金额或默认预案制造预算压力。
-临时换算只读取州与全国同一最新共同月份的 Headline/Overall CPI，不写预案。
+没有 current 时仍可查看成本；不以临时金额或默认预案制造预算压力。
 预算预案在线新增、编辑、重命名、选择和删除；名称 1–120，金额可空且非负，null 与零区分。
 账户至多一份 current，删除 current 后不自动选另一份，最后一份允许删除。
 月净收入只供个人预算压力；家庭月度总收入只供社会经济收入位置，不能互代或猜测补齐。
@@ -95,7 +94,7 @@ Widget／ViewModel 在 dispose 后忽略晚到结果。账号记录只在线保�
 `CurrentBudgetReader.readCurrent(): Future<BudgetScenariosOutcome>` 与 `watchCurrent(): Stream<BudgetScenariosOutcome>` 从唯一入口导出。
 `createSupabaseCurrentBudgetReader(client)` 提供真实 owner-only 在线读取；null 家庭收入与 0 区分，网络失败 typed unavailable，不以月净收入替代。
 观察期间每 10 秒在线检查已保存的 current；消费者取消订阅后停止。当前读取与预算 writer 共用同一真实 store；本期联合验证覆盖成功变更通知及 Socio 的独立家庭收入用途。
-完整预算 CRUD、JSON、临时 CPI 与成本服务现已实现；字段以 Schema Catalog 为准。
+完整预算 CRUD、JSON 与成本服务现已实现；字段以 Schema Catalog 为准。
 
 ## 本次开发固定范围（2026-09-18）
 
@@ -103,14 +102,12 @@ Ready Gate 自主固定：沿用 COST-001、COST-002 与 CurrentBudgetReader；�
 最高验收 seams 为上述服务和应用页面；Issue #25 Q2 已确认此策略，本次用户授权自行决策。
 生产成本 factory 注入 GeographicContext、CostPublicReader、CurrentBudgetReader、可选 SQLite；
 预算 factory 注入 SupabaseClient，同一 writer 实现 CurrentBudgetReader 并在成功变更后通知消费者。
-CPI 只接受 Headline/Overall 的最新共同月份，真实镜像缺全国 headline 时 unavailable，禁止 cpi_core 代用。
 
 | 场景 ID / 可观察结果 | 验证归属 | 依赖与证据 | Owner / 最迟 | 本模块状态 | 联合状态 |
 | --- | --- | --- | --- | --- | --- |
 | C01 商户双中位数、固定11项、逐月/12月部分子篮子指数与不完整提示 | 本模块 | 本期真实RPC/SQLite；服务公式与live | B / Wave 5 | 已验证 | 不适用 |
 | C02 current住房/交通缺失、有效零、两个收入与连续压力 | 两者 | 本期真实Budget；服务/页面 | B / Wave 5 | 已验证 | 本期共享接线；完整 Wave 6 |
 | C03 A/B同篮子/日期/current与不可比、过期响应 | 本模块 | 真实Geo/RPC；服务/页面 | B / Wave 5 | 已验证 | 不适用 |
-| C04 同月CPI临时换算、不写预算/离页丢失 | 本模块 | 真实RPC；成功fixture与缺失live | B / Wave 5 | 已验证 | 不适用 |
 | B01 在线CRUD/current原子唯一、失败保留、删除不自动选 | 本模块 | Supabase开发环境allow/deny与恢复 | B / Wave 5 | 已验证 | 不适用 |
 | B02 成功通知与Account/Socio立即联动 | 两者 | 本期真实writer/reader接线、设备 | B主责 A参与 / Wave 6 | 已验证 | 本期writer/reader、Account current设备及Socio live已验证；完整Wave 6仍按分配 |
 | J01 只导出已保存、真实UTF8/唯一文件、列表/打开/null/zero | 本模块 | path_provider/临时真文件与页面 | B / Wave 5 | 已验证 | 不适用 |

@@ -46,7 +46,7 @@ void main() {
     },
   );
   testWidgets(
-    'Chinese cost report separates unitless index from monthly money and offers temporary input',
+    'Chinese cost report separates unitless index from monthly money and explains the basket estimate',
     (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -67,7 +67,8 @@ void main() {
       expect(find.text('200.0'), findsOneWidget);
       expect(find.text('RM 430.00 /月'), findsOneWidget);
       expect(find.text('本地商品单价'), findsNothing);
-      expect(find.byKey(const ValueKey<String>('cpi-input')), findsOneWidget);
+      expect(find.textContaining('每个可用月份将本地可观测商品价格'), findsOneWidget);
+      expect(find.textContaining('不含住房、交通和额外生活开销'), findsOneWidget);
     },
   );
   testWidgets(
@@ -111,7 +112,7 @@ void main() {
     },
   );
   testWidgets(
-    'unchanged current observation preserves bottom scrolling and typed temporary input',
+    'unchanged current observation preserves the cost report scroll position',
     (WidgetTester tester) async {
       final StreamController<BudgetScenariosOutcome> events =
           StreamController<BudgetScenariosOutcome>.broadcast();
@@ -140,17 +141,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.ensureVisible(
-        find.byKey(const ValueKey<String>('cpi-input')),
-      );
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const ValueKey<String>('cpi-input')),
-        '1000',
-      );
-      final double before = tester
-          .getTopLeft(find.byKey(const ValueKey<String>('cpi-input')))
-          .dy;
+      final double before = tester.getTopLeft(find.text('RM 430.00 /month')).dy;
       events.add(
         BudgetScenariosAvailable(
           scenarios: <BudgetScenario>[],
@@ -159,11 +150,7 @@ void main() {
       );
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(
-        tester.getTopLeft(find.byKey(const ValueKey<String>('cpi-input'))).dy,
-        before,
-      );
-      expect(find.text('1000'), findsOneWidget);
+      expect(tester.getTopLeft(find.text('RM 430.00 /month')).dy, before);
       await tester.pumpWidget(const SizedBox());
       await events.close();
     },

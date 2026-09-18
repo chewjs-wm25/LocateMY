@@ -115,14 +115,6 @@ void main() {
     expect(outcome.analysis.observedSpend12, 430);
     expect(outcome.analysis.costIndex, 200);
     expect(outcome.analysis.scenarioSpend12, isNull);
-    final CpiEquivalentAvailable cpi = await service.calculateCpiEquivalent(
-      const CpiEquivalentRequest(
-        location: location,
-        inputMonthlySpendRm: 1000,
-        refreshPolicy: CostRefreshPolicy.cacheAllowed,
-      ),
-    ) as CpiEquivalentAvailable;
-    expect(cpi.reading.equivalentRm, 1200);
   });
   test('zero housing and transport permit pressure; household gross never replaces net income', () async {
     final BudgetReader budget = BudgetReader();
@@ -296,24 +288,4 @@ void main() {
     );
     await db.close();
   });
-
-  test(
-    'overflowing temporary conversion never exposes a nonfinite RM amount',
-    () async {
-      final CostOfLivingBudget service = createCostOfLivingBudget(
-        geographicContext: GeoFixture(),
-        reader: Prices(),
-      );
-      expect(
-        await service.calculateCpiEquivalent(
-          const CpiEquivalentRequest(
-            location: location,
-            inputMonthlySpendRm: 1.7e308,
-            refreshPolicy: CostRefreshPolicy.refresh,
-          ),
-        ),
-        isA<CpiEquivalentUnavailable>(),
-      );
-    },
-  );
 }

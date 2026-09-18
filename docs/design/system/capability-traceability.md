@@ -9,7 +9,7 @@
 | NAV、语言 | [Application Shell](../modules/application-shell.md)，A | 登录入口、双 Tab、普通路由、语言 KV |
 | HOME | [Home](../features/home-and-relocation-outlook.md)，A | 真实宏观卡、来源／日期、趋势／公共缓存 |
 | MAP-01–06 | [Map](../features/map-and-location.md)，A | 合法角色／A/B、在线收藏、六类入口、业务图层 |
-| COST-01–03、COST-05 | [Cost](../features/cost-of-living-and-budget.md)，B | 原生成本／压力、在线预案、临时 CPI、v1 JSON 导出读取 |
+| COST-01、COST-03、COST-05 | [Cost](../features/cost-of-living-and-budget.md)，B | 原生成本／压力、在线预案、v1 JSON 导出读取 |
 | SAFE-01/03 | [Crime](../features/crime-and-security.md)，B | 州级安全／趋势／A/B |
 | SOCIO | [Socio](../features/socio-economic.md)，B | 地区统计及 current 家庭收入位置 |
 | INFRA | [Infrastructure](../features/infrastructure-coverage.md)，B | 分项／ICI、在线三权重、摘要和 A/B 中性 |

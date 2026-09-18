@@ -14,13 +14,10 @@ final class CostViewModel extends ChangeNotifier {
   StreamSubscription<BudgetScenariosOutcome>? _subscription;
   bool _disposed = false;
   int _version = 0;
-  int _cpiVersion = 0;
   String? _budgetSignature;
   bool loading = true;
-  bool cpiLoading = false;
   CostAnalysisOutcome? outcome;
   CostComparisonOutcome? comparison;
-  CpiEquivalentOutcome? cpi;
   CostViewModel({
     required CostOfLivingBudget service,
     required ValidLocationReference location,
@@ -83,42 +80,11 @@ final class CostViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> convert(String input) async {
-    if (_disposed) {
-      return;
-    }
-    final int version = ++_cpiVersion;
-    final double? amount = double.tryParse(input.trim());
-    if (amount == null || !amount.isFinite || amount < 0) {
-      cpiLoading = false;
-      cpi = const CpiEquivalentUnavailable(CpiEquivalentFailure.invalidInput);
-      notifyListeners();
-      return;
-    }
-    cpiLoading = true;
-    notifyListeners();
-    final CpiEquivalentOutcome result = await _service.calculateCpiEquivalent(
-      CpiEquivalentRequest(
-        location: _location,
-        inputMonthlySpendRm: amount,
-        refreshPolicy: CostRefreshPolicy.refresh,
-      ),
-    );
-    if (_disposed || version != _cpiVersion) {
-      return;
-    }
-    cpi = result;
-    cpiLoading = false;
-    notifyListeners();
-  }
-
   @override
   void dispose() {
     _disposed = true;
     _version++;
-    _cpiVersion++;
     _subscription?.cancel();
-    _service.clearTemporaryCpiInput();
     super.dispose();
   }
 }

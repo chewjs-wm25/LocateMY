@@ -184,18 +184,8 @@ void main() {
       expect(result.analysis.indexedItemCount, lessThan(11));
       expect(result.analysis.personalBudgetBurden, isNull);
       expect(result.gaps, contains(CostAvailabilityGap.baselineIncomplete));
-      expect(
-        await cost.calculateCpiEquivalent(
-          const CpiEquivalentRequest(
-            location: location,
-            inputMonthlySpendRm: 1000,
-            refreshPolicy: CostRefreshPolicy.refresh,
-          ),
-        ),
-        isA<CpiEquivalentUnavailable>(),
-      );
       print(
-        'REAL_PRICE_RPC: ${watch.elapsedMilliseconds}ms; 11 items, 12 months, partial basket index; headline CPI missing as verified',
+        'REAL_PRICE_RPC: ${watch.elapsedMilliseconds}ms; 11 items, 12 months, partial basket index',
       );
       await store.delete(second.scenario.id);
       expect(

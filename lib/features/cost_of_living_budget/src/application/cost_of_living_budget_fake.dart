@@ -88,29 +88,4 @@ class CostOfLivingBudgetFake implements CostOfLivingBudget {
       CostAnalysisFailure.retryableUnavailable,
     );
   }
-
-  @override
-  Future<CpiEquivalentOutcome> calculateCpiEquivalent(
-    CpiEquivalentRequest request,
-  ) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-
-    if (request.inputMonthlySpendRm < 0) {
-      return const CpiEquivalentUnavailable(CpiEquivalentFailure.invalidInput);
-    }
-
-    return CpiEquivalentAvailable(
-      CpiEquivalentReading(
-        equivalentRm: request.inputMonthlySpendRm * 1.02, // Fake multiplier
-        date: DateTime.now(),
-        reportingStateName: 'Selangor',
-        cpiScope: 'Headline',
-      ),
-    );
-  }
-
-  @override
-  void clearTemporaryCpiInput() {
-    // No-op for fake
-  }
 }
