@@ -66,6 +66,7 @@ void main() {
       expect(find.text('生活成本'), findsOneWidget);
       expect(find.text('200.0'), findsOneWidget);
       expect(find.text('RM 430.00 /月'), findsOneWidget);
+      expect(find.text('本地商品单价'), findsNothing);
       expect(find.byKey(const ValueKey<String>('cpi-input')), findsOneWidget);
     },
   );

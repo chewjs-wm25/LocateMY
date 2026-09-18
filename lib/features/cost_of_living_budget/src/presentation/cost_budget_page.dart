@@ -209,31 +209,6 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
   }
 
   Widget _report(CostAnalysis a) {
-    final List<Widget> items = <Widget>[];
-    for (final CostItem item in a.items) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                item.name,
-                style: CostVisualStyle.text(14, weight: FontWeight.w600),
-              ),
-              Text(
-                '${_rm(item.localPrice)} / ${item.unit} · ${_t('Monthly quantity', '月数量')} ${item.monthlyQuantity}',
-                style: CostVisualStyle.text(14, color: CostVisualStyle.muted),
-              ),
-              Text(
-                '${_rm(item.observedSpend)} ${_t('/month', '/月')}',
-                style: CostVisualStyle.text(14),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
     final String observedItems =
         '${_t('Observed items', '可观测项目')} ${a.indexedItemCount} / 11';
     return Column(
@@ -333,12 +308,6 @@ final class _CostBudgetPageState extends State<CostBudgetPage> {
               child: Text(_t('Manage budget scenarios', '管理预算预案')),
             ),
         ], color: const Color(0xFFEAF2FF)),
-        const SizedBox(height: 16),
-        Text(
-          _t('Local unit prices', '本地商品单价'),
-          style: CostVisualStyle.text(19, weight: FontWeight.w700),
-        ),
-        ...items,
       ],
     );
   }
